@@ -1,8 +1,8 @@
 build:
-	@go build -o bin/distrigo ./cmd/distrigo
+	@go build -o bin/peervault ./cmd/peervault
 
 run: build
-	@./bin/distrigo
+	@./bin/peervault
 
 test:
 	@go test ./...

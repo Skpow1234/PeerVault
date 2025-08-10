@@ -2,7 +2,7 @@
 
 Lightweight peer-to-peer file store demo written in Go. Nodes communicate over TCP, replicate files across peers, and encrypt file transfers using AES-CTR.
 
-The included entrypoint at `cmd/distrigo/main.go` boots 3 nodes locally and runs a simple store/get flow to demonstrate replication.
+The included entrypoint at `cmd/peervault/main.go` boots 3 nodes locally and runs a simple store/get flow to demonstrate replication.
 
 ## Features
 
@@ -31,13 +31,13 @@ go mod download
 
 ```bash
 make build
-# binary at ./bin/distrigo
+# binary at ./bin/peervault
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-go build -o bin\distrigo.exe .\cmd\distrigo
+go build -o bin\peervault.exe .\cmd\peervault
 ```
 
 ## Run
@@ -47,7 +47,7 @@ This repository’s `main.go` starts 3 nodes on localhost: `:3000`, `:7000`, `:5
 ### Easiest: go run
 
 ```bash
-go run ./cmd/distrigo
+go run ./cmd/peervault
 ```
 
 ### Linux/macOS with Make
@@ -58,10 +58,10 @@ make run
 
 ### Windows
 
-- If you built with `go build -o bin\distrigo.exe .\cmd\distrigo`:
+- If you built with `go build -o bin\peervault.exe .\cmd\peervault`:
 
 ```powershell
-.\bin\distrigo.exe
+.\bin\peervault.exe
 ```
 
 ### What you should see
@@ -89,7 +89,7 @@ StorageRoot: fmt.Sprintf("node%s_network", strings.TrimPrefix(listenAddr, ":")),
 
 or even hardcode per node (e.g., `"node3000_network"`, `"node7000_network"`, `"node5000_network"`).
 
-File to edit: `cmd/distrigo/main.go`, function `makeServer`.
+File to edit: `cmd/peervault/main.go`, function `makeServer`.
 
 ## Docker
 
@@ -104,7 +104,7 @@ Note: the demo process launches 3 local nodes in one process and exposes multipl
 
 ## How it works (high level)
 
-- `cmd/distrigo/main.go` creates 3 servers and bootstraps them together using the TCP transport in `internal/transport/p2p`.
+- `cmd/peervault/main.go` creates 3 servers and bootstraps them together using the TCP transport in `internal/transport/p2p`.
 - Files are written to disk under a content-addressed path derived from a SHA-1 of the key (`CASPathTransformFunc` in `internal/storage`).
 - On store:
   - The file is written locally.
@@ -115,7 +115,7 @@ Note: the demo process launches 3 local nodes in one process and exposes multipl
 
 ## Project layout
 
-- `cmd/distrigo/`: example entrypoint that boots 3 nodes and runs a demo store/get loop
+- `cmd/peervault/`: example entrypoint that boots 3 nodes and runs a demo store/get loop
 - `internal/app/fileserver/`: core file server logic (broadcast, store, get, message handling, bootstrap)
 - `internal/storage/`: content-addressable storage implementation
 - `internal/crypto/`: ID/key generation and AES-CTR encrypt/decrypt helpers
