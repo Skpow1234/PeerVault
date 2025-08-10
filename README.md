@@ -1,0 +1,144 @@
+# PeerVault — P2P encrypted file store (Go)
+
+Lightweight peer-to-peer file store demo written in Go. Nodes communicate over TCP, replicate files across peers, and encrypt file transfers using AES-CTR.
+
+The included entrypoint at `cmd/distrigo/main.go` boots 3 nodes locally and runs a simple store/get flow to demonstrate replication.
+
+## Features
+
+- Encrypted file streaming over TCP (AES-CTR)
+- Simple P2P transport abstraction (`internal/transport/p2p`)
+- Content-addressable storage layout (SHA-1 based path transform)
+- Minimal example that launches 3 local nodes and exchanges files
+
+## Requirements
+
+- Go 1.18+ (tested with Go 1.18)
+- Make (optional; for Unix-like systems)
+
+## Install
+
+```bash
+# Clone your copy of this repository and change into it
+git clone https://github.com/Skpow1234/PeerVault
+cd peervault
+go mod download
+```
+
+## Build
+
+### Linux/macOS
+
+```bash
+make build
+# binary at ./bin/distrigo
+```
+
+### Windows (PowerShell)
+
+```powershell
+go build -o bin\distrigo.exe .\cmd\distrigo
+```
+
+## Run
+
+This repository’s `main.go` starts 3 nodes on localhost: `:3000`, `:7000`, `:5000`, then stores and fetches sample files via the third node.
+
+### Easiest: go run
+
+```bash
+go run ./cmd/distrigo
+```
+
+### Linux/macOS with Make
+
+```bash
+make run
+```
+
+### Windows
+
+- If you built with `go build -o bin\distrigo.exe .\cmd\distrigo`:
+
+```powershell
+.\bin\distrigo.exe
+```
+
+### What you should see
+
+- Logs for each node starting up and connecting
+- 20 demo files being stored and fetched
+- Output lines like:
+
+  - `[::]:5000 starting fileserver...`
+  - `received and written (...) bytes to disk`
+  - `my big data file here!`
+
+#### Important note for Windows users
+
+By default, each node’s storage root is set to the listen address plus `_network` (for example `":3000_network"`). The colon `:` is not a valid character in Windows directory names, which can cause errors when creating folders.
+
+Two simple options:
+
+- Recommended: Run via WSL or Git Bash (Unix-like environment), or
+- Update `main.go` to use a Windows-friendly storage root. For example, change the `StorageRoot` in `makeServer` to something like:
+
+```go
+StorageRoot: fmt.Sprintf("node%s_network", strings.TrimPrefix(listenAddr, ":")),
+```
+
+or even hardcode per node (e.g., `"node3000_network"`, `"node7000_network"`, `"node5000_network"`).
+
+File to edit: `cmd/distrigo/main.go`, function `makeServer`.
+
+## Docker
+
+Build and run the demo in a container:
+
+```bash
+docker build -t peervault .
+docker run --rm -p 3000:3000 -p 5000:5000 -p 7000:7000 peervault
+```
+
+Note: the demo process launches 3 local nodes in one process and exposes multiple ports. For multi-container topologies, split the demo into separate processes (one port per container) and use a network for service discovery.
+
+## How it works (high level)
+
+- `cmd/distrigo/main.go` creates 3 servers and bootstraps them together using the TCP transport in `internal/transport/p2p`.
+- Files are written to disk under a content-addressed path derived from a SHA-1 of the key (`CASPathTransformFunc` in `internal/storage`).
+- On store:
+  - The file is written locally.
+  - A control message is broadcast to peers so they can pull the encrypted stream and persist it.
+- On get:
+  - If not present locally, a request is broadcast and another peer streams the file back.
+- Network messages are framed by a minimal protocol in `internal/transport/p2p` with small control bytes to distinguish messages vs. streams.
+
+## Project layout
+
+- `cmd/distrigo/`: example entrypoint that boots 3 nodes and runs a demo store/get loop
+- `internal/app/fileserver/`: core file server logic (broadcast, store, get, message handling, bootstrap)
+- `internal/storage/`: content-addressable storage implementation
+- `internal/crypto/`: ID/key generation and AES-CTR encrypt/decrypt helpers
+- `internal/transport/p2p/`: TCP transport, peer management, message framing/decoding
+- `internal/dto/`: message DTOs used over the wire
+- `internal/domain/`, `internal/mapper/`: domain entities and mappers between domain and DTOs
+- `Makefile`: build/run/test helpers for Unix-like systems
+- `Dockerfile`, `.dockerignore`: container build and context exclusions
+
+## Test
+
+```bash
+go test ./...
+# or
+make test
+```
+
+## Clean up local data
+
+The demo writes files under a per-node storage root. To remove all data, delete the created folders (e.g., `ggnetwork` or the per-node roots you configured), or call `Store.Clear()` from your own code.
+
+## Customize / next steps
+
+- Turn the example into a long-running daemon and add a CLI/API
+- Add proper peer discovery and resilient replication
+- Replace demo logic in `main.go` with your own application code
