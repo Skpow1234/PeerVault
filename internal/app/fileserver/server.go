@@ -115,35 +115,62 @@ func (s *Server) Get(key string) (io.Reader, error) {
 }
 
 func (s *Server) Store(key string, r io.Reader) error {
-	var (
-		fileBuffer = new(bytes.Buffer)
-		tee        = io.TeeReader(r, fileBuffer)
-	)
-	size, err := s.store.Write(key, tee)
+	// First, store the file locally without buffering
+	size, err := s.store.Write(key, r)
 	if err != nil {
 		return err
 	}
+
+	// Broadcast the store message to peers
 	msg := Message{Payload: dto.StoreFile{ID: s.ID, Key: crypto.HashKey(key), Size: size + 28}}
 	if err := s.broadcast(&msg); err != nil {
 		return err
 	}
+
+	// Stream the file from disk to all peers without buffering in memory
+	return s.streamFileToPeers(key, size)
+}
+
+// streamFileToPeers streams a file from disk to all peers without buffering in memory
+func (s *Server) streamFileToPeers(key string, fileSize int64) error {
+	// Read the file from disk
+	_, fileReader, err := s.store.Read(key)
+	if err != nil {
+		return fmt.Errorf("failed to read file for streaming: %w", err)
+	}
+	defer func() {
+		if rc, ok := fileReader.(io.ReadCloser); ok {
+			rc.Close()
+		}
+	}()
+
+	// Create a streaming writer that encrypts and sends to all peers
 	peers := []io.Writer{}
 	for _, peer := range s.peers {
 		peers = append(peers, peer)
 	}
+
+	if len(peers) == 0 {
+		// No peers to replicate to
+		return nil
+	}
+
+	// Create a multi-writer for all peers
 	mw := io.MultiWriter(peers...)
 
 	// Write stream header using frame writer
 	frameWriter := netp2p.NewFrameWriter(mw)
 	if err := frameWriter.WriteStreamHeader(); err != nil {
-		return err
+		return fmt.Errorf("failed to write stream header: %w", err)
 	}
 
-	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), fileBuffer, mw)
+	// Stream the file directly from disk to peers with encryption
+	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), fileReader, mw)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to stream encrypted file: %w", err)
 	}
-	fmt.Printf("[%s] received and written (%d) bytes to disk\n", s.Transport.Addr(), n)
+
+	fmt.Printf("[%s] streamed (%d) bytes to %d peers\n", s.Transport.Addr(), n, len(peers))
 	return nil
 }
 

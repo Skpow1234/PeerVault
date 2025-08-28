@@ -15,17 +15,18 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ## Milestone 2 — Transport, Streaming, and Storage (P1)
 
-1) Remove `time.Sleep`-based coordination ✅
+1 Remove `time.Sleep`-based coordination ✅
 
 - Problem: Relies on arbitrary delays instead of explicit acknowledgments.
 - Solution: Replace with proper request-response protocol using acknowledgments.
 - Acceptance: No `time.Sleep` calls in protocol logic; explicit acks for all operations.
 - Touchpoints: `internal/app/fileserver/server.go`, `cmd/peervault/main.go`.
 
-2 True streaming replication without buffering to memory
+2 True streaming replication without buffering to memory ✅
 
-- Use `io.Pipe`: write to disk and encrypt to peers concurrently.
-- Ensure backpressure via flow control; avoid unbounded memory usage.
+- Problem: Entire files are buffered in memory before replication.
+- Solution: Stream directly from disk to network peers without buffering.
+- Acceptance: Large files can be replicated without memory exhaustion.
 - Touchpoints: `internal/app/fileserver/server.go`.
 
 3 Clarify encryption-at-rest vs in-transit
