@@ -43,6 +43,13 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: No race conditions in concurrent peer operations.
 - Touchpoints: `internal/app/fileserver/server.go`.
 
+5 Clarify encryption-at-rest vs in-transit ✅
+
+- Problem: Inconsistent encryption strategy and unclear documentation.
+- Solution: Implement encryption at rest + in transit with clear documentation.
+- Acceptance: Consistent encryption behavior and documented strategy.
+- Touchpoints: `internal/app/fileserver/server.go`, `ENCRYPTION.md`.
+
 5 Logging and error context
 
 - Switch to structured logging (zap/zerolog/log/slog).

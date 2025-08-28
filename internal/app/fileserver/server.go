@@ -101,8 +101,20 @@ func (s *Server) broadcast(msg *Message) error {
 func (s *Server) Get(key string) (io.Reader, error) {
 	if s.store.Has(key) {
 		fmt.Printf("[%s] serving file (%s) from local disk\n", s.Transport.Addr(), key)
-		_, r, err := s.store.Read(key)
-		return r, err
+		// Read encrypted data from disk and decrypt it
+		_, encryptedReader, err := s.store.Read(key)
+		if err != nil {
+			return nil, err
+		}
+		
+		// Create a buffer to hold the decrypted data
+		var decryptedBuffer bytes.Buffer
+		_, err = crypto.CopyDecrypt(s.getEncryptionKey(), encryptedReader, &decryptedBuffer)
+		if err != nil {
+			return nil, fmt.Errorf("failed to decrypt file: %w", err)
+		}
+		
+		return bytes.NewReader(decryptedBuffer.Bytes()), nil
 	}
 	fmt.Printf("[%s] dont have file (%s) locally, fetching from network...\n", s.Transport.Addr(), key)
 	msg := Message{Payload: dto.GetFile{ID: s.ID, Key: crypto.HashKey(key)}}
@@ -128,19 +140,31 @@ func (s *Server) Get(key string) (io.Reader, error) {
 		fmt.Printf("[%s] received (%d) bytes over the network from (%s)", s.Transport.Addr(), n, peer.RemoteAddr())
 		peer.CloseStream()
 	}
-	_, r, err := s.store.Read(key)
-	return r, err
+	
+	// Read and decrypt the file from disk
+	_, encryptedReader, err := s.store.Read(key)
+	if err != nil {
+		return nil, err
+	}
+	
+	var decryptedBuffer bytes.Buffer
+	_, err = crypto.CopyDecrypt(s.getEncryptionKey(), encryptedReader, &decryptedBuffer)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt file: %w", err)
+	}
+	
+	return bytes.NewReader(decryptedBuffer.Bytes()), nil
 }
 
 func (s *Server) Store(key string, r io.Reader) error {
-	// First, store the file locally without buffering
-	size, err := s.store.Write(key, r)
+	// Store the file locally with encryption at rest
+	size, err := s.store.WriteDecrypt(crypto.CopyEncrypt, s.getEncryptionKey(), key, r)
 	if err != nil {
 		return err
 	}
 
 	// Broadcast the store message to peers
-	msg := Message{Payload: dto.StoreFile{ID: s.ID, Key: crypto.HashKey(key), Size: size + 28}}
+	msg := Message{Payload: dto.StoreFile{ID: s.ID, Key: crypto.HashKey(key), Size: size}}
 	if err := s.broadcast(&msg); err != nil {
 		return err
 	}
@@ -284,16 +308,16 @@ func (s *Server) handleMessageStoreFile(from string, msg dto.StoreFile) error {
 		}
 	}
 
-	// Now receive and store the file
+	// Now receive and store the file with encryption at rest
 	peer, ok = s.getPeer(from)
 	if !ok {
 		return fmt.Errorf("peer (%s) could not be found in the peer list", from)
 	}
-	n, err := s.store.Write(msg.Key, io.LimitReader(peer, msg.Size))
+	n, err := s.store.WriteDecrypt(crypto.CopyEncrypt, s.getEncryptionKey(), msg.Key, io.LimitReader(peer, msg.Size))
 	if err != nil {
 		return err
 	}
-	fmt.Printf("[%s] written %d bytes to disk\n", s.Transport.Addr(), n)
+	fmt.Printf("[%s] written %d bytes to disk (encrypted)\n", s.Transport.Addr(), n)
 	peer.CloseStream()
 	return nil
 }
