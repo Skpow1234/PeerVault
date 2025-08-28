@@ -78,9 +78,12 @@ func (s *Server) broadcast(msg *Message) error {
 	if err := gob.NewEncoder(buf).Encode(msg); err != nil {
 		return err
 	}
+
+	payload := buf.Bytes()
+
 	for _, peer := range s.peers {
-		peer.Send([]byte{netp2p.IncomingMessage})
-		if err := peer.Send(buf.Bytes()); err != nil {
+		frameWriter := netp2p.NewFrameWriter(peer)
+		if err := frameWriter.WriteMessage(payload); err != nil {
 			return err
 		}
 	}
@@ -132,7 +135,13 @@ func (s *Server) Store(key string, r io.Reader) error {
 		peers = append(peers, peer)
 	}
 	mw := io.MultiWriter(peers...)
-	mw.Write([]byte{netp2p.IncomingStream})
+
+	// Write stream header using frame writer
+	frameWriter := netp2p.NewFrameWriter(mw)
+	if err := frameWriter.WriteStreamHeader(); err != nil {
+		return err
+	}
+
 	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), fileBuffer, mw)
 	if err != nil {
 		return err

@@ -20,7 +20,7 @@ func makeServer(listenAddr string, nodes ...string) *fs.Server {
 	tcptransportOpts := netp2p.TCPTransportOpts{
 		ListenAddr:    listenAddr,
 		HandshakeFunc: netp2p.AuthenticatedHandshakeFunc(nodeID),
-		Decoder:       netp2p.DefaultDecoder{},
+		Decoder:       netp2p.LengthPrefixedDecoder{},
 	}
 	tcpTransport := netp2p.NewTCPTransport(tcptransportOpts)
 	fileServerOpts := fs.Options{

@@ -49,6 +49,10 @@ type TCPTransport struct {
 }
 
 func NewTCPTransport(opts TCPTransportOpts) *TCPTransport {
+    // Use LengthPrefixedDecoder by default if no decoder is specified
+    if opts.Decoder == nil {
+        opts.Decoder = LengthPrefixedDecoder{}
+    }
     return &TCPTransport{TCPTransportOpts: opts, rpcch: make(chan RPC, 1024)}
 }
 

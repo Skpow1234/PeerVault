@@ -8,9 +8,40 @@ The included entrypoint at `cmd/peervault/main.go` boots 3 nodes locally and run
 
 - Encrypted file streaming over TCP (AES-GCM with authentication)
 - Advanced key management with derivation and rotation
+- Authenticated peer connections with HMAC-SHA256 signatures
+- Length-prefixed message framing for reliable transport
 - Simple P2P transport abstraction (`internal/transport/p2p`)
 - Content-addressable storage layout (SHA-256 based path transform)
 - Minimal example that launches 3 local nodes and exchanges files
+
+## Message Framing
+
+The system uses a robust length-prefixed framing protocol for reliable message transport:
+
+- **Frame Format**: `[type:u8][len:u32][payload:len]`
+- **Message Types**: 
+  - `0x1`: Regular message (with payload)
+  - `0x2`: Stream header (no payload)
+- **Maximum Frame Size**: 1MB per frame
+- **Network Resilience**: Handles partial reads and network interruptions
+
+### Frame Structure
+
+```
+[Message Frame]
+┌─────────┬─────────┬─────────────┐
+│ Type    │ Length  │ Payload     │
+│ (1 byte)│ (4 bytes)│ (N bytes)  │
+└─────────┴─────────┴─────────────┘
+
+[Stream Frame]
+┌─────────┬─────────┐
+│ Type    │ Length  │
+│ (1 byte)│ (4 bytes)│
+└─────────┴─────────┘
+```
+
+This framing ensures reliable message delivery and eliminates the need for `time.Sleep` coordination.
 
 ## Key Management
 
