@@ -19,6 +19,7 @@ import (
 type Options struct {
 	ID                string
 	EncKey            []byte
+	KeyManager        *crypto.KeyManager
 	StorageRoot       string
 	PathTransformFunc storage.PathTransformFunc
 	Transport         netp2p.Transport
@@ -27,10 +28,19 @@ type Options struct {
 
 type Server struct {
 	Options
-	peerLock sync.Mutex
-	peers    map[string]netp2p.Peer
-	store    *storage.Store
-	quitch   chan struct{}
+	KeyManager *crypto.KeyManager
+	peerLock   sync.Mutex
+	peers      map[string]netp2p.Peer
+	store      *storage.Store
+	quitch     chan struct{}
+}
+
+// getEncryptionKey returns the current encryption key, preferring KeyManager over the legacy EncKey
+func (s *Server) getEncryptionKey() []byte {
+	if s.KeyManager != nil {
+		return s.KeyManager.GetEncryptionKey()
+	}
+	return s.EncKey
 }
 
 func New(opts Options) *Server {
@@ -38,11 +48,26 @@ func New(opts Options) *Server {
 	if len(opts.ID) == 0 {
 		opts.ID = crypto.GenerateID()
 	}
+
+	// Initialize KeyManager if not provided
+	var keyManager *crypto.KeyManager
+	if opts.KeyManager == nil {
+		var err error
+		keyManager, err = crypto.NewKeyManager()
+		if err != nil {
+			// Fall back to legacy key generation
+			keyManager = nil
+		}
+	} else {
+		keyManager = opts.KeyManager
+	}
+
 	return &Server{
-		Options: opts,
-		store:   storage.NewStore(storeOpts),
-		quitch:  make(chan struct{}),
-		peers:   make(map[string]netp2p.Peer),
+		Options:    opts,
+		KeyManager: keyManager,
+		store:      storage.NewStore(storeOpts),
+		quitch:     make(chan struct{}),
+		peers:      make(map[string]netp2p.Peer),
 	}
 }
 
@@ -77,7 +102,7 @@ func (s *Server) Get(key string) (io.Reader, error) {
 	for _, peer := range s.peers {
 		var fileSize int64
 		binary.Read(peer, binary.LittleEndian, &fileSize)
-		n, err := s.store.WriteDecrypt(crypto.CopyDecrypt, s.EncKey, key, io.LimitReader(peer, fileSize))
+		n, err := s.store.WriteDecrypt(crypto.CopyDecrypt, s.getEncryptionKey(), key, io.LimitReader(peer, fileSize))
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +133,7 @@ func (s *Server) Store(key string, r io.Reader) error {
 	}
 	mw := io.MultiWriter(peers...)
 	mw.Write([]byte{netp2p.IncomingStream})
-	n, err := crypto.CopyEncrypt(s.EncKey, fileBuffer, mw)
+	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), fileBuffer, mw)
 	if err != nil {
 		return err
 	}

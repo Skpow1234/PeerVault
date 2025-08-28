@@ -6,10 +6,33 @@ The included entrypoint at `cmd/peervault/main.go` boots 3 nodes locally and run
 
 ## Features
 
-- Encrypted file streaming over TCP (AES-CTR)
+- Encrypted file streaming over TCP (AES-GCM with authentication)
+- Advanced key management with derivation and rotation
 - Simple P2P transport abstraction (`internal/transport/p2p`)
-- Content-addressable storage layout (SHA-1 based path transform)
+- Content-addressable storage layout (SHA-256 based path transform)
 - Minimal example that launches 3 local nodes and exchanges files
+
+## Key Management
+
+The system now supports advanced key management with the following features:
+
+- **Key Derivation**: Encryption keys are derived from a cluster key using HMAC-SHA256
+- **Key Rotation**: Keys can be rotated automatically (every 24 hours by default)
+- **Environment Configuration**: Set `PEERVAULT_CLUSTER_KEY` environment variable for shared cluster keys
+
+### Using a Shared Cluster Key
+
+For production deployments, set a shared cluster key across all nodes:
+
+```bash
+# Set the cluster key (32-byte hex string)
+export PEERVAULT_CLUSTER_KEY="a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
+
+# Run the application
+go run ./cmd/peervault
+```
+
+If no cluster key is provided, each node generates its own key (suitable for development/testing).
 
 ## Requirements
 

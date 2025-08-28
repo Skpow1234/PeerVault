@@ -69,3 +69,52 @@ func TestCopyEncryptDecrypt(t *testing.T) {
 
 	fmt.Printf("Successfully encrypted and decrypted %d bytes\n", nw)
 }
+
+func TestKeyManager(t *testing.T) {
+	// Test KeyManager creation
+	km, err := internalcrypto.NewKeyManager()
+	if err != nil {
+		t.Fatalf("failed to create KeyManager: %v", err)
+	}
+
+	// Test key retrieval
+	key := km.GetEncryptionKey()
+	if len(key) != 32 {
+		t.Errorf("expected key length 32, got %d", len(key))
+	}
+
+	// Test key ID
+	keyID := km.GetKeyID()
+	if len(keyID) != 16 { // 8 bytes = 16 hex chars
+		t.Errorf("expected key ID length 16, got %d", len(keyID))
+	}
+
+	// Test that key should not rotate initially
+	if km.ShouldRotate() {
+		t.Error("key should not rotate immediately after creation")
+	}
+
+	// Test key rotation
+	oldKey := make([]byte, len(key))
+	copy(oldKey, key)
+	oldKeyID := keyID
+
+	err = km.RotateKey()
+	if err != nil {
+		t.Errorf("failed to rotate key: %v", err)
+	}
+
+	// Verify key changed
+	newKey := km.GetEncryptionKey()
+	newKeyID := km.GetKeyID()
+
+	if string(oldKey) == string(newKey) {
+		t.Error("key should change after rotation")
+	}
+
+	if oldKeyID == newKeyID {
+		t.Error("key ID should change after rotation")
+	}
+
+	fmt.Printf("KeyManager test passed: key ID %s -> %s\n", oldKeyID, newKeyID)
+}
