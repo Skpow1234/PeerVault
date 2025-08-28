@@ -97,7 +97,7 @@ func (s *Server) Store(key string, r io.Reader) error {
 	if err != nil {
 		return err
 	}
-	msg := Message{Payload: dto.StoreFile{ID: s.ID, Key: crypto.HashKey(key), Size: size + 16}}
+	msg := Message{Payload: dto.StoreFile{ID: s.ID, Key: crypto.HashKey(key), Size: size + 28}}
 	if err := s.broadcast(&msg); err != nil {
 		return err
 	}
