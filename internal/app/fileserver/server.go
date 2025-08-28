@@ -6,7 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"sync"
 
 	"github.com/anthdm/foreverstore/internal/crypto"
@@ -100,7 +100,7 @@ func (s *Server) broadcast(msg *Message) error {
 
 func (s *Server) Get(key string) (io.Reader, error) {
 	if s.store.Has(key) {
-		fmt.Printf("[%s] serving file (%s) from local disk\n", s.Transport.Addr(), key)
+		slog.Info("serving file", "key", key, "addr", s.Transport.Addr())
 		// Read encrypted data from disk and decrypt it
 		_, encryptedReader, err := s.store.Read(key)
 		if err != nil {
@@ -116,7 +116,7 @@ func (s *Server) Get(key string) (io.Reader, error) {
 		
 		return bytes.NewReader(decryptedBuffer.Bytes()), nil
 	}
-	fmt.Printf("[%s] dont have file (%s) locally, fetching from network...\n", s.Transport.Addr(), key)
+	slog.Info("dont have file", "key", key, "addr", s.Transport.Addr())
 	msg := Message{Payload: dto.GetFile{ID: s.ID, Key: crypto.HashKey(key)}}
 	if err := s.broadcast(&msg); err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func (s *Server) Get(key string) (io.Reader, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Printf("[%s] received (%d) bytes over the network from (%s)", s.Transport.Addr(), n, peer.RemoteAddr())
+		slog.Info("received", "bytes", n, "peer", peer.RemoteAddr())
 		peer.CloseStream()
 	}
 	
@@ -179,21 +179,21 @@ func (s *Server) OnPeer(p netp2p.Peer) error {
 	s.peerLock.Lock()
 	defer s.peerLock.Unlock()
 	s.peers[p.RemoteAddr().String()] = p
-	log.Printf("connected with remote %s", p.RemoteAddr())
+	slog.Info("connected", "peer", p.RemoteAddr())
 	return nil
 }
 
 func (s *Server) loop() {
-	defer func() { log.Println("file server stopped due to error or user quit action"); s.Transport.Close() }()
+	defer func() { slog.Info("file server stopped"); s.Transport.Close() }()
 	for {
 		select {
 		case rpc := <-s.Transport.Consume():
 			var msg Message
 			if err := gob.NewDecoder(bytes.NewReader(rpc.Payload)).Decode(&msg); err != nil {
-				log.Println("decoding error: ", err)
+				slog.Error("decoding error", "err", err)
 			}
 			if err := s.handleMessage(rpc.From, &msg); err != nil {
-				log.Println("handle message error: ", err)
+				slog.Error("handle message error", "err", err)
 			}
 		case <-s.quitch:
 			return
@@ -259,13 +259,13 @@ func (s *Server) handleMessageGetFile(from string, msg dto.GetFile) error {
 
 	// If we have the file, serve it
 	if hasFile {
-		fmt.Printf("[%s] serving file (%s) over the network\n", s.Transport.Addr(), msg.Key)
+		slog.Info("serving file", "key", msg.Key, "addr", s.Transport.Addr())
 		fileSize, r, err := s.store.Read(msg.Key)
 		if err != nil {
 			return err
 		}
 		if rc, ok := r.(io.ReadCloser); ok {
-			fmt.Println("closing readCloser")
+			slog.Info("closing readCloser")
 			defer rc.Close()
 		}
 		peer, ok := s.getPeer(from)
@@ -278,7 +278,7 @@ func (s *Server) handleMessageGetFile(from string, msg dto.GetFile) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("[%s] written (%d) bytes over the network to %s\n", s.Transport.Addr(), n, from)
+		slog.Info("written", "bytes", n, "peer", from)
 	}
 
 	return nil
@@ -317,7 +317,7 @@ func (s *Server) handleMessageStoreFile(from string, msg dto.StoreFile) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("[%s] written %d bytes to disk (encrypted)\n", s.Transport.Addr(), n)
+	slog.Info("written", "bytes", n, "addr", s.Transport.Addr())
 	peer.CloseStream()
 	return nil
 }
@@ -328,9 +328,9 @@ func (s *Server) BootstrapNetwork() error {
 			continue
 		}
 		go func(addr string) {
-			fmt.Printf("[%s] attemping to connect with remote %s\n", s.Transport.Addr(), addr)
+			slog.Info("attemping to connect", "addr", addr, "current_addr", s.Transport.Addr())
 			if err := s.Transport.Dial(addr); err != nil {
-				log.Println("dial error: ", err)
+				slog.Error("dial error", "err", err)
 			}
 		}(addr)
 	}
@@ -338,7 +338,7 @@ func (s *Server) BootstrapNetwork() error {
 }
 
 func (s *Server) Start() error {
-	fmt.Printf("[%s] starting fileserver...\n", s.Transport.Addr())
+	slog.Info("starting fileserver", "addr", s.Transport.Addr())
 	if err := s.Transport.ListenAndAccept(); err != nil {
 		return err
 	}
@@ -366,7 +366,7 @@ func (s *Server) resilientStreamToPeers(key string, fileSize int64) error {
 	s.peerLock.RUnlock()
 
 	if len(peers) == 0 {
-		log.Printf("[%s] no peers available for replication", s.Transport.Addr())
+		slog.Info("no peers available for replication", "addr", s.Transport.Addr())
 		return nil
 	}
 
@@ -388,17 +388,17 @@ func (s *Server) resilientStreamToPeers(key string, fileSize int64) error {
 
 		for attempt := 0; attempt < maxRetries; attempt++ {
 			if err := s.streamToSinglePeer(key, fileReader, peer); err != nil {
-				log.Printf("[%s] attempt %d failed to stream to peer %s: %v", s.Transport.Addr(), attempt+1, peerAddr, err)
+				slog.Error("attempt failed to stream to peer", "attempt", attempt+1, "peer", peerAddr, "err", err)
 
 				if attempt == maxRetries-1 {
-					log.Printf("[%s] failed to stream to peer %s after %d attempts", s.Transport.Addr(), peerAddr, maxRetries)
+					slog.Error("failed to stream to peer after retries", "peer", peerAddr, "max_retries", maxRetries)
 				}
 				continue
 			}
 
 			// Success
 			successCount++
-			log.Printf("[%s] successfully streamed to peer %s", s.Transport.Addr(), peerAddr)
+			slog.Info("successfully streamed to peer", "peer", peerAddr)
 			break
 		}
 	}
@@ -407,7 +407,7 @@ func (s *Server) resilientStreamToPeers(key string, fileSize int64) error {
 		return fmt.Errorf("failed to stream to any peer after retries")
 	}
 
-	log.Printf("[%s] successfully streamed to %d/%d peers", s.Transport.Addr(), successCount, len(peers))
+	slog.Info("successfully streamed to peers", "success_count", successCount, "total_peers", len(peers))
 	return nil
 }
 
@@ -425,6 +425,6 @@ func (s *Server) streamToSinglePeer(key string, fileReader io.Reader, peer netp2
 		return fmt.Errorf("failed to stream encrypted file: %w", err)
 	}
 
-	log.Printf("[%s] streamed (%d) bytes to peer %s", s.Transport.Addr(), n, peer.RemoteAddr())
+	slog.Info("streamed", "bytes", n, "peer", peer.RemoteAddr())
 	return nil
 }

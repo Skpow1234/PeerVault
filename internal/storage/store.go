@@ -6,7 +6,7 @@ import (
     "errors"
     "fmt"
     "io"
-    "log"
+    "log/slog"
     "os"
     "strings"
 )
@@ -70,7 +70,7 @@ func (s *Store) Clear() error { return os.RemoveAll(s.Root) }
 
 func (s *Store) Delete(key string) error {
     pathKey := s.PathTransformFunc(key)
-    defer func() { log.Printf("deleted [%s] from disk", pathKey.Filename) }()
+    defer func() { slog.Info("deleted", slog.String("key", pathKey.Filename)) }()
     firstPathNameWithRoot := fmt.Sprintf("%s/%s", s.Root, pathKey.FirstPathName())
     return os.RemoveAll(firstPathNameWithRoot)
 }

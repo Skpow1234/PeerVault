@@ -13,7 +13,59 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 2 — Transport, Streaming, and Storage (P1)
+## Milestone 1 — Correctness and Security (P0) ✅
+
+1 Fix ID scoping mismatch (cross-node fetch/store) ✅
+
+- Problem: files are written/read under `id/key`, but `GetFile`/`StoreFile` use requester/sender `ID`, causing misses.
+- Options:
+  - A) Remove `ID` from on-disk path entirely and store by `hashedKey` only.
+  - B) Use a stable owner/cluster scope (not the requester) when storing/serving.
+- Acceptance: A node that does not have a file locally can fetch it from a peer successfully.
+- Touchpoints: `internal/app/fileserver/server.go`, `internal/storage/store.go`.
+
+2 Replace AES-CTR with authenticated encryption (AEAD) ✅
+
+- Problem: AES-CTR without authentication is malleable and offers no integrity.
+- Solution: AES-GCM (preferred) or ChaCha20-Poly1305 with 12-byte nonce and AAD including message type/size.
+- Update APIs: `CopyEncrypt`/`CopyDecrypt` to use AEAD; prepend nonce and auth tag; verify on decrypt.
+- Acceptance: Crypto unit tests pass; tampering is detected; e2e still streams.
+- Touchpoints: `internal/crypto/crypto.go`, `crypto_test.go`, call sites in `fileserver`.
+
+3 Replace MD5/SHA-1 with SHA-256 (or HMAC-SHA-256 for hidden logical keys) ✅
+
+- `HashKey` → SHA-256 (or HMAC with cluster secret if keys must be concealed).
+- CAS path transform → SHA-256, adapt block size segmentation.
+- Acceptance: Existing tests updated; new expected paths validated.
+- Touchpoints: `internal/crypto/crypto.go`, `internal/storage/store.go`, tests.
+
+4 Key management model ✅
+
+- Current: Each node generates a random `EncKey`, but peers need the same key to decrypt replicated streams.
+- Choose:
+  - A) Shared cluster key loaded from env/config for demo.
+  - B) Per-file keys derived from a KDF and exchanged via handshake.
+  - C) Per-connection session keys (handshake), encrypt-in-transit only, plaintext at rest (or vice versa).
+- Start with A) for demo simplicity; document B/C as next steps.
+- Touchpoints: `cmd/peervault/main.go`, config, handshake.
+
+5 Add authenticated transport handshake ✅
+
+- Implement handshake exchanging node identities and (for demo) verifying a pre-shared auth token or using Noise IK/XX.
+- Produce a `PeerInfo {NodeID, PubKey}` and store in peer map.
+- Acceptance: Only authenticated peers join; unauthenticated peers are rejected with clear logs.
+- Touchpoints: `internal/transport/p2p/handshake.go`, `tcp_transport.go`, `fileserver.OnPeer`.
+
+6 Message framing with length prefix ✅
+
+- Replace ad-hoc `DefaultDecoder` with a consistent frame: `[type:u8][len:u32][payload:len]`.
+- For streams, send `[IncomingStream:u8][size:u64]` then raw bytes; for messages, the payload is encoded (JSON/CBOR/protobuf/gob).
+- Acceptance: Fuzz tests for Decoder; no reliance on `time.Sleep`.
+- Touchpoints: `internal/transport/p2p/encoding.go`, `tcp_transport.go`, `fileserver` send/receive.
+
+---
+
+## Milestone 2 — Transport, Streaming, and Storage (P1) ✅
 
 1 Remove `time.Sleep`-based coordination ✅
 
@@ -50,11 +102,12 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Consistent encryption behavior and documented strategy.
 - Touchpoints: `internal/app/fileserver/server.go`, `ENCRYPTION.md`.
 
-5 Logging and error context
+6 Logging and error context ✅
 
-- Switch to structured logging (zap/zerolog/log/slog).
-- Wrap errors with context; standardize messages and include peer IDs.
-- Touchpoints: transport and fileserver.
+- Problem: Inconsistent logging with fmt.Printf and basic log.Println.
+- Solution: Implement structured logging with slog and proper error context.
+- Acceptance: Consistent structured logging with configurable levels and rich context.
+- Touchpoints: `internal/app/fileserver/server.go`, `internal/logging/logger.go`, `LOGGING.md`.
 
 ---
 

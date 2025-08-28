@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"time"
 )
@@ -63,7 +64,7 @@ func AuthenticatedHandshakeFunc(nodeID string) HandshakeFunc {
 			return fmt.Errorf("handshake timestamp too old from peer %s", peer.RemoteAddr())
 		}
 		
-		fmt.Printf("authenticated handshake with peer %s (node: %s)\n", peer.RemoteAddr(), peerMsg.NodeID)
+		slog.Info("authenticated handshake with peer", slog.String("peer", peer.RemoteAddr().String()), slog.String("node", peerMsg.NodeID))
 		return nil
 	}
 }

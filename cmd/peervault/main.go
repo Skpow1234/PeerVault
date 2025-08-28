@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"log/slog"
+	"os"
 
 	fs "github.com/anthdm/foreverstore/internal/app/fileserver"
 	"github.com/anthdm/foreverstore/internal/crypto"
+	"github.com/anthdm/foreverstore/internal/logging"
 	"github.com/anthdm/foreverstore/internal/storage"
 	netp2p "github.com/anthdm/foreverstore/internal/transport/p2p"
 )
@@ -36,6 +39,15 @@ func makeServer(listenAddr string, nodes ...string) *fs.Server {
 }
 
 func main() {
+	// Configure structured logging
+	logLevel := os.Getenv("LOG_LEVEL")
+	if logLevel == "" {
+		logLevel = "info"
+	}
+	logging.ConfigureLogger(logLevel)
+
+	slog.Info("starting PeerVault application", "log_level", logLevel)
+
 	s1 := makeServer(":3000", "")
 	s2 := makeServer(":7000", "")
 	s3 := makeServer(":5000", ":3000", ":7000")
