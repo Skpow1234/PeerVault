@@ -36,10 +36,11 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Replication continues even if some peers fail.
 - Touchpoints: `internal/app/fileserver/server.go`.
 
-4 Map concurrency safety
+4 Map concurrency safety ✅
 
-- Guard `peers` map with a `sync.RWMutex` and copy under lock before iteration.
-- Provide helper methods `ListPeers()` and `WithPeers(fn)`.
+- Problem: Race conditions in peer map access and inconsistent locking.
+- Solution: Upgrade to RWMutex and ensure all peer access is properly synchronized.
+- Acceptance: No race conditions in concurrent peer operations.
 - Touchpoints: `internal/app/fileserver/server.go`.
 
 5 Logging and error context

@@ -28,7 +28,7 @@ type Options struct {
 type Server struct {
 	Options
 	KeyManager *crypto.KeyManager
-	peerLock   sync.Mutex
+	peerLock   sync.RWMutex
 	peers      map[string]netp2p.Peer
 	store      *storage.Store
 	quitch     chan struct{}
@@ -80,7 +80,16 @@ func (s *Server) broadcast(msg *Message) error {
 
 	payload := buf.Bytes()
 
+	// Copy peer list under read lock to avoid race conditions
+	s.peerLock.RLock()
+	peers := make([]netp2p.Peer, 0, len(s.peers))
 	for _, peer := range s.peers {
+		peers = append(peers, peer)
+	}
+	s.peerLock.RUnlock()
+
+	// Send to all peers
+	for _, peer := range peers {
 		frameWriter := netp2p.NewFrameWriter(peer)
 		if err := frameWriter.WriteMessage(payload); err != nil {
 			return err
@@ -100,7 +109,16 @@ func (s *Server) Get(key string) (io.Reader, error) {
 	if err := s.broadcast(&msg); err != nil {
 		return nil, err
 	}
+	
+	// Copy peer list under read lock to avoid race conditions
+	s.peerLock.RLock()
+	peers := make([]netp2p.Peer, 0, len(s.peers))
 	for _, peer := range s.peers {
+		peers = append(peers, peer)
+	}
+	s.peerLock.RUnlock()
+	
+	for _, peer := range peers {
 		var fileSize int64
 		binary.Read(peer, binary.LittleEndian, &fileSize)
 		n, err := s.store.WriteDecrypt(crypto.CopyDecrypt, s.getEncryptionKey(), key, io.LimitReader(peer, fileSize))
@@ -130,8 +148,6 @@ func (s *Server) Store(key string, r io.Reader) error {
 	// Stream the file from disk to all peers with resilient replication
 	return s.resilientStreamToPeers(key, size)
 }
-
-
 
 func (s *Server) Stop() { close(s.quitch) }
 
@@ -171,6 +187,14 @@ func (s *Server) handleMessage(from string, msg *Message) error {
 	return nil
 }
 
+// getPeer safely retrieves a peer under read lock
+func (s *Server) getPeer(from string) (netp2p.Peer, bool) {
+	s.peerLock.RLock()
+	defer s.peerLock.RUnlock()
+	peer, ok := s.peers[from]
+	return peer, ok
+}
+
 func (s *Server) handleMessageGetFile(from string, msg dto.GetFile) error {
 	// Check if we have the file
 	hasFile := s.store.Has(msg.Key)
@@ -201,7 +225,7 @@ func (s *Server) handleMessageGetFile(from string, msg dto.GetFile) error {
 	}
 
 	// Send acknowledgment to the requesting peer
-	peer, ok := s.peers[from]
+	peer, ok := s.getPeer(from)
 	if ok {
 		frameWriter := netp2p.NewFrameWriter(peer)
 		if err := frameWriter.WriteMessage(buf.Bytes()); err != nil {
@@ -220,7 +244,7 @@ func (s *Server) handleMessageGetFile(from string, msg dto.GetFile) error {
 			fmt.Println("closing readCloser")
 			defer rc.Close()
 		}
-		peer, ok := s.peers[from]
+		peer, ok := s.getPeer(from)
 		if !ok {
 			return fmt.Errorf("peer %s not in map", from)
 		}
@@ -252,7 +276,7 @@ func (s *Server) handleMessageStoreFile(from string, msg dto.StoreFile) error {
 	}
 
 	// Send acknowledgment to the requesting peer
-	peer, ok := s.peers[from]
+	peer, ok := s.getPeer(from)
 	if ok {
 		frameWriter := netp2p.NewFrameWriter(peer)
 		if err := frameWriter.WriteMessage(buf.Bytes()); err != nil {
@@ -261,7 +285,7 @@ func (s *Server) handleMessageStoreFile(from string, msg dto.StoreFile) error {
 	}
 
 	// Now receive and store the file
-	peer, ok = s.peers[from]
+	peer, ok = s.getPeer(from)
 	if !ok {
 		return fmt.Errorf("peer (%s) could not be found in the peer list", from)
 	}
@@ -309,19 +333,19 @@ func init() {
 // resilientStreamToPeers streams a file to peers with retry logic
 func (s *Server) resilientStreamToPeers(key string, fileSize int64) error {
 	maxRetries := 3
-	
-	s.peerLock.Lock()
+
+	s.peerLock.RLock()
 	peers := make([]netp2p.Peer, 0, len(s.peers))
 	for _, peer := range s.peers {
 		peers = append(peers, peer)
 	}
-	s.peerLock.Unlock()
-	
+	s.peerLock.RUnlock()
+
 	if len(peers) == 0 {
 		log.Printf("[%s] no peers available for replication", s.Transport.Addr())
 		return nil
 	}
-	
+
 	// Read the file from disk
 	_, fileReader, err := s.store.Read(key)
 	if err != nil {
@@ -332,33 +356,33 @@ func (s *Server) resilientStreamToPeers(key string, fileSize int64) error {
 			rc.Close()
 		}
 	}()
-	
+
 	// Try to stream to each peer with retries
 	successCount := 0
 	for _, peer := range peers {
 		peerAddr := peer.RemoteAddr().String()
-		
+
 		for attempt := 0; attempt < maxRetries; attempt++ {
 			if err := s.streamToSinglePeer(key, fileReader, peer); err != nil {
 				log.Printf("[%s] attempt %d failed to stream to peer %s: %v", s.Transport.Addr(), attempt+1, peerAddr, err)
-				
+
 				if attempt == maxRetries-1 {
 					log.Printf("[%s] failed to stream to peer %s after %d attempts", s.Transport.Addr(), peerAddr, maxRetries)
 				}
 				continue
 			}
-			
+
 			// Success
 			successCount++
 			log.Printf("[%s] successfully streamed to peer %s", s.Transport.Addr(), peerAddr)
 			break
 		}
 	}
-	
+
 	if successCount == 0 {
 		return fmt.Errorf("failed to stream to any peer after retries")
 	}
-	
+
 	log.Printf("[%s] successfully streamed to %d/%d peers", s.Transport.Addr(), successCount, len(peers))
 	return nil
 }
@@ -370,13 +394,13 @@ func (s *Server) streamToSinglePeer(key string, fileReader io.Reader, peer netp2
 	if err := frameWriter.WriteStreamHeader(); err != nil {
 		return fmt.Errorf("failed to write stream header: %w", err)
 	}
-	
+
 	// Stream the file with encryption
 	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), fileReader, peer)
 	if err != nil {
 		return fmt.Errorf("failed to stream encrypted file: %w", err)
 	}
-	
+
 	log.Printf("[%s] streamed (%d) bytes to peer %s", s.Transport.Addr(), n, peer.RemoteAddr())
 	return nil
 }
