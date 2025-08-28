@@ -60,13 +60,16 @@ func CopyEncrypt(key []byte, src io.Reader, dst io.Writer) (int, error) {
 	// Encrypt with GCM
 	ciphertext := gcm.Seal(nil, nonce, plaintext, nil)
 
-	// Write nonce + ciphertext (GCM.Seal prepends the nonce)
+	// Write nonce + ciphertext
+	if _, err := dst.Write(nonce); err != nil {
+		return 0, err
+	}
 	n, err := dst.Write(ciphertext)
 	if err != nil {
 		return 0, err
 	}
 
-	return n, nil
+	return n + len(nonce), nil
 }
 
 // CopyDecrypt decrypts data using AES-GCM, reading nonce + ciphertext + tag
@@ -81,20 +84,20 @@ func CopyDecrypt(key []byte, src io.Reader, dst io.Writer) (int, error) {
 		return 0, err
 	}
 
-	// Read all encrypted data (nonce + ciphertext + tag)
+	// Read nonce
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := io.ReadFull(src, nonce); err != nil {
+		return 0, err
+	}
+
+	// Read ciphertext
 	ciphertext, err := io.ReadAll(src)
 	if err != nil {
 		return 0, err
 	}
 
-	// GCM.Open expects the nonce to be prepended to the ciphertext
-	if len(ciphertext) < gcm.NonceSize() {
-		return 0, io.ErrUnexpectedEOF
-	}
-
-	// Decrypt with GCM (this also verifies the authentication tag)
-	// GCM.Open automatically extracts the nonce from the beginning of ciphertext
-	plaintext, err := gcm.Open(nil, nil, ciphertext, nil)
+	// Decrypt with GCM
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return 0, err
 	}
