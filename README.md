@@ -34,6 +34,29 @@ go run ./cmd/peervault
 
 If no cluster key is provided, each node generates its own key (suitable for development/testing).
 
+## Authentication
+
+The system now supports authenticated peer connections with the following features:
+
+- **Peer Authentication**: All peer connections are authenticated using HMAC-SHA256 signatures
+- **Node Identity**: Each node has a unique ID that's verified during handshake
+- **Timestamp Validation**: Handshake messages include timestamps to prevent replay attacks
+- **Environment Configuration**: Set `PEERVAULT_AUTH_TOKEN` environment variable for shared authentication
+
+### Using Authentication
+
+For production deployments, set a shared auth token across all nodes:
+
+```bash
+# Set the auth token
+export PEERVAULT_AUTH_TOKEN="your-secure-auth-token-here"
+
+# Run the application
+go run ./cmd/peervault
+```
+
+If no auth token is provided, a default demo token is used (suitable for development/testing).
+
 ## Requirements
 
 - Go 1.18+ (tested with Go 1.18)

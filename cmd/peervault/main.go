@@ -14,9 +14,17 @@ import (
 )
 
 func makeServer(listenAddr string, nodes ...string) *fs.Server {
-	tcptransportOpts := netp2p.TCPTransportOpts{ListenAddr: listenAddr, HandshakeFunc: netp2p.NOPHandshakeFunc, Decoder: netp2p.DefaultDecoder{}}
+	// Generate a unique node ID for this server
+	nodeID := crypto.GenerateID()
+	
+	tcptransportOpts := netp2p.TCPTransportOpts{
+		ListenAddr:    listenAddr,
+		HandshakeFunc: netp2p.AuthenticatedHandshakeFunc(nodeID),
+		Decoder:       netp2p.DefaultDecoder{},
+	}
 	tcpTransport := netp2p.NewTCPTransport(tcptransportOpts)
 	fileServerOpts := fs.Options{
+		ID:                nodeID,
 		EncKey:            crypto.NewEncryptionKey(),
 		StorageRoot:       listenAddr + "_network",
 		PathTransformFunc: storage.CASPathTransformFunc,
