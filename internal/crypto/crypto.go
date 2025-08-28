@@ -3,8 +3,8 @@ package crypto
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/md5"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"io"
 )
@@ -23,7 +23,7 @@ func GenerateID() string {
 }
 
 func HashKey(key string) string {
-	hash := md5.Sum([]byte(key))
+	hash := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(hash[:])
 }
 
