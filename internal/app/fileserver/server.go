@@ -127,52 +127,11 @@ func (s *Server) Store(key string, r io.Reader) error {
 		return err
 	}
 
-	// Stream the file from disk to all peers without buffering in memory
-	return s.streamFileToPeers(key, size)
+	// Stream the file from disk to all peers with resilient replication
+	return s.resilientStreamToPeers(key, size)
 }
 
-// streamFileToPeers streams a file from disk to all peers without buffering in memory
-func (s *Server) streamFileToPeers(key string, fileSize int64) error {
-	// Read the file from disk
-	_, fileReader, err := s.store.Read(key)
-	if err != nil {
-		return fmt.Errorf("failed to read file for streaming: %w", err)
-	}
-	defer func() {
-		if rc, ok := fileReader.(io.ReadCloser); ok {
-			rc.Close()
-		}
-	}()
 
-	// Create a streaming writer that encrypts and sends to all peers
-	peers := []io.Writer{}
-	for _, peer := range s.peers {
-		peers = append(peers, peer)
-	}
-
-	if len(peers) == 0 {
-		// No peers to replicate to
-		return nil
-	}
-
-	// Create a multi-writer for all peers
-	mw := io.MultiWriter(peers...)
-
-	// Write stream header using frame writer
-	frameWriter := netp2p.NewFrameWriter(mw)
-	if err := frameWriter.WriteStreamHeader(); err != nil {
-		return fmt.Errorf("failed to write stream header: %w", err)
-	}
-
-	// Stream the file directly from disk to peers with encryption
-	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), fileReader, mw)
-	if err != nil {
-		return fmt.Errorf("failed to stream encrypted file: %w", err)
-	}
-
-	fmt.Printf("[%s] streamed (%d) bytes to %d peers\n", s.Transport.Addr(), n, len(peers))
-	return nil
-}
 
 func (s *Server) Stop() { close(s.quitch) }
 
@@ -345,4 +304,79 @@ func init() {
 	gob.Register(dto.GetFile{})
 	gob.Register(dto.StoreFileAck{})
 	gob.Register(dto.GetFileAck{})
+}
+
+// resilientStreamToPeers streams a file to peers with retry logic
+func (s *Server) resilientStreamToPeers(key string, fileSize int64) error {
+	maxRetries := 3
+	
+	s.peerLock.Lock()
+	peers := make([]netp2p.Peer, 0, len(s.peers))
+	for _, peer := range s.peers {
+		peers = append(peers, peer)
+	}
+	s.peerLock.Unlock()
+	
+	if len(peers) == 0 {
+		log.Printf("[%s] no peers available for replication", s.Transport.Addr())
+		return nil
+	}
+	
+	// Read the file from disk
+	_, fileReader, err := s.store.Read(key)
+	if err != nil {
+		return fmt.Errorf("failed to read file for streaming: %w", err)
+	}
+	defer func() {
+		if rc, ok := fileReader.(io.ReadCloser); ok {
+			rc.Close()
+		}
+	}()
+	
+	// Try to stream to each peer with retries
+	successCount := 0
+	for _, peer := range peers {
+		peerAddr := peer.RemoteAddr().String()
+		
+		for attempt := 0; attempt < maxRetries; attempt++ {
+			if err := s.streamToSinglePeer(key, fileReader, peer); err != nil {
+				log.Printf("[%s] attempt %d failed to stream to peer %s: %v", s.Transport.Addr(), attempt+1, peerAddr, err)
+				
+				if attempt == maxRetries-1 {
+					log.Printf("[%s] failed to stream to peer %s after %d attempts", s.Transport.Addr(), peerAddr, maxRetries)
+				}
+				continue
+			}
+			
+			// Success
+			successCount++
+			log.Printf("[%s] successfully streamed to peer %s", s.Transport.Addr(), peerAddr)
+			break
+		}
+	}
+	
+	if successCount == 0 {
+		return fmt.Errorf("failed to stream to any peer after retries")
+	}
+	
+	log.Printf("[%s] successfully streamed to %d/%d peers", s.Transport.Addr(), successCount, len(peers))
+	return nil
+}
+
+// streamToSinglePeer streams a file to a single peer
+func (s *Server) streamToSinglePeer(key string, fileReader io.Reader, peer netp2p.Peer) error {
+	// Write stream header
+	frameWriter := netp2p.NewFrameWriter(peer)
+	if err := frameWriter.WriteStreamHeader(); err != nil {
+		return fmt.Errorf("failed to write stream header: %w", err)
+	}
+	
+	// Stream the file with encryption
+	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), fileReader, peer)
+	if err != nil {
+		return fmt.Errorf("failed to stream encrypted file: %w", err)
+	}
+	
+	log.Printf("[%s] streamed (%d) bytes to peer %s", s.Transport.Addr(), n, peer.RemoteAddr())
+	return nil
 }

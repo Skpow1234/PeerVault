@@ -29,10 +29,12 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Large files can be replicated without memory exhaustion.
 - Touchpoints: `internal/app/fileserver/server.go`.
 
-3 Clarify encryption-at-rest vs in-transit
+3 Add proper peer discovery and resilient replication ✅
 
-- Decide and document: encrypt at rest and in transit, or only in transit; keep paths consistent on store/get.
-- If encrypting at rest, store ciphertext; decrypt on `Get` before returning.
+- Problem: Basic peer discovery and no resilient replication.
+- Solution: Implement retry logic and better peer management.
+- Acceptance: Replication continues even if some peers fail.
+- Touchpoints: `internal/app/fileserver/server.go`.
 
 4 Map concurrency safety
 
