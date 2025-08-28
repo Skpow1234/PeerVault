@@ -19,7 +19,7 @@ The included entrypoint at `cmd/peervault/main.go` boots 3 nodes locally and run
 The system uses a robust length-prefixed framing protocol for reliable message transport:
 
 - **Frame Format**: `[type:u8][len:u32][payload:len]`
-- **Message Types**: 
+- **Message Types**:
   - `0x1`: Regular message (with payload)
   - `0x2`: Stream header (no payload)
 - **Maximum Frame Size**: 1MB per frame
@@ -27,7 +27,7 @@ The system uses a robust length-prefixed framing protocol for reliable message t
 
 ### Frame Structure
 
-```
+```bash
 [Message Frame]
 ┌─────────┬─────────┬─────────────┐
 │ Type    │ Length  │ Payload     │

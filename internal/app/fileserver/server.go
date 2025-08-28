@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/anthdm/foreverstore/internal/crypto"
 	"github.com/anthdm/foreverstore/internal/dto"
@@ -101,7 +100,6 @@ func (s *Server) Get(key string) (io.Reader, error) {
 	if err := s.broadcast(&msg); err != nil {
 		return nil, err
 	}
-	time.Sleep(time.Millisecond * 500)
 	for _, peer := range s.peers {
 		var fileSize int64
 		binary.Read(peer, binary.LittleEndian, &fileSize)
@@ -129,7 +127,6 @@ func (s *Server) Store(key string, r io.Reader) error {
 	if err := s.broadcast(&msg); err != nil {
 		return err
 	}
-	time.Sleep(time.Millisecond * 5)
 	peers := []io.Writer{}
 	for _, peer := range s.peers {
 		peers = append(peers, peer)
@@ -189,34 +186,96 @@ func (s *Server) handleMessage(from string, msg *Message) error {
 }
 
 func (s *Server) handleMessageGetFile(from string, msg dto.GetFile) error {
-	if !s.store.Has(msg.Key) {
-		return fmt.Errorf("[%s] need to serve file (%s) but it does not exist on disk", s.Transport.Addr(), msg.Key)
+	// Check if we have the file
+	hasFile := s.store.Has(msg.Key)
+	var fileSize int64
+
+	if hasFile {
+		// Get file size for acknowledgment
+		size, _, err := s.store.Read(msg.Key)
+		if err != nil {
+			fileSize = 0
+		} else {
+			fileSize = size
+		}
 	}
-	fmt.Printf("[%s] serving file (%s) over the network\n", s.Transport.Addr(), msg.Key)
-	fileSize, r, err := s.store.Read(msg.Key)
-	if err != nil {
+
+	// Send acknowledgment
+	ack := dto.GetFileAck{
+		RequestID: msg.ID, // Use the request ID
+		Key:       msg.Key,
+		HasFile:   hasFile,
+		FileSize:  fileSize,
+	}
+
+	ackMsg := Message{Payload: ack}
+	buf := new(bytes.Buffer)
+	if err := gob.NewEncoder(buf).Encode(ackMsg); err != nil {
 		return err
 	}
-	if rc, ok := r.(io.ReadCloser); ok {
-		fmt.Println("closing readCloser")
-		defer rc.Close()
-	}
+
+	// Send acknowledgment to the requesting peer
 	peer, ok := s.peers[from]
-	if !ok {
-		return fmt.Errorf("peer %s not in map", from)
+	if ok {
+		frameWriter := netp2p.NewFrameWriter(peer)
+		if err := frameWriter.WriteMessage(buf.Bytes()); err != nil {
+			return err
+		}
 	}
-	peer.Send([]byte{netp2p.IncomingStream})
-	binary.Write(peer, binary.LittleEndian, fileSize)
-	n, err := io.Copy(peer, r)
-	if err != nil {
-		return err
+
+	// If we have the file, serve it
+	if hasFile {
+		fmt.Printf("[%s] serving file (%s) over the network\n", s.Transport.Addr(), msg.Key)
+		fileSize, r, err := s.store.Read(msg.Key)
+		if err != nil {
+			return err
+		}
+		if rc, ok := r.(io.ReadCloser); ok {
+			fmt.Println("closing readCloser")
+			defer rc.Close()
+		}
+		peer, ok := s.peers[from]
+		if !ok {
+			return fmt.Errorf("peer %s not in map", from)
+		}
+		peer.Send([]byte{netp2p.IncomingStream})
+		binary.Write(peer, binary.LittleEndian, fileSize)
+		n, err := io.Copy(peer, r)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("[%s] written (%d) bytes over the network to %s\n", s.Transport.Addr(), n, from)
 	}
-	fmt.Printf("[%s] written (%d) bytes over the network to %s\n", s.Transport.Addr(), n, from)
+
 	return nil
 }
 
 func (s *Server) handleMessageStoreFile(from string, msg dto.StoreFile) error {
+	// Send acknowledgment immediately
+	ack := dto.StoreFileAck{
+		RequestID: msg.ID, // Use the request ID
+		Key:       msg.Key,
+		Success:   true,
+		Error:     "",
+	}
+
+	ackMsg := Message{Payload: ack}
+	buf := new(bytes.Buffer)
+	if err := gob.NewEncoder(buf).Encode(ackMsg); err != nil {
+		return err
+	}
+
+	// Send acknowledgment to the requesting peer
 	peer, ok := s.peers[from]
+	if ok {
+		frameWriter := netp2p.NewFrameWriter(peer)
+		if err := frameWriter.WriteMessage(buf.Bytes()); err != nil {
+			return err
+		}
+	}
+
+	// Now receive and store the file
+	peer, ok = s.peers[from]
 	if !ok {
 		return fmt.Errorf("peer (%s) could not be found in the peer list", from)
 	}
@@ -257,4 +316,6 @@ func (s *Server) Start() error {
 func init() {
 	gob.Register(dto.StoreFile{})
 	gob.Register(dto.GetFile{})
+	gob.Register(dto.StoreFileAck{})
+	gob.Register(dto.GetFileAck{})
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"time"
 
 	fs "github.com/anthdm/foreverstore/internal/app/fileserver"
 	"github.com/anthdm/foreverstore/internal/crypto"
@@ -16,7 +15,7 @@ import (
 func makeServer(listenAddr string, nodes ...string) *fs.Server {
 	// Generate a unique node ID for this server
 	nodeID := crypto.GenerateID()
-	
+
 	tcptransportOpts := netp2p.TCPTransportOpts{
 		ListenAddr:    listenAddr,
 		HandshakeFunc: netp2p.AuthenticatedHandshakeFunc(nodeID),
@@ -41,11 +40,8 @@ func main() {
 	s2 := makeServer(":7000", "")
 	s3 := makeServer(":5000", ":3000", ":7000")
 	go func() { log.Fatal(s1.Start()) }()
-	time.Sleep(500 * time.Millisecond)
 	go func() { log.Fatal(s2.Start()) }()
-	time.Sleep(2 * time.Second)
 	go s3.Start()
-	time.Sleep(2 * time.Second)
 	for i := 0; i < 20; i++ {
 		key := fmt.Sprintf("picture_%d.png", i)
 		data := bytes.NewReader([]byte("my big data file here!"))
