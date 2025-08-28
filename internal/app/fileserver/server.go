@@ -63,9 +63,9 @@ func (s *Server) broadcast(msg *Message) error {
 }
 
 func (s *Server) Get(key string) (io.Reader, error) {
-	if s.store.Has(s.ID, key) {
+	if s.store.Has(key) {
 		fmt.Printf("[%s] serving file (%s) from local disk\n", s.Transport.Addr(), key)
-		_, r, err := s.store.Read(s.ID, key)
+		_, r, err := s.store.Read(key)
 		return r, err
 	}
 	fmt.Printf("[%s] dont have file (%s) locally, fetching from network...\n", s.Transport.Addr(), key)
@@ -77,14 +77,14 @@ func (s *Server) Get(key string) (io.Reader, error) {
 	for _, peer := range s.peers {
 		var fileSize int64
 		binary.Read(peer, binary.LittleEndian, &fileSize)
-		n, err := s.store.WriteDecrypt(crypto.CopyDecrypt, s.EncKey, s.ID, key, io.LimitReader(peer, fileSize))
+		n, err := s.store.WriteDecrypt(crypto.CopyDecrypt, s.EncKey, key, io.LimitReader(peer, fileSize))
 		if err != nil {
 			return nil, err
 		}
 		fmt.Printf("[%s] received (%d) bytes over the network from (%s)", s.Transport.Addr(), n, peer.RemoteAddr())
 		peer.CloseStream()
 	}
-	_, r, err := s.store.Read(s.ID, key)
+	_, r, err := s.store.Read(key)
 	return r, err
 }
 
@@ -93,7 +93,7 @@ func (s *Server) Store(key string, r io.Reader) error {
 		fileBuffer = new(bytes.Buffer)
 		tee        = io.TeeReader(r, fileBuffer)
 	)
-	size, err := s.store.Write(s.ID, key, tee)
+	size, err := s.store.Write(key, tee)
 	if err != nil {
 		return err
 	}
@@ -155,11 +155,11 @@ func (s *Server) handleMessage(from string, msg *Message) error {
 }
 
 func (s *Server) handleMessageGetFile(from string, msg dto.GetFile) error {
-	if !s.store.Has(msg.ID, msg.Key) {
+	if !s.store.Has(msg.Key) {
 		return fmt.Errorf("[%s] need to serve file (%s) but it does not exist on disk", s.Transport.Addr(), msg.Key)
 	}
 	fmt.Printf("[%s] serving file (%s) over the network\n", s.Transport.Addr(), msg.Key)
-	fileSize, r, err := s.store.Read(msg.ID, msg.Key)
+	fileSize, r, err := s.store.Read(msg.Key)
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func (s *Server) handleMessageStoreFile(from string, msg dto.StoreFile) error {
 	if !ok {
 		return fmt.Errorf("peer (%s) could not be found in the peer list", from)
 	}
-	n, err := s.store.Write(msg.ID, msg.Key, io.LimitReader(peer, msg.Size))
+	n, err := s.store.Write(msg.Key, io.LimitReader(peer, msg.Size))
 	if err != nil {
 		return err
 	}
