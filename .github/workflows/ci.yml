@@ -282,8 +282,8 @@ jobs:
 
       - name: Test Docker Compose
         run: |
-          docker-compose -f docker/docker-compose.yml config
-          docker-compose -f docker/docker-compose.dev.yml config
+          docker compose -f docker/docker-compose.yml config
+          docker compose -f docker/docker-compose.dev.yml config
 
   # Performance benchmarks
   benchmarks:

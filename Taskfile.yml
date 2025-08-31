@@ -99,22 +99,22 @@ tasks:
   docker-run:
     desc: Run multi-container setup
     cmds:
-      - docker-compose up --build
+      - docker compose up --build
 
   docker-run-dev:
     desc: Run development setup (all-in-one)
     cmds:
-      - docker-compose -f docker-compose.dev.yml up --build
+      - docker compose -f docker-compose.dev.yml up --build
 
   docker-stop:
     desc: Stop all containers
     cmds:
-      - docker-compose down
+      - docker compose down
 
   docker-clean:
     desc: Clean up Docker resources
     cmds:
-      - docker-compose down -v
+      - docker compose down -v
       - docker system prune -f
 
   # Development tasks

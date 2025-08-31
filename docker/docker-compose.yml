@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   # Bootstrap node 1 - no bootstrap peers (seed node)
   peervault-node1:
     build:
-      context: .
-      dockerfile: Dockerfile.node
+      context: ..
+      dockerfile: docker/Dockerfile.node
     container_name: peervault-node1
     ports:
       - "3000:3000"
@@ -21,8 +19,8 @@ services:
   # Bootstrap node 2 - no bootstrap peers (seed node)
   peervault-node2:
     build:
-      context: .
-      dockerfile: Dockerfile.node
+      context: ..
+      dockerfile: docker/Dockerfile.node
     container_name: peervault-node2
     ports:
       - "7000:7000"
@@ -38,8 +36,8 @@ services:
   # Client node - connects to both bootstrap nodes
   peervault-node3:
     build:
-      context: .
-      dockerfile: Dockerfile.node
+      context: ..
+      dockerfile: docker/Dockerfile.node
     container_name: peervault-node3
     ports:
       - "5000:5000"
@@ -62,8 +60,8 @@ services:
   # Optional: Demo client that runs the store/get operations
   peervault-demo:
     build:
-      context: .
-      dockerfile: Dockerfile.demo
+      context: ..
+      dockerfile: docker/Dockerfile.demo
     container_name: peervault-demo
     environment:
       - LOG_LEVEL=info

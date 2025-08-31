@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   # Single container with all nodes (original behavior)
   peervault-all-in-one:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: peervault-all-in-one
     ports:
       - "3000:3000"
