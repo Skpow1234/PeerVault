@@ -204,7 +204,11 @@ func TestGraphQLServerCORS(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to make OPTIONS request: %v", err)
 		}
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				t.Logf("Failed to close response body: %v", err)
+			}
+		}()
 
 		if resp.StatusCode != http.StatusOK {
 			t.Errorf("Expected status 200 for OPTIONS request, got %d", resp.StatusCode)

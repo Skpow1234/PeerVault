@@ -79,7 +79,15 @@ func (s *Server) Start(config *Config) error {
 		"graphql", config.GraphQLPath,
 	)
 
-	return http.ListenAndServe(fmt.Sprintf(":%d", config.Port), mux)
+	server := &http.Server{
+		Addr:              fmt.Sprintf(":%d", config.Port),
+		Handler:           mux,
+		ReadHeaderTimeout: 20 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+	return server.ListenAndServe()
 }
 
 // CORSMiddleware adds CORS headers to responses

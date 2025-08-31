@@ -96,8 +96,12 @@ func NewServer(config *Config, logger *slog.Logger) *Server {
 	mux.HandleFunc("GET /peers/{id}/health", server.handleGetPeerHealth)
 
 	server.httpServer = &http.Server{
-		Addr:    config.Port,
-		Handler: mux,
+		Addr:              config.Port,
+		Handler:           mux,
+		ReadHeaderTimeout: 20 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	return server
@@ -205,8 +209,11 @@ func (s *Server) handleListFiles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"files":[],"total":%d,"page":%d,"page_size":%d}`,
-		files.Total, files.Page, files.PageSize)
+	if _, err := fmt.Fprintf(w, `{"files":[],"total":%d,"page":%d,"page_size":%d}`,
+		files.Total, files.Page, files.PageSize); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) handleGetFile(w http.ResponseWriter, r *http.Request) {
@@ -224,8 +231,11 @@ func (s *Server) handleGetFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"key":"%s","name":"%s","size":%d}`,
-		file.Key, file.Name, file.Size)
+	if _, err := fmt.Fprintf(w, `{"key":"%s","name":"%s","size":%d}`,
+		file.Key, file.Name, file.Size); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) handleDeleteFile(w http.ResponseWriter, r *http.Request) {
@@ -242,7 +252,10 @@ func (s *Server) handleDeleteFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"success":%t,"message":"File deleted successfully"}`, success)
+	if _, err := fmt.Fprintf(w, `{"success":%t,"message":"File deleted successfully"}`, success); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) handleListPeers(w http.ResponseWriter, r *http.Request) {
@@ -253,7 +266,10 @@ func (s *Server) handleListPeers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"peers":[],"total":%d}`, peers.Total)
+	if _, err := fmt.Fprintf(w, `{"peers":[],"total":%d}`, peers.Total); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) handleGetPeer(w http.ResponseWriter, r *http.Request) {
@@ -270,8 +286,11 @@ func (s *Server) handleGetPeer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"id":"%s","address":"%s","port":%d,"status":"%s"}`,
-		peer.Id, peer.Address, peer.Port, peer.Status)
+	if _, err := fmt.Fprintf(w, `{"id":"%s","address":"%s","port":%d,"status":"%s"}`,
+		peer.Id, peer.Address, peer.Port, peer.Status); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) handleAddPeer(w http.ResponseWriter, r *http.Request) {
@@ -293,8 +312,11 @@ func (s *Server) handleAddPeer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"id":"%s","address":"%s","port":%d,"status":"%s"}`,
-		peer.Id, peer.Address, peer.Port, peer.Status)
+	if _, err := fmt.Fprintf(w, `{"id":"%s","address":"%s","port":%d,"status":"%s"}`,
+		peer.Id, peer.Address, peer.Port, peer.Status); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) handleRemovePeer(w http.ResponseWriter, r *http.Request) {
@@ -311,7 +333,10 @@ func (s *Server) handleRemovePeer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"success":%t,"message":"Peer removed successfully"}`, success)
+	if _, err := fmt.Fprintf(w, `{"success":%t,"message":"Peer removed successfully"}`, success); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Server) handleGetPeerHealth(w http.ResponseWriter, r *http.Request) {
@@ -328,8 +353,11 @@ func (s *Server) handleGetPeerHealth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"peer_id":"%s","status":"%s","latency_ms":%f,"uptime_seconds":%d}`,
-		health.PeerId, health.Status, health.LatencyMs, health.UptimeSeconds)
+	if _, err := fmt.Fprintf(w, `{"peer_id":"%s","status":"%s","latency_ms":%f,"uptime_seconds":%d}`,
+		health.PeerId, health.Status, health.LatencyMs, health.UptimeSeconds); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // Event Broadcasting Methods
