@@ -284,6 +284,7 @@ jobs:
           timeout 5s ./bin/peervault-config --help || true
 
       - name: Test configuration tool functionality
+        shell: bash
         run: |
           # Test configuration generation
           ./bin/peervault-config -generate -output config/test-ci.yaml
@@ -446,6 +447,7 @@ jobs:
           fi
 
       - name: Validate configuration system
+        shell: bash
         run: |
           # Test configuration system functionality
           echo "Testing configuration system..."
