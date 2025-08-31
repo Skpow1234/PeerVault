@@ -297,7 +297,7 @@ jobs:
           ./bin/peervault-config -show -config config/test-ci.yaml
           
           # Test environment mapping
-          ./bin/peervault-config -env-map
+          ./bin/peervault-config -env
           
           # Clean up test file
           rm -f config/test-ci.yaml
@@ -465,7 +465,7 @@ jobs:
           ./bin/peervault-config -show -config config/ci-test.yaml
           
           # Test environment mapping
-          ./bin/peervault-config -env-map
+          ./bin/peervault-config -env
           
           # Clean up
           rm -f config/ci-test.yaml
