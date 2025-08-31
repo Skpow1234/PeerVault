@@ -75,7 +75,11 @@ func TestGraphQLServerHealth(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to make health request: %v", err)
 		}
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				t.Logf("Failed to close response body: %v", err)
+			}
+		}()
 
 		if resp.StatusCode != http.StatusOK {
 			t.Errorf("Expected status 200, got %d", resp.StatusCode)
@@ -98,7 +102,11 @@ func TestGraphQLServerHealth(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to make GraphQL request: %v", err)
 		}
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				t.Logf("Failed to close response body: %v", err)
+			}
+		}()
 
 		if resp.StatusCode != http.StatusOK {
 			t.Errorf("Expected status 200, got %d", resp.StatusCode)
@@ -120,7 +128,11 @@ func TestGraphQLServerHealth(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to make playground request: %v", err)
 		}
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				t.Logf("Failed to close response body: %v", err)
+			}
+		}()
 
 		if resp.StatusCode != http.StatusOK {
 			t.Errorf("Expected status 200, got %d", resp.StatusCode)

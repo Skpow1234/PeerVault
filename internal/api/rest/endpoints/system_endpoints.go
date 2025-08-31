@@ -44,7 +44,10 @@ func (e *SystemEndpoints) HandleHealth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *SystemEndpoints) HandleMetrics(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +60,10 @@ func (e *SystemEndpoints) HandleMetrics(w http.ResponseWriter, r *http.Request) 
 
 	response := types.MetricsToResponse(metrics)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *SystemEndpoints) HandleSystemInfo(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +76,10 @@ func (e *SystemEndpoints) HandleSystemInfo(w http.ResponseWriter, r *http.Reques
 
 	response := types.SystemInfoToResponse(info)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *SystemEndpoints) HandleWebhook(w http.ResponseWriter, r *http.Request) {
@@ -89,18 +98,21 @@ func (e *SystemEndpoints) HandleRoot(w http.ResponseWriter, r *http.Request) {
 		"message": "PeerVault REST API",
 		"version": "1.0.0",
 		"endpoints": map[string]string{
-			"health":     "/health",
-			"metrics":    "/metrics",
-			"system":     "/system",
-			"files":      "/api/v1/files",
-			"peers":      "/api/v1/peers",
-			"docs":       "/docs",
-			"swagger":    "/swagger.json",
+			"health":  "/health",
+			"metrics": "/metrics",
+			"system":  "/system",
+			"files":   "/api/v1/files",
+			"peers":   "/api/v1/peers",
+			"docs":    "/docs",
+			"swagger": "/swagger.json",
 		},
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *SystemEndpoints) HandleDocs(w http.ResponseWriter, r *http.Request) {
@@ -137,7 +149,10 @@ func (e *SystemEndpoints) HandleDocs(w http.ResponseWriter, r *http.Request) {
 </html>`
 
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(swaggerHTML))
+	if _, err := w.Write([]byte(swaggerHTML)); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *SystemEndpoints) HandleSwaggerJSON(w http.ResponseWriter, r *http.Request) {
@@ -195,7 +210,7 @@ func (e *SystemEndpoints) HandleSwaggerJSON(w http.ResponseWriter, r *http.Reque
 							"type": "string",
 						},
 						"timestamp": map[string]interface{}{
-							"type": "string",
+							"type":   "string",
 							"format": "date-time",
 						},
 						"version": map[string]interface{}{
@@ -219,7 +234,7 @@ func (e *SystemEndpoints) HandleSwaggerJSON(w http.ResponseWriter, r *http.Reque
 							"type": "number",
 						},
 						"last_updated": map[string]interface{}{
-							"type": "string",
+							"type":   "string",
 							"format": "date-time",
 						},
 					},
@@ -229,5 +244,8 @@ func (e *SystemEndpoints) HandleSwaggerJSON(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(swaggerSpec)
+	if err := json.NewEncoder(w).Encode(swaggerSpec); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }

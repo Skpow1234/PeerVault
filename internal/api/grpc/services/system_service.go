@@ -23,13 +23,13 @@ func NewSystemService() *SystemService {
 // GetSystemInfo retrieves system information
 func (s *SystemService) GetSystemInfo() (*peervault.SystemInfoResponse, error) {
 	return &peervault.SystemInfoResponse{
-		Version:        "1.0.0",
-		UptimeSeconds:  int64(time.Since(s.startTime).Seconds()),
-		StartTime:      timestamppb.New(s.startTime),
-		StorageUsed:    1024 * 1024 * 100, // 100MB
-		StorageTotal:   1024 * 1024 * 1024, // 1GB
-		PeerCount:      3,
-		FileCount:      15,
+		Version:       "1.0.0",
+		UptimeSeconds: int64(time.Since(s.startTime).Seconds()),
+		StartTime:     timestamppb.New(s.startTime),
+		StorageUsed:   1024 * 1024 * 100,  // 100MB
+		StorageTotal:  1024 * 1024 * 1024, // 1GB
+		PeerCount:     3,
+		FileCount:     15,
 	}, nil
 }
 

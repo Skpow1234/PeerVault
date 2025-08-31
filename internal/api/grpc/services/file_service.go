@@ -27,10 +27,10 @@ func NewFileService() *FileService {
 func (s *FileService) UploadFile(fileKey string, data []byte) (*peervault.FileResponse, error) {
 	// Store the file data
 	s.files[fileKey] = data
-	
+
 	// Calculate hash
 	hash := fmt.Sprintf("%x", sha256.Sum256(data))
-	
+
 	// Create file response
 	response := &peervault.FileResponse{
 		Key:         fileKey,
@@ -51,7 +51,7 @@ func (s *FileService) UploadFile(fileKey string, data []byte) (*peervault.FileRe
 			},
 		},
 	}
-	
+
 	return response, nil
 }
 
@@ -91,7 +91,7 @@ func (s *FileService) ListFiles(page, pageSize int, filter string) (*peervault.L
 			Replicas:    []*peervault.FileReplica{},
 		},
 	}
-	
+
 	return &peervault.ListFilesResponse{
 		Files:    files,
 		Total:    int32(len(files)),
@@ -106,9 +106,9 @@ func (s *FileService) GetFile(key string) (*peervault.FileResponse, error) {
 	if !exists {
 		return nil, fmt.Errorf("file not found: %s", key)
 	}
-	
+
 	hash := fmt.Sprintf("%x", sha256.Sum256(data))
-	
+
 	return &peervault.FileResponse{
 		Key:         key,
 		Name:        key,
@@ -127,7 +127,7 @@ func (s *FileService) DeleteFile(key string) (bool, error) {
 	if _, exists := s.files[key]; !exists {
 		return false, fmt.Errorf("file not found: %s", key)
 	}
-	
+
 	delete(s.files, key)
 	return true, nil
 }
@@ -138,9 +138,9 @@ func (s *FileService) UpdateFileMetadata(key string, metadata map[string]string)
 	if !exists {
 		return nil, fmt.Errorf("file not found: %s", key)
 	}
-	
+
 	hash := fmt.Sprintf("%x", sha256.Sum256(data))
-	
+
 	return &peervault.FileResponse{
 		Key:         key,
 		Name:        key,

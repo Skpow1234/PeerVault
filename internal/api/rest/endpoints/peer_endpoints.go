@@ -32,7 +32,10 @@ func (e *PeerEndpoints) HandleListPeers(w http.ResponseWriter, r *http.Request) 
 
 	response := types.PeersToResponse(peers)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *PeerEndpoints) HandleGetPeer(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +54,10 @@ func (e *PeerEndpoints) HandleGetPeer(w http.ResponseWriter, r *http.Request) {
 
 	response := types.PeerToResponse(peer)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *PeerEndpoints) HandleAddPeer(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +78,10 @@ func (e *PeerEndpoints) HandleAddPeer(w http.ResponseWriter, r *http.Request) {
 	response := types.PeerToResponse(addedPeer)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *PeerEndpoints) HandleRemovePeer(w http.ResponseWriter, r *http.Request) {

@@ -19,9 +19,9 @@ type File struct {
 
 // FileMetadata contains additional information about a file
 type FileMetadata struct {
-	ContentType string                 `json:"contentType"`
-	Checksum    string                 `json:"checksum"`
-	Tags        []string               `json:"tags"`
+	ContentType  string                 `json:"contentType"`
+	Checksum     string                 `json:"checksum"`
+	Tags         []string               `json:"tags"`
 	CustomFields map[string]interface{} `json:"customFields"`
 }
 
@@ -37,10 +37,10 @@ type FileReplica struct {
 type ReplicaStatus string
 
 const (
-	ReplicaStatusSynced   ReplicaStatus = "SYNCED"
-	ReplicaStatusSyncing  ReplicaStatus = "SYNCING"
-	ReplicaStatusFailed   ReplicaStatus = "FAILED"
-	ReplicaStatusPending  ReplicaStatus = "PENDING"
+	ReplicaStatusSynced  ReplicaStatus = "SYNCED"
+	ReplicaStatusSyncing ReplicaStatus = "SYNCING"
+	ReplicaStatusFailed  ReplicaStatus = "FAILED"
+	ReplicaStatusPending ReplicaStatus = "PENDING"
 )
 
 // Node represents a node in the peer network
@@ -56,28 +56,28 @@ type Node struct {
 
 // NodeHealth represents the health status of a node
 type NodeHealth struct {
-	IsHealthy      bool      `json:"isHealthy"`
-	LastHeartbeat  *time.Time `json:"lastHeartbeat"`
-	ResponseTime   *float64   `json:"responseTime"`
-	Uptime         *float64   `json:"uptime"`
-	Errors         []string   `json:"errors"`
+	IsHealthy     bool       `json:"isHealthy"`
+	LastHeartbeat *time.Time `json:"lastHeartbeat"`
+	ResponseTime  *float64   `json:"responseTime"`
+	Uptime        *float64   `json:"uptime"`
+	Errors        []string   `json:"errors"`
 }
 
 // NodeStatus represents the status of a node
 type NodeStatus string
 
 const (
-	NodeStatusOnline    NodeStatus = "ONLINE"
-	NodeStatusOffline   NodeStatus = "OFFLINE"
-	NodeStatusDegraded  NodeStatus = "DEGRADED"
-	NodeStatusUnknown   NodeStatus = "UNKNOWN"
+	NodeStatusOnline   NodeStatus = "ONLINE"
+	NodeStatusOffline  NodeStatus = "OFFLINE"
+	NodeStatusDegraded NodeStatus = "DEGRADED"
+	NodeStatusUnknown  NodeStatus = "UNKNOWN"
 )
 
 // PeerNetwork represents the network of peers
 type PeerNetwork struct {
-	Nodes       []*Node           `json:"nodes"`
-	Connections []*Connection     `json:"connections"`
-	Topology    *NetworkTopology  `json:"topology"`
+	Nodes       []*Node          `json:"nodes"`
+	Connections []*Connection    `json:"connections"`
+	Topology    *NetworkTopology `json:"topology"`
 }
 
 // Connection represents a connection between two nodes
@@ -127,19 +127,19 @@ type SystemMetrics struct {
 
 // StorageMetrics represents storage-related metrics
 type StorageMetrics struct {
-	TotalSpace        int64   `json:"totalSpace"`
-	UsedSpace         int64   `json:"usedSpace"`
-	AvailableSpace    int64   `json:"availableSpace"`
-	FileCount         int     `json:"fileCount"`
+	TotalSpace        int64    `json:"totalSpace"`
+	UsedSpace         int64    `json:"usedSpace"`
+	AvailableSpace    int64    `json:"availableSpace"`
+	FileCount         int      `json:"fileCount"`
 	ReplicationFactor *float64 `json:"replicationFactor"`
 }
 
 // NetworkMetrics represents network-related metrics
 type NetworkMetrics struct {
-	ActiveConnections    int     `json:"activeConnections"`
-	TotalBytesTransferred int64  `json:"totalBytesTransferred"`
-	AverageBandwidth     *float64 `json:"averageBandwidth"`
-	ErrorRate            *float64 `json:"errorRate"`
+	ActiveConnections     int      `json:"activeConnections"`
+	TotalBytesTransferred int64    `json:"totalBytesTransferred"`
+	AverageBandwidth      *float64 `json:"averageBandwidth"`
+	ErrorRate             *float64 `json:"errorRate"`
 }
 
 // PerformanceMetrics represents performance-related metrics
@@ -153,24 +153,24 @@ type PerformanceMetrics struct {
 
 // FileUpload represents a file upload operation
 type FileUpload struct {
-	ID        string        `json:"id"`
-	Key       string        `json:"key"`
-	Size      int64         `json:"size"`
-	Status    UploadStatus  `json:"status"`
-	Progress  *float64      `json:"progress"`
-	UploadedAt *time.Time   `json:"uploadedAt"`
-	Replicas  []*FileReplica `json:"replicas"`
+	ID         string         `json:"id"`
+	Key        string         `json:"key"`
+	Size       int64          `json:"size"`
+	Status     UploadStatus   `json:"status"`
+	Progress   *float64       `json:"progress"`
+	UploadedAt *time.Time     `json:"uploadedAt"`
+	Replicas   []*FileReplica `json:"replicas"`
 }
 
 // UploadStatus represents the status of a file upload
 type UploadStatus string
 
 const (
-	UploadStatusPending    UploadStatus = "PENDING"
-	UploadStatusUploading  UploadStatus = "UPLOADING"
+	UploadStatusPending     UploadStatus = "PENDING"
+	UploadStatusUploading   UploadStatus = "UPLOADING"
 	UploadStatusReplicating UploadStatus = "REPLICATING"
-	UploadStatusCompleted  UploadStatus = "COMPLETED"
-	UploadStatusFailed     UploadStatus = "FAILED"
+	UploadStatusCompleted   UploadStatus = "COMPLETED"
+	UploadStatusFailed      UploadStatus = "FAILED"
 )
 
 // FileDownload represents a file download operation
@@ -188,10 +188,10 @@ type FileDownload struct {
 type DownloadStatus string
 
 const (
-	DownloadStatusPending    DownloadStatus = "PENDING"
+	DownloadStatusPending     DownloadStatus = "PENDING"
 	DownloadStatusDownloading DownloadStatus = "DOWNLOADING"
-	DownloadStatusCompleted  DownloadStatus = "COMPLETED"
-	DownloadStatusFailed     DownloadStatus = "FAILED"
+	DownloadStatusCompleted   DownloadStatus = "COMPLETED"
+	DownloadStatusFailed      DownloadStatus = "FAILED"
 )
 
 // FileFilter represents filters for file queries
@@ -206,9 +206,9 @@ type FileFilter struct {
 
 // FileMetadataInput represents input for file metadata
 type FileMetadataInput struct {
-	ContentType  *string                 `json:"contentType"`
-	Tags         []string                `json:"tags"`
-	CustomFields map[string]interface{}  `json:"customFields"`
+	ContentType  *string                `json:"contentType"`
+	Tags         []string               `json:"tags"`
+	CustomFields map[string]interface{} `json:"customFields"`
 }
 
 // ConfigurationInput represents input for configuration updates
@@ -239,11 +239,11 @@ type PerformanceAlert struct {
 type AlertType string
 
 const (
-	AlertTypeHighCPU       AlertType = "HIGH_CPU"
-	AlertTypeHighMemory    AlertType = "HIGH_MEMORY"
-	AlertTypeSlowResponse  AlertType = "SLOW_RESPONSE"
-	AlertTypeNetworkError  AlertType = "NETWORK_ERROR"
-	AlertTypeStorageFull   AlertType = "STORAGE_FULL"
+	AlertTypeHighCPU      AlertType = "HIGH_CPU"
+	AlertTypeHighMemory   AlertType = "HIGH_MEMORY"
+	AlertTypeSlowResponse AlertType = "SLOW_RESPONSE"
+	AlertTypeNetworkError AlertType = "NETWORK_ERROR"
+	AlertTypeStorageFull  AlertType = "STORAGE_FULL"
 )
 
 // AlertSeverity represents the severity of an alert

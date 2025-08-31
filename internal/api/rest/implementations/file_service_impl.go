@@ -22,7 +22,7 @@ func NewFileService() services.FileService {
 func (s *FileServiceImpl) ListFiles(ctx context.Context) ([]types.File, error) {
 	// TODO: Implement actual fileserver integration
 	// return s.server.ListFiles()
-	
+
 	// Mock data for now
 	return []types.File{
 		{
@@ -44,7 +44,7 @@ func (s *FileServiceImpl) ListFiles(ctx context.Context) ([]types.File, error) {
 func (s *FileServiceImpl) GetFile(ctx context.Context, key string) (*types.File, error) {
 	// TODO: Implement actual fileserver integration
 	// return s.server.GetFile(key)
-	
+
 	// Mock data for now
 	if key == "file1" {
 		return &types.File{
@@ -67,11 +67,11 @@ func (s *FileServiceImpl) GetFile(ctx context.Context, key string) (*types.File,
 func (s *FileServiceImpl) UploadFile(ctx context.Context, name string, data []byte, contentType string, metadata map[string]string) (*types.File, error) {
 	// TODO: Implement actual fileserver integration
 	// return s.server.Store(name, data, metadata)
-	
+
 	// Mock implementation
 	hash := fmt.Sprintf("%x", sha256.Sum256(data))
 	key := fmt.Sprintf("file_%d", time.Now().Unix())
-	
+
 	return &types.File{
 		Key:         key,
 		Name:        name,
@@ -88,7 +88,7 @@ func (s *FileServiceImpl) UploadFile(ctx context.Context, name string, data []by
 func (s *FileServiceImpl) DeleteFile(ctx context.Context, key string) error {
 	// TODO: Implement actual fileserver integration
 	// return s.server.Delete(key)
-	
+
 	// Mock implementation
 	if key == "file1" {
 		return nil
@@ -99,7 +99,7 @@ func (s *FileServiceImpl) DeleteFile(ctx context.Context, key string) error {
 func (s *FileServiceImpl) UpdateFileMetadata(ctx context.Context, key string, metadata map[string]string) (*types.File, error) {
 	// TODO: Implement actual fileserver integration
 	// return s.server.UpdateMetadata(key, metadata)
-	
+
 	// Mock implementation
 	if key == "file1" {
 		return &types.File{

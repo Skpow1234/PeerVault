@@ -8,6 +8,7 @@ package peervault
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,23 +20,23 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PeerVaultService_UploadFile_FullMethodName            = "/peervault.PeerVaultService/UploadFile"
-	PeerVaultService_DownloadFile_FullMethodName          = "/peervault.PeerVaultService/DownloadFile"
-	PeerVaultService_ListFiles_FullMethodName             = "/peervault.PeerVaultService/ListFiles"
-	PeerVaultService_GetFile_FullMethodName               = "/peervault.PeerVaultService/GetFile"
-	PeerVaultService_DeleteFile_FullMethodName            = "/peervault.PeerVaultService/DeleteFile"
-	PeerVaultService_UpdateFileMetadata_FullMethodName    = "/peervault.PeerVaultService/UpdateFileMetadata"
-	PeerVaultService_ListPeers_FullMethodName             = "/peervault.PeerVaultService/ListPeers"
-	PeerVaultService_GetPeer_FullMethodName               = "/peervault.PeerVaultService/GetPeer"
-	PeerVaultService_AddPeer_FullMethodName               = "/peervault.PeerVaultService/AddPeer"
-	PeerVaultService_RemovePeer_FullMethodName            = "/peervault.PeerVaultService/RemovePeer"
-	PeerVaultService_GetPeerHealth_FullMethodName         = "/peervault.PeerVaultService/GetPeerHealth"
-	PeerVaultService_GetSystemInfo_FullMethodName         = "/peervault.PeerVaultService/GetSystemInfo"
-	PeerVaultService_GetMetrics_FullMethodName            = "/peervault.PeerVaultService/GetMetrics"
-	PeerVaultService_HealthCheck_FullMethodName           = "/peervault.PeerVaultService/HealthCheck"
-	PeerVaultService_StreamFileOperations_FullMethodName  = "/peervault.PeerVaultService/StreamFileOperations"
-	PeerVaultService_StreamPeerEvents_FullMethodName      = "/peervault.PeerVaultService/StreamPeerEvents"
-	PeerVaultService_StreamSystemEvents_FullMethodName    = "/peervault.PeerVaultService/StreamSystemEvents"
+	PeerVaultService_UploadFile_FullMethodName           = "/peervault.PeerVaultService/UploadFile"
+	PeerVaultService_DownloadFile_FullMethodName         = "/peervault.PeerVaultService/DownloadFile"
+	PeerVaultService_ListFiles_FullMethodName            = "/peervault.PeerVaultService/ListFiles"
+	PeerVaultService_GetFile_FullMethodName              = "/peervault.PeerVaultService/GetFile"
+	PeerVaultService_DeleteFile_FullMethodName           = "/peervault.PeerVaultService/DeleteFile"
+	PeerVaultService_UpdateFileMetadata_FullMethodName   = "/peervault.PeerVaultService/UpdateFileMetadata"
+	PeerVaultService_ListPeers_FullMethodName            = "/peervault.PeerVaultService/ListPeers"
+	PeerVaultService_GetPeer_FullMethodName              = "/peervault.PeerVaultService/GetPeer"
+	PeerVaultService_AddPeer_FullMethodName              = "/peervault.PeerVaultService/AddPeer"
+	PeerVaultService_RemovePeer_FullMethodName           = "/peervault.PeerVaultService/RemovePeer"
+	PeerVaultService_GetPeerHealth_FullMethodName        = "/peervault.PeerVaultService/GetPeerHealth"
+	PeerVaultService_GetSystemInfo_FullMethodName        = "/peervault.PeerVaultService/GetSystemInfo"
+	PeerVaultService_GetMetrics_FullMethodName           = "/peervault.PeerVaultService/GetMetrics"
+	PeerVaultService_HealthCheck_FullMethodName          = "/peervault.PeerVaultService/HealthCheck"
+	PeerVaultService_StreamFileOperations_FullMethodName = "/peervault.PeerVaultService/StreamFileOperations"
+	PeerVaultService_StreamPeerEvents_FullMethodName     = "/peervault.PeerVaultService/StreamPeerEvents"
+	PeerVaultService_StreamSystemEvents_FullMethodName   = "/peervault.PeerVaultService/StreamSystemEvents"
 )
 
 // PeerVaultServiceClient is the client API for PeerVaultService service.

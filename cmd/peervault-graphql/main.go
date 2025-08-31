@@ -19,11 +19,11 @@ import (
 func main() {
 	// Parse command line flags
 	var (
-		port            = flag.Int("port", 8080, "Port to listen on")
-		storageRoot     = flag.String("storage", "./storage", "Storage root directory")
-		bootstrapNodes  = flag.String("bootstrap", "", "Comma-separated list of bootstrap nodes")
+		port             = flag.Int("port", 8080, "Port to listen on")
+		storageRoot      = flag.String("storage", "./storage", "Storage root directory")
+		bootstrapNodes   = flag.String("bootstrap", "", "Comma-separated list of bootstrap nodes")
 		enablePlayground = flag.Bool("playground", true, "Enable GraphQL Playground")
-		logLevel        = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
+		logLevel         = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
 	)
 	flag.Parse()
 
@@ -85,7 +85,7 @@ func main() {
 		}
 	}()
 
-	logger.Info("PeerVault GraphQL server started", 
+	logger.Info("PeerVault GraphQL server started",
 		"port", *port,
 		"storage", *storageRoot,
 		"playground", *enablePlayground,
@@ -135,7 +135,7 @@ func parseBootstrapNodes(nodes string) []string {
 	if nodes == "" {
 		return nil
 	}
-	
+
 	var result []string
 	// Simple comma-separated parsing
 	// TODO: Implement proper parsing with validation

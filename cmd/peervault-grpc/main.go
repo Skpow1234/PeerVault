@@ -42,7 +42,9 @@ func main() {
 		sig := <-sigChan
 		logger.Info("Received shutdown signal", "signal", sig)
 		cancel()
-		server.Stop()
+		if err := server.Stop(); err != nil {
+			logger.Error("Error stopping server", "error", err)
+		}
 	}()
 
 	// Start server

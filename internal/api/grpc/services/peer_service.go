@@ -45,7 +45,7 @@ func (s *PeerService) ListPeers() (*peervault.ListPeersResponse, error) {
 			Metadata:  map[string]string{},
 		},
 	}
-	
+
 	return &peervault.ListPeersResponse{
 		Peers: peers,
 		Total: int32(len(peers)),
@@ -64,7 +64,7 @@ func (s *PeerService) GetPeer(id string) (*peervault.PeerResponse, error) {
 // AddPeer adds a new peer
 func (s *PeerService) AddPeer(address string, port int, metadata map[string]string) (*peervault.PeerResponse, error) {
 	peerID := fmt.Sprintf("peer_%d", time.Now().Unix())
-	
+
 	peer := &peervault.PeerResponse{
 		Id:        peerID,
 		Address:   address,
@@ -74,7 +74,7 @@ func (s *PeerService) AddPeer(address string, port int, metadata map[string]stri
 		CreatedAt: timestamppb.Now(),
 		Metadata:  metadata,
 	}
-	
+
 	s.peers[peerID] = peer
 	return peer, nil
 }
@@ -84,7 +84,7 @@ func (s *PeerService) RemovePeer(id string) (bool, error) {
 	if _, exists := s.peers[id]; !exists {
 		return false, fmt.Errorf("peer not found: %s", id)
 	}
-	
+
 	delete(s.peers, id)
 	return true, nil
 }
@@ -95,7 +95,7 @@ func (s *PeerService) GetPeerHealth(id string) (*peervault.PeerHealthResponse, e
 	if !exists {
 		return nil, fmt.Errorf("peer not found: %s", id)
 	}
-	
+
 	return &peervault.PeerHealthResponse{
 		PeerId:        id,
 		Status:        "healthy",

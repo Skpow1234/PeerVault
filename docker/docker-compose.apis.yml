@@ -1,0 +1,127 @@
+services:
+  # REST API Service
+  peervault-rest-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.rest-api
+    container_name: peervault-rest-api
+    ports:
+      - "8080:8080"
+    environment:
+      - LOG_LEVEL=info
+    command: ["--port", "8080"]
+    volumes:
+      - peervault-rest-data:/app/data
+    networks:
+      - peervault-api-network
+    restart: unless-stopped
+
+  # gRPC API Service
+  peervault-grpc-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.grpc-api
+    container_name: peervault-grpc-api
+    ports:
+      - "8082:8082"
+    environment:
+      - LOG_LEVEL=info
+    command: ["--port", "8082", "--auth-token", "demo-token"]
+    volumes:
+      - peervault-grpc-data:/app/data
+    networks:
+      - peervault-api-network
+    restart: unless-stopped
+
+  # GraphQL API Service
+  peervault-graphql-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.graphql-api
+    container_name: peervault-graphql-api
+    ports:
+      - "8081:8081"
+    environment:
+      - LOG_LEVEL=info
+    command: ["--port", "8081"]
+    volumes:
+      - peervault-graphql-data:/app/data
+    networks:
+      - peervault-api-network
+    restart: unless-stopped
+
+  # Bootstrap node 1 - for P2P network
+  peervault-node1:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+    container_name: peervault-node1
+    ports:
+      - "3000:3000"
+    environment:
+      - LOG_LEVEL=info
+    command: ["--listen", ":3000", "--log-level", "info"]
+    volumes:
+      - peervault-node1-data:/app/data
+    networks:
+      - peervault-api-network
+    restart: unless-stopped
+
+  # Bootstrap node 2 - for P2P network
+  peervault-node2:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+    container_name: peervault-node2
+    ports:
+      - "7000:7000"
+    environment:
+      - LOG_LEVEL=info
+    command: ["--listen", ":7000", "--log-level", "info"]
+    volumes:
+      - peervault-node2-data:/app/data
+    networks:
+      - peervault-api-network
+    restart: unless-stopped
+
+  # Client node - connects to both bootstrap nodes
+  peervault-node3:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+    container_name: peervault-node3
+    ports:
+      - "5000:5000"
+    environment:
+      - LOG_LEVEL=info
+    command: [
+      "--listen", ":5000",
+      "--bootstrap", "peervault-node1:3000,peervault-node2:7000",
+      "--log-level", "info"
+    ]
+    volumes:
+      - peervault-node3-data:/app/data
+    networks:
+      - peervault-api-network
+    depends_on:
+      - peervault-node1
+      - peervault-node2
+    restart: unless-stopped
+
+volumes:
+  peervault-rest-data:
+    driver: local
+  peervault-grpc-data:
+    driver: local
+  peervault-graphql-data:
+    driver: local
+  peervault-node1-data:
+    driver: local
+  peervault-node2-data:
+    driver: local
+  peervault-node3-data:
+    driver: local
+
+networks:
+  peervault-api-network:
+    driver: bridge

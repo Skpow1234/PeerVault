@@ -33,7 +33,10 @@ func (e *FileEndpoints) HandleListFiles(w http.ResponseWriter, r *http.Request) 
 
 	response := types.FilesToResponse(files)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *FileEndpoints) HandleGetFile(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +55,10 @@ func (e *FileEndpoints) HandleGetFile(w http.ResponseWriter, r *http.Request) {
 
 	response := types.FileToResponse(file)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *FileEndpoints) HandleUploadFile(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +72,11 @@ func (e *FileEndpoints) HandleUploadFile(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "No file provided", http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			e.logger.Error("Failed to close file", "error", err)
+		}
+	}()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
@@ -94,7 +104,10 @@ func (e *FileEndpoints) HandleUploadFile(w http.ResponseWriter, r *http.Request)
 	response := types.FileToResponse(uploadedFile)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (e *FileEndpoints) HandleDeleteFile(w http.ResponseWriter, r *http.Request) {
@@ -136,5 +149,8 @@ func (e *FileEndpoints) HandleUpdateFileMetadata(w http.ResponseWriter, r *http.
 
 	response := types.FileToResponse(file)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }

@@ -14,15 +14,16 @@ import (
 // Server represents the GraphQL server
 type Server struct {
 	server *fileserver.Server
+	config *Config
 	logger *slog.Logger
 }
 
 // Config holds the configuration for the GraphQL server
 type Config struct {
-	Port            int
-	PlaygroundPath  string
-	GraphQLPath     string
-	AllowedOrigins  []string
+	Port             int
+	PlaygroundPath   string
+	GraphQLPath      string
+	AllowedOrigins   []string
 	EnablePlayground bool
 }
 
@@ -45,6 +46,7 @@ func NewServer(fileserver *fileserver.Server, config *Config) *Server {
 
 	return &Server{
 		server: fileserver,
+		config: config,
 		logger: slog.New(slog.NewJSONHandler(os.Stdout, nil)),
 	}
 }
@@ -71,7 +73,7 @@ func (s *Server) Start(config *Config) error {
 	// Metrics endpoint
 	mux.HandleFunc("/metrics", s.MetricsHandler)
 
-	s.logger.Info("Starting GraphQL server", 
+	s.logger.Info("Starting GraphQL server",
 		"port", config.Port,
 		"playground", config.PlaygroundPath,
 		"graphql", config.GraphQLPath,
@@ -105,15 +107,15 @@ type GraphQLRequest struct {
 
 // GraphQLResponse represents a GraphQL response
 type GraphQLResponse struct {
-	Data   interface{}            `json:"data,omitempty"`
-	Errors []GraphQLError         `json:"errors,omitempty"`
+	Data   interface{}    `json:"data,omitempty"`
+	Errors []GraphQLError `json:"errors,omitempty"`
 }
 
 // GraphQLError represents a GraphQL error
 type GraphQLError struct {
-	Message   string                 `json:"message"`
-	Locations []ErrorLocation        `json:"locations,omitempty"`
-	Path      []interface{}          `json:"path,omitempty"`
+	Message    string                 `json:"message"`
+	Locations  []ErrorLocation        `json:"locations,omitempty"`
+	Path       []interface{}          `json:"path,omitempty"`
 	Extensions map[string]interface{} `json:"extensions,omitempty"`
 }
 
@@ -147,7 +149,10 @@ func (s *Server) GraphQLHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // PlaygroundHandler serves the GraphQL Playground
@@ -171,28 +176,34 @@ func (s *Server) PlaygroundHandler(w http.ResponseWriter, r *http.Request) {
     </script>
 </body>
 </html>`
-	
+
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(playgroundHTML))
+	if _, err := w.Write([]byte(playgroundHTML)); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // HealthHandler handles health check requests
 func (s *Server) HealthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	health := map[string]interface{}{
 		"status":    "healthy",
 		"timestamp": time.Now().UTC(),
 		"service":   "peervault-graphql",
 	}
 
-	json.NewEncoder(w).Encode(health)
+	if err := json.NewEncoder(w).Encode(health); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // MetricsHandler handles metrics requests
 func (s *Server) MetricsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	// TODO: Implement actual metrics collection
 	metrics := map[string]interface{}{
 		"uptime":    time.Since(time.Now()).Seconds(),
@@ -201,7 +212,10 @@ func (s *Server) MetricsHandler(w http.ResponseWriter, r *http.Request) {
 		"timestamp": time.Now().UTC(),
 	}
 
-	json.NewEncoder(w).Encode(metrics)
+	if err := json.NewEncoder(w).Encode(metrics); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // HandleFileUpload handles file upload requests
@@ -223,7 +237,11 @@ func (s *Server) HandleFileUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to get file", http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			s.logger.Error("Failed to close file", "error", err)
+		}
+	}()
 
 	// Get key from form
 	key := r.FormValue("key")
@@ -232,7 +250,7 @@ func (s *Server) HandleFileUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: Implement actual file upload logic using the fileserver
-	s.logger.Info("File upload request", 
+	s.logger.Info("File upload request",
 		"filename", header.Filename,
 		"size", header.Size,
 		"key", key,
@@ -245,7 +263,10 @@ func (s *Server) HandleFileUpload(w http.ResponseWriter, r *http.Request) {
 		"key":     key,
 		"size":    header.Size,
 	}
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // HandleFileDownload handles file download requests

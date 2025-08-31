@@ -8,6 +8,7 @@ package peervault
 
 import (
 	"time"
+
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -109,22 +110,22 @@ type RemovePeerResponse struct {
 
 // PeerHealthResponse represents peer health information
 type PeerHealthResponse struct {
-	PeerId         string            `json:"peer_id,omitempty"`
-	Status         string            `json:"status,omitempty"`
-	LatencyMs      float64           `json:"latency_ms,omitempty"`
-	UptimeSeconds  int32             `json:"uptime_seconds,omitempty"`
-	Metrics        map[string]string `json:"metrics,omitempty"`
+	PeerId        string            `json:"peer_id,omitempty"`
+	Status        string            `json:"status,omitempty"`
+	LatencyMs     float64           `json:"latency_ms,omitempty"`
+	UptimeSeconds int32             `json:"uptime_seconds,omitempty"`
+	Metrics       map[string]string `json:"metrics,omitempty"`
 }
 
 // SystemInfoResponse represents system information
 type SystemInfoResponse struct {
-	Version        string                 `json:"version,omitempty"`
-	UptimeSeconds  int64                  `json:"uptime_seconds,omitempty"`
-	StartTime      *timestamppb.Timestamp `json:"start_time,omitempty"`
-	StorageUsed    int64                  `json:"storage_used,omitempty"`
-	StorageTotal   int64                  `json:"storage_total,omitempty"`
-	PeerCount      int32                  `json:"peer_count,omitempty"`
-	FileCount      int32                  `json:"file_count,omitempty"`
+	Version       string                 `json:"version,omitempty"`
+	UptimeSeconds int64                  `json:"uptime_seconds,omitempty"`
+	StartTime     *timestamppb.Timestamp `json:"start_time,omitempty"`
+	StorageUsed   int64                  `json:"storage_used,omitempty"`
+	StorageTotal  int64                  `json:"storage_total,omitempty"`
+	PeerCount     int32                  `json:"peer_count,omitempty"`
+	FileCount     int32                  `json:"file_count,omitempty"`
 }
 
 // MetricsResponse represents system metrics
