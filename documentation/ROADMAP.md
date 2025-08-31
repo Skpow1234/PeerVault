@@ -111,7 +111,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 3 — Reliability, Ops, and DX (P2)
+## Milestone 3 — Reliability, Ops, and DX (P2) ✅
 
 1 Peer lifecycle and health ✅
 
@@ -145,7 +145,239 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Testing Plan
+## Milestone 4 — API Interfaces and External Integration (P3)
+
+1 GraphQL API interface
+
+- Problem: No flexible API for complex queries and real-time data access across the distributed system.
+- Solution: Implement GraphQL API with schema-first design for file operations, peer management, and system monitoring.
+- Features: Flexible queries, real-time subscriptions, file metadata queries, peer network graph, performance metrics.
+- Acceptance: GraphQL schema, query/mutation/subscription support, introspection, GraphQL Playground, authentication.
+- Touchpoints: `internal/api/graphql/`, `internal/schema/`, `cmd/peervault-graphql/`, `docs/graphql/`.
+
+2 REST API interface (Complementary)
+
+- Problem: No simple HTTP API for basic operations and integration with existing systems.
+- Solution: Implement REST API alongside GraphQL for simple CRUD operations and webhook integrations.
+- Features: File upload/download, basic peer operations, health checks, webhook endpoints.
+- Acceptance: RESTful endpoints, OpenAPI/Swagger documentation, authentication, rate limiting.
+- Touchpoints: `internal/api/rest/`, `cmd/peervault-api/`, `internal/handlers/`, `docs/api/`.
+
+3 gRPC API interface (High-performance)
+
+- Problem: No programmatic API for high-performance client applications and streaming operations.
+- Solution: Implement gRPC service with protobuf definitions for streaming file operations and peer management.
+- Features: Bidirectional streaming, service discovery, load balancing support, high-throughput operations.
+- Acceptance: gRPC client libraries, streaming file transfer, service health checks, protobuf definitions.
+- Touchpoints: `internal/api/grpc/`, `proto/`, `cmd/peervault-grpc/`, `docs/grpc/`.
+
+3 Configuration management system
+
+- Problem: Hardcoded configuration values and environment variable dependencies.
+- Solution: Implement hierarchical configuration with file-based config, environment overrides, and validation.
+- Features: YAML/JSON config files, environment variable support, configuration validation, hot reloading.
+- Acceptance: Centralized configuration, validation rules, documentation, examples.
+- Touchpoints: `internal/config/`, `config/`, `cmd/peervault/config.go`.
+
+4 Developer documentation and API reference
+
+- Problem: No comprehensive developer documentation, API reference, or interactive documentation.
+- Solution: Implement comprehensive documentation with Swagger/OpenAPI, GraphQL Playground, and developer guides.
+- Features: Interactive API documentation, code examples, SDK documentation, integration guides, tutorials.
+- Acceptance: Swagger UI, GraphQL Playground, comprehensive docs, code examples, SDK documentation.
+- Touchpoints: `docs/`, `docs/api/`, `docs/graphql/`, `docs/sdk/`, `docs/examples/`.
+
+5 Plugin architecture
+
+- Problem: No extensibility for custom storage backends, authentication methods, or transport protocols.
+- Solution: Design plugin system for storage providers, authentication mechanisms, and transport layers.
+- Features: Plugin discovery, lifecycle management, configuration injection, error handling.
+- Acceptance: Plugin SDK, example plugins, documentation, testing framework.
+- Touchpoints: `internal/plugins/`, `plugins/`, `cmd/peervault-plugin/`.
+
+---
+
+## Milestone 5 — Developer Experience and Documentation (P4)
+
+1 Interactive API documentation
+
+- Problem: No interactive documentation for developers to explore and test APIs.
+- Solution: Implement Swagger UI for REST API, GraphQL Playground, and interactive gRPC documentation.
+- Features: Interactive API testing, request/response examples, authentication testing, schema exploration.
+- Acceptance: Swagger UI, GraphQL Playground, gRPC reflection, interactive examples.
+- Touchpoints: `docs/swagger/`, `docs/graphql-playground/`, `internal/api/docs/`.
+
+2 SDK and client libraries
+
+- Problem: No official SDKs or client libraries for different programming languages.
+- Solution: Develop official SDKs for Go, JavaScript/TypeScript, Python, and Java with comprehensive examples.
+- Features: Type-safe clients, authentication helpers, error handling, comprehensive examples.
+- Acceptance: Multi-language SDKs, comprehensive examples, type safety, documentation.
+- Touchpoints: `sdk/go/`, `sdk/javascript/`, `sdk/python/`, `sdk/java/`, `docs/sdk/`.
+
+3 Developer portal and guides
+
+- Problem: No centralized developer portal with tutorials, guides, and best practices.
+- Solution: Create comprehensive developer portal with getting started guides, tutorials, and best practices.
+- Features: Getting started guides, tutorials, best practices, troubleshooting guides, FAQ.
+- Acceptance: Developer portal, comprehensive guides, tutorials, best practices documentation.
+- Touchpoints: `docs/portal/`, `docs/guides/`, `docs/tutorials/`, `docs/best-practices/`.
+
+4 Code examples and demos
+
+- Problem: No practical examples or demos showing real-world usage patterns.
+- Solution: Create comprehensive code examples, demos, and sample applications.
+- Features: Code examples, sample applications, demo applications, integration examples.
+- Acceptance: Comprehensive examples, working demos, sample applications, integration guides.
+- Touchpoints: `examples/`, `demos/`, `docs/examples/`, `docs/demos/`.
+
+---
+
+## Milestone 6 — Performance and Scalability (P5)
+
+1 Memory optimization and garbage collection
+
+- Problem: Potential memory leaks in long-running operations and inefficient memory usage patterns.
+- Solution: Implement memory pools, optimize buffer management, add GC tuning, memory profiling.
+- Features: Object pooling for network buffers, streaming without full buffering, memory usage monitoring.
+- Acceptance: Reduced memory footprint, stable memory usage over time, GC metrics.
+- Touchpoints: `internal/pool/`, `internal/app/fileserver/server.go`, `internal/transport/p2p/`.
+
+2 Connection pooling and multiplexing
+
+- Problem: Single connection per peer limits throughput and efficiency.
+- Solution: Implement connection pooling, connection multiplexing, and connection reuse.
+- Features: Pooled connections, multiplexed streams, connection health checks, load balancing.
+- Acceptance: Higher throughput, better resource utilization, connection metrics.
+- Touchpoints: `internal/transport/p2p/`, `internal/pool/`, `internal/app/fileserver/server.go`.
+
+3 Caching layer
+
+- Problem: No caching mechanism for frequently accessed files or metadata.
+- Solution: Implement multi-level caching with memory and disk caches, cache invalidation strategies.
+- Features: LRU cache, TTL-based expiration, cache warming, cache statistics.
+- Acceptance: Improved read performance, configurable cache sizes, cache hit metrics.
+- Touchpoints: `internal/cache/`, `internal/storage/`, `internal/app/fileserver/server.go`.
+
+4 Compression and deduplication
+
+- Problem: No data compression or deduplication capabilities.
+- Solution: Implement transparent compression, content-based deduplication, delta encoding.
+- Features: Configurable compression levels, chunk-based deduplication, compression metrics.
+- Acceptance: Reduced storage usage, faster transfers, compression ratio metrics.
+- Touchpoints: `internal/compression/`, `internal/deduplication/`, `internal/storage/`.
+
+---
+
+## Milestone 7 — Monitoring, Observability, and Production Readiness (P6)
+
+1 Metrics and monitoring system
+
+- Problem: No comprehensive metrics collection or monitoring capabilities.
+- Solution: Implement Prometheus metrics, health checks, alerting rules, and monitoring dashboards.
+- Features: Custom metrics, histograms, counters, gauges, alerting, Grafana dashboards.
+- Acceptance: Full observability stack, production-ready monitoring, alerting rules.
+- Touchpoints: `internal/metrics/`, `internal/health/`, `monitoring/`, `cmd/peervault-monitor/`.
+
+2 Distributed tracing
+
+- Problem: No visibility into request flows across multiple nodes and services.
+- Solution: Implement OpenTelemetry tracing with Jaeger/Zipkin integration for request tracking.
+- Features: Trace propagation, span correlation, sampling, trace visualization.
+- Acceptance: End-to-end request tracing, performance analysis, debugging capabilities.
+- Touchpoints: `internal/tracing/`, `internal/telemetry/`, `cmd/peervault-trace/`.
+
+3 Structured logging and log aggregation
+
+- Problem: Basic logging without structured data or log aggregation capabilities.
+- Solution: Enhance logging with structured fields, log levels, log rotation, and aggregation.
+- Features: JSON logging, log correlation IDs, log shipping, log analysis tools.
+- Acceptance: Production-ready logging, log aggregation, log analysis capabilities.
+- Touchpoints: `internal/logging/`, `internal/logger/`, `cmd/peervault-logger/`.
+
+4 Backup and disaster recovery
+
+- Problem: No backup strategies or disaster recovery procedures.
+- Solution: Implement automated backups, point-in-time recovery, data replication strategies.
+- Features: Incremental backups, backup verification, recovery procedures, backup scheduling.
+- Acceptance: Automated backup system, recovery procedures, backup monitoring.
+- Touchpoints: `internal/backup/`, `internal/recovery/`, `cmd/peervault-backup/`.
+
+---
+
+## Milestone 8 — Security Hardening and Compliance (P7)
+
+1 Security audit and penetration testing
+
+- Problem: No comprehensive security assessment or penetration testing.
+- Solution: Conduct security audits, implement security controls, add penetration testing.
+- Features: Security scanning, vulnerability assessment, security controls, compliance checks.
+- Acceptance: Security audit report, penetration testing results, security controls.
+- Touchpoints: `security/`, `internal/security/`, `.github/workflows/security.yml`.
+
+2 Access control and authorization
+
+- Problem: Basic authentication without fine-grained access control.
+- Solution: Implement RBAC, ACLs, and authorization policies for file and system access.
+- Features: Role-based access control, access policies, audit logging, permission management.
+- Acceptance: Fine-grained access control, audit trails, compliance reporting.
+- Touchpoints: `internal/auth/`, `internal/rbac/`, `internal/audit/`.
+
+3 Data privacy and compliance
+
+- Problem: No data privacy controls or compliance features.
+- Solution: Implement data classification, privacy controls, compliance reporting, data retention.
+- Features: Data classification, privacy controls, compliance reporting, data retention policies.
+- Acceptance: Privacy controls, compliance features, data retention policies.
+- Touchpoints: `internal/privacy/`, `internal/compliance/`, `internal/retention/`.
+
+4 Certificate management and PKI
+
+- Problem: Basic authentication without proper certificate management.
+- Solution: Implement PKI infrastructure, certificate lifecycle management, certificate rotation.
+- Features: Certificate generation, validation, rotation, PKI management.
+- Acceptance: PKI infrastructure, certificate management, security compliance.
+- Touchpoints: `internal/pki/`, `internal/certs/`, `cmd/peervault-pki/`.
+
+---
+
+## Milestone 9 — Advanced Features and Ecosystem (P8)
+
+1 Content addressing and IPFS compatibility
+
+- Problem: No content addressing or compatibility with existing distributed systems.
+- Solution: Implement content addressing, IPFS compatibility, CID support, DAG structures.
+- Features: Content addressing, IPFS compatibility, CID support, DAG structures.
+- Acceptance: IPFS compatibility, content addressing, ecosystem integration.
+- Touchpoints: `internal/content/`, `internal/ipfs/`, `cmd/peervault-ipfs/`.
+
+2 Blockchain integration and smart contracts
+
+- Problem: No blockchain integration or smart contract capabilities.
+- Solution: Implement blockchain integration, smart contract support, decentralized identity.
+- Features: Blockchain integration, smart contracts, decentralized identity, token economics.
+- Acceptance: Blockchain integration, smart contract support, decentralized features.
+- Touchpoints: `internal/blockchain/`, `internal/smartcontracts/`, `cmd/peervault-chain/`.
+
+3 Machine learning and AI integration
+
+- Problem: No AI/ML capabilities for intelligent file management or optimization.
+- Solution: Implement ML-based file classification, optimization, and intelligent caching.
+- Features: File classification, optimization algorithms, intelligent caching, ML models.
+- Acceptance: ML integration, intelligent features, optimization capabilities.
+- Touchpoints: `internal/ml/`, `internal/ai/`, `cmd/peervault-ml/`.
+
+4 Edge computing and IoT support
+
+- Problem: No support for edge computing or IoT device integration.
+- Solution: Implement edge computing support, IoT device integration, lightweight protocols.
+- Features: Edge computing, IoT support, lightweight protocols, resource optimization.
+- Acceptance: Edge computing support, IoT integration, resource optimization.
+- Touchpoints: `internal/edge/`, `internal/iot/`, `cmd/peervault-edge/`.
+
+---
+
+## Testing Plan ✅
 
 Create a folder named tests, and subfolder with the different type of tests there, also, all the test that are already created, store it there, depending of there's needed
 Unit tests
@@ -170,7 +402,31 @@ Tooling
 
 ## Implementation Notes (by area)
 
-Fileserver (`internal/app/fileserver/server.go`)
+### API Design and Schema
+
+GraphQL Schema (`internal/api/graphql/schema/`)
+
+- **File Operations**: `File`, `FileMetadata`, `FileUpload`, `FileDownload` types with mutations and queries
+- **Peer Management**: `Peer`, `PeerNetwork`, `PeerHealth` types for network topology and health monitoring
+- **System Monitoring**: `SystemMetrics`, `PerformanceStats`, `StorageStats` for real-time monitoring
+- **Subscriptions**: Real-time updates for file operations, peer status changes, and system events
+- **Authentication**: JWT-based authentication with role-based access control
+
+REST API (`internal/api/rest/`)
+
+- **File Endpoints**: `GET/POST/PUT/DELETE /api/v1/files/{key}` for basic file operations
+- **Peer Endpoints**: `GET /api/v1/peers`, `GET /api/v1/peers/{id}/health` for peer management
+- **System Endpoints**: `GET /api/v1/health`, `GET /api/v1/metrics` for system status
+- **Webhooks**: `POST /api/v1/webhooks` for event notifications and integrations
+
+gRPC API (`internal/api/grpc/`)
+
+- **File Service**: Streaming file upload/download, metadata operations
+- **Peer Service**: Peer discovery, health monitoring, network management
+- **System Service**: Metrics collection, configuration management
+- **Streaming**: Bidirectional streaming for real-time operations
+
+### Fileserver (`internal/app/fileserver/server.go`)
 
 - Remove `time.Sleep`; wait for explicit acks or use size headers.
 - Guard `peers` with `RWMutex`; add helper methods to broadcast safely.
@@ -211,6 +467,61 @@ Entrypoint (`cmd/peervault/main.go`)
 - [ ] Windows path safe by default
 - [ ] Structured logs with peer IDs and error wrapping
 - [ ] Example e2e tests for store/get/replication/large files
+
+---
+
+## API Strategy and Benefits
+
+### Multi-API Approach
+
+PeerVault implements a comprehensive multi-API strategy to serve different use cases and developer preferences:
+
+#### **GraphQL API (Primary)**
+
+- **Flexible Queries**: Complex queries with nested data fetching
+- **Real-time Subscriptions**: Live updates for file operations and peer status
+- **Network Graph Queries**: Complex peer network topology analysis
+- **Performance Metrics**: Rich querying of system metrics and statistics
+- **Schema Introspection**: Self-documenting API with GraphQL Playground
+
+#### **REST API (Complementary)**
+
+- **Simple Operations**: Basic CRUD operations for file management
+- **Webhook Integration**: Event-driven integrations with external systems
+- **Traditional Compatibility**: Easy integration with existing REST-based systems
+- **File Upload/Download**: Direct file transfer endpoints
+- **Health Checks**: Simple health monitoring endpoints
+
+#### **gRPC API (High-performance)**
+
+- **Streaming Operations**: Bidirectional streaming for large file transfers
+- **High Throughput**: Optimized for high-performance applications
+- **Service Discovery**: Built-in service discovery and load balancing
+- **Type Safety**: Strongly typed with protobuf definitions
+- **Microservices**: Ideal for microservices architecture
+
+### Developer Experience Benefits
+
+#### **Interactive Documentation**
+
+- **Swagger UI**: Interactive REST API documentation with testing capabilities
+- **GraphQL Playground**: Interactive GraphQL schema exploration and query testing
+- **gRPC Reflection**: Dynamic gRPC service discovery and testing
+- **Code Examples**: Comprehensive examples in multiple programming languages
+
+#### **SDK Support**
+
+- **Multi-language SDKs**: Official SDKs for Go, JavaScript, Python, Java
+- **Type Safety**: Strongly typed clients with comprehensive error handling
+- **Authentication**: Built-in authentication helpers and token management
+- **Examples**: Extensive code examples and integration guides
+
+#### **Developer Portal**
+
+- **Getting Started**: Step-by-step guides for different use cases
+- **Tutorials**: Comprehensive tutorials for common scenarios
+- **Best Practices**: Guidelines for optimal usage and performance
+- **Troubleshooting**: Common issues and solutions
 
 ---
 

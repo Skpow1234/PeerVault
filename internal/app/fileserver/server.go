@@ -497,10 +497,6 @@ func init() {
 	gob.Register(dto.GetFileAck{})
 }
 
-
-
-
-
 // FileOperationManager manages concurrent file operations
 type FileOperationManager struct {
 	semaphore  chan struct{}
