@@ -63,7 +63,9 @@ func BenchmarkStoreGet(b *testing.B) {
 		}
 
 		if closer, ok := reader.(io.Closer); ok {
-			closer.Close()
+			if err := closer.Close(); err != nil {
+				b.Logf("Failed to close reader: %v", err)
+			}
 		}
 	}
 }
@@ -203,7 +205,9 @@ func BenchmarkConcurrentOperations(b *testing.B) {
 			}
 
 			if closer, ok := reader.(io.Closer); ok {
-				closer.Close()
+				if err := closer.Close(); err != nil {
+					b.Logf("Failed to close reader: %v", err)
+				}
 			}
 		}
 	})

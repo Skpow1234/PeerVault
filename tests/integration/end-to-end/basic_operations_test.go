@@ -206,7 +206,11 @@ func TestLargeFileStreaming(t *testing.T) {
 			t.Fatalf("Failed to get large file: %v", err)
 		}
 		if closer, ok := reader.(io.Closer); ok {
-			defer closer.Close()
+			defer func() {
+				if err := closer.Close(); err != nil {
+					t.Logf("Failed to close reader: %v", err)
+				}
+			}()
 		}
 
 		retrievedData, err := io.ReadAll(reader)
