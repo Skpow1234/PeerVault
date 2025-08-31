@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # Bootstrap node 1 - no bootstrap peers (seed node)
+  peervault-node1:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: peervault-node1
+    ports:
+      - "3000:3000"
+    environment:
+      - LOG_LEVEL=info
+    command: ["--listen", ":3000", "--log-level", "info"]
+    volumes:
+      - peervault-node1-data:/app/data
+    networks:
+      - peervault-network
+    restart: unless-stopped
+
+  # Bootstrap node 2 - no bootstrap peers (seed node)
+  peervault-node2:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: peervault-node2
+    ports:
+      - "7000:7000"
+    environment:
+      - LOG_LEVEL=info
+    command: ["--listen", ":7000", "--log-level", "info"]
+    volumes:
+      - peervault-node2-data:/app/data
+    networks:
+      - peervault-network
+    restart: unless-stopped
+
+  # Client node - connects to both bootstrap nodes
+  peervault-node3:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: peervault-node3
+    ports:
+      - "5000:5000"
+    environment:
+      - LOG_LEVEL=info
+    command: [
+      "--listen", ":5000", 
+      "--bootstrap", "peervault-node1:3000,peervault-node2:7000",
+      "--log-level", "info"
+    ]
+    volumes:
+      - peervault-node3-data:/app/data
+    networks:
+      - peervault-network
+    depends_on:
+      - peervault-node1
+      - peervault-node2
+    restart: unless-stopped
+
+  # Optional: Demo client that runs the store/get operations
+  peervault-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile.demo
+    container_name: peervault-demo
+    environment:
+      - LOG_LEVEL=info
+    command: [
+      "--target", "peervault-node3:5000",
+      "--bootstrap", "peervault-node1:3000,peervault-node2:7000"
+    ]
+    volumes:
+      - peervault-demo-data:/app/data
+    networks:
+      - peervault-network
+    depends_on:
+      - peervault-node1
+      - peervault-node2
+      - peervault-node3
+    restart: "no"
+
+volumes:
+  peervault-node1-data:
+    driver: local
+  peervault-node2-data:
+    driver: local
+  peervault-node3-data:
+    driver: local
+  peervault-demo-data:
+    driver: local
+
+networks:
+  peervault-network:
+    driver: bridge

@@ -1,0 +1,22 @@
+# syntax=docker/dockerfile:1
+
+FROM golang:1.21-alpine AS build
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /peervault-node ./cmd/peervault-node
+
+FROM alpine:3.20
+WORKDIR /app
+RUN apk add --no-cache ca-certificates tzdata
+COPY --from=build /peervault-node /usr/local/bin/peervault-node
+
+# Create data directory
+RUN mkdir -p /app/data
+
+# Expose the default port (can be overridden)
+EXPOSE 3000
+
+# Set the entrypoint
+ENTRYPOINT ["/usr/local/bin/peervault-node"]

@@ -126,23 +126,26 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Per-peer concurrent stream limits enforced, rate limiting applied, context cancellation propagated throughout the system.
 - Touchpoints: `internal/peer/resource_manager.go`, `internal/app/fileserver/server.go`, `cmd/peervault/main.go`.
 
-3 Windows portability
+3 Windows portability ✅
 
 - Sanitize `StorageRoot` to avoid `:` in directory names; fix in code (not only README).
 - Touchpoints: `cmd/peervault/main.go`, `internal/storage` defaults.
 
-4 Containerization and multi-node runs
+4 Containerization and multi-node runs ✅
 
 - Provide multi-container examples (one node per container) with a compose file; document ports and bootstrap.
+- Acceptance: Multi-container deployment with Docker Compose, separate node containers, demo client, comprehensive documentation.
+- Touchpoints: `docker-compose.yml`, `Dockerfile.node`, `Dockerfile.demo`, `cmd/peervault-node/`, `cmd/peervault-demo/`, `CONTAINERIZATION.md`.
 
 5 Developer tooling
 
-- Cross-platform run scripts (PowerShell + bash) or Taskfile; improve `Makefile` targets.
+- Taskfile; improve `Makefile` targets.
 
 ---
 
 ## Testing Plan
 
+Create a folder named tests, and subfolder with the different type of tests there, also, all the test that are already created, store it there, depending of there's needed
 Unit tests
 
 - Crypto: AEAD encrypt/decrypt roundtrip; tamper detection; nonce uniqueness.

@@ -170,14 +170,60 @@ File to edit: `cmd/peervault/main.go`, function `makeServer`.
 
 ## Docker
 
-Build and run the demo in a container:
+PeerVault supports multiple containerization approaches:
+
+### All-in-One Container (Development)
+
+Build and run the demo in a single container:
 
 ```bash
 docker build -t peervault .
 docker run --rm -p 3000:3000 -p 5000:5000 -p 7000:7000 peervault
 ```
 
-Note: the demo process launches 3 local nodes in one process and exposes multiple ports. For multi-container topologies, split the demo into separate processes (one port per container) and use a network for service discovery.
+### Multi-Container Deployment (Production)
+
+For production-like environments with separate containers:
+
+```bash
+# Build and run all services
+docker-compose up --build
+
+# Run in background
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+```
+
+### Development Setup
+
+For development and testing:
+
+```bash
+docker-compose -f docker-compose.dev.yml up --build
+```
+
+### Individual Nodes
+
+Run individual nodes for custom topologies:
+
+```bash
+# Build node image
+docker build -f Dockerfile.node -t peervault-node .
+
+# Run bootstrap node
+docker run -d --name node1 -p 3000:3000 peervault-node --listen :3000
+
+# Run client node
+docker run -d --name node2 -p 5000:5000 peervault-node \
+  --listen :5000 --bootstrap node1:3000
+```
+
+For detailed containerization documentation, see [CONTAINERIZATION.md](CONTAINERIZATION.md).
 
 ## How it works (high level)
 

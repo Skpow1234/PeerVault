@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # Single container with all nodes (original behavior)
+  peervault-all-in-one:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: peervault-all-in-one
+    ports:
+      - "3000:3000"
+      - "5000:5000"
+      - "7000:7000"
+    environment:
+      - LOG_LEVEL=info
+    volumes:
+      - peervault-all-data:/app/data
+    restart: unless-stopped
+    networks:
+      - peervault-network
+
+volumes:
+  peervault-all-data:
+    driver: local
+
+networks:
+  peervault-network:
+    driver: bridge
