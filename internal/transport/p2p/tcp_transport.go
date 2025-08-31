@@ -95,6 +95,7 @@ func (t *TCPTransport) startAcceptLoop() {
 		}
 		if err != nil {
 			slog.Error("TCP accept error", slog.String("error", err.Error()))
+			continue
 		}
 		go t.handleConn(conn, false)
 	}
