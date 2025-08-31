@@ -468,17 +468,32 @@ func (v *PortValidator) Validate(config *Config) error {
 }
 
 // SecurityValidator validates security-related configuration
-type SecurityValidator struct{}
+type SecurityValidator struct {
+	AllowDemoToken bool // Allow demo token in production
+}
+
+// NewSecurityValidator creates a new security validator
+func NewSecurityValidator(allowDemoToken bool) *SecurityValidator {
+	return &SecurityValidator{
+		AllowDemoToken: allowDemoToken,
+	}
+}
 
 // Validate checks security configuration for potential issues
 func (v *SecurityValidator) Validate(config *Config) error {
-	// Check for weak auth tokens
-	if config.Security.AuthToken == "demo-token" {
+	// Check for weak auth tokens (only if demo token is not allowed)
+	// Use configuration setting if not explicitly set in validator
+	allowDemo := v.AllowDemoToken
+	if !allowDemo {
+		allowDemo = config.Security.AllowDemoToken
+	}
+	
+	if !allowDemo && config.Security.AuthToken == "demo-token" {
 		return fmt.Errorf("security warning: using default demo token in production")
 	}
 
-	// Check for empty cluster key in production
-	if config.Security.ClusterKey == "" {
+	// Check for empty cluster key in production (only if demo tokens are not allowed)
+	if !allowDemo && config.Security.ClusterKey == "" {
 		return fmt.Errorf("security warning: no cluster key specified")
 	}
 

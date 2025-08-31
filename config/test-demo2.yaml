@@ -1,0 +1,76 @@
+server:
+    node_id: ""
+    listen_addr: :3000
+    debug: false
+    shutdown_timeout: 30s
+storage:
+    root: ./storage
+    max_file_size: 1073741824
+    compression: false
+    compression_level: 6
+    deduplication: false
+    cleanup_interval: 1h0m0s
+    retention_period: 24h0m0s
+network:
+    bootstrap_nodes: []
+    connection_timeout: 30s
+    read_timeout: 1m0s
+    write_timeout: 1m0s
+    keep_alive_interval: 30s
+    max_message_size: 1048576
+security:
+    cluster_key: ""
+    auth_token: demo-token
+    tls: false
+    tls_cert_file: ""
+    tls_key_file: ""
+    key_rotation_interval: 24h0m0s
+    encryption_at_rest: true
+    encryption_in_transit: true
+    allow_demo_token: true
+logging:
+    level: info
+    format: json
+    file: ""
+    structured: true
+    include_source: false
+    rotation:
+        max_size: 100
+        max_files: 10
+        max_age: 168h0m0s
+        compress: true
+api:
+    rest:
+        enabled: true
+        port: 8080
+        allowed_origins:
+            - '*'
+        rate_limit_per_min: 100
+        auth_token: demo-token
+    graphql:
+        enabled: true
+        port: 8081
+        enable_playground: true
+        graphql_path: /graphql
+        playground_path: /playground
+        allowed_origins:
+            - '*'
+    grpc:
+        enabled: true
+        port: 8082
+        auth_token: demo-token
+        enable_reflection: true
+        max_concurrent_streams: 100
+peer:
+    max_peers: 100
+    heartbeat_interval: 30s
+    health_timeout: 1m30s
+    reconnect_backoff: 5s
+    max_reconnect_attempts: 10
+performance:
+    max_concurrent_streams_per_peer: 10
+    stream_buffer_size: 65536
+    connection_pool_size: 10
+    enable_multiplexing: true
+    cache_size: 100
+    cache_ttl: 1h0m0s

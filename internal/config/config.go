@@ -125,6 +125,9 @@ type SecurityConfig struct {
 
 	// Enable encryption in transit
 	EncryptionInTransit bool `yaml:"encryption_in_transit" json:"encryption_in_transit" env:"PEERVAULT_ENCRYPTION_IN_TRANSIT" default:"true"`
+
+	// Allow demo tokens in production
+	AllowDemoToken bool `yaml:"allow_demo_token" json:"allow_demo_token" env:"PEERVAULT_ALLOW_DEMO_TOKEN" default:"true"`
 }
 
 // LoggingConfig contains logging-specific configuration
@@ -319,6 +322,7 @@ func DefaultConfig() *Config {
 			KeyRotationInterval: 24 * time.Hour,
 			EncryptionAtRest:    true,
 			EncryptionInTransit: true,
+			AllowDemoToken:      true,
 		},
 		Logging: LoggingConfig{
 			Level:         "info",

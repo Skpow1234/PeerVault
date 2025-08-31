@@ -368,7 +368,7 @@ func main() {
     // Add validators
     manager.AddValidator(&config.DefaultValidator{})
     manager.AddValidator(&config.PortValidator{})
-    manager.AddValidator(&config.SecurityValidator{})
+    manager.AddValidator(config.NewSecurityValidator(false)) // Will use config.Security.AllowDemoToken
     manager.AddValidator(&config.StorageValidator{})
     
     // Load configuration

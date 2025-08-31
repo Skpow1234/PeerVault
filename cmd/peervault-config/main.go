@@ -47,10 +47,8 @@ func main() {
 		// Create configuration manager for other commands
 		manager := config.NewManager(*configPath)
 
-		// Add validators (skip security validator for generation to allow demo tokens)
-		if !*generate {
-			manager.AddValidator(&config.SecurityValidator{})
-		}
+		// Add validators (use configuration setting for demo tokens)
+		manager.AddValidator(config.NewSecurityValidator(false)) // Will use config.Security.AllowDemoToken
 		manager.AddValidator(&config.DefaultValidator{})
 		manager.AddValidator(&config.PortValidator{})
 		manager.AddValidator(&config.StorageValidator{})

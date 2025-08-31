@@ -170,7 +170,7 @@ func TestPortValidator(t *testing.T) {
 }
 
 func TestSecurityValidator(t *testing.T) {
-	validator := &config.SecurityValidator{}
+	validator := config.NewSecurityValidator(false) // Don't allow demo tokens in tests
 
 	// Test valid configuration
 	cfg := config.DefaultConfig()
@@ -181,12 +181,14 @@ func TestSecurityValidator(t *testing.T) {
 
 	// Test weak auth token
 	cfg.Security.AuthToken = "demo-token"
+	cfg.Security.AllowDemoToken = false // Disable demo tokens for this test
 	err = validator.Validate(cfg)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "security warning")
 
 	// Test empty cluster key
 	cfg.Security.ClusterKey = ""
+	cfg.Security.AllowDemoToken = false // Disable demo tokens for this test
 	err = validator.Validate(cfg)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "security warning")
@@ -196,6 +198,23 @@ func TestSecurityValidator(t *testing.T) {
 	err = validator.Validate(cfg)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "security warning")
+}
+
+func TestSecurityValidatorWithDemoTokenAllowed(t *testing.T) {
+	validator := config.NewSecurityValidator(true) // Allow demo tokens
+
+	// Test valid configuration with demo token
+	cfg := config.DefaultConfig()
+	cfg.Security.ClusterKey = "a-very-long-cluster-key-that-is-secure-enough"
+	cfg.Security.AuthToken = "demo-token"
+	err := validator.Validate(cfg)
+	assert.NoError(t, err) // Should pass when demo tokens are allowed
+
+	// Test with configuration setting
+	validator2 := config.NewSecurityValidator(false) // Don't allow demo tokens
+	cfg.Security.AllowDemoToken = true // But config allows it
+	err = validator2.Validate(cfg)
+	assert.NoError(t, err) // Should pass because config allows demo tokens
 }
 
 func TestStorageValidator(t *testing.T) {

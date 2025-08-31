@@ -58,6 +58,7 @@ security:
   key_rotation_interval: "24h"
   encryption_at_rest: true
   encryption_in_transit: true
+  allow_demo_token: true
 
 logging:
   level: "debug"
@@ -122,7 +123,7 @@ performance:
 	manager := config.NewManager(configPath)
 	manager.AddValidator(&config.DefaultValidator{})
 	manager.AddValidator(&config.PortValidator{})
-	manager.AddValidator(&config.SecurityValidator{})
+	manager.AddValidator(config.NewSecurityValidator(false)) // Will use config.Security.AllowDemoToken
 	manager.AddValidator(&config.StorageValidator{})
 
 	// Load configuration
@@ -581,6 +582,7 @@ api:
 security:
   auth_token: "demo-token"  # Weak token
   cluster_key: ""  # Empty cluster key
+  allow_demo_token: true
 `
 
 	configData = fmt.Sprintf(configData, filepath.Join(tempDir, "storage"))
@@ -592,7 +594,7 @@ security:
 	manager := config.NewManager(configPath)
 	manager.AddValidator(&config.DefaultValidator{})
 	manager.AddValidator(&config.PortValidator{})
-	manager.AddValidator(&config.SecurityValidator{})
+	manager.AddValidator(config.NewSecurityValidator(false)) // Will use config.Security.AllowDemoToken
 	manager.AddValidator(&config.StorageValidator{})
 
 	// Load configuration (should fail validation)
