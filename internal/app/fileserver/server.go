@@ -206,20 +206,6 @@ func (s *Server) Get(ctx context.Context, key string) (io.Reader, error) {
 	// For now, since replication is disabled, we'll just return an error
 	// indicating that the file is not available on other peers
 	return nil, fmt.Errorf("file not found on any peer")
-
-	// Read and decrypt the file from disk
-	_, encryptedReader, err := s.store.Read(key)
-	if err != nil {
-		return nil, err
-	}
-
-	var decryptedBuffer bytes.Buffer
-	_, err = crypto.CopyDecrypt(s.getEncryptionKey(), encryptedReader, &decryptedBuffer)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt file: %w", err)
-	}
-
-	return bytes.NewReader(decryptedBuffer.Bytes()), nil
 }
 
 func (s *Server) Store(ctx context.Context, key string, r io.Reader) error {
@@ -511,146 +497,9 @@ func init() {
 	gob.Register(dto.GetFileAck{})
 }
 
-// contextReader wraps an io.Reader with context cancellation support
-type contextReader struct {
-	ctx    context.Context
-	reader io.Reader
-}
 
-func (cr *contextReader) Read(p []byte) (n int, err error) {
-	// Check if context is cancelled before reading
-	select {
-	case <-cr.ctx.Done():
-		return 0, cr.ctx.Err()
-	default:
-	}
 
-	return cr.reader.Read(p)
-}
 
-// resilientStreamToPeers streams a file to peers with retry logic
-func (s *Server) resilientStreamToPeers(ctx context.Context, key string, fileSize int64) error {
-	maxRetries := 3
-
-	s.peerLock.RLock()
-	peers := make([]netp2p.Peer, 0, len(s.peers))
-	for _, peer := range s.peers {
-		peers = append(peers, peer)
-	}
-	s.peerLock.RUnlock()
-
-	if len(peers) == 0 {
-		slog.Info("no peers available for replication", "addr", s.Transport.Addr())
-		return nil
-	}
-
-	// Read the file from disk
-	_, fileReader, err := s.store.Read(key)
-	if err != nil {
-		return fmt.Errorf("failed to read file for streaming: %w", err)
-	}
-	defer func() {
-		if closer, ok := fileReader.(io.Closer); ok {
-			if err := closer.Close(); err != nil {
-				slog.Error("failed to close file reader", "err", err)
-			}
-		}
-	}()
-
-	// Try to stream to each peer with retries
-	successCount := 0
-	for _, peer := range peers {
-		peerAddr := peer.RemoteAddr().String()
-
-		// Check if context is cancelled
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		// Acquire stream slot with resource management
-		streamID := fmt.Sprintf("%s_%s_%d", key, peerAddr, time.Now().UnixNano())
-		streamCtx, err := s.resourceManager.AcquireStreamForPeer(ctx, peerAddr, streamID)
-		if err != nil {
-			slog.Warn("failed to acquire stream slot", "peer", peerAddr, "error", err)
-			continue
-		}
-
-		// Ensure stream is released when done
-		defer s.resourceManager.ReleaseStreamForPeer(peerAddr, streamID)
-
-		for attempt := 0; attempt < maxRetries; attempt++ {
-			// Check if stream context is cancelled
-			select {
-			case <-streamCtx.Done():
-				return streamCtx.Err()
-			default:
-			}
-
-			if err := s.streamToSinglePeer(streamCtx, key, fileReader, peer); err != nil {
-				slog.Error("attempt failed to stream to peer", "attempt", attempt+1, "peer", peerAddr, "err", err)
-
-				if attempt == maxRetries-1 {
-					slog.Error("failed to stream to peer after retries", "peer", peerAddr, "max_retries", maxRetries)
-				}
-				continue
-			}
-
-			// Success
-			successCount++
-			slog.Info("successfully streamed to peer", "peer", peerAddr)
-			break
-		}
-	}
-
-	if successCount == 0 {
-		return fmt.Errorf("failed to stream to any peer after retries")
-	}
-
-	slog.Info("successfully streamed to peers", "success_count", successCount, "total_peers", len(peers))
-	return nil
-}
-
-// streamToSinglePeer streams a file to a single peer
-func (s *Server) streamToSinglePeer(ctx context.Context, key string, fileReader io.Reader, peer netp2p.Peer) error {
-	// Check if context is cancelled
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-	}
-
-	// Send stream marker directly (without frame header)
-	if err := peer.Send([]byte{netp2p.IncomingStream}); err != nil {
-		return fmt.Errorf("failed to send stream marker: %w", err)
-	}
-
-	// Send the key length and key first
-	keyBytes := []byte(key)
-	keyLen := uint32(len(keyBytes))
-	if err := binary.Write(peer, binary.LittleEndian, keyLen); err != nil {
-		return fmt.Errorf("failed to write key length: %w", err)
-	}
-	if _, err := peer.Write(keyBytes); err != nil {
-		return fmt.Errorf("failed to write key: %w", err)
-	}
-
-	// Create a context-aware reader that checks for cancellation
-	ctxReader := &contextReader{
-		ctx:    ctx,
-		reader: fileReader,
-	}
-
-	// Stream the file with encryption
-	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), ctxReader, peer)
-	if err != nil {
-		return fmt.Errorf("failed to stream encrypted file: %w", err)
-	}
-
-	slog.Info("streamed", "bytes", n, "peer", peer.RemoteAddr(), "key", key)
-	return nil
-}
 
 // FileOperationManager manages concurrent file operations
 type FileOperationManager struct {

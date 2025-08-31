@@ -93,7 +93,11 @@ func (s *Store) WriteDecrypt(copyDecrypt func([]byte, io.Reader, io.Writer) (int
 	if err != nil {
 		return 0, err
 	}
-	defer f.Close()
+	defer func() {
+		if closeErr := f.Close(); closeErr != nil {
+			slog.Error("failed to close file", slog.String("error", closeErr.Error()))
+		}
+	}()
 	n, err := copyDecrypt(encKey, r, f)
 	return int64(n), err
 }
@@ -134,7 +138,11 @@ func (s *Store) writeStream(key string, r io.Reader) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer f.Close()
+	defer func() {
+		if closeErr := f.Close(); closeErr != nil {
+			slog.Error("failed to close file", slog.String("error", closeErr.Error()))
+		}
+	}()
 	return io.Copy(f, r)
 }
 
@@ -149,7 +157,9 @@ func (s *Store) readStream(key string) (int64, io.ReadCloser, error) {
 	}
 	fi, err := file.Stat()
 	if err != nil {
-		file.Close()
+		if closeErr := file.Close(); closeErr != nil {
+			slog.Error("failed to close file", slog.String("error", closeErr.Error()))
+		}
 		return 0, nil, err
 	}
 	return fi.Size(), file, nil

@@ -38,9 +38,11 @@ func TestStore(t *testing.T) {
 			t.Error(err)
 		}
 		b, _ := io.ReadAll(r)
-		if err := r.Close(); err != nil {
-			t.Error(err)
-		} // Ensure file is closed before deletion
+		defer func() {
+			if closeErr := r.Close(); closeErr != nil {
+				t.Error(closeErr)
+			}
+		}() // Ensure file is closed before deletion
 		if string(b) != string(data) {
 			t.Errorf("want %s have %s", data, b)
 		}
