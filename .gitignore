@@ -1,8 +1,6 @@
 # Build artifacts
 bin
-peervault.exe
-peervault-demo.exe
-peervault-node.exe
+
 
 # Generated storage networks
 internal/storage/ggnetwork
