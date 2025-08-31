@@ -1,0 +1,178 @@
+syntax = "proto3";
+
+package peervault;
+
+option go_package = "github.com/Skpow1234/Peervault/proto/peervault";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// PeerVault gRPC API service definitions
+service PeerVaultService {
+  // File operations
+  rpc UploadFile(stream FileChunk) returns (FileResponse);
+  rpc DownloadFile(FileRequest) returns (stream FileChunk);
+  rpc ListFiles(ListFilesRequest) returns (ListFilesResponse);
+  rpc GetFile(FileRequest) returns (FileResponse);
+  rpc DeleteFile(FileRequest) returns (DeleteFileResponse);
+  rpc UpdateFileMetadata(UpdateFileMetadataRequest) returns (FileResponse);
+
+  // Peer operations
+  rpc ListPeers(google.protobuf.Empty) returns (ListPeersResponse);
+  rpc GetPeer(PeerRequest) returns (PeerResponse);
+  rpc AddPeer(AddPeerRequest) returns (PeerResponse);
+  rpc RemovePeer(PeerRequest) returns (RemovePeerResponse);
+  rpc GetPeerHealth(PeerRequest) returns (PeerHealthResponse);
+
+  // System operations
+  rpc GetSystemInfo(google.protobuf.Empty) returns (SystemInfoResponse);
+  rpc GetMetrics(google.protobuf.Empty) returns (MetricsResponse);
+  rpc HealthCheck(google.protobuf.Empty) returns (HealthResponse);
+
+  // Streaming operations
+  rpc StreamFileOperations(google.protobuf.Empty) returns (stream FileOperationEvent);
+  rpc StreamPeerEvents(google.protobuf.Empty) returns (stream PeerEvent);
+  rpc StreamSystemEvents(google.protobuf.Empty) returns (stream SystemEvent);
+}
+
+// File-related messages
+message FileChunk {
+  string file_key = 1;
+  bytes data = 2;
+  int64 offset = 3;
+  bool is_last = 4;
+  string checksum = 5;
+}
+
+message FileRequest {
+  string key = 1;
+}
+
+message FileResponse {
+  string key = 1;
+  string name = 2;
+  int64 size = 3;
+  string content_type = 4;
+  string hash = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  map<string, string> metadata = 8;
+  repeated FileReplica replicas = 9;
+}
+
+message FileReplica {
+  string peer_id = 1;
+  string status = 2;
+  google.protobuf.Timestamp created_at = 3;
+}
+
+message ListFilesRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  string filter = 3;
+}
+
+message ListFilesResponse {
+  repeated FileResponse files = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message UpdateFileMetadataRequest {
+  string key = 1;
+  map<string, string> metadata = 2;
+}
+
+message DeleteFileResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Peer-related messages
+message PeerRequest {
+  string id = 1;
+}
+
+message PeerResponse {
+  string id = 1;
+  string address = 2;
+  int32 port = 3;
+  string status = 4;
+  google.protobuf.Timestamp last_seen = 5;
+  google.protobuf.Timestamp created_at = 6;
+  map<string, string> metadata = 7;
+}
+
+message AddPeerRequest {
+  string address = 1;
+  int32 port = 2;
+  map<string, string> metadata = 3;
+}
+
+message ListPeersResponse {
+  repeated PeerResponse peers = 1;
+  int32 total = 2;
+}
+
+message RemovePeerResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message PeerHealthResponse {
+  string peer_id = 1;
+  string status = 2;
+  double latency_ms = 3;
+  int32 uptime_seconds = 4;
+  map<string, string> metrics = 5;
+}
+
+// System-related messages
+message SystemInfoResponse {
+  string version = 1;
+  int64 uptime_seconds = 2;
+  google.protobuf.Timestamp start_time = 3;
+  int64 storage_used = 4;
+  int64 storage_total = 5;
+  int32 peer_count = 6;
+  int32 file_count = 7;
+}
+
+message MetricsResponse {
+  int64 requests_total = 1;
+  double requests_per_minute = 2;
+  int32 active_connections = 3;
+  double storage_usage_percent = 4;
+  google.protobuf.Timestamp last_updated = 5;
+}
+
+message HealthResponse {
+  string status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string version = 3;
+}
+
+// Event streaming messages
+message FileOperationEvent {
+  string event_type = 1; // "upload", "download", "delete", "update"
+  string file_key = 2;
+  string peer_id = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  map<string, string> metadata = 5;
+}
+
+message PeerEvent {
+  string event_type = 1; // "connected", "disconnected", "health_changed"
+  string peer_id = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  map<string, string> metadata = 4;
+}
+
+message SystemEvent {
+  string event_type = 1; // "startup", "shutdown", "error", "warning"
+  string component = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string message = 4;
+  map<string, string> metadata = 5;
+}

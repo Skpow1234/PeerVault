@@ -147,7 +147,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ## Milestone 4 — API Interfaces and External Integration (P3)
 
-1 GraphQL API interface
+1 GraphQL API interface ✅
 
 - Problem: No flexible API for complex queries and real-time data access across the distributed system.
 - Solution: Implement GraphQL API with schema-first design for file operations, peer management, and system monitoring.
@@ -156,7 +156,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/api/graphql/`, `internal/schema/`, `cmd/peervault-graphql/`, `docs/graphql/`.
 - Tests: We want to have integration and unit tests for this
 
-2 REST API interface (Complementary)
+2 REST API interface (Complementary) ✅
 
 - Problem: No simple HTTP API for basic operations and integration with existing systems.
 - Solution: Implement REST API alongside GraphQL for simple CRUD operations and webhook integrations.
@@ -174,7 +174,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/api/grpc/`, `proto/`, `cmd/peervault-grpc/`, `docs/grpc/`.
 - Tests: We want to have integration and unit tests for this
 
-3 Configuration management system
+4 Configuration management system
 
 - Problem: Hardcoded configuration values and environment variable dependencies.
 - Solution: Implement hierarchical configuration with file-based config, environment overrides, and validation.
@@ -183,7 +183,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/config/`, `config/`, `cmd/peervault/config.go`.
 - Tests: We want to have integration and unit tests for this
 
-4 Developer documentation and API reference
+5 Developer documentation and API reference
 
 - Problem: No comprehensive developer documentation, API reference, or interactive documentation.
 - Solution: Implement comprehensive documentation with Swagger/OpenAPI, GraphQL Playground, and developer guides.
@@ -192,7 +192,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `docs/`, `docs/api/`, `docs/graphql/`, `docs/sdk/`, `docs/examples/`.
 - Tests: We want to have integration and unit tests for this
 
-5 Plugin architecture
+6 Plugin architecture
 
 - Problem: No extensibility for custom storage backends, authentication methods, or transport protocols.
 - Solution: Design plugin system for storage providers, authentication mechanisms, and transport layers.

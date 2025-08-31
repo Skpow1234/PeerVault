@@ -398,6 +398,88 @@ The REST API includes comprehensive OpenAPI/Swagger documentation:
 - **OpenAPI Specification**: `http://localhost:8081/swagger.json` - Machine-readable API specification
 - **Complete Documentation**: [docs/api/peervault-rest-api.yaml](docs/api/peervault-rest-api.yaml) - Full OpenAPI 3.0 specification
 
+## gRPC API
+
+PeerVault includes a high-performance gRPC API for streaming operations and service-to-service communication, built with Protocol Buffers and designed for high-throughput applications.
+
+### Architecture
+
+The gRPC API follows a service-oriented architecture:
+
+```bash
+internal/api/grpc/
+├── types/            # Type definitions (temporary, will be replaced by protobuf)
+│   └── types.go      # Basic type definitions
+├── services/         # Service implementations
+│   ├── file_service.go
+│   ├── peer_service.go
+│   └── system_service.go
+├── server.go         # Main gRPC server
+└── proto/            # Protocol Buffer definitions
+    └── peervault.proto
+```
+
+### Running the gRPC API Server
+
+```bash
+# Build and run the gRPC API server
+go build -o peervault-grpc.exe ./cmd/peervault-grpc
+./peervault-grpc.exe
+
+# Or run directly
+go run ./cmd/peervault-grpc
+
+# Run with custom configuration
+go run ./cmd/peervault-grpc -port 8082 -auth-token your-secure-token
+```
+
+### gRPC API Features
+
+- **Bidirectional Streaming**: Real-time file upload/download with chunked transfer
+- **Service Discovery**: Built-in service discovery and load balancing support
+- **High Throughput**: Optimized for high-performance applications
+- **Type Safety**: Strongly typed with protobuf definitions
+- **Authentication**: Token-based authentication with metadata
+- **Event Streaming**: Real-time events for file operations, peer status, and system metrics
+
+### gRPC Services
+
+- **File Operations**: Streaming upload/download, metadata management
+- **Peer Operations**: Peer discovery, health monitoring, network management
+- **System Operations**: Metrics collection, health checks, system information
+- **Event Streaming**: Real-time events for monitoring and notifications
+
+### Example Usage
+
+```go
+// Connect to gRPC server
+conn, err := grpc.Dial("localhost:8082", grpc.WithTransportCredentials(insecure.NewCredentials()))
+if err != nil {
+    log.Fatal(err)
+}
+defer conn.Close()
+
+client := pb.NewPeerVaultServiceClient(conn)
+
+// Health check
+response, err := client.HealthCheck(context.Background(), &pb.Empty{})
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Status: %s\n", response.Status)
+```
+
+### gRPC API Benefits
+
+- **High Performance**: Optimized for low-latency, high-throughput operations
+- **Streaming Support**: Efficient handling of large file transfers
+- **Type Safety**: Strongly typed with Protocol Buffers
+- **Multi-language Support**: Client libraries available for multiple languages
+- **Service Discovery**: Built-in service discovery capabilities
+- **Real-time Events**: Streaming events for monitoring and notifications
+
+For complete gRPC API documentation, see [docs/grpc/README.md](docs/grpc/README.md).
+
 The Swagger documentation includes:
 
 - Detailed endpoint descriptions with examples
