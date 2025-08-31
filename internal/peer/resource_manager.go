@@ -57,18 +57,18 @@ func (st *StreamTracker) AcquireStream(ctx context.Context, streamID string) (co
 
 	// Check concurrent stream limit
 	if len(st.activeStreams) >= st.limits.MaxConcurrentStreams {
-		return nil, fmt.Errorf("concurrent stream limit exceeded (%d/%d)", 
+		return nil, fmt.Errorf("concurrent stream limit exceeded (%d/%d)",
 			len(st.activeStreams), st.limits.MaxConcurrentStreams)
 	}
 
 	// Create a new context with timeout
 	streamCtx, cancel := context.WithTimeout(ctx, st.limits.StreamTimeout)
-	
+
 	// Store the cancel function
 	st.activeStreams[streamID] = cancel
 
-	slog.Debug("stream acquired", 
-		"stream_id", streamID, 
+	slog.Debug("stream acquired",
+		"stream_id", streamID,
 		"active_streams", len(st.activeStreams),
 		"max_streams", st.limits.MaxConcurrentStreams)
 
@@ -83,8 +83,8 @@ func (st *StreamTracker) ReleaseStream(streamID string) {
 	if cancel, exists := st.activeStreams[streamID]; exists {
 		cancel()
 		delete(st.activeStreams, streamID)
-		slog.Debug("stream released", 
-			"stream_id", streamID, 
+		slog.Debug("stream released",
+			"stream_id", streamID,
 			"active_streams", len(st.activeStreams))
 	}
 }

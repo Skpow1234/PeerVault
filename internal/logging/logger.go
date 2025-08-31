@@ -23,7 +23,7 @@ func ConfigureLogger(level string) {
 
 	// Create a structured logger with JSON output for production
 	opts := &slog.HandlerOptions{
-		Level: logLevel,
+		Level:     logLevel,
 		AddSource: true,
 	}
 

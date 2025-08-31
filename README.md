@@ -328,6 +328,23 @@ go test ./...
 make test
 ```
 
+## Lint
+
+```bash
+# Run the linter with custom configuration
+golangci-lint run --config config/.golangci.yml
+
+# Run with default configuration
+golangci-lint run
+
+# Run specific linters
+golangci-lint run --disable-all --enable=errcheck,gosec,gofmt
+
+# Fix formatting issues
+go fmt ./...
+goimports -w .
+```
+
 ## Clean up local data
 
 The demo writes files under a per-node storage root. To remove all data, delete the created folders (e.g., `ggnetwork` or the per-node roots you configured), or call `Store.Clear()` from your own code.

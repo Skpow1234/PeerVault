@@ -108,16 +108,22 @@ func (t *TCPTransport) handleConn(conn net.Conn, outbound bool) {
 	}()
 
 	peer := NewTCPPeer(conn, outbound)
-	if err = t.HandshakeFunc(peer); err != nil { return }
+	if err = t.HandshakeFunc(peer); err != nil {
+		return
+	}
 	if t.OnPeer != nil {
-		if err = t.OnPeer(peer); err != nil { return }
+		if err = t.OnPeer(peer); err != nil {
+			return
+		}
 	}
 
 	// Read loop
 	for {
 		rpc := RPC{}
 		err = t.Decoder.Decode(conn, &rpc)
-		if err != nil { return }
+		if err != nil {
+			return
+		}
 		rpc.From = conn.RemoteAddr().String()
 		if rpc.Stream {
 			peer.wg.Add(1)
@@ -129,5 +135,3 @@ func (t *TCPTransport) handleConn(conn net.Conn, outbound bool) {
 		t.rpcch <- rpc
 	}
 }
-
-

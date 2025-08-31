@@ -208,7 +208,10 @@ func (s *Server) Get(ctx context.Context, key string) (io.Reader, error) {
 
 	for _, peer := range peers {
 		var fileSize int64
-		binary.Read(peer, binary.LittleEndian, &fileSize)
+		if err := binary.Read(peer, binary.LittleEndian, &fileSize); err != nil {
+			slog.Error("failed to read file size from peer", "peer", peer.RemoteAddr(), "err", err)
+			continue
+		}
 		n, err := s.store.WriteDecrypt(crypto.CopyDecrypt, s.getEncryptionKey(), key, io.LimitReader(peer, fileSize))
 		if err != nil {
 			return nil, err
@@ -363,16 +366,20 @@ func (s *Server) handleMessageGetFile(from string, msg dto.GetFile) error {
 		if err != nil {
 			return err
 		}
-		if rc, ok := r.(io.ReadCloser); ok {
-			slog.Info("closing readCloser")
-			defer rc.Close()
-		}
+		// r is already an io.ReadCloser, so we can close it directly
+		defer r.Close()
 		peer, ok := s.getPeer(from)
 		if !ok {
 			return fmt.Errorf("peer %s not in map", from)
 		}
-		peer.Send([]byte{netp2p.IncomingStream})
-		binary.Write(peer, binary.LittleEndian, fileSize)
+		if err := peer.Send([]byte{netp2p.IncomingStream}); err != nil {
+			slog.Error("failed to send stream header", "peer", from, "err", err)
+			return err
+		}
+		if err := binary.Write(peer, binary.LittleEndian, fileSize); err != nil {
+			slog.Error("failed to write file size", "peer", from, "err", err)
+			return err
+		}
 		n, err := io.Copy(peer, r)
 		if err != nil {
 			return err
@@ -447,7 +454,10 @@ func (s *Server) Start() error {
 	if err := s.Transport.ListenAndAccept(); err != nil {
 		return err
 	}
-	s.BootstrapNetwork()
+	if err := s.BootstrapNetwork(); err != nil {
+		slog.Error("failed to bootstrap network", "err", err)
+		// Don't return error here as we can still function without bootstrap
+	}
 	s.loop()
 	return nil
 }
@@ -498,8 +508,8 @@ func (s *Server) resilientStreamToPeers(ctx context.Context, key string, fileSiz
 		return fmt.Errorf("failed to read file for streaming: %w", err)
 	}
 	defer func() {
-		if rc, ok := fileReader.(io.ReadCloser); ok {
-			rc.Close()
+		if closer, ok := fileReader.(io.Closer); ok {
+			closer.Close()
 		}
 	}()
 

@@ -56,7 +56,7 @@ func TestBasicStoreGet(t *testing.T) {
 	// Test 1: Store file on server1
 	t.Run("Store on server1", func(t *testing.T) {
 		slog.Info("Storing file on server1", "key", testKey)
-		
+
 		err := server1.Store(ctx, testKey, bytes.NewReader(testData))
 		if err != nil {
 			t.Fatalf("Failed to store file on server1: %v", err)
@@ -71,7 +71,7 @@ func TestBasicStoreGet(t *testing.T) {
 	// Test 2: Get file from server2 (should be replicated)
 	t.Run("Get from server2", func(t *testing.T) {
 		slog.Info("Retrieving file from server2", "key", testKey)
-		
+
 		reader, err := server2.Get(ctx, testKey)
 		if err != nil {
 			t.Fatalf("Failed to get file from server2: %v", err)
@@ -91,15 +91,15 @@ func TestBasicStoreGet(t *testing.T) {
 			t.Errorf("Data mismatch: expected %q, got %q", string(testData), string(retrievedData))
 		}
 
-		slog.Info("File retrieved successfully from server2", 
-			"expected_size", len(testData), 
+		slog.Info("File retrieved successfully from server2",
+			"expected_size", len(testData),
 			"actual_size", len(retrievedData))
 	})
 
 	// Test 3: Get file from server1 (should be local)
 	t.Run("Get from server1", func(t *testing.T) {
 		slog.Info("Retrieving file from server1", "key", testKey)
-		
+
 		reader, err := server1.Get(ctx, testKey)
 		if err != nil {
 			t.Fatalf("Failed to get file from server1: %v", err)
@@ -165,7 +165,7 @@ func TestLargeFileStreaming(t *testing.T) {
 	// Store large file
 	t.Run("Store large file", func(t *testing.T) {
 		slog.Info("Storing large file", "key", testKey, "size", len(testData))
-		
+
 		start := time.Now()
 		err := server1.Store(ctx, testKey, bytes.NewReader(testData))
 		duration := time.Since(start)
@@ -183,7 +183,7 @@ func TestLargeFileStreaming(t *testing.T) {
 	// Retrieve large file
 	t.Run("Get large file", func(t *testing.T) {
 		slog.Info("Retrieving large file", "key", testKey)
-		
+
 		start := time.Now()
 		reader, err := server2.Get(ctx, testKey)
 		if err != nil {
@@ -201,12 +201,12 @@ func TestLargeFileStreaming(t *testing.T) {
 		}
 
 		if !bytes.Equal(testData, retrievedData) {
-			t.Errorf("Large file data mismatch: expected %d bytes, got %d bytes", 
+			t.Errorf("Large file data mismatch: expected %d bytes, got %d bytes",
 				len(testData), len(retrievedData))
 		}
 
-		slog.Info("Large file retrieved successfully", 
-			"duration", duration, 
+		slog.Info("Large file retrieved successfully",
+			"duration", duration,
 			"size", len(retrievedData))
 	})
 }

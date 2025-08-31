@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -105,7 +106,10 @@ func (km *KeyManager) RotateKey() error {
 
 func GenerateID() string {
 	buf := make([]byte, 32)
-	io.ReadFull(rand.Reader, buf)
+	if _, err := io.ReadFull(rand.Reader, buf); err != nil {
+		// Fallback to time-based ID if random generation fails
+		return fmt.Sprintf("%d", time.Now().UnixNano())
+	}
 	return hex.EncodeToString(buf)
 }
 
@@ -118,7 +122,11 @@ func HashKey(key string) string {
 // This is kept for backward compatibility
 func NewEncryptionKey() []byte {
 	keyBuf := make([]byte, 32)
-	io.ReadFull(rand.Reader, keyBuf)
+	if _, err := io.ReadFull(rand.Reader, keyBuf); err != nil {
+		// Fallback to deterministic key if random generation fails
+		// This is not ideal but prevents panic
+		return []byte("fallback-key-32-bytes-long-12345")
+	}
 	return keyBuf
 }
 

@@ -96,7 +96,7 @@ func (tsm *TestServerManager) StartAll(t *testing.T) {
 
 	// Wait for all servers to start
 	wg.Wait()
-	
+
 	// Give servers time to connect
 	time.Sleep(2 * time.Second)
 }
@@ -146,9 +146,9 @@ type NetworkConfig struct {
 
 // NodeConfig defines the configuration for a single node
 type NodeConfig struct {
-	Name            string
-	ListenAddr      string
-	BootstrapNodes  []string
+	Name           string
+	ListenAddr     string
+	BootstrapNodes []string
 }
 
 // TestDataGenerator generates test data for various scenarios
@@ -190,11 +190,11 @@ func (tdg *TestDataGenerator) GenerateTextFile(content string) []byte {
 
 // TestScenario defines a test scenario with setup and teardown
 type TestScenario struct {
-	Name        string
-	Setup       func(*testing.T) *TestServerManager
-	Teardown    func(*testing.T, *TestServerManager)
-	Test        func(*testing.T, *TestServerManager)
-	Timeout     time.Duration
+	Name     string
+	Setup    func(*testing.T) *TestServerManager
+	Teardown func(*testing.T, *TestServerManager)
+	Test     func(*testing.T, *TestServerManager)
+	Timeout  time.Duration
 }
 
 // RunTestScenario runs a test scenario with proper setup and teardown

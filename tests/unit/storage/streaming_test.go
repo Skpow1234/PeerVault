@@ -48,7 +48,7 @@ func TestStreamingEncryption(t *testing.T) {
 	encryptedReader := bytes.NewReader(outputBuffer.Bytes())
 	decryptedBuffer := new(bytes.Buffer)
 
-	n, err = crypto.CopyDecrypt(key, encryptedReader, decryptedBuffer)
+	_, err = crypto.CopyDecrypt(key, encryptedReader, decryptedBuffer)
 	if err != nil {
 		t.Fatalf("failed to decrypt streaming data: %v", err)
 	}

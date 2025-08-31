@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"log/slog"
 	"os"
@@ -57,7 +57,11 @@ func main() {
 	s3 := makeServer(":5000", ":3000", ":7000")
 	go func() { log.Fatal(s1.Start()) }()
 	go func() { log.Fatal(s2.Start()) }()
-	go s3.Start()
+	go func() {
+		if err := s3.Start(); err != nil {
+			log.Printf("s3.Start() error: %v", err)
+		}
+	}()
 
 	// Create a context with timeout for the operations
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -73,7 +77,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		b, err := ioutil.ReadAll(r)
+		b, err := io.ReadAll(r)
 		if err != nil {
 			log.Fatal(err)
 		}

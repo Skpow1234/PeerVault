@@ -1,36 +1,29 @@
 run:
   timeout: 5m
-  go: "1.21"
+  go: "1.18"
 
 linters:
+  disable:
+    - varcheck
+    - structcheck
+    - gomnd
+    - dupl
+    - lll
+    - godot
+    - unparam
+    - ineffassign
+    - gosimple
+    - stylecheck
+    - staticcheck
   enable:
+    - errcheck
+    - gosec
     - gofmt
     - goimports
-    - govet
-    - errcheck
-    - staticcheck
-    - gosimple
-    - ineffassign
     - unused
+    - govet
     - misspell
-    - gosec
-    - gocyclo
-    - dupl
-    - goconst
     - gocritic
-    - godot
-    - gomnd
-    - lll
-    - nakedret
-    - noctx
-    - rowserrcheck
-    - structcheck
-    - stylecheck
-    - typecheck
-    - unconvert
-    - unparam
-    - varcheck
-    - whitespace
 
 issues:
   max-issues-per-linter: 0

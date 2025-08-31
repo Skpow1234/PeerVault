@@ -3,7 +3,7 @@ package storage
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"testing"
 	"time"
 
@@ -35,7 +35,7 @@ func TestStore(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		b, _ := ioutil.ReadAll(r)
+		b, _ := io.ReadAll(r)
 		r.Close() // Ensure file is closed before deletion
 		if string(b) != string(data) {
 			t.Errorf("want %s have %s", data, b)

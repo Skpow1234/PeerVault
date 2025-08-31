@@ -325,9 +325,9 @@ func TestPerformanceMetrics(t *testing.T) {
 		utils.AssertNoError(t, err, "Read operation failed")
 		utils.AssertEqual(t, len(testData), len(data), "Data size mismatch")
 
-		slog.Info("Get performance", 
-			"get_duration", duration, 
-			"read_duration", readDuration, 
+		slog.Info("Get performance",
+			"get_duration", duration,
+			"read_duration", readDuration,
 			"total_duration", duration+readDuration,
 			"size", len(data))
 	})
@@ -346,9 +346,9 @@ func TestPerformanceMetrics(t *testing.T) {
 		totalDuration := time.Since(start)
 		throughput := float64(numFiles) / totalDuration.Seconds()
 
-		slog.Info("Throughput test", 
-			"files", numFiles, 
-			"duration", totalDuration, 
+		slog.Info("Throughput test",
+			"files", numFiles,
+			"duration", totalDuration,
 			"throughput_files_per_second", throughput)
 	})
 }
