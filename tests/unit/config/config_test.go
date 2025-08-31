@@ -67,19 +67,19 @@ logging:
 
 func TestLoadFromEnvironment(t *testing.T) {
 	// Set environment variables
-	os.Setenv("PEERVAULT_LISTEN_ADDR", ":9090")
-	os.Setenv("PEERVAULT_STORAGE_ROOT", "/env/storage")
-	os.Setenv("PEERVAULT_LOG_LEVEL", "warn")
-	os.Setenv("PEERVAULT_DEBUG", "true")
-	os.Setenv("PEERVAULT_MAX_FILE_SIZE", "1048576")
-	os.Setenv("PEERVAULT_BOOTSTRAP_NODES", "node1:3000,node2:3000")
+	require.NoError(t, os.Setenv("PEERVAULT_LISTEN_ADDR", ":9090"))
+	require.NoError(t, os.Setenv("PEERVAULT_STORAGE_ROOT", "/env/storage"))
+	require.NoError(t, os.Setenv("PEERVAULT_LOG_LEVEL", "warn"))
+	require.NoError(t, os.Setenv("PEERVAULT_DEBUG", "true"))
+	require.NoError(t, os.Setenv("PEERVAULT_MAX_FILE_SIZE", "1048576"))
+	require.NoError(t, os.Setenv("PEERVAULT_BOOTSTRAP_NODES", "node1:3000,node2:3000"))
 	defer func() {
-		os.Unsetenv("PEERVAULT_LISTEN_ADDR")
-		os.Unsetenv("PEERVAULT_STORAGE_ROOT")
-		os.Unsetenv("PEERVAULT_LOG_LEVEL")
-		os.Unsetenv("PEERVAULT_DEBUG")
-		os.Unsetenv("PEERVAULT_MAX_FILE_SIZE")
-		os.Unsetenv("PEERVAULT_BOOTSTRAP_NODES")
+		require.NoError(t, os.Unsetenv("PEERVAULT_LISTEN_ADDR"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_STORAGE_ROOT"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_LOG_LEVEL"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_DEBUG"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_MAX_FILE_SIZE"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_BOOTSTRAP_NODES"))
 	}()
 
 	manager := config.NewManager("")
@@ -114,11 +114,11 @@ logging:
 	require.NoError(t, err)
 
 	// Set environment variables to override file values
-	os.Setenv("PEERVAULT_LOG_LEVEL", "debug")
-	os.Setenv("PEERVAULT_DEBUG", "true")
+	require.NoError(t, os.Setenv("PEERVAULT_LOG_LEVEL", "debug"))
+	require.NoError(t, os.Setenv("PEERVAULT_DEBUG", "true"))
 	defer func() {
-		os.Unsetenv("PEERVAULT_LOG_LEVEL")
-		os.Unsetenv("PEERVAULT_DEBUG")
+		require.NoError(t, os.Unsetenv("PEERVAULT_LOG_LEVEL"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_DEBUG"))
 	}()
 
 	manager := config.NewManager(configPath)
@@ -298,13 +298,13 @@ logging:
 
 func TestDurationParsing(t *testing.T) {
 	// Test duration parsing from environment
-	os.Setenv("PEERVAULT_SHUTDOWN_TIMEOUT", "60s")
-	os.Setenv("PEERVAULT_CLEANUP_INTERVAL", "2h")
-	os.Setenv("PEERVAULT_RETENTION_PERIOD", "168h")
+	require.NoError(t, os.Setenv("PEERVAULT_SHUTDOWN_TIMEOUT", "60s"))
+	require.NoError(t, os.Setenv("PEERVAULT_CLEANUP_INTERVAL", "2h"))
+	require.NoError(t, os.Setenv("PEERVAULT_RETENTION_PERIOD", "168h"))
 	defer func() {
-		os.Unsetenv("PEERVAULT_SHUTDOWN_TIMEOUT")
-		os.Unsetenv("PEERVAULT_CLEANUP_INTERVAL")
-		os.Unsetenv("PEERVAULT_RETENTION_PERIOD")
+		require.NoError(t, os.Unsetenv("PEERVAULT_SHUTDOWN_TIMEOUT"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_CLEANUP_INTERVAL"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_RETENTION_PERIOD"))
 	}()
 
 	manager := config.NewManager("")
@@ -319,11 +319,11 @@ func TestDurationParsing(t *testing.T) {
 
 func TestSliceParsing(t *testing.T) {
 	// Test slice parsing from environment
-	os.Setenv("PEERVAULT_BOOTSTRAP_NODES", "node1:3000,node2:3000,node3:3000")
-	os.Setenv("PEERVAULT_REST_ALLOWED_ORIGINS", "https://example.com,https://test.com")
+	require.NoError(t, os.Setenv("PEERVAULT_BOOTSTRAP_NODES", "node1:3000,node2:3000,node3:3000"))
+	require.NoError(t, os.Setenv("PEERVAULT_REST_ALLOWED_ORIGINS", "https://example.com,https://test.com"))
 	defer func() {
-		os.Unsetenv("PEERVAULT_BOOTSTRAP_NODES")
-		os.Unsetenv("PEERVAULT_REST_ALLOWED_ORIGINS")
+		require.NoError(t, os.Unsetenv("PEERVAULT_BOOTSTRAP_NODES"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_REST_ALLOWED_ORIGINS"))
 	}()
 
 	manager := config.NewManager("")

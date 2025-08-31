@@ -522,7 +522,9 @@ func (v *StorageValidator) checkStorageWritable(path string) error {
 	}
 
 	// Clean up test file
-	os.Remove(testFile)
+	if err := os.Remove(testFile); err != nil {
+		return fmt.Errorf("failed to clean up test file: %w", err)
+	}
 
 	return nil
 }
