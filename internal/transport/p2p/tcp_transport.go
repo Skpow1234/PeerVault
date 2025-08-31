@@ -30,7 +30,7 @@ func NewTCPPeer(conn net.Conn, outbound bool) *TCPPeer {
 func (p *TCPPeer) CloseStream() { p.wg.Done() }
 
 func (p *TCPPeer) Send(b []byte) error {
-	_, err := p.Conn.Write(b)
+	_, err := p.Write(b)
 	return err
 }
 
@@ -104,7 +104,9 @@ func (t *TCPTransport) handleConn(conn net.Conn, outbound bool) {
 	var err error
 	defer func() {
 		slog.Error("dropping peer connection", slog.String("error", err.Error()))
-		conn.Close()
+		if closeErr := conn.Close(); closeErr != nil {
+			slog.Error("failed to close connection", slog.String("error", closeErr.Error()))
+		}
 	}()
 
 	peer := NewTCPPeer(conn, outbound)

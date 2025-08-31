@@ -286,7 +286,12 @@ func (s *Server) OnPeer(p netp2p.Peer) error {
 }
 
 func (s *Server) loop() {
-	defer func() { slog.Info("file server stopped"); s.Transport.Close() }()
+	defer func() {
+		slog.Info("file server stopped")
+		if err := s.Transport.Close(); err != nil {
+			slog.Error("failed to close transport", "err", err)
+		}
+	}()
 	for {
 		select {
 		case rpc := <-s.Transport.Consume():
@@ -367,7 +372,11 @@ func (s *Server) handleMessageGetFile(from string, msg dto.GetFile) error {
 			return err
 		}
 		// r is already an io.ReadCloser, so we can close it directly
-		defer r.Close()
+		defer func() {
+			if err := r.Close(); err != nil {
+				slog.Error("failed to close file reader", "err", err)
+			}
+		}()
 		peer, ok := s.getPeer(from)
 		if !ok {
 			return fmt.Errorf("peer %s not in map", from)
@@ -509,7 +518,9 @@ func (s *Server) resilientStreamToPeers(ctx context.Context, key string, fileSiz
 	}
 	defer func() {
 		if closer, ok := fileReader.(io.Closer); ok {
-			closer.Close()
+			if err := closer.Close(); err != nil {
+				slog.Error("failed to close file reader", "err", err)
+			}
 		}
 	}()
 

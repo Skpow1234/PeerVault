@@ -77,7 +77,11 @@ func TestBasicStoreGet(t *testing.T) {
 			t.Fatalf("Failed to get file from server2: %v", err)
 		}
 		if closer, ok := reader.(io.Closer); ok {
-			defer closer.Close()
+			defer func() {
+				if err := closer.Close(); err != nil {
+					t.Logf("Failed to close reader: %v", err)
+				}
+			}()
 		}
 
 		// Read the data
@@ -105,7 +109,11 @@ func TestBasicStoreGet(t *testing.T) {
 			t.Fatalf("Failed to get file from server1: %v", err)
 		}
 		if closer, ok := reader.(io.Closer); ok {
-			defer closer.Close()
+			defer func() {
+				if err := closer.Close(); err != nil {
+					t.Logf("Failed to close reader: %v", err)
+				}
+			}()
 		}
 
 		// Read the data

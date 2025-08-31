@@ -86,6 +86,10 @@ func (dec LengthPrefixedDecoder) Decode(r io.Reader, msg *RPC) error {
 type DefaultDecoder struct{}
 
 func (dec DefaultDecoder) Decode(r io.Reader, msg *RPC) error {
+	if r == nil {
+		return fmt.Errorf("reader is nil")
+	}
+
 	peekBuf := make([]byte, 1)
 	if _, err := r.Read(peekBuf); err != nil {
 		return nil

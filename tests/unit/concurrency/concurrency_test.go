@@ -11,7 +11,7 @@ import (
 func TestConcurrencySafety(t *testing.T) {
 	// Test RWMutex behavior
 	var mu sync.RWMutex
-	var data map[string]int = make(map[string]int)
+	var data = make(map[string]int)
 
 	// Test concurrent reads
 	var wg sync.WaitGroup

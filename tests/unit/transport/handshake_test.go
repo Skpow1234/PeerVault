@@ -12,15 +12,25 @@ import (
 
 func TestAuthenticatedHandshake(t *testing.T) {
 	// Set up test auth token
-	os.Setenv("PEERVAULT_AUTH_TOKEN", "test-auth-token-123")
-	defer os.Unsetenv("PEERVAULT_AUTH_TOKEN")
+	if err := os.Setenv("PEERVAULT_AUTH_TOKEN", "test-auth-token-123"); err != nil {
+		t.Fatalf("failed to set env var: %v", err)
+	}
+	defer func() {
+		if err := os.Unsetenv("PEERVAULT_AUTH_TOKEN"); err != nil {
+			t.Logf("failed to unset env var: %v", err)
+		}
+	}()
 
 	// Create a test listener
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("failed to create listener: %v", err)
 	}
-	defer listener.Close()
+	defer func() {
+		if err := listener.Close(); err != nil {
+			t.Logf("failed to close listener: %v", err)
+		}
+	}()
 
 	// Get the listener address
 	listenAddr := listener.Addr().String()
@@ -38,7 +48,11 @@ func TestAuthenticatedHandshake(t *testing.T) {
 			t.Errorf("failed to accept connection: %v", err)
 			return
 		}
-		defer conn.Close()
+		defer func() {
+			if err := conn.Close(); err != nil {
+				t.Logf("failed to close connection: %v", err)
+			}
+		}()
 
 		// Create peer and perform handshake
 		peer := netp2p.NewTCPPeer(conn, false)
@@ -52,7 +66,11 @@ func TestAuthenticatedHandshake(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to connect: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			t.Logf("failed to close connection: %v", err)
+		}
+	}()
 
 	// Create peer and perform handshake
 	peer := netp2p.NewTCPPeer(conn, true)
