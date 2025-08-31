@@ -1,0 +1,942 @@
+openapi: 3.0.3
+info:
+  title: PeerVault API
+  description: |
+    PeerVault is a distributed, encrypted file storage system with peer-to-peer replication.
+    
+    This API provides REST endpoints for file operations, peer management, and system monitoring.
+    
+    ## Authentication
+    All API endpoints require authentication using JWT tokens. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your-jwt-token>
+    ```
+    
+    ## Rate Limiting
+    API requests are rate-limited to 100 requests per minute per API key.
+    
+    ## File Operations
+    - Upload files with metadata
+    - Download files with streaming support
+    - Delete files with replication cleanup
+    - Query file metadata and replica status
+    
+    ## Peer Management
+    - Discover and monitor peer nodes
+    - View network topology and health status
+    - Manage peer connections and configurations
+    
+    ## System Monitoring
+    - Real-time system metrics and performance stats
+    - Storage utilization and capacity monitoring
+    - Network I/O and connection statistics
+  version: 1.0.0
+  contact:
+    name: PeerVault Support
+    url: https://github.com/Skpow1234/Peervault
+    email: support@peervault.dev
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.peervault.dev/v1
+    description: Production API
+  - url: https://staging-api.peervault.dev/v1
+    description: Staging API
+  - url: http://localhost:8080/v1
+    description: Local development
+
+security:
+  - BearerAuth: []
+
+paths:
+  /files:
+    get:
+      summary: List files
+      description: Retrieve a list of files with optional filtering and pagination
+      operationId: listFiles
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of files to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of files to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: key_pattern
+          in: query
+          description: Filter files by key pattern (supports wildcards)
+          required: false
+          schema:
+            type: string
+        - name: content_type
+          in: query
+          description: Filter files by content type
+          required: false
+          schema:
+            type: string
+        - name: size_min
+          in: query
+          description: Filter files by minimum size in bytes
+          required: false
+          schema:
+            type: integer
+        - name: size_max
+          in: query
+          description: Filter files by maximum size in bytes
+          required: false
+          schema:
+            type: integer
+        - name: tags
+          in: query
+          description: Filter files by tags (comma-separated)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of files retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileList'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    post:
+      summary: Upload file
+      description: Upload a new file to the distributed storage system
+      operationId: uploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+                key:
+                  type: string
+                  description: Custom key for the file (optional, auto-generated if not provided)
+                metadata:
+                  type: string
+                  format: json
+                  description: JSON metadata for the file
+                  example: '{"name": "example.txt", "description": "Example file", "tags": ["example", "test"]}'
+              required:
+                - file
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Invalid file or metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Upload failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /files/{key}:
+    get:
+      summary: Get file
+      description: Retrieve file metadata and download URL
+      operationId: getFile
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: File key
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File metadata retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      summary: Delete file
+      description: Delete a file from all replicas in the network
+      operationId: deleteFile
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: File key
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResult'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Deletion failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /files/{key}/download:
+    get:
+      summary: Download file
+      description: Get a direct download URL for the file
+      operationId: downloadFile
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: File key
+          schema:
+            type: string
+        - name: expires_in
+          in: query
+          description: URL expiration time in seconds (default: 3600)
+          schema:
+            type: integer
+            minimum: 60
+            maximum: 86400
+            default: 3600
+      responses:
+        '200':
+          description: Download URL generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DownloadResult'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Download URL generation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /peers:
+    get:
+      summary: List peers
+      description: Retrieve list of connected peer nodes
+      operationId: listPeers
+      parameters:
+        - name: status
+          in: query
+          description: Filter peers by status
+          schema:
+            type: string
+            enum: [online, offline, unhealthy, connecting]
+        - name: capability
+          in: query
+          description: Filter peers by capability
+          schema:
+            type: string
+            enum: [storage, computation, routing, bootstrap]
+      responses:
+        '200':
+          description: List of peers retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeerList'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /peers/{id}:
+    get:
+      summary: Get peer details
+      description: Retrieve detailed information about a specific peer
+      operationId: getPeer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Peer ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Peer details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Peer'
+        '404':
+          description: Peer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /peers/{id}/health:
+    get:
+      summary: Get peer health
+      description: Retrieve health status and metrics for a specific peer
+      operationId: getPeerHealth
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Peer ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Peer health retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeerHealth'
+        '404':
+          description: Peer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /network:
+    get:
+      summary: Get network topology
+      description: Retrieve network topology and connection information
+      operationId: getNetworkTopology
+      responses:
+        '200':
+          description: Network topology retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetworkTopology'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /health:
+    get:
+      summary: System health check
+      description: Check overall system health and status
+      operationId: getHealth
+      responses:
+        '200':
+          description: System health information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: System unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /metrics:
+    get:
+      summary: System metrics
+      description: Retrieve system performance and resource metrics
+      operationId: getMetrics
+      parameters:
+        - name: period
+          in: query
+          description: Metrics aggregation period
+          schema:
+            type: string
+            enum: [1m, 5m, 15m, 1h, 6h, 24h]
+            default: 5m
+      responses:
+        '200':
+          description: System metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemMetrics'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /webhooks:
+    post:
+      summary: Webhook endpoint
+      description: Receive webhook notifications for system events
+      operationId: receiveWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookEvent'
+      responses:
+        '200':
+          description: Webhook received successfully
+        '400':
+          description: Invalid webhook payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for API authentication
+
+  schemas:
+    File:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Unique file identifier
+        size:
+          type: integer
+          description: File size in bytes
+        content_type:
+          type: string
+          description: MIME type of the file
+        created_at:
+          type: string
+          format: date-time
+          description: File creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: File last update timestamp
+        metadata:
+          $ref: '#/components/schemas/FileMetadata'
+        replicas:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileReplica'
+        checksum:
+          type: string
+          description: SHA-256 checksum of the file
+        encrypted:
+          type: boolean
+          description: Whether the file is encrypted
+      required:
+        - key
+        - size
+        - created_at
+        - updated_at
+        - replicas
+        - checksum
+        - encrypted
+
+    FileMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Human-readable file name
+        description:
+          type: string
+          description: File description
+        tags:
+          type: array
+          items:
+            type: string
+          description: File tags
+        content_type:
+          type: string
+          description: MIME type
+        custom_fields:
+          type: object
+          additionalProperties: true
+          description: Custom metadata fields
+
+    FileReplica:
+      type: object
+      properties:
+        peer_id:
+          type: string
+          description: ID of the peer storing this replica
+        peer_address:
+          type: string
+          description: Network address of the peer
+        status:
+          type: string
+          enum: [synced, syncing, failed, pending]
+          description: Replica synchronization status
+        last_sync:
+          type: string
+          format: date-time
+          description: Last synchronization timestamp
+        size:
+          type: integer
+          description: Replica size in bytes
+      required:
+        - peer_id
+        - peer_address
+        - status
+        - size
+
+    FileList:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        total:
+          type: integer
+          description: Total number of files
+        limit:
+          type: integer
+          description: Requested limit
+        offset:
+          type: integer
+          description: Requested offset
+        has_more:
+          type: boolean
+          description: Whether there are more files available
+
+    DownloadResult:
+      type: object
+      properties:
+        download_url:
+          type: string
+          description: Direct download URL
+        expires_at:
+          type: string
+          format: date-time
+          description: URL expiration timestamp
+        file_size:
+          type: integer
+          description: File size in bytes
+      required:
+        - download_url
+        - expires_at
+        - file_size
+
+    DeleteResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether deletion was successful
+        deleted_replicas:
+          type: integer
+          description: Number of replicas deleted
+        message:
+          type: string
+          description: Additional information
+      required:
+        - success
+        - deleted_replicas
+
+    Peer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique peer identifier
+        address:
+          type: string
+          description: Network address
+        status:
+          type: string
+          enum: [online, offline, unhealthy, connecting]
+          description: Peer connection status
+        last_seen:
+          type: string
+          format: date-time
+          description: Last seen timestamp
+        capabilities:
+          type: array
+          items:
+            type: string
+            enum: [storage, computation, routing, bootstrap]
+          description: Peer capabilities
+        storage_stats:
+          $ref: '#/components/schemas/PeerStorageStats'
+        connection_stats:
+          $ref: '#/components/schemas/PeerConnectionStats'
+      required:
+        - id
+        - address
+        - status
+        - capabilities
+
+    PeerHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded, unknown]
+          description: Health status
+        last_heartbeat:
+          type: string
+          format: date-time
+          description: Last heartbeat timestamp
+        response_time:
+          type: number
+          format: float
+          description: Response time in milliseconds
+        uptime:
+          type: number
+          format: float
+          description: Uptime percentage
+        errors:
+          type: array
+          items:
+            type: string
+          description: Recent error messages
+      required:
+        - status
+
+    PeerStorageStats:
+      type: object
+      properties:
+        total_space:
+          type: integer
+          description: Total storage space in bytes
+        used_space:
+          type: integer
+          description: Used storage space in bytes
+        available_space:
+          type: integer
+          description: Available storage space in bytes
+        file_count:
+          type: integer
+          description: Number of files stored
+      required:
+        - total_space
+        - used_space
+        - available_space
+        - file_count
+
+    PeerConnectionStats:
+      type: object
+      properties:
+        active_connections:
+          type: integer
+          description: Number of active connections
+        total_connections:
+          type: integer
+          description: Total connections made
+        failed_connections:
+          type: integer
+          description: Number of failed connections
+        avg_latency:
+          type: number
+          format: float
+          description: Average connection latency in milliseconds
+      required:
+        - active_connections
+        - total_connections
+        - failed_connections
+
+    PeerList:
+      type: object
+      properties:
+        peers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Peer'
+        total:
+          type: integer
+          description: Total number of peers
+        online_count:
+          type: integer
+          description: Number of online peers
+        unhealthy_count:
+          type: integer
+          description: Number of unhealthy peers
+      required:
+        - peers
+        - total
+        - online_count
+        - unhealthy_count
+
+    NetworkTopology:
+      type: object
+      properties:
+        total_peers:
+          type: integer
+          description: Total number of peers
+        healthy_peers:
+          type: integer
+          description: Number of healthy peers
+        network_links:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkLink'
+        bootstrap_nodes:
+          type: array
+          items:
+            type: string
+          description: List of bootstrap node addresses
+      required:
+        - total_peers
+        - healthy_peers
+        - network_links
+        - bootstrap_nodes
+
+    NetworkLink:
+      type: object
+      properties:
+        from:
+          type: string
+          description: Source peer ID
+        to:
+          type: string
+          description: Destination peer ID
+        latency:
+          type: number
+          format: float
+          description: Connection latency in milliseconds
+        bandwidth:
+          type: number
+          format: float
+          description: Connection bandwidth in bytes per second
+        status:
+          type: string
+          enum: [active, inactive, degraded]
+          description: Link status
+      required:
+        - from
+        - to
+        - status
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+          description: Overall system health
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+        components:
+          type: object
+          additionalProperties:
+            type: string
+            enum: [healthy, unhealthy, degraded]
+          description: Health status of individual components
+        message:
+          type: string
+          description: Additional health information
+      required:
+        - status
+        - timestamp
+
+    SystemMetrics:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Metrics timestamp
+        cpu_usage:
+          type: number
+          format: float
+          description: CPU usage percentage
+        memory_usage:
+          type: number
+          format: float
+          description: Memory usage percentage
+        disk_usage:
+          type: number
+          format: float
+          description: Disk usage percentage
+        active_connections:
+          type: integer
+          description: Number of active connections
+        total_files:
+          type: integer
+          description: Total number of files
+        total_storage:
+          type: integer
+          description: Total storage used in bytes
+        network_io:
+          $ref: '#/components/schemas/NetworkIOStats'
+      required:
+        - timestamp
+        - cpu_usage
+        - memory_usage
+        - disk_usage
+        - active_connections
+        - total_files
+        - total_storage
+
+    NetworkIOStats:
+      type: object
+      properties:
+        bytes_in:
+          type: integer
+          description: Bytes received
+        bytes_out:
+          type: integer
+          description: Bytes sent
+        packets_in:
+          type: integer
+          description: Packets received
+        packets_out:
+          type: integer
+          description: Packets sent
+        errors_in:
+          type: integer
+          description: Receive errors
+        errors_out:
+          type: integer
+          description: Send errors
+      required:
+        - bytes_in
+        - bytes_out
+        - packets_in
+        - packets_out
+        - errors_in
+        - errors_out
+
+    WebhookEvent:
+      type: object
+      properties:
+        event_type:
+          type: string
+          enum: [file_uploaded, file_deleted, peer_joined, peer_left, system_alert]
+          description: Type of webhook event
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp
+        data:
+          type: object
+          additionalProperties: true
+          description: Event-specific data
+        signature:
+          type: string
+          description: Webhook signature for verification
+      required:
+        - event_type
+        - timestamp
+        - data
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+      required:
+        - error
+        - code
+        - timestamp
+
+tags:
+  - name: Files
+    description: File operations and management
+  - name: Peers
+    description: Peer node management and monitoring
+  - name: Network
+    description: Network topology and connectivity
+  - name: System
+    description: System health and metrics
+  - name: Webhooks
+    description: Event notifications and integrations

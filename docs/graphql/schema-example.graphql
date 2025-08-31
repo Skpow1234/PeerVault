@@ -1,0 +1,338 @@
+# PeerVault GraphQL Schema Example
+# This demonstrates the flexible API design for distributed storage operations
+
+scalar DateTime
+scalar Upload
+
+type Query {
+  # File operations
+  file(key: String!): File
+  files(filter: FileFilter, limit: Int, offset: Int): [File!]!
+  fileMetadata(key: String!): FileMetadata
+  
+  # Peer network operations
+  peers: [Peer!]!
+  peer(id: String!): Peer
+  peerNetwork: PeerNetwork
+  
+  # System monitoring
+  systemMetrics: SystemMetrics
+  performanceStats: PerformanceStats
+  storageStats: StorageStats
+  
+  # Health and status
+  health: HealthStatus
+  clusterStatus: ClusterStatus
+}
+
+type Mutation {
+  # File operations
+  uploadFile(file: Upload!, key: String, metadata: FileMetadataInput): FileUploadResult!
+  downloadFile(key: String!): FileDownloadResult!
+  deleteFile(key: String!): DeleteFileResult!
+  updateFileMetadata(key: String!, metadata: FileMetadataInput!): FileMetadata!
+  
+  # Peer operations
+  addPeer(address: String!, authToken: String): AddPeerResult!
+  removePeer(id: String!): RemovePeerResult!
+  
+  # System operations
+  updateConfiguration(config: ConfigurationInput!): Configuration!
+}
+
+type Subscription {
+  # Real-time updates
+  fileOperation(key: String): FileOperationEvent!
+  peerStatusChange: PeerStatusEvent!
+  systemMetricsUpdate: SystemMetrics!
+  clusterEvent: ClusterEvent!
+}
+
+# File Types
+type File {
+  key: String!
+  size: Int!
+  contentType: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  metadata: FileMetadata
+  replicas: [FileReplica!]!
+  checksum: String!
+  encrypted: Boolean!
+}
+
+type FileMetadata {
+  key: String!
+  name: String
+  description: String
+  tags: [String!]
+  contentType: String
+  customFields: JSON
+}
+
+type FileReplica {
+  peerId: String!
+  peerAddress: String!
+  status: ReplicaStatus!
+  lastSync: DateTime
+  size: Int!
+}
+
+type FileUploadResult {
+  success: Boolean!
+  file: File
+  error: String
+  uploadId: String
+}
+
+type FileDownloadResult {
+  success: Boolean!
+  downloadUrl: String
+  error: String
+  expiresAt: DateTime
+}
+
+type DeleteFileResult {
+  success: Boolean!
+  error: String
+  deletedReplicas: Int!
+}
+
+# Peer Types
+type Peer {
+  id: String!
+  address: String!
+  status: PeerStatus!
+  lastSeen: DateTime
+  health: PeerHealth
+  capabilities: [PeerCapability!]!
+  storageStats: PeerStorageStats
+  connectionStats: PeerConnectionStats
+}
+
+type PeerNetwork {
+  totalPeers: Int!
+  healthyPeers: Int!
+  networkTopology: [NetworkLink!]!
+  bootstrapNodes: [String!]!
+}
+
+type PeerHealth {
+  status: HealthStatus!
+  lastHeartbeat: DateTime
+  responseTime: Float
+  uptime: Float
+  errors: [String!]
+}
+
+type NetworkLink {
+  from: String!
+  to: String!
+  latency: Float
+  bandwidth: Float
+  status: LinkStatus!
+}
+
+# System Types
+type SystemMetrics {
+  timestamp: DateTime!
+  cpuUsage: Float!
+  memoryUsage: Float!
+  diskUsage: Float!
+  networkIO: NetworkIOStats
+  activeConnections: Int!
+  totalFiles: Int!
+  totalStorage: Int!
+}
+
+type PerformanceStats {
+  avgResponseTime: Float!
+  requestsPerSecond: Float!
+  errorRate: Float!
+  throughput: Float!
+  latencyPercentiles: LatencyPercentiles
+}
+
+type StorageStats {
+  totalSpace: Int!
+  usedSpace: Int!
+  availableSpace: Int!
+  fileCount: Int!
+  replicationFactor: Float!
+  compressionRatio: Float
+}
+
+# Event Types
+type FileOperationEvent {
+  type: FileOperationType!
+  file: File!
+  timestamp: DateTime!
+  peerId: String
+}
+
+type PeerStatusEvent {
+  peer: Peer!
+  previousStatus: PeerStatus!
+  newStatus: PeerStatus!
+  timestamp: DateTime!
+}
+
+type ClusterEvent {
+  type: ClusterEventType!
+  data: JSON
+  timestamp: DateTime!
+}
+
+# Enums
+enum PeerStatus {
+  ONLINE
+  OFFLINE
+  UNHEALTHY
+  CONNECTING
+}
+
+enum HealthStatus {
+  HEALTHY
+  UNHEALTHY
+  DEGRADED
+  UNKNOWN
+}
+
+enum ReplicaStatus {
+  SYNCED
+  SYNCING
+  FAILED
+  PENDING
+}
+
+enum LinkStatus {
+  ACTIVE
+  INACTIVE
+  DEGRADED
+}
+
+enum FileOperationType {
+  UPLOAD
+  DOWNLOAD
+  DELETE
+  UPDATE
+  REPLICATE
+}
+
+enum ClusterEventType {
+  PEER_JOINED
+  PEER_LEFT
+  PEER_FAILED
+  REPLICATION_COMPLETE
+  STORAGE_FULL
+  NETWORK_PARTITION
+}
+
+enum PeerCapability {
+  STORAGE
+  COMPUTATION
+  ROUTING
+  BOOTSTRAP
+}
+
+# Input Types
+input FileFilter {
+  keyPattern: String
+  contentType: String
+  sizeMin: Int
+  sizeMax: Int
+  createdAtAfter: DateTime
+  createdAtBefore: DateTime
+  tags: [String!]
+}
+
+input FileMetadataInput {
+  name: String
+  description: String
+  tags: [String!]
+  contentType: String
+  customFields: JSON
+}
+
+input ConfigurationInput {
+  maxFileSize: Int
+  replicationFactor: Int
+  compressionEnabled: Boolean
+  encryptionEnabled: Boolean
+  peerDiscoveryInterval: Int
+  healthCheckInterval: Int
+}
+
+# Custom scalars
+scalar JSON
+scalar Upload
+
+# Example Queries
+
+"""
+# Get file with metadata and replica information
+query GetFile($key: String!) {
+  file(key: $key) {
+    key
+    size
+    contentType
+    createdAt
+    metadata {
+      name
+      description
+      tags
+    }
+    replicas {
+      peerId
+      peerAddress
+      status
+      lastSync
+    }
+  }
+}
+
+# Get peer network topology
+query GetPeerNetwork {
+  peerNetwork {
+    totalPeers
+    healthyPeers
+    networkTopology {
+      from
+      to
+      latency
+      bandwidth
+      status
+    }
+  }
+}
+
+# Subscribe to real-time file operations
+subscription FileOperations($key: String) {
+  fileOperation(key: $key) {
+    type
+    file {
+      key
+      size
+    }
+    timestamp
+    peerId
+  }
+}
+
+# Get system performance metrics
+query SystemPerformance {
+  systemMetrics {
+    timestamp
+    cpuUsage
+    memoryUsage
+    diskUsage
+    activeConnections
+  }
+  performanceStats {
+    avgResponseTime
+    requestsPerSecond
+    errorRate
+    throughput
+  }
+}
+"""
