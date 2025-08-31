@@ -78,25 +78,25 @@ func newStore() *Store {
 func TestAtomicFileCreation(t *testing.T) {
 	s := newStore()
 	defer teardown(t, s)
-	
+
 	key := "atomic_test_file"
 	data := []byte("test data")
-	
+
 	// First write should succeed
 	_, err := s.writeStream(key, bytes.NewReader(data))
 	assert.NoError(t, err)
-	
+
 	// Second write with same key should fail due to atomic creation
 	_, err = s.writeStream(key, bytes.NewReader(data))
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "already exists")
-	
+
 	// Verify the file still exists and contains original data
 	assert.True(t, s.Has(key))
 	_, r, err := s.Read(key)
 	assert.NoError(t, err)
 	defer r.Close()
-	
+
 	content, err := io.ReadAll(r)
 	assert.NoError(t, err)
 	assert.Equal(t, data, content)

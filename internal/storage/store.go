@@ -124,7 +124,7 @@ func (s *Store) createFileAtomic(fullPath string) (*os.File, error) {
 func (s *Store) openFileForWriting(key string) (*os.File, error) {
 	pathKey := s.PathTransformFunc(key)
 	fullPathWithRoot := fmt.Sprintf("%s/%s", s.Root, pathKey.FullPath())
-	
+
 	// Use atomic file creation to avoid race conditions
 	return s.createFileAtomic(fullPathWithRoot)
 }

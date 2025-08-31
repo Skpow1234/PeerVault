@@ -195,7 +195,7 @@ func (t *TCPTransport) handleIncomingStream(conn net.Conn, peer *TCPPeer) error 
 	}
 	key := string(keyBytes)
 
-	slog.Info("receiving file stream", 
+	slog.Info("receiving file stream",
 		slog.String("key", key),
 		slog.String("peer", conn.RemoteAddr().String()))
 
@@ -206,10 +206,10 @@ func (t *TCPTransport) handleIncomingStream(conn net.Conn, peer *TCPPeer) error 
 		return fmt.Errorf("failed to read stream data: %w", err)
 	}
 
-	slog.Info("received file stream", 
+	slog.Info("received file stream",
 		slog.String("key", key),
 		slog.Int64("bytesRead", bytesRead),
 		slog.String("peer", conn.RemoteAddr().String()))
-	
+
 	return nil
 }

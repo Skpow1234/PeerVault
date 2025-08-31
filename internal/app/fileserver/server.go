@@ -297,7 +297,7 @@ func (s *Server) OnStream(peer netp2p.Peer, reader io.Reader) error {
 	}
 	key := string(keyBytes)
 
-	slog.Info("receiving file stream", 
+	slog.Info("receiving file stream",
 		slog.String("key", key),
 		slog.String("peer", peer.RemoteAddr().String()))
 
@@ -307,11 +307,11 @@ func (s *Server) OnStream(peer netp2p.Peer, reader io.Reader) error {
 		return fmt.Errorf("failed to store streamed file: %w", err)
 	}
 
-	slog.Info("stored streamed file", 
+	slog.Info("stored streamed file",
 		slog.String("key", key),
 		slog.Int64("size", size),
 		slog.String("peer", peer.RemoteAddr().String()))
-	
+
 	return nil
 }
 
