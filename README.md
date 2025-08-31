@@ -374,7 +374,20 @@ The CI pipeline automatically runs these checks on every push and pull request:
 - **Build Tests**: Cross-platform binary builds
 - **Docker Tests**: Container builds and validation
 
-**Pro tip**: Run the linting and formatting checks locally before pushing to avoid CI failures!
+**Pro tip**: Run the pre-commit script before pushing to avoid CI failures!
+
+```bash
+# Unix/Linux/macOS
+./scripts/pre-commit.sh
+
+# Windows PowerShell
+.\scripts\pre-commit.ps1
+
+# Or run individual commands:
+go fmt ./...
+goimports -w .
+golangci-lint run ./...
+```
 
 ## Clean up local data
 
