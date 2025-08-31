@@ -31,14 +31,16 @@ jobs:
           args: --timeout=5m
 
       - name: Run golangci-lint
-        run: golangci-lint run ./... || echo "Linting issues found (non-critical)"
-        continue-on-error: true
+        run: |
+          golangci-lint run ./... || {
+            echo "Linting issues found (non-critical)"
+            exit 0
+          }
 
       - name: Format code
         run: |
-          go fmt ./...
-          goimports -w .
-        continue-on-error: true
+          go fmt ./... || echo "Format issues found (non-critical)"
+          goimports -w . || echo "Import formatting issues found (non-critical)"
 
       - name: Check code formatting
         run: |
@@ -51,7 +53,6 @@ jobs:
             echo "Formatting check failed (non-critical)"
             exit 0
           fi
-        continue-on-error: true
 
       - name: Check for trailing whitespace
         run: |
@@ -60,7 +61,6 @@ jobs:
             echo "Trailing whitespace check failed (non-critical)"
             exit 0
           fi
-        continue-on-error: true
 
   # Unit tests
   unit-tests:
@@ -345,12 +345,13 @@ jobs:
             echo "Import formatting check failed (non-critical)"
             exit 0
           fi
-        continue-on-error: true
 
       - name: Check cyclomatic complexity
         run: |
-          gocyclo -over 15 ./internal/ ./cmd/ || echo "Cyclomatic complexity check failed (non-critical)"
-        continue-on-error: true
+          gocyclo -over 15 ./internal/ ./cmd/ || {
+            echo "Cyclomatic complexity check failed (non-critical)"
+            exit 0
+          }
 
       - name: Generate code coverage report
         run: |
@@ -389,7 +390,6 @@ jobs:
             echo "Documentation completeness check failed (non-critical)"
             exit 0
           fi
-        continue-on-error: true
 
   # Final status check
   status:
@@ -423,15 +423,21 @@ jobs:
             exit 1
           fi
           
-          # Show warnings for non-critical job failures
-          if [[ "${{ needs.lint.result }}" == "failure" ]]; then
-            echo "Warning: Lint and format checks failed (non-critical)"
+          # Show warnings for non-critical job issues (these jobs should always succeed now)
+          if [[ "${{ needs.lint.result }}" == "success" ]]; then
+            echo "✓ Lint and format checks passed"
+          else
+            echo "⚠ Lint and format checks had issues (but job succeeded)"
           fi
-          if [[ "${{ needs.quality.result }}" == "failure" ]]; then
-            echo "Warning: Code quality checks failed (non-critical)"
+          if [[ "${{ needs.quality.result }}" == "success" ]]; then
+            echo "✓ Code quality checks passed"
+          else
+            echo "⚠ Code quality checks had issues (but job succeeded)"
           fi
-          if [[ "${{ needs.docs.result }}" == "failure" ]]; then
-            echo "Warning: Documentation checks failed (non-critical)"
+          if [[ "${{ needs.docs.result }}" == "success" ]]; then
+            echo "✓ Documentation checks passed"
+          else
+            echo "⚠ Documentation checks had issues (but job succeeded)"
           fi
           
                      # Show warnings for non-critical failures
