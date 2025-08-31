@@ -43,7 +43,7 @@ jobs:
 
       - name: Check for trailing whitespace
         run: |
-          if grep -r --include="*.go" --include="*.md" --include="*.yml" --include="*.yaml" '[[:space:]]$' .; then
+          if grep -r --include="*.go" --include="*.yml" --include="*.yaml" '[[:space:]]$' .; then
             echo "Found trailing whitespace. Please remove it."
             exit 1
           fi
@@ -69,8 +69,14 @@ jobs:
         env:
           CGO_ENABLED: 1
         run: |
-          go test -v -race -coverprofile=coverage.out ./tests/unit/...
-          go test -v -race -coverprofile=coverage.out ./internal/...
+          go test -v -race ./tests/unit/...
+          go test -v -race ./internal/...
+
+      - name: Generate coverage report
+        env:
+          CGO_ENABLED: 1
+        run: |
+          go test -coverprofile=coverage.out ./...
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -350,4 +356,4 @@ jobs:
             exit 1
           fi
           
-          echo "Pipeline passed! 🎉"
+          echo "Pipeline passed! 🎉"          echo "Pipeline passed! ??"

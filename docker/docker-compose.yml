@@ -46,7 +46,7 @@ services:
     environment:
       - LOG_LEVEL=info
     command: [
-      "--listen", ":5000", 
+      "--listen", ":5000",
       "--bootstrap", "peervault-node1:3000,peervault-node2:7000",
       "--log-level", "info"
     ]

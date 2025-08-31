@@ -275,4 +275,3 @@ docker rmi peervault-node peervault-demo peervault
 │   ├── peervault-node/    # Individual node entrypoint
 │   └── peervault-demo/    # Demo client entrypoint
 └── CONTAINERIZATION.md    # This file
-```

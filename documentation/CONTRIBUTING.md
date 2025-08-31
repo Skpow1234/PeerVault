@@ -324,4 +324,4 @@ Contributors will be recognized in:
 - **README.md** for major contributors
 - **Release notes** for each release
 
-Thank you for contributing to PeerVault! 🚀
+Thank you for contributing to PeerVault!

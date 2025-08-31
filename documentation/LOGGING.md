@@ -172,7 +172,7 @@ slog.Info("TCP transport listening on port", "port", t.ListenAddr)
 slog.Error("failed to decrypt file", "key", key, "error", err.Error())
 
 // Good: Use structured error logging
-slog.Error("network operation failed", 
+slog.Error("network operation failed",
     "operation", "file_transfer",
     "peer", peerAddr,
     "error", err.Error(),
@@ -320,7 +320,7 @@ CMD ["./peervault"]
 
 ```go
 // Good: Rich context
-slog.Info("file operation completed", 
+slog.Info("file operation completed",
     "operation", "store",
     "key", key,
     "size", size,

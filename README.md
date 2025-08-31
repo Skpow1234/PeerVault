@@ -343,7 +343,38 @@ golangci-lint run --disable-all --enable=errcheck,gosec,gofmt
 # Fix formatting issues
 go fmt ./...
 goimports -w .
+
+# Check for trailing whitespace in code files (CI check)
+grep -r --include="*.go" --include="*.yml" --include="*.yaml" '[[:space:]]$' .
+
+# Fix trailing whitespace (PowerShell)
+Get-ChildItem -Recurse -Include "*.go", "*.yml", "*.yaml" | ForEach-Object { $content = Get-Content $_.FullName -Raw; $cleanContent = $content -replace '\s+$', ''; if ($content -ne $cleanContent) { Set-Content $_.FullName $cleanContent -NoNewline; Write-Host "Fixed trailing whitespace in: $($_.FullName)" } }
+
+# Fix trailing whitespace (Unix/Linux)
+find . -name "*.go" -o  -name "*.yml" -o -name "*.yaml" | xargs sed -i 's/[[:space:]]*$//'
+
+# Check code formatting (CI check)
+gofmt -s -l .
+
+# Fix code formatting
+gofmt -s -w .
 ```
+
+### CI Pipeline Checks
+
+The CI pipeline automatically runs these checks on every push and pull request:
+
+- **Linting**: `golangci-lint run ./...`
+- **Code Formatting**: `gofmt -s -l .` (fails if code is not formatted)
+- **Trailing Whitespace**: Checks for trailing spaces in code files (Go, YAML, YML) - excludes markdown files
+- **Unit Tests**: `go test -v -race ./tests/unit/...` and `go test -v -race ./internal/...`
+- **Integration Tests**: `go test -v -timeout=10m ./tests/integration/...`
+- **Fuzz Tests**: `go test -fuzz=Fuzz -fuzztime=30s ./tests/fuzz/...`
+- **Security Scanning**: `gosec` and `govulncheck`
+- **Build Tests**: Cross-platform binary builds
+- **Docker Tests**: Container builds and validation
+
+**Pro tip**: Run the linting and formatting checks locally before pushing to avoid CI failures!
 
 ## Clean up local data
 
