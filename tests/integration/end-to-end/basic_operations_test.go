@@ -3,6 +3,7 @@ package end_to_end
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"testing"
@@ -23,7 +24,7 @@ func TestBasicStoreGet(t *testing.T) {
 
 	// Create test data
 	testData := []byte("Hello, PeerVault! This is a test file for end-to-end testing.")
-	testKey := "test_file_001.txt"
+	testKey := fmt.Sprintf("test_file_%d.txt", time.Now().UnixNano())
 
 	// Create server 1 (bootstrap node)
 	server1 := createTestServer(":3001", []string{})
@@ -33,21 +34,39 @@ func TestBasicStoreGet(t *testing.T) {
 	server2 := createTestServer(":3002", []string{":3001"})
 	defer server2.Stop()
 
-	// Start both servers
+	// Start servers and wait for them to be ready
+	server1Ready := make(chan error, 1)
+	server2Ready := make(chan error, 1)
+
 	go func() {
-		if err := server1.Start(); err != nil {
-			t.Errorf("Failed to start server1: %v", err)
-		}
+		server1Ready <- server1.Start()
 	}()
 
 	go func() {
-		if err := server2.Start(); err != nil {
-			t.Errorf("Failed to start server2: %v", err)
-		}
+		server2Ready <- server2.Start()
 	}()
 
-	// Wait for servers to start and connect
-	time.Sleep(2 * time.Second)
+	// Wait for both servers to start
+	select {
+	case err := <-server1Ready:
+		if err != nil {
+			t.Fatalf("Failed to start server1: %v", err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("Timeout waiting for server1 to start")
+	}
+
+	select {
+	case err := <-server2Ready:
+		if err != nil {
+			t.Fatalf("Failed to start server2: %v", err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("Timeout waiting for server2 to start")
+	}
+
+	// Wait for servers to establish connections
+	time.Sleep(3 * time.Second)
 
 	// Add timeout to prevent infinite hanging
 	testCtx, testCancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -145,7 +164,7 @@ func TestLargeFileStreaming(t *testing.T) {
 	for i := range testData {
 		testData[i] = byte(i % 256)
 	}
-	testKey := "large_test_file.bin"
+	testKey := fmt.Sprintf("large_test_file_%d.bin", time.Now().UnixNano())
 
 	// Create servers
 	server1 := createTestServer(":3003", []string{})
@@ -154,21 +173,39 @@ func TestLargeFileStreaming(t *testing.T) {
 	server2 := createTestServer(":3004", []string{":3003"})
 	defer server2.Stop()
 
-	// Start servers
+	// Start servers and wait for them to be ready
+	server1Ready := make(chan error, 1)
+	server2Ready := make(chan error, 1)
+
 	go func() {
-		if err := server1.Start(); err != nil {
-			t.Errorf("Failed to start server1: %v", err)
-		}
+		server1Ready <- server1.Start()
 	}()
 
 	go func() {
-		if err := server2.Start(); err != nil {
-			t.Errorf("Failed to start server2: %v", err)
-		}
+		server2Ready <- server2.Start()
 	}()
 
-	// Wait for servers to start
-	time.Sleep(2 * time.Second)
+	// Wait for both servers to start
+	select {
+	case err := <-server1Ready:
+		if err != nil {
+			t.Fatalf("Failed to start server1: %v", err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("Timeout waiting for server1 to start")
+	}
+
+	select {
+	case err := <-server2Ready:
+		if err != nil {
+			t.Fatalf("Failed to start server2: %v", err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("Timeout waiting for server2 to start")
+	}
+
+	// Wait for servers to establish connections
+	time.Sleep(3 * time.Second)
 
 	// Add timeout to prevent infinite hanging
 	testCtx, testCancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -261,6 +298,7 @@ func createTestServer(listenAddr string, bootstrapNodes []string) *fs.Server {
 	// Create and configure server
 	s := fs.New(fileServerOpts)
 	tcpTransport.OnPeer = s.OnPeer
+	tcpTransport.OnStream = s.OnStream
 
 	return s
 }

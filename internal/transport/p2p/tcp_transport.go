@@ -1,6 +1,8 @@
 package p2p
 
 import (
+	"encoding/binary"
+	"fmt"
 	"io"
 	"log/slog"
 	"net"
@@ -39,6 +41,7 @@ type TCPTransportOpts struct {
 	HandshakeFunc HandshakeFunc
 	Decoder       Decoder
 	OnPeer        func(Peer) error
+	OnStream      func(Peer, io.Reader) error
 }
 
 type TCPTransport struct {
@@ -159,10 +162,54 @@ func (t *TCPTransport) handleConn(conn net.Conn, outbound bool) {
 		if rpc.Stream {
 			peer.wg.Add(1)
 			slog.Info("incoming stream", slog.String("peer", conn.RemoteAddr().String()))
-			peer.wg.Wait()
-			slog.Info("stream closed", slog.String("peer", conn.RemoteAddr().String()))
+			// Handle the stream if callback is provided
+			if t.OnStream != nil {
+				go func() {
+					defer func() {
+						peer.wg.Done()
+					}()
+					if err := t.OnStream(peer, conn); err != nil {
+						slog.Error("failed to handle stream", slog.String("error", err.Error()))
+					}
+				}()
+			} else {
+				peer.wg.Done()
+			}
 			continue
 		}
 		t.rpcch <- rpc
 	}
+}
+
+// handleIncomingStream handles incoming file streams
+func (t *TCPTransport) handleIncomingStream(conn net.Conn, peer *TCPPeer) error {
+	// Read the key length and key first
+	var keyLen uint32
+	if err := binary.Read(conn, binary.LittleEndian, &keyLen); err != nil {
+		return fmt.Errorf("failed to read key length: %w", err)
+	}
+
+	keyBytes := make([]byte, keyLen)
+	if _, err := io.ReadFull(conn, keyBytes); err != nil {
+		return fmt.Errorf("failed to read key: %w", err)
+	}
+	key := string(keyBytes)
+
+	slog.Info("receiving file stream", 
+		slog.String("key", key),
+		slog.String("peer", conn.RemoteAddr().String()))
+
+	// For now, just read and discard the stream data
+	// In a real implementation, this would store the file with the given key
+	bytesRead, err := io.Copy(io.Discard, conn)
+	if err != nil {
+		return fmt.Errorf("failed to read stream data: %w", err)
+	}
+
+	slog.Info("received file stream", 
+		slog.String("key", key),
+		slog.Int64("bytesRead", bytesRead),
+		slog.String("peer", conn.RemoteAddr().String()))
+	
+	return nil
 }

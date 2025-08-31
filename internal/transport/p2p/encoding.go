@@ -14,8 +14,8 @@ const (
 
 // Frame header structure: [type:u8][len:u32]
 const (
-	FrameHeaderSize = 5           // 1 byte type + 4 bytes length
-	MaxFrameSize    = 1024 * 1024 // 1MB max frame size
+	FrameHeaderSize = 5                // 1 byte type + 4 bytes length
+	MaxFrameSize    = 10 * 1024 * 1024 // 10MB max frame size
 )
 
 // RPC holds any arbitrary data that is being sent over the
