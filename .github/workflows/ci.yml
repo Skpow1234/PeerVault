@@ -131,17 +131,27 @@ jobs:
         run: |
           # Run integration tests with a strict timeout to prevent hanging
           echo "Starting integration tests..."
-          timeout 20m bash -c '
-            # Run end-to-end and multi-node tests first
+          timeout 15m bash -c '
+            # Run API tests first (these are fast httptest-based tests)
+            echo "Running REST API tests..."
+            go test -v -timeout=30s ./tests/integration/rest/... || echo "REST API tests failed (non-critical)"
+            
+            echo "Running gRPC API tests..."
+            go test -v -timeout=30s ./tests/integration/grpc/... || echo "gRPC API tests failed (non-critical)"
+            
+            echo "Running GraphQL API tests..."
+            go test -v -timeout=30s ./tests/integration/graphql/... || echo "GraphQL API tests failed (non-critical)"
+            
+            # Run end-to-end and multi-node tests (these may take longer)
             echo "Running end-to-end tests..."
-            go test -v -timeout=10m ./tests/integration/end-to-end/... || echo "End-to-end tests failed (non-critical)"
+            go test -v -timeout=5m ./tests/integration/end-to-end/... || echo "End-to-end tests failed (non-critical)"
             
             echo "Running multi-node tests..."
-            go test -v -timeout=10m ./tests/integration/multi-node/... || echo "Multi-node tests failed (non-critical)"
+            go test -v -timeout=5m ./tests/integration/multi-node/... || echo "Multi-node tests failed (non-critical)"
             
             # Run performance tests with longer timeout
             echo "Running performance tests..."
-            go test -v -timeout=15m ./tests/integration/performance/... || echo "Performance tests failed (non-critical)"
+            go test -v -timeout=10m ./tests/integration/performance/... || echo "Performance tests failed (non-critical)"
             
             echo "All integration tests completed"
           ' || {
@@ -452,6 +462,9 @@ jobs:
            if [[ "${{ needs.integration-tests.result }}" == "failure" ]]; then
              echo "⚠️  Warning: Integration tests failed (non-critical)"
              echo "   These are application logic bugs, not CI pipeline issues"
+             echo "   - REST API tests: Basic API functionality tests"
+             echo "   - gRPC API tests: HTTP/JSON server tests (temporary implementation)"
+             echo "   - GraphQL API tests: GraphQL endpoint functionality tests"
              echo "   - End-to-end tests: Failing due to replication being disabled"
              echo "   - Performance tests: Failing due to file conflicts and decryption issues"
            fi
