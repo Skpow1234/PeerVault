@@ -1,4 +1,64 @@
+# Build artifacts
 bin
+peervault.exe
+
+# Generated storage networks
 internal/storage/ggnetwork
 ggnetwork/
-peervault.exe
+
+# Generated test artifacts - ALL generated files from tests
+# Integration test network directories
+tests/integration/*/node*_network/
+tests/integration/*/*/node*_network/
+
+# Fuzz test generated data and artifacts
+tests/fuzz/*/testdata/
+tests/fuzz/*/*/testdata/
+tests/fuzz/*/testdata/fuzz/
+tests/fuzz/*/*/testdata/fuzz/
+
+# Go test artifacts
+*.test
+*.prof
+coverage.out
+coverage.html
+
+# Test-specific generated files
+tests/**/*.test
+tests/**/*.prof
+tests/**/*.out
+tests/**/*.tmp
+tests/**/*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Docker
+.dockerignore
+
+# Environment files
+.env
+.env.local
+.env.*.local

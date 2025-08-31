@@ -82,6 +82,7 @@ All containers communicate via a custom bridge network (`peervault-network`).
 ### Volumes
 
 Each node has its own persistent volume:
+
 - `peervault-node1-data`
 - `peervault-node2-data`
 - `peervault-node3-data`
@@ -176,6 +177,7 @@ docker run --rm peervault-demo --help
 ### Common Issues
 
 1. **Port conflicts**
+
    ```bash
    # Check if ports are in use
    netstat -tulpn | grep :3000
@@ -186,6 +188,7 @@ docker run --rm peervault-demo --help
    ```
 
 2. **Container networking**
+
    ```bash
    # Check network connectivity
    docker exec peervault-node1 ping peervault-node2
@@ -195,6 +198,7 @@ docker run --rm peervault-demo --help
    ```
 
 3. **Volume permissions**
+
    ```bash
    # Check volume data
    docker volume ls
@@ -259,7 +263,7 @@ docker rmi peervault-node peervault-demo peervault
 
 ## File Structure
 
-```
+```bash
 .
 ├── Dockerfile              # All-in-one container
 ├── Dockerfile.node         # Individual node container

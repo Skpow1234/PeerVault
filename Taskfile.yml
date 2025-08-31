@@ -1,0 +1,181 @@
+version: '3'
+
+tasks:
+  # Build tasks
+  build:
+    desc: Build the main application
+    cmds:
+      - go build -o bin/peervault{{if eq OS "windows"}}.exe{{end}} ./cmd/peervault
+    sources:
+      - ./cmd/peervault/**/*.go
+      - ./internal/**/*.go
+      - go.mod
+      - go.sum
+    generates:
+      - bin/peervault{{if eq OS "windows"}}.exe{{end}}
+
+  build-node:
+    desc: Build individual node binary
+    cmds:
+      - go build -o bin/peervault-node{{if eq OS "windows"}}.exe{{end}} ./cmd/peervault-node
+    sources:
+      - ./cmd/peervault-node/**/*.go
+      - ./internal/**/*.go
+      - go.mod
+      - go.sum
+    generates:
+      - bin/peervault-node{{if eq OS "windows"}}.exe{{end}}
+
+  build-demo:
+    desc: Build demo client binary
+    cmds:
+      - go build -o bin/peervault-demo{{if eq OS "windows"}}.exe{{end}} ./cmd/peervault-demo
+    sources:
+      - ./cmd/peervault-demo/**/*.go
+      - ./internal/**/*.go
+      - go.mod
+      - go.sum
+    generates:
+      - bin/peervault-demo{{if eq OS "windows"}}.exe{{end}}
+
+  build-all:
+    desc: Build all binaries
+    deps: [build, build-node, build-demo]
+
+  # Run tasks
+  run:
+    desc: Run the main application (all-in-one)
+    cmds:
+      - go run ./cmd/peervault
+
+  run-node:
+    desc: Run individual node
+    cmds:
+      - go run ./cmd/peervault-node {{.CLI_ARGS}}
+    vars:
+      CLI_ARGS: '{{.CLI_ARGS | default "--listen :3000"}}'
+
+  run-demo:
+    desc: Run demo client
+    cmds:
+      - go run ./cmd/peervault-demo {{.CLI_ARGS}}
+    vars:
+      CLI_ARGS: '{{.CLI_ARGS | default "--target localhost:5000"}}'
+
+  # Test tasks
+  test:
+    desc: Run all tests
+    cmds:
+      - go test -v ./...
+
+  test-unit:
+    desc: Run unit tests only
+    cmds:
+      - go test -v ./internal/...
+
+  test-integration:
+    desc: Run integration tests
+    cmds:
+      - go test -v ./tests/integration/...
+
+  test-race:
+    desc: Run tests with race detector
+    cmds:
+      - go test -race -v ./...
+
+  test-fuzz:
+    desc: Run fuzz tests
+    cmds:
+      - go test -run ^$ -fuzz=Fuzz -fuzztime=30s ./internal/transport/p2p
+
+  # Docker tasks
+  docker-build:
+    desc: Build all Docker images
+    cmds:
+      - docker build -t peervault .
+      - docker build -f Dockerfile.node -t peervault-node .
+      - docker build -f Dockerfile.demo -t peervault-demo .
+
+  docker-run:
+    desc: Run multi-container setup
+    cmds:
+      - docker-compose up --build
+
+  docker-run-dev:
+    desc: Run development setup (all-in-one)
+    cmds:
+      - docker-compose -f docker-compose.dev.yml up --build
+
+  docker-stop:
+    desc: Stop all containers
+    cmds:
+      - docker-compose down
+
+  docker-clean:
+    desc: Clean up Docker resources
+    cmds:
+      - docker-compose down -v
+      - docker system prune -f
+
+  # Development tasks
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf bin/
+      - rm -rf *_network/
+      - rm -rf node*_network/
+      - rm -rf demo-client-data/
+      - rm -rf peervault-*_data/
+      - go clean -cache -testcache
+
+  fmt:
+    desc: Format Go code
+    cmds:
+      - go fmt ./...
+
+  lint:
+    desc: Run linter
+    cmds:
+      - golangci-lint run
+
+  mod-tidy:
+    desc: Tidy Go modules
+    cmds:
+      - go mod tidy
+      - go mod verify
+
+  # Documentation tasks
+  docs:
+    desc: Generate documentation
+    cmds:
+      - godoc -http=:6060
+
+  # Development server tasks
+  dev:
+    desc: Start development environment
+    cmds:
+      - task: docker-run-dev
+      - echo "Development environment started. Access at http://localhost:3000"
+
+  # Quick start tasks
+  quick-start:
+    desc: Quick start for development
+    cmds:
+      - task: mod-tidy
+      - task: build-all
+      - task: test-unit
+      - echo "Quick start completed successfully!"
+
+  # Production tasks
+  prod-build:
+    desc: Build production-ready binaries
+    cmds:
+      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/peervault-linux-amd64 ./cmd/peervault
+      - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/peervault-darwin-amd64 ./cmd/peervault
+      - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/peervault-windows-amd64.exe ./cmd/peervault
+
+  # Help
+  help:
+    desc: Show available tasks
+    cmds:
+      - task --list

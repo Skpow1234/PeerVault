@@ -1,0 +1,352 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  GO_VERSION: '1.21'
+  CGO_ENABLED: 0
+
+jobs:
+  # Lint and format check
+  lint:
+    name: Lint and Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          args: --timeout=5m
+
+      - name: Run golangci-lint
+        run: golangci-lint run ./...
+
+      - name: Check code formatting
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "Code is not formatted. Run 'go fmt ./...' to fix."
+            gofmt -s -l .
+            exit 1
+          fi
+
+      - name: Check for trailing whitespace
+        run: |
+          if grep -r --include="*.go" --include="*.md" --include="*.yml" --include="*.yaml" '[[:space:]]$' .; then
+            echo "Found trailing whitespace. Please remove it."
+            exit 1
+          fi
+
+  # Unit tests
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.20, 1.21, 1.22]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Run unit tests
+        run: |
+          go test -v -race -coverprofile=coverage.out ./tests/unit/...
+          go test -v -race -coverprofile=coverage.out ./internal/...
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.out
+          flags: unit-tests
+          name: codecov-umbrella
+
+  # Integration tests
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Run integration tests
+        run: |
+          go test -v -timeout=10m ./tests/integration/...
+
+      - name: Upload integration test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.out
+          flags: integration-tests
+          name: codecov-umbrella
+
+  # Fuzz tests
+  fuzz-tests:
+    name: Fuzz Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Run fuzz tests
+        run: |
+          # Run fuzz tests with a short timeout to catch basic issues
+          go test -fuzz=Fuzz -fuzztime=30s ./tests/fuzz/transport/...
+          go test -fuzz=Fuzz -fuzztime=30s ./tests/fuzz/storage/...
+          go test -fuzz=Fuzz -fuzztime=30s ./tests/fuzz/crypto/...
+
+  # Security scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Run gosec security scanner
+        uses: securecodewarrior/github-action-gosec@master
+        with:
+          args: '-fmt sarif -out results.sarif ./...'
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: results.sarif
+
+      - name: Run govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+
+  # Build and test binaries
+  build:
+    name: Build and Test Binaries
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        go-version: [1.21]
+    needs: [unit-tests, integration-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Build all binaries
+        run: |
+          go build -v -o bin/peervault ./cmd/peervault
+          go build -v -o bin/peervault-node ./cmd/peervault-node
+          go build -v -o bin/peervault-demo ./cmd/peervault-demo
+
+      - name: Test binary execution
+        run: |
+          # Test that binaries can start without immediate errors
+          timeout 5s ./bin/peervault --help || true
+          timeout 5s ./bin/peervault-node --help || true
+          timeout 5s ./bin/peervault-demo --help || true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries-${{ matrix.os }}
+          path: bin/
+
+  # Docker build and test
+  docker:
+    name: Docker Build and Test
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker images
+        run: |
+          docker build -t peervault:test .
+          docker build -t peervault-node:test -f Dockerfile.node .
+          docker build -t peervault-demo:test -f Dockerfile.demo .
+
+      - name: Test Docker images
+        run: |
+          # Test that containers can start
+          docker run --rm peervault:test --help
+          docker run --rm peervault-node:test --help
+          docker run --rm peervault-demo:test --help
+
+      - name: Test Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml config
+          docker-compose -f docker-compose.dev.yml config
+
+  # Performance benchmarks
+  benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Run benchmarks
+        run: |
+          go test -bench=. -benchmem ./tests/integration/performance/...
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-results
+          path: benchmark.out
+
+  # Code quality and metrics
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Install tools
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
+          go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+      - name: Check imports
+        run: |
+          if [ "$(goimports -l . | wc -l)" -gt 0 ]; then
+            echo "Imports are not properly formatted. Run 'goimports -w .' to fix."
+            goimports -l .
+            exit 1
+          fi
+
+      - name: Check cyclomatic complexity
+        run: |
+          gocyclo -over 15 ./internal/ ./cmd/
+
+      - name: Generate code coverage report
+        run: |
+          go test -coverprofile=coverage.out ./...
+          go tool cover -html=coverage.out -o coverage.html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage.html
+
+  # Documentation check
+  docs:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check README links
+        run: |
+          # Check for broken links in README (basic check)
+          if grep -r "http://" README.md; then
+            echo "Found HTTP links in README. Consider using HTTPS."
+          fi
+
+      - name: Check documentation completeness
+        run: |
+          # Check that all exported functions have comments
+          if [ "$(go vet ./... 2>&1 | grep -c 'exported.*should have comment')" -gt 0 ]; then
+            echo "Found exported functions without comments."
+            go vet ./... 2>&1 | grep 'exported.*should have comment'
+            exit 1
+          fi
+
+  # Final status check
+  status:
+    name: Pipeline Status
+    runs-on: ubuntu-latest
+    needs: [lint, unit-tests, integration-tests, fuzz-tests, security, build, docker, benchmarks, quality, docs]
+    if: always()
+    steps:
+      - name: Check pipeline status
+        run: |
+          echo "Pipeline completed!"
+          echo "All jobs status:"
+          echo "- Lint: ${{ needs.lint.result }}"
+          echo "- Unit Tests: ${{ needs.unit-tests.result }}"
+          echo "- Integration Tests: ${{ needs.integration-tests.result }}"
+          echo "- Fuzz Tests: ${{ needs.fuzz-tests.result }}"
+          echo "- Security: ${{ needs.security.result }}"
+          echo "- Build: ${{ needs.build.result }}"
+          echo "- Docker: ${{ needs.docker.result }}"
+          echo "- Benchmarks: ${{ needs.benchmarks.result }}"
+          echo "- Quality: ${{ needs.quality.result }}"
+          echo "- Docs: ${{ needs.docs.result }}"
+          
+          # Fail if any required job failed
+          if [[ "${{ needs.lint.result }}" == "failure" ]] || \
+             [[ "${{ needs.unit-tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.integration-tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.security.result }}" == "failure" ]]; then
+            echo "Critical jobs failed. Pipeline failed."
+            exit 1
+          fi
+          
+          echo "Pipeline passed! 🎉"

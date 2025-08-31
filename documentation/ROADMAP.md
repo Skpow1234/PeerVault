@@ -137,9 +137,11 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Multi-container deployment with Docker Compose, separate node containers, demo client, comprehensive documentation.
 - Touchpoints: `docker-compose.yml`, `Dockerfile.node`, `Dockerfile.demo`, `cmd/peervault-node/`, `cmd/peervault-demo/`, `CONTAINERIZATION.md`.
 
-5 Developer tooling
+5 Developer tooling ✅
 
 - Taskfile; improve `Makefile` targets.
+- Acceptance: Cross-platform development tools with Taskfile, PowerShell scripts, bash scripts, improved Makefile, comprehensive testing structure.
+- Touchpoints: `Taskfile.yml`, `scripts/`, `Makefile`, `tests/`.
 
 ---
 
