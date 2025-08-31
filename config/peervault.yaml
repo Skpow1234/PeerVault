@@ -1,0 +1,213 @@
+# PeerVault Configuration File
+# This file contains all configuration options for the PeerVault distributed storage system
+
+# Server Configuration
+server:
+  # Node ID (auto-generated if not provided)
+  node_id: ""
+  
+  # Listen address for the server
+  listen_addr: ":3000"
+  
+  # Enable debug mode
+  debug: false
+  
+  # Graceful shutdown timeout
+  shutdown_timeout: "30s"
+
+# Storage Configuration
+storage:
+  # Storage root directory
+  root: "./storage"
+  
+  # Maximum file size in bytes (1GB)
+  max_file_size: 1073741824
+  
+  # Enable compression
+  compression: false
+  
+  # Compression level (1-9)
+  compression_level: 6
+  
+  # Enable deduplication
+  deduplication: false
+  
+  # Storage cleanup interval
+  cleanup_interval: "1h"
+  
+  # Retention period for deleted files
+  retention_period: "24h"
+
+# Network Configuration
+network:
+  # Bootstrap nodes (comma-separated list)
+  bootstrap_nodes:
+    - "localhost:3000"
+    - "localhost:7000"
+  
+  # Connection timeout
+  connection_timeout: "30s"
+  
+  # Read timeout
+  read_timeout: "60s"
+  
+  # Write timeout
+  write_timeout: "60s"
+  
+  # Keep-alive interval
+  keep_alive_interval: "30s"
+  
+  # Maximum message size (1MB)
+  max_message_size: 1048576
+
+# Security Configuration
+security:
+  # Cluster key for encryption (set via environment variable PEERVAULT_CLUSTER_KEY)
+  cluster_key: ""
+  
+  # Authentication token
+  auth_token: "demo-token"
+  
+  # Enable TLS
+  tls: false
+  
+  # TLS certificate file
+  tls_cert_file: ""
+  
+  # TLS key file
+  tls_key_file: ""
+  
+  # Key rotation interval
+  key_rotation_interval: "24h"
+  
+  # Enable encryption at rest
+  encryption_at_rest: true
+  
+  # Enable encryption in transit
+  encryption_in_transit: true
+
+# Logging Configuration
+logging:
+  # Log level (debug, info, warn, error)
+  level: "info"
+  
+  # Log format (json, text)
+  format: "json"
+  
+  # Log file path (optional)
+  file: ""
+  
+  # Enable structured logging
+  structured: true
+  
+  # Include source location in logs
+  include_source: false
+  
+  # Log rotation settings
+  rotation:
+    # Maximum log file size in MB
+    max_size: 100
+    
+    # Maximum number of log files to keep
+    max_files: 10
+    
+    # Maximum age of log files (7 days)
+    max_age: "168h"
+    
+    # Compress rotated log files
+    compress: true
+
+# API Configuration
+api:
+  # REST API Configuration
+  rest:
+    # Enable REST API
+    enabled: true
+    
+    # REST API port
+    port: 8080
+    
+    # Allowed origins for CORS
+    allowed_origins:
+      - "*"
+    
+    # Rate limit per minute
+    rate_limit_per_min: 100
+    
+    # Authentication token
+    auth_token: "demo-token"
+  
+  # GraphQL API Configuration
+  graphql:
+    # Enable GraphQL API
+    enabled: true
+    
+    # GraphQL API port
+    port: 8081
+    
+    # Enable GraphQL Playground
+    enable_playground: true
+    
+    # GraphQL endpoint path
+    graphql_path: "/graphql"
+    
+    # Playground path
+    playground_path: "/playground"
+    
+    # Allowed origins for CORS
+    allowed_origins:
+      - "*"
+  
+  # gRPC API Configuration
+  grpc:
+    # Enable gRPC API
+    enabled: true
+    
+    # gRPC API port
+    port: 8082
+    
+    # Authentication token
+    auth_token: "demo-token"
+    
+    # Enable reflection
+    enable_reflection: true
+    
+    # Maximum concurrent streams
+    max_concurrent_streams: 100
+
+# Peer Configuration
+peer:
+  # Maximum number of peers
+  max_peers: 100
+  
+  # Heartbeat interval
+  heartbeat_interval: "30s"
+  
+  # Health timeout
+  health_timeout: "90s"
+  
+  # Reconnection backoff
+  reconnect_backoff: "5s"
+  
+  # Maximum reconnection attempts
+  max_reconnect_attempts: 10
+
+# Performance Configuration
+performance:
+  # Maximum concurrent streams per peer
+  max_concurrent_streams_per_peer: 10
+  
+  # Buffer size for streaming (64KB)
+  stream_buffer_size: 65536
+  
+  # Connection pool size
+  connection_pool_size: 10
+  
+  # Enable connection multiplexing
+  enable_multiplexing: true
+  
+  # Cache size in MB
+  cache_size: 100
+  
+  # Cache TTL
+  cache_ttl: "1h"

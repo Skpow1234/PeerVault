@@ -93,6 +93,10 @@ jobs:
           go test -v ./tests/unit/...
           go test -v ./internal/...
           
+          # Run configuration tests specifically
+          echo "Running configuration unit tests..."
+          go test -v ./tests/unit/config/...
+          
           # Then run with race detection
           go test -v -race ./tests/unit/...
           go test -v -race ./internal/...
@@ -104,6 +108,10 @@ jobs:
           # Generate coverage only for unit tests and internal packages
           # Skip integration tests to avoid hanging
           timeout 5m go test -coverprofile=coverage.out ./tests/unit/... ./internal/...
+          
+          # Generate coverage for configuration package specifically
+          echo "Generating configuration coverage report..."
+          timeout 2m go test -coverprofile=config-coverage.out ./internal/config/... ./tests/unit/config/...
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -141,6 +149,9 @@ jobs:
             
             echo "Running GraphQL API tests..."
             go test -v -timeout=30s ./tests/integration/graphql/... || echo "GraphQL API tests failed (non-critical)"
+            
+            echo "Running configuration integration tests..."
+            go test -v -timeout=30s ./tests/integration/config/... || echo "Configuration integration tests failed (non-critical)"
             
             # Run end-to-end and multi-node tests (these may take longer)
             echo "Running end-to-end tests..."
@@ -262,6 +273,7 @@ jobs:
           go build -v -o bin/peervault ./cmd/peervault
           go build -v -o bin/peervault-node ./cmd/peervault-node
           go build -v -o bin/peervault-demo ./cmd/peervault-demo
+          go build -v -o bin/peervault-config ./cmd/peervault-config
 
       - name: Test binary execution
         run: |
@@ -269,6 +281,26 @@ jobs:
           timeout 5s ./bin/peervault --help || true
           timeout 5s ./bin/peervault-node --help || true
           timeout 5s ./bin/peervault-demo --help || true
+          timeout 5s ./bin/peervault-config --help || true
+
+      - name: Test configuration tool functionality
+        run: |
+          # Test configuration generation
+          ./bin/peervault-config -generate -output config/test-ci.yaml
+          
+          # Test configuration validation (should fail with demo token)
+          ./bin/peervault-config -validate -config config/test-ci.yaml || {
+            echo "Configuration validation failed as expected (demo token warning)"
+          }
+          
+          # Test configuration show
+          ./bin/peervault-config -show -config config/test-ci.yaml
+          
+          # Test environment mapping
+          ./bin/peervault-config -env-map
+          
+          # Clean up test file
+          rm -f config/test-ci.yaml
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -371,7 +403,16 @@ jobs:
           # Generate coverage only for unit tests and internal packages
           # Skip integration tests to avoid hanging
           timeout 5m go test -coverprofile=coverage.out ./tests/unit/... ./internal/...
-          go tool cover -html=coverage.out -o coverage.html
+          
+          # Generate configuration coverage
+          timeout 2m go test -coverprofile=config-coverage.out ./internal/config/... ./tests/unit/config/...
+          
+          # Merge coverage files
+          echo "mode: set" > merged-coverage.out
+          tail -n +2 coverage.out >> merged-coverage.out
+          tail -n +2 config-coverage.out >> merged-coverage.out
+          
+          go tool cover -html=merged-coverage.out -o coverage.html
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
@@ -404,6 +445,33 @@ jobs:
             exit 0
           fi
 
+      - name: Validate configuration system
+        run: |
+          # Test configuration system functionality
+          echo "Testing configuration system..."
+          
+          # Build configuration tool
+          go build -v -o bin/peervault-config ./cmd/peervault-config
+          
+          # Test configuration generation
+          ./bin/peervault-config -generate -output config/ci-test.yaml
+          
+          # Test configuration validation (should show warnings but not fail)
+          ./bin/peervault-config -validate -config config/ci-test.yaml || {
+            echo "Configuration validation completed with warnings (expected)"
+          }
+          
+          # Test configuration show
+          ./bin/peervault-config -show -config config/ci-test.yaml
+          
+          # Test environment mapping
+          ./bin/peervault-config -env-map
+          
+          # Clean up
+          rm -f config/ci-test.yaml
+          
+          echo "Configuration system validation completed"
+
   # Final status check
   status:
     name: Pipeline Status
@@ -425,6 +493,11 @@ jobs:
           echo "- Benchmarks: ${{ needs.benchmarks.result }}"
           echo "- Quality: ${{ needs.quality.result }}"
           echo "- Docs: ${{ needs.docs.result }}"
+          echo ""
+          echo "Configuration Management System:"
+          echo "- Configuration tool built and tested"
+          echo "- Configuration unit and integration tests included"
+          echo "- Configuration validation integrated into build process"
           
           # Only fail if critical jobs failed (excluding lint, format, quality, docs, and integration tests)
           if [[ "${{ needs.unit-tests.result }}" == "failure" ]] || \

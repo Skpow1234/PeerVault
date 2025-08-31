@@ -9,9 +9,10 @@ help:
 	@echo ""
 	@echo "Build Commands:"
 	@echo "  build        - Build main application"
-	@echo "  build-all    - Build all binaries (main, node, demo)"
+	@echo "  build-all    - Build all binaries (main, node, demo, config)"
 	@echo "  build-node   - Build individual node binary"
 	@echo "  build-demo   - Build demo client binary"
+	@echo "  build-config - Build configuration management tool"
 	@echo ""
 	@echo "Run Commands:"
 	@echo "  run          - Run main application (all-in-one)"
@@ -56,7 +57,13 @@ build-demo:
 	@go build -o bin/peervault-demo ./cmd/peervault-demo
 	@echo "✓ Demo client built successfully"
 
-build-all: build build-node build-demo
+build-config:
+	@echo "Building configuration tool..."
+	@mkdir -p bin
+	@go build -o bin/peervault-config ./cmd/peervault-config
+	@echo "✓ Configuration tool built successfully"
+
+build-all: build build-node build-demo build-config
 	@echo "✓ All binaries built successfully"
 
 # Run targets
