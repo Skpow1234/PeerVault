@@ -80,7 +80,7 @@ api:
       - "*"
     rate_limit_per_min: 100
     auth_token: "rest-test-token"
-  
+
   graphql:
     enabled: true
     port: 8082
@@ -89,7 +89,7 @@ api:
     playground_path: "/playground"
     allowed_origins:
       - "*"
-  
+
   grpc:
     enabled: true
     port: 8083
@@ -602,9 +602,9 @@ security:
 	assert.Error(t, err)
 
 	// Check for specific validation errors
-	if validationErrors, ok := err.(*config.ValidationErrors); ok {
-		errorMessages := make([]string, len(validationErrors.Errors))
-		for i, validationError := range validationErrors.Errors {
+	if validationResult, ok := err.(*config.ValidationResult); ok {
+		errorMessages := make([]string, len(validationResult.Errors))
+		for i, validationError := range validationResult.Errors {
 			errorMessages[i] = validationError.Message
 		}
 
@@ -613,6 +613,6 @@ security:
 		assert.Contains(t, errorMessages, "max file size must be positive")
 		assert.Contains(t, errorMessages, "log level must be one of: debug, info, warn, error")
 		assert.Contains(t, errorMessages, "port conflict")
-		assert.Contains(t, errorMessages, "security warning")
+		assert.Contains(t, errorMessages, "using default demo token in production")
 	}
 }

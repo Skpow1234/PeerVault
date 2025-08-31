@@ -56,15 +56,38 @@ func main() {
 		switch {
 		case *validate:
 			if err := validateConfig(manager); err != nil {
-				logger.Error("Configuration validation failed", "error", err)
-				os.Exit(1)
+				// Check if this is a validation result with warnings only
+				if validationResult, ok := err.(*config.ValidationResult); ok {
+					if validationResult.HasErrors() {
+						logger.Error("Configuration validation failed", "error", err)
+						os.Exit(1)
+					} else if validationResult.HasWarnings() {
+						logger.Warn("Configuration validation completed with warnings", "warnings", err)
+						// Don't exit with error code for warnings only
+					}
+				} else {
+					logger.Error("Configuration validation failed", "error", err)
+					os.Exit(1)
+				}
+			} else {
+				logger.Info("Configuration validation passed")
 			}
-			logger.Info("Configuration validation passed")
 
 		case *show:
 			if err := showConfig(manager, *format); err != nil {
-				logger.Error("Failed to show configuration", "error", err)
-				os.Exit(1)
+				// Check if this is a validation result with warnings only
+				if validationResult, ok := err.(*config.ValidationResult); ok {
+					if validationResult.HasErrors() {
+						logger.Error("Failed to show configuration", "error", err)
+						os.Exit(1)
+					} else if validationResult.HasWarnings() {
+						logger.Warn("Configuration loaded with warnings", "warnings", err)
+						// Continue with showing config even with warnings
+					}
+				} else {
+					logger.Error("Failed to show configuration", "error", err)
+					os.Exit(1)
+				}
 			}
 
 		case *env:
@@ -79,10 +102,22 @@ func main() {
 		default:
 			// Default behavior: validate and show
 			if err := validateConfig(manager); err != nil {
-				logger.Error("Configuration validation failed", "error", err)
-				os.Exit(1)
+				// Check if this is a validation result with warnings only
+				if validationResult, ok := err.(*config.ValidationResult); ok {
+					if validationResult.HasErrors() {
+						logger.Error("Configuration validation failed", "error", err)
+						os.Exit(1)
+					} else if validationResult.HasWarnings() {
+						logger.Warn("Configuration validation completed with warnings", "warnings", err)
+						// Don't exit with error code for warnings only
+					}
+				} else {
+					logger.Error("Configuration validation failed", "error", err)
+					os.Exit(1)
+				}
+			} else {
+				logger.Info("Configuration validation passed")
 			}
-			logger.Info("Configuration validation passed")
 		}
 	}
 }
@@ -135,7 +170,23 @@ func generateConfig(manager *config.Manager, outputPath, format string) error {
 // validateConfig validates the configuration
 func validateConfig(manager *config.Manager) error {
 	if err := manager.Load(); err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
+		// Check if this is a validation result with only warnings
+		if validationResult, ok := err.(*config.ValidationResult); ok {
+			if validationResult.HasErrors() {
+				return fmt.Errorf("failed to load configuration: %w", err)
+			} else if validationResult.HasWarnings() {
+				// Return the validation result directly for warnings
+				cfg := manager.Get()
+				fmt.Printf("Configuration loaded from: %s\n", manager.GetConfigPath())
+				fmt.Printf("Node ID: %s\n", cfg.Server.NodeID)
+				fmt.Printf("Listen Address: %s\n", cfg.Server.ListenAddr)
+				fmt.Printf("Storage Root: %s\n", cfg.Storage.Root)
+				fmt.Printf("Log Level: %s\n", cfg.Logging.Level)
+				return err
+			}
+		} else {
+			return fmt.Errorf("failed to load configuration: %w", err)
+		}
 	}
 
 	cfg := manager.Get()
@@ -151,7 +202,16 @@ func validateConfig(manager *config.Manager) error {
 // showConfig displays the current configuration
 func showConfig(manager *config.Manager, format string) error {
 	if err := manager.Load(); err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
+		// Check if this is a validation result with only warnings
+		if validationResult, ok := err.(*config.ValidationResult); ok {
+			if validationResult.HasErrors() {
+				return fmt.Errorf("failed to load configuration: %w", err)
+			}
+			// If it has warnings, continue with showing config
+			// The warning will be handled by the caller
+		} else {
+			return fmt.Errorf("failed to load configuration: %w", err)
+		}
 	}
 
 	cfg := manager.Get()

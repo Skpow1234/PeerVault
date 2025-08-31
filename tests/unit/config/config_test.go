@@ -184,20 +184,20 @@ func TestSecurityValidator(t *testing.T) {
 	cfg.Security.AllowDemoToken = false // Disable demo tokens for this test
 	err = validator.Validate(cfg)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "security warning")
+	assert.Contains(t, err.Error(), "validation warning")
 
 	// Test empty cluster key
 	cfg.Security.ClusterKey = ""
 	cfg.Security.AllowDemoToken = false // Disable demo tokens for this test
 	err = validator.Validate(cfg)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "security warning")
+	assert.Contains(t, err.Error(), "validation warning")
 
 	// Test weak cluster key
 	cfg.Security.ClusterKey = "short"
 	err = validator.Validate(cfg)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "security warning")
+	assert.Contains(t, err.Error(), "validation warning")
 }
 
 func TestSecurityValidatorWithDemoTokenAllowed(t *testing.T) {
@@ -212,7 +212,7 @@ func TestSecurityValidatorWithDemoTokenAllowed(t *testing.T) {
 
 	// Test with configuration setting
 	validator2 := config.NewSecurityValidator(false) // Don't allow demo tokens
-	cfg.Security.AllowDemoToken = true // But config allows it
+	cfg.Security.AllowDemoToken = true               // But config allows it
 	err = validator2.Validate(cfg)
 	assert.NoError(t, err) // Should pass because config allows demo tokens
 }
@@ -229,7 +229,7 @@ func TestStorageValidator(t *testing.T) {
 	cfg.Storage.MaxFileSize = 100 * 1024 * 1024 * 1024 // 100GB
 	err = validator.Validate(cfg)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "storage warning")
+	assert.Contains(t, err.Error(), "validation warning")
 }
 
 func TestSaveConfig(t *testing.T) {
@@ -399,10 +399,10 @@ func TestValidationErrors(t *testing.T) {
 	err := validator.Validate(cfg)
 	assert.Error(t, err)
 
-	// Check if it's a ValidationErrors type
-	if validationErrors, ok := err.(*config.ValidationErrors); ok {
-		assert.Greater(t, len(validationErrors.Errors), 0)
-		for _, validationError := range validationErrors.Errors {
+	// Check if it's a ValidationResult type
+	if validationResult, ok := err.(*config.ValidationResult); ok {
+		assert.Greater(t, len(validationResult.Errors), 0)
+		for _, validationError := range validationResult.Errors {
 			assert.NotEmpty(t, validationError.Field)
 			assert.NotEmpty(t, validationError.Message)
 		}

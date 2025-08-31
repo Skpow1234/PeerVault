@@ -18,56 +18,112 @@ func (e ValidationError) Error() string {
 	return fmt.Sprintf("validation error for field '%s': %s", e.Field, e.Message)
 }
 
+// ValidationWarning represents a configuration validation warning
+type ValidationWarning struct {
+	Field   string
+	Message string
+}
+
+func (w ValidationWarning) Error() string {
+	return fmt.Sprintf("validation warning for field '%s': %s", w.Field, w.Message)
+}
+
+// ValidationResult contains both errors and warnings from validation
+type ValidationResult struct {
+	Errors   []ValidationError
+	Warnings []ValidationWarning
+}
+
+func (r *ValidationResult) AddError(field, message string) {
+	r.Errors = append(r.Errors, ValidationError{Field: field, Message: message})
+}
+
+func (r *ValidationResult) AddWarning(field, message string) {
+	r.Warnings = append(r.Warnings, ValidationWarning{Field: field, Message: message})
+}
+
+func (r *ValidationResult) HasErrors() bool {
+	return len(r.Errors) > 0
+}
+
+func (r *ValidationResult) HasWarnings() bool {
+	return len(r.Warnings) > 0
+}
+
+func (r *ValidationResult) Error() string {
+	if len(r.Errors) == 0 && len(r.Warnings) == 0 {
+		return "no validation issues"
+	}
+
+	var messages []string
+
+	if len(r.Errors) > 0 {
+		messages = append(messages, "validation errors:")
+		for _, err := range r.Errors {
+			messages = append(messages, "  "+err.Error())
+		}
+	}
+
+	if len(r.Warnings) > 0 {
+		messages = append(messages, "validation warnings:")
+		for _, warning := range r.Warnings {
+			messages = append(messages, "  "+warning.Error())
+		}
+	}
+
+	return strings.Join(messages, "\n")
+}
+
 // DefaultValidator provides default validation rules for configuration
 type DefaultValidator struct{}
 
 // Validate validates the configuration using default rules
 func (v *DefaultValidator) Validate(config *Config) error {
-	var errors []ValidationError
+	result := &ValidationResult{}
 
 	// Validate server configuration
 	if err := v.validateServer(config.Server); err != nil {
-		errors = append(errors, *err)
+		result.AddError(err.Field, err.Message)
 	}
 
 	// Validate storage configuration
 	if err := v.validateStorage(config.Storage); err != nil {
-		errors = append(errors, *err)
+		result.AddError(err.Field, err.Message)
 	}
 
 	// Validate network configuration
 	if err := v.validateNetwork(config.Network); err != nil {
-		errors = append(errors, *err)
+		result.AddError(err.Field, err.Message)
 	}
 
 	// Validate security configuration
 	if err := v.validateSecurity(config.Security); err != nil {
-		errors = append(errors, *err)
+		result.AddError(err.Field, err.Message)
 	}
 
 	// Validate logging configuration
 	if err := v.validateLogging(config.Logging); err != nil {
-		errors = append(errors, *err)
+		result.AddError(err.Field, err.Message)
 	}
 
 	// Validate API configuration
 	if err := v.validateAPI(config.API); err != nil {
-		errors = append(errors, *err)
+		result.AddError(err.Field, err.Message)
 	}
 
 	// Validate peer configuration
 	if err := v.validatePeer(config.Peer); err != nil {
-		errors = append(errors, *err)
+		result.AddError(err.Field, err.Message)
 	}
 
 	// Validate performance configuration
 	if err := v.validatePerformance(config.Performance); err != nil {
-		errors = append(errors, *err)
+		result.AddError(err.Field, err.Message)
 	}
 
 	// Return combined errors
-	if len(errors) > 0 {
-		return &ValidationErrors{Errors: errors}
+	if result.HasErrors() {
+		return result
 	}
 
 	return nil
@@ -417,24 +473,6 @@ func (v *DefaultValidator) validatePerformance(config PerformanceConfig) *Valida
 	return nil
 }
 
-// ValidationErrors represents multiple validation errors
-type ValidationErrors struct {
-	Errors []ValidationError
-}
-
-func (e *ValidationErrors) Error() string {
-	if len(e.Errors) == 0 {
-		return "no validation errors"
-	}
-
-	var messages []string
-	for _, err := range e.Errors {
-		messages = append(messages, err.Error())
-	}
-
-	return fmt.Sprintf("validation errors:\n%s", strings.Join(messages, "\n"))
-}
-
 // Custom validators
 
 // PortValidator validates that ports are not conflicting
@@ -481,25 +519,32 @@ func NewSecurityValidator(allowDemoToken bool) *SecurityValidator {
 
 // Validate checks security configuration for potential issues
 func (v *SecurityValidator) Validate(config *Config) error {
+	result := &ValidationResult{}
+
 	// Check for weak auth tokens (only if demo token is not allowed)
 	// Use configuration setting if not explicitly set in validator
 	allowDemo := v.AllowDemoToken
 	if !allowDemo {
 		allowDemo = config.Security.AllowDemoToken
 	}
-	
+
 	if !allowDemo && config.Security.AuthToken == "demo-token" {
-		return fmt.Errorf("security warning: using default demo token in production")
+		result.AddWarning("security.auth_token", "using default demo token in production")
 	}
 
 	// Check for empty cluster key in production (only if demo tokens are not allowed)
 	if !allowDemo && config.Security.ClusterKey == "" {
-		return fmt.Errorf("security warning: no cluster key specified")
+		result.AddWarning("security.cluster_key", "no cluster key specified")
 	}
 
 	// Check for weak cluster key
 	if len(config.Security.ClusterKey) < 32 {
-		return fmt.Errorf("security warning: cluster key should be at least 32 characters long")
+		result.AddWarning("security.cluster_key", "cluster key should be at least 32 characters long")
+	}
+
+	// Return warnings but don't fail validation
+	if result.HasWarnings() {
+		return result
 	}
 
 	return nil
@@ -510,14 +555,25 @@ type StorageValidator struct{}
 
 // Validate checks storage configuration for potential issues
 func (v *StorageValidator) Validate(config *Config) error {
+	result := &ValidationResult{}
+
 	// Check if storage directory is writable
 	if err := v.checkStorageWritable(config.Storage.Root); err != nil {
-		return fmt.Errorf("storage validation failed: %w", err)
+		result.AddError("storage.root", fmt.Sprintf("storage validation failed: %v", err))
 	}
 
 	// Check for reasonable file size limits
 	if config.Storage.MaxFileSize > 10*1024*1024*1024 { // 10GB
-		return fmt.Errorf("storage warning: max file size is very large (%d bytes)", config.Storage.MaxFileSize)
+		result.AddWarning("storage.max_file_size", fmt.Sprintf("max file size is very large (%d bytes)", config.Storage.MaxFileSize))
+	}
+
+	// Return errors if any, otherwise return warnings
+	if result.HasErrors() {
+		return result
+	}
+
+	if result.HasWarnings() {
+		return result
 	}
 
 	return nil

@@ -404,7 +404,17 @@ func (m *Manager) Load() error {
 
 	// Validate configuration
 	if err := m.validate(); err != nil {
-		return fmt.Errorf("configuration validation failed: %w", err)
+		// Check if this is a validation result with only warnings
+		if validationResult, ok := err.(*ValidationResult); ok {
+			if validationResult.HasErrors() {
+				return fmt.Errorf("configuration validation failed: %w", err)
+			} else if validationResult.HasWarnings() {
+				// Return the validation result directly for warnings
+				return err
+			}
+		} else {
+			return fmt.Errorf("configuration validation failed: %w", err)
+		}
 	}
 
 	return nil
@@ -539,11 +549,36 @@ func (m *Manager) setFieldValue(field reflect.Value, value string) error {
 
 // validate validates the configuration
 func (m *Manager) validate() error {
+	var allResults []*ValidationResult
+
 	for _, validator := range m.validators {
 		if err := validator.Validate(m.config); err != nil {
-			return err
+			// Check if this is a validation result
+			if validationResult, ok := err.(*ValidationResult); ok {
+				allResults = append(allResults, validationResult)
+			} else {
+				// Convert regular error to validation result
+				result := &ValidationResult{}
+				result.AddError("", err.Error())
+				allResults = append(allResults, result)
+			}
 		}
 	}
+
+	// Combine all results
+	if len(allResults) > 0 {
+		combinedResult := &ValidationResult{}
+		for _, result := range allResults {
+			combinedResult.Errors = append(combinedResult.Errors, result.Errors...)
+			combinedResult.Warnings = append(combinedResult.Warnings, result.Warnings...)
+		}
+
+		// Return the combined result if there are any issues
+		if combinedResult.HasErrors() || combinedResult.HasWarnings() {
+			return combinedResult
+		}
+	}
+
 	return nil
 }
 
