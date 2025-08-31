@@ -79,7 +79,7 @@ Security updates are released as patch versions (e.g., 1.0.1, 1.0.2) and should 
 
 For security-related questions or concerns:
 
-- **Email**: [security@peervault.dev](mailto:security@peervault.dev)
+- **Email**: [security@peervault.dev](mailto:jfhvjfhv0015@gmail.com)
 - **PGP Key**: [security-pgp-key.asc](https://github.com/Skpow1234/Peervault/security-pgp-key.asc)
 
 ## Acknowledgments

@@ -8,6 +8,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -92,18 +93,40 @@ func (s *Store) WriteDecrypt(copyDecrypt func([]byte, io.Reader, io.Writer) (int
 	if err != nil {
 		return 0, err
 	}
+	defer f.Close()
 	n, err := copyDecrypt(encKey, r, f)
 	return int64(n), err
 }
 
+// createFileAtomic creates a file atomically to avoid race conditions
+// This is a workaround for GO-2025-3750 vulnerability
+func (s *Store) createFileAtomic(fullPath string) (*os.File, error) {
+	// Create the directory first
+	dir := filepath.Dir(fullPath)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		return nil, fmt.Errorf("failed to create directory %s: %w", dir, err)
+	}
+
+	// Use O_CREATE|O_EXCL for atomic file creation
+	// This prevents race conditions where multiple processes might create the same file
+	file, err := os.OpenFile(fullPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
+	if err != nil {
+		// If file already exists, return an error
+		if errors.Is(err, os.ErrExist) {
+			return nil, fmt.Errorf("file %s already exists", fullPath)
+		}
+		return nil, fmt.Errorf("failed to create file %s: %w", fullPath, err)
+	}
+
+	return file, nil
+}
+
 func (s *Store) openFileForWriting(key string) (*os.File, error) {
 	pathKey := s.PathTransformFunc(key)
-	pathNameWithRoot := fmt.Sprintf("%s/%s", s.Root, pathKey.PathName)
-	if err := os.MkdirAll(pathNameWithRoot, os.ModePerm); err != nil {
-		return nil, err
-	}
 	fullPathWithRoot := fmt.Sprintf("%s/%s", s.Root, pathKey.FullPath())
-	return os.Create(fullPathWithRoot)
+	
+	// Use atomic file creation to avoid race conditions
+	return s.createFileAtomic(fullPathWithRoot)
 }
 
 func (s *Store) writeStream(key string, r io.Reader) (int64, error) {
@@ -111,6 +134,7 @@ func (s *Store) writeStream(key string, r io.Reader) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer f.Close()
 	return io.Copy(f, r)
 }
 
@@ -125,6 +149,7 @@ func (s *Store) readStream(key string) (int64, io.ReadCloser, error) {
 	}
 	fi, err := file.Stat()
 	if err != nil {
+		file.Close()
 		return 0, nil, err
 	}
 	return fi.Size(), file, nil

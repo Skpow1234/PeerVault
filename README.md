@@ -90,8 +90,40 @@ If no auth token is provided, a default demo token is used (suitable for develop
 
 ## Requirements
 
-- Go 1.18+ (tested with Go 1.18)
+- Go 1.24.4+ (required for security fixes)
 - Make (optional; for Unix-like systems)
+
+## Security
+
+### Vulnerability Fixes
+
+This project includes fixes for the following security vulnerabilities:
+
+#### GO-2025-3750: Inconsistent handling of O_CREATE|O_EXCL on Unix and Windows
+
+**Status:** ✅ Fixed  
+**Go Version:** 1.24.4+  
+**Impact:** Race conditions in file creation, potential security bypasses
+
+**Fix Applied:**
+
+- Updated to Go 1.24.4+ (minimum required version)
+- Implemented atomic file creation with `O_CREATE|O_EXCL` flags
+- Added proper error handling for file existence checks
+
+**Files Modified:**
+
+- `internal/storage/store.go` - Added `createFileAtomic()` function
+- `go.mod` - Updated to Go 1.24.4
+- `.github/workflows/ci.yml` - Updated CI to use Go 1.24.4
+
+### Security Scanning
+
+The CI pipeline includes automated security scanning:
+
+- **govulncheck** - Scans for known vulnerabilities in dependencies
+- **gosec** - Static analysis for security issues
+- **Dependabot** - Automated dependency updates with security patches
 
 ## Windows Defender Setup
 
