@@ -79,7 +79,7 @@ jobs:
           go test -coverprofile=coverage.out ./...
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           file: ./coverage.out
           flags: unit-tests
@@ -105,7 +105,7 @@ jobs:
           go test -v -timeout=10m ./tests/integration/...
 
       - name: Upload integration test coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           file: ./coverage.out
           flags: integration-tests
