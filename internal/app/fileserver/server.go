@@ -2,6 +2,7 @@ package fileserver
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"encoding/gob"
 	"fmt"
@@ -25,16 +26,18 @@ type Options struct {
 	PathTransformFunc storage.PathTransformFunc
 	Transport         netp2p.Transport
 	BootstrapNodes    []string
+	ResourceLimits    peer.ResourceLimits
 }
 
 type Server struct {
 	Options
-	KeyManager    *crypto.KeyManager
-	peerLock      sync.RWMutex
-	peers         map[string]netp2p.Peer
-	store         *storage.Store
-	quitch        chan struct{}
-	healthManager *peer.HealthManager
+	KeyManager      *crypto.KeyManager
+	peerLock        sync.RWMutex
+	peers           map[string]netp2p.Peer
+	store           *storage.Store
+	quitch          chan struct{}
+	healthManager   *peer.HealthManager
+	resourceManager *peer.ResourceManager
 }
 
 // getEncryptionKey returns the current encryption key, preferring KeyManager over the legacy EncKey
@@ -64,6 +67,11 @@ func New(opts Options) *Server {
 		keyManager = opts.KeyManager
 	}
 
+	// Use default resource limits if not provided
+	if opts.ResourceLimits.MaxConcurrentStreams == 0 {
+		opts.ResourceLimits = peer.DefaultResourceLimits()
+	}
+
 	server := &Server{
 		Options:    opts,
 		KeyManager: keyManager,
@@ -74,6 +82,9 @@ func New(opts Options) *Server {
 
 	// Initialize health manager
 	server.initializeHealthManager()
+
+	// Initialize resource manager
+	server.resourceManager = peer.NewResourceManager(opts.ResourceLimits)
 
 	return server
 }
@@ -101,6 +112,11 @@ func (s *Server) handlePeerDisconnect(address string) {
 	if _, exists := s.peers[address]; exists {
 		delete(s.peers, address)
 		slog.Info("peer disconnected and removed", "address", address)
+	}
+
+	// Remove peer from resource management
+	if s.resourceManager != nil {
+		s.resourceManager.RemovePeer(address)
 	}
 }
 
@@ -158,7 +174,7 @@ func (s *Server) broadcast(msg *Message) error {
 	return nil
 }
 
-func (s *Server) Get(key string) (io.Reader, error) {
+func (s *Server) Get(ctx context.Context, key string) (io.Reader, error) {
 	if s.store.Has(key) {
 		slog.Info("serving file", "key", key, "addr", s.Transport.Addr())
 		// Read encrypted data from disk and decrypt it
@@ -216,7 +232,7 @@ func (s *Server) Get(key string) (io.Reader, error) {
 	return bytes.NewReader(decryptedBuffer.Bytes()), nil
 }
 
-func (s *Server) Store(key string, r io.Reader) error {
+func (s *Server) Store(ctx context.Context, key string, r io.Reader) error {
 	// Store the file locally with encryption at rest
 	size, err := s.store.WriteDecrypt(crypto.CopyEncrypt, s.getEncryptionKey(), key, r)
 	if err != nil {
@@ -230,7 +246,7 @@ func (s *Server) Store(key string, r io.Reader) error {
 	}
 
 	// Stream the file from disk to all peers with resilient replication
-	return s.resilientStreamToPeers(key, size)
+	return s.resilientStreamToPeers(ctx, key, size)
 }
 
 func (s *Server) Stop() {
@@ -238,6 +254,12 @@ func (s *Server) Stop() {
 	if s.healthManager != nil {
 		s.healthManager.Stop()
 	}
+
+	// Shutdown resource manager
+	if s.resourceManager != nil {
+		s.resourceManager.Shutdown()
+	}
+
 	close(s.quitch)
 }
 
@@ -249,6 +271,11 @@ func (s *Server) OnPeer(p netp2p.Peer) error {
 	// Add peer to health monitoring
 	if s.healthManager != nil {
 		s.healthManager.AddPeer(p)
+	}
+
+	// Add peer to resource management
+	if s.resourceManager != nil {
+		s.resourceManager.AddPeer(p.RemoteAddr().String())
 	}
 
 	slog.Info("connected", "peer", p.RemoteAddr())
@@ -432,8 +459,25 @@ func init() {
 	gob.Register(dto.GetFileAck{})
 }
 
+// contextReader wraps an io.Reader with context cancellation support
+type contextReader struct {
+	ctx    context.Context
+	reader io.Reader
+}
+
+func (cr *contextReader) Read(p []byte) (n int, err error) {
+	// Check if context is cancelled before reading
+	select {
+	case <-cr.ctx.Done():
+		return 0, cr.ctx.Err()
+	default:
+	}
+
+	return cr.reader.Read(p)
+}
+
 // resilientStreamToPeers streams a file to peers with retry logic
-func (s *Server) resilientStreamToPeers(key string, fileSize int64) error {
+func (s *Server) resilientStreamToPeers(ctx context.Context, key string, fileSize int64) error {
 	maxRetries := 3
 
 	s.peerLock.RLock()
@@ -464,8 +508,33 @@ func (s *Server) resilientStreamToPeers(key string, fileSize int64) error {
 	for _, peer := range peers {
 		peerAddr := peer.RemoteAddr().String()
 
+		// Check if context is cancelled
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		// Acquire stream slot with resource management
+		streamID := fmt.Sprintf("%s_%s_%d", key, peerAddr, time.Now().UnixNano())
+		streamCtx, err := s.resourceManager.AcquireStreamForPeer(ctx, peerAddr, streamID)
+		if err != nil {
+			slog.Warn("failed to acquire stream slot", "peer", peerAddr, "error", err)
+			continue
+		}
+
+		// Ensure stream is released when done
+		defer s.resourceManager.ReleaseStreamForPeer(peerAddr, streamID)
+
 		for attempt := 0; attempt < maxRetries; attempt++ {
-			if err := s.streamToSinglePeer(key, fileReader, peer); err != nil {
+			// Check if stream context is cancelled
+			select {
+			case <-streamCtx.Done():
+				return streamCtx.Err()
+			default:
+			}
+
+			if err := s.streamToSinglePeer(streamCtx, key, fileReader, peer); err != nil {
 				slog.Error("attempt failed to stream to peer", "attempt", attempt+1, "peer", peerAddr, "err", err)
 
 				if attempt == maxRetries-1 {
@@ -490,15 +559,28 @@ func (s *Server) resilientStreamToPeers(key string, fileSize int64) error {
 }
 
 // streamToSinglePeer streams a file to a single peer
-func (s *Server) streamToSinglePeer(key string, fileReader io.Reader, peer netp2p.Peer) error {
+func (s *Server) streamToSinglePeer(ctx context.Context, key string, fileReader io.Reader, peer netp2p.Peer) error {
+	// Check if context is cancelled
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
 	// Write stream header
 	frameWriter := netp2p.NewFrameWriter(peer)
 	if err := frameWriter.WriteStreamHeader(); err != nil {
 		return fmt.Errorf("failed to write stream header: %w", err)
 	}
 
+	// Create a context-aware reader that checks for cancellation
+	ctxReader := &contextReader{
+		ctx:    ctx,
+		reader: fileReader,
+	}
+
 	// Stream the file with encryption
-	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), fileReader, peer)
+	n, err := crypto.CopyEncrypt(s.getEncryptionKey(), ctxReader, peer)
 	if err != nil {
 		return fmt.Errorf("failed to stream encrypted file: %w", err)
 	}

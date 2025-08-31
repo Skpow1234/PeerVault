@@ -120,9 +120,11 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Dead peers are detected and removed, automatic reconnection with backoff, only healthy peers used for operations.
 - Touchpoints: `internal/peer/health.go`, `internal/app/fileserver/server.go`.
 
-2 Resource limits and backpressure
+2 Resource limits and backpressure ✅
 
 - Cap per-peer concurrent streams; add throttling; propagate cancellations with `context.Context`.
+- Acceptance: Per-peer concurrent stream limits enforced, rate limiting applied, context cancellation propagated throughout the system.
+- Touchpoints: `internal/peer/resource_manager.go`, `internal/app/fileserver/server.go`, `cmd/peervault/main.go`.
 
 3 Windows portability
 

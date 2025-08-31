@@ -2,15 +2,18 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"log/slog"
 	"os"
+	"time"
 
 	fs "github.com/Skpow1234/Peervault/internal/app/fileserver"
 	"github.com/Skpow1234/Peervault/internal/crypto"
 	"github.com/Skpow1234/Peervault/internal/logging"
+	"github.com/Skpow1234/Peervault/internal/peer"
 	"github.com/Skpow1234/Peervault/internal/storage"
 	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
 )
@@ -32,6 +35,7 @@ func makeServer(listenAddr string, nodes ...string) *fs.Server {
 		PathTransformFunc: storage.CASPathTransformFunc,
 		Transport:         tcpTransport,
 		BootstrapNodes:    nodes,
+		ResourceLimits:    peer.DefaultResourceLimits(),
 	}
 	s := fs.New(fileServerOpts)
 	tcpTransport.OnPeer = s.OnPeer
@@ -54,11 +58,18 @@ func main() {
 	go func() { log.Fatal(s1.Start()) }()
 	go func() { log.Fatal(s2.Start()) }()
 	go s3.Start()
+
+	// Create a context with timeout for the operations
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
 	for i := 0; i < 20; i++ {
 		key := fmt.Sprintf("picture_%d.png", i)
 		data := bytes.NewReader([]byte("my big data file here!"))
-		s3.Store(key, data)
-		r, err := s3.Get(key)
+		if err := s3.Store(ctx, key, data); err != nil {
+			log.Fatal(err)
+		}
+		r, err := s3.Get(ctx, key)
 		if err != nil {
 			log.Fatal(err)
 		}
