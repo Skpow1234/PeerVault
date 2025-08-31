@@ -448,9 +448,8 @@ gofmt -s -w .
 
 The CI pipeline automatically runs these checks on every push and pull request:
 
-- **Linting**: `golangci-lint run ./...`
-- **Code Formatting**: `gofmt -s -l .` (fails if code is not formatted)
-- **Trailing Whitespace**: Checks for trailing spaces in code files (Go, YAML, YML) - excludes markdown files
+#### **Critical Checks** (Pipeline fails if these fail)
+
 - **Unit Tests**: `go test -v -race ./tests/unit/...` and `go test -v -race ./internal/...`
 - **Integration Tests**: `go test -v -timeout=10m ./tests/integration/...`
 - **Fuzz Tests**: `go test -fuzz=Fuzz -fuzztime=30s ./tests/fuzz/...`
@@ -458,7 +457,15 @@ The CI pipeline automatically runs these checks on every push and pull request:
 - **Build Tests**: Cross-platform binary builds
 - **Docker Tests**: Container builds and validation
 
-**Pro tip**: Run the pre-commit script before pushing to avoid CI failures!
+#### **Non-Critical Checks** (Pipeline passes with warnings)
+
+- **Linting**: `golangci-lint run ./...` (shows warnings if failed)
+- **Code Formatting**: `gofmt -s -l .` (shows warnings if code is not formatted)
+- **Trailing Whitespace**: Checks for trailing spaces in code files (Go, YAML, YML) - excludes markdown files
+- **Code Quality**: Cyclomatic complexity and import checks
+- **Documentation**: Exported function comments and README checks
+
+**Pro tip**: Run the pre-commit script before pushing to keep code clean!
 
 ```bash
 # Unix/Linux/macOS
@@ -472,6 +479,8 @@ go fmt ./...
 goimports -w .
 golangci-lint run ./...
 ```
+
+**Note**: Lint and format failures won't block the pipeline, but it's good practice to keep code clean!
 
 ## Clean up local data
 

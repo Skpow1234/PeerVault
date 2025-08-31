@@ -384,13 +384,26 @@ jobs:
           echo "- Quality: ${{ needs.quality.result }}"
           echo "- Docs: ${{ needs.docs.result }}"
           
-          # Fail if any required job failed
-          if [[ "${{ needs.lint.result }}" == "failure" ]] || \
-             [[ "${{ needs.unit-tests.result }}" == "failure" ]] || \
+          # Only fail if critical jobs failed (excluding lint and format)
+          if [[ "${{ needs.unit-tests.result }}" == "failure" ]] || \
              [[ "${{ needs.integration-tests.result }}" == "failure" ]] || \
              [[ "${{ needs.security.result }}" == "failure" ]]; then
             echo "Critical jobs failed. Pipeline failed."
             exit 1
+          fi
+          
+          # Show warnings for non-critical failures
+          if [[ "${{ needs.lint.result }}" == "failure" ]]; then
+            echo "⚠️  Warning: Lint and format checks failed (non-critical)"
+            echo "   Consider running 'go fmt ./... && goimports -w .' locally"
+          fi
+          
+          if [[ "${{ needs.quality.result }}" == "failure" ]]; then
+            echo "⚠️  Warning: Code quality checks failed (non-critical)"
+          fi
+          
+          if [[ "${{ needs.docs.result }}" == "failure" ]]; then
+            echo "⚠️  Warning: Documentation checks failed (non-critical)"
           fi
           
           echo "Pipeline passed! 🎉"

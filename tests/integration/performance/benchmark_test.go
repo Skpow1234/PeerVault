@@ -126,7 +126,9 @@ func BenchmarkLargeFileTransfer(b *testing.B) {
 		getDuration := time.Since(start)
 
 		if closer, ok := reader.(io.Closer); ok {
-			closer.Close()
+			if err := closer.Close(); err != nil {
+				b.Logf("Failed to close reader: %v", err)
+			}
 		}
 
 		// Report metrics
@@ -266,7 +268,9 @@ func BenchmarkResourceLimits(b *testing.B) {
 		}
 
 		if closer, ok := reader.(io.Closer); ok {
-			closer.Close()
+			if err := closer.Close(); err != nil {
+				b.Logf("Failed to close reader: %v", err)
+			}
 		}
 	}
 }
@@ -317,7 +321,9 @@ func TestPerformanceMetrics(t *testing.T) {
 		utils.AssertNoError(t, err, "Get operation failed")
 		defer func() {
 			if closer, ok := reader.(io.Closer); ok {
-				closer.Close()
+				if err := closer.Close(); err != nil {
+					t.Logf("Failed to close reader: %v", err)
+				}
 			}
 		}()
 
