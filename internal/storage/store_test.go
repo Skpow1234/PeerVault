@@ -97,7 +97,11 @@ func TestAtomicFileCreation(t *testing.T) {
 	assert.True(t, s.Has(key))
 	_, r, err := s.Read(key)
 	assert.NoError(t, err)
-	defer r.Close()
+	defer func() {
+		if closeErr := r.Close(); closeErr != nil {
+			t.Error(closeErr)
+		}
+	}()
 
 	content, err := io.ReadAll(r)
 	assert.NoError(t, err)
