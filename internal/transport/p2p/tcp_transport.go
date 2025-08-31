@@ -45,6 +45,7 @@ type TCPTransport struct {
 	TCPTransportOpts
 	listener net.Listener
 	rpcch    chan RPC
+	stopCh   chan struct{}
 }
 
 func NewTCPTransport(opts TCPTransportOpts) *TCPTransport {
@@ -52,7 +53,11 @@ func NewTCPTransport(opts TCPTransportOpts) *TCPTransport {
 	if opts.Decoder == nil {
 		opts.Decoder = LengthPrefixedDecoder{}
 	}
-	return &TCPTransport{TCPTransportOpts: opts, rpcch: make(chan RPC, 1024)}
+	return &TCPTransport{
+		TCPTransportOpts: opts,
+		rpcch:            make(chan RPC, 1024),
+		stopCh:           make(chan struct{}),
+	}
 }
 
 // Addr implements the Transport interface return the address
@@ -64,7 +69,19 @@ func (t *TCPTransport) Addr() string { return t.ListenAddr }
 func (t *TCPTransport) Consume() <-chan RPC { return t.rpcch }
 
 // Close implements the Transport interface.
-func (t *TCPTransport) Close() error { return t.listener.Close() }
+func (t *TCPTransport) Close() error {
+	select {
+	case <-t.stopCh:
+		// Already closed, just close the listener
+	default:
+		close(t.stopCh)
+	}
+
+	if t.listener != nil {
+		return t.listener.Close()
+	}
+	return nil
+}
 
 // Dial implements the Transport interface.
 func (t *TCPTransport) Dial(addr string) error {
@@ -89,15 +106,26 @@ func (t *TCPTransport) ListenAndAccept() error {
 
 func (t *TCPTransport) startAcceptLoop() {
 	for {
-		conn, err := t.listener.Accept()
-		if err == io.EOF {
+		select {
+		case <-t.stopCh:
 			return
+		default:
+			conn, err := t.listener.Accept()
+			if err == io.EOF {
+				return
+			}
+			if err != nil {
+				// Only log if not shutting down
+				select {
+				case <-t.stopCh:
+					return
+				default:
+					slog.Error("TCP accept error", slog.String("error", err.Error()))
+				}
+				continue
+			}
+			go t.handleConn(conn, false)
 		}
-		if err != nil {
-			slog.Error("TCP accept error", slog.String("error", err.Error()))
-			continue
-		}
-		go t.handleConn(conn, false)
 	}
 }
 

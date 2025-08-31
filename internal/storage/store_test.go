@@ -49,7 +49,7 @@ func TestStore(t *testing.T) {
 		if runtime.GOOS != "windows" {
 			// Add a longer delay on non-Windows to ensure file handles are released
 			time.Sleep(10 * time.Millisecond)
-			
+
 			// Retry deletion with exponential backoff
 			var deleteErr error
 			for retry := 0; retry < 3; retry++ {

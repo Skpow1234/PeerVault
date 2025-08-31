@@ -263,7 +263,16 @@ func (s *Server) Stop() {
 		s.resourceManager.Shutdown()
 	}
 
-	close(s.quitch)
+	// Close the quit channel to stop the main loop
+	select {
+	case <-s.quitch:
+		// Already closed
+	default:
+		close(s.quitch)
+	}
+
+	// Don't explicitly close transport here - let the loop() method handle it
+	// to avoid double-closing
 }
 
 func (s *Server) OnPeer(p netp2p.Peer) error {

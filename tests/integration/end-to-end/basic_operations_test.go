@@ -49,8 +49,12 @@ func TestBasicStoreGet(t *testing.T) {
 	// Wait for servers to start and connect
 	time.Sleep(2 * time.Second)
 
-	// Create context with timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	// Add timeout to prevent infinite hanging
+	testCtx, testCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer testCancel()
+
+	// Use the test context with timeout
+	ctx, cancel := context.WithTimeout(testCtx, 30*time.Second)
 	defer cancel()
 
 	// Test 1: Store file on server1
@@ -166,8 +170,12 @@ func TestLargeFileStreaming(t *testing.T) {
 	// Wait for servers to start
 	time.Sleep(2 * time.Second)
 
+	// Add timeout to prevent infinite hanging
+	testCtx, testCancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer testCancel()
+
 	// Create context with timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(testCtx, 60*time.Second)
 	defer cancel()
 
 	// Store large file

@@ -44,7 +44,7 @@ func (dec LengthPrefixedDecoder) Decode(r io.Reader, msg *RPC) error {
 	if r == nil {
 		return fmt.Errorf("reader is nil")
 	}
-	
+
 	// Read frame header: [type:u8][len:u32]
 	header := make([]byte, FrameHeaderSize)
 	if _, err := io.ReadFull(r, header); err != nil {
