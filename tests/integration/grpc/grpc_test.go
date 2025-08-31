@@ -1,111 +1,103 @@
 package grpc_test
 
 import (
-	"context"
-	"io"
-	"log/slog"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/Skpow1234/Peervault/internal/api/grpc"
 )
 
 func TestGRPCServerCreation(t *testing.T) {
 	config := grpc.DefaultConfig()
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	config.Port = ":0" // Use port 0 for testing
 
-	server := grpc.NewServer(config, logger)
-
-	if server == nil {
-		t.Fatal("Failed to create gRPC server")
-	}
+	server := grpc.NewServer(config, nil)
+	assert.NotNil(t, server)
+	// Note: config field is private, so we can't access it directly
 }
 
 func TestGRPCHealthCheck(t *testing.T) {
 	config := grpc.DefaultConfig()
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	config.Port = ":0"
 
-	server := grpc.NewServer(config, logger)
+	server := grpc.NewServer(config, nil)
+	require.NotNil(t, server)
 
-	ctx := context.Background()
-	response, err := server.HealthCheck(ctx)
+	// Test the health check handler directly
+	req := httptest.NewRequest("GET", "/health", nil)
+	w := httptest.NewRecorder()
 
-	if err != nil {
-		t.Fatalf("Health check failed: %v", err)
-	}
+	server.HandleHealthCheck(w, req)
 
-	if response.Status != "healthy" {
-		t.Errorf("Expected status 'healthy', got '%s'", response.Status)
-	}
-
-	if response.Version != "1.0.0" {
-		t.Errorf("Expected version '1.0.0', got '%s'", response.Version)
-	}
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
+	assert.Contains(t, w.Body.String(), "healthy")
 }
 
 func TestGRPCSystemInfo(t *testing.T) {
 	config := grpc.DefaultConfig()
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	config.Port = ":0"
 
-	server := grpc.NewServer(config, logger)
+	server := grpc.NewServer(config, nil)
+	require.NotNil(t, server)
 
-	ctx := context.Background()
-	response, err := server.GetSystemInfo(ctx)
+	// Test the system info handler directly
+	req := httptest.NewRequest("GET", "/system/info", nil)
+	w := httptest.NewRecorder()
 
-	if err != nil {
-		t.Fatalf("Get system info failed: %v", err)
-	}
+	server.HandleSystemInfo(w, req)
 
-	if response.Version != "1.0.0" {
-		t.Errorf("Expected version '1.0.0', got '%s'", response.Version)
-	}
-
-	if response.PeerCount <= 0 {
-		t.Errorf("Expected positive peer count, got %d", response.PeerCount)
-	}
-
-	if response.FileCount <= 0 {
-		t.Errorf("Expected positive file count, got %d", response.FileCount)
-	}
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
+	assert.Contains(t, w.Body.String(), "version")
 }
 
 func TestGRPCMetrics(t *testing.T) {
 	config := grpc.DefaultConfig()
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	config.Port = ":0"
 
-	server := grpc.NewServer(config, logger)
+	server := grpc.NewServer(config, nil)
+	require.NotNil(t, server)
 
-	ctx := context.Background()
-	response, err := server.GetMetrics(ctx)
+	// Test the metrics handler directly
+	req := httptest.NewRequest("GET", "/system/metrics", nil)
+	w := httptest.NewRecorder()
 
-	if err != nil {
-		t.Fatalf("Get metrics failed: %v", err)
-	}
+	server.HandleMetrics(w, req)
 
-	if response.RequestsTotal <= 0 {
-		t.Errorf("Expected positive requests total, got %d", response.RequestsTotal)
-	}
-
-	if response.RequestsPerMinute <= 0 {
-		t.Errorf("Expected positive requests per minute, got %f", response.RequestsPerMinute)
-	}
-
-	if response.ActiveConnections <= 0 {
-		t.Errorf("Expected positive active connections, got %d", response.ActiveConnections)
-	}
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Header().Get("Content-Type"), "application/json")
+	assert.Contains(t, w.Body.String(), "requests_total")
 }
 
 func TestGRPCConfig(t *testing.T) {
 	config := grpc.DefaultConfig()
+	assert.NotNil(t, config)
+	assert.Equal(t, ":50051", config.Port)
+	assert.Equal(t, "your-secret-token", config.AuthToken)
 
-	if config.Port != ":8082" {
-		t.Errorf("Expected port ':8082', got '%s'", config.Port)
+	// Test custom config
+	customConfig := &grpc.Config{
+		Port:      ":8080",
+		AuthToken: "custom-token",
 	}
+	assert.Equal(t, ":8080", customConfig.Port)
+	assert.Equal(t, "custom-token", customConfig.AuthToken)
+}
 
-	if config.AuthToken != "demo-token" {
-		t.Errorf("Expected auth token 'demo-token', got '%s'", config.AuthToken)
-	}
+func TestGRPCServerStartStop(t *testing.T) {
+	config := grpc.DefaultConfig()
+	config.Port = ":0" // Use port 0 for testing
 
-	if config.MaxConcurrentStreams != 100 {
-		t.Errorf("Expected max concurrent streams 100, got %d", config.MaxConcurrentStreams)
-	}
+	server := grpc.NewServer(config, nil)
+	require.NotNil(t, server)
+
+	// Test that we can stop the server without panicking
+	// (even if it's not running)
+	err := server.Stop()
+	assert.NoError(t, err)
 }

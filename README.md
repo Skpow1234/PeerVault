@@ -402,7 +402,7 @@ The REST API includes comprehensive OpenAPI/Swagger documentation:
 
 PeerVault includes a high-performance gRPC API for streaming operations and service-to-service communication, built with Protocol Buffers and designed for high-throughput applications.
 
-### Architecture
+### Architecture grpc
 
 The gRPC API follows a service-oriented architecture:
 
@@ -435,12 +435,18 @@ go run ./cmd/peervault-grpc -port 8082 -auth-token your-secure-token
 
 ### gRPC API Features
 
-- **Bidirectional Streaming**: Real-time file upload/download with chunked transfer
-- **Service Discovery**: Built-in service discovery and load balancing support
-- **High Throughput**: Optimized for high-performance applications
-- **Type Safety**: Strongly typed with protobuf definitions
-- **Authentication**: Token-based authentication with metadata
-- **Event Streaming**: Real-time events for file operations, peer status, and system metrics
+- ✅ **HTTP/JSON API**: Working server with JSON endpoints (temporary solution)
+- ✅ **Health checks**: `/health` endpoint with system status
+- ✅ **System information**: `/system/info` endpoint with version and metrics
+- ✅ **Metrics**: `/system/metrics` endpoint with performance data
+- ✅ **File operations**: `/files` endpoints for file management
+- ✅ **Peer management**: `/peers` endpoints for peer operations
+- 🔄 **Bidirectional Streaming**: Real-time file upload/download with chunked transfer (planned)
+- 🔄 **Service Discovery**: Built-in service discovery and load balancing support (planned)
+- 🔄 **High Throughput**: Optimized for high-performance applications (planned)
+- 🔄 **Type Safety**: Strongly typed with protobuf definitions (planned)
+- 🔄 **Authentication**: Token-based authentication with metadata (planned)
+- 🔄 **Event Streaming**: Real-time events for file operations, peer status, and system metrics (planned)
 
 ### gRPC Services
 
@@ -479,6 +485,36 @@ fmt.Printf("Status: %s\n", response.Status)
 - **Real-time Events**: Streaming events for monitoring and notifications
 
 For complete gRPC API documentation, see [docs/grpc/README.md](docs/grpc/README.md).
+
+## gRPC Implementation Status
+
+### ✅ **Completed**
+
+- **HTTP/JSON Server**: Working server with JSON endpoints
+- **Health Endpoints**: `/health`, `/system/info`, `/system/metrics`
+- **File Operations**: `/files` endpoints for file management
+- **Peer Operations**: `/peers` endpoints for peer management
+- **Event Broadcasting**: Background event generation for testing
+- **Service Layer**: Complete service implementations for file, peer, and system operations
+
+### 🔄 **In Progress**
+
+- **Full protobuf generation**: The protobuf Go code generation is currently using a manual implementation. The next step is to properly install and configure `protoc` to generate the complete Go code from the `.proto` files.
+- **True gRPC implementation**: Currently using HTTP/JSON endpoints as a temporary solution. Will be replaced with proper gRPC streaming once protobuf generation is working.
+
+### 📋 **Next Steps**
+
+1. **Install protoc compiler**: Set up proper protobuf compilation environment
+2. **Generate protobuf code**: Use `protoc` to generate proper Go code from `.proto` files
+3. **Implement true gRPC**: Replace HTTP/JSON with actual gRPC streaming
+4. **Add streaming endpoints**: Implement bidirectional streaming for file operations
+5. **Add authentication**: Implement proper gRPC authentication and authorization
+
+### 🚨 **Current Limitations**
+
+- The server uses HTTP/JSON instead of true gRPC due to protobuf marshaling issues
+- Streaming functionality is simulated with background event generation
+- Authentication is currently disabled for development purposes
 
 The Swagger documentation includes:
 

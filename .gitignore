@@ -78,3 +78,6 @@ temp/
 .env
 .env.local
 .env.*.local
+
+# Project maturity roadmap (internal planning document)
+documentation/PROJECT_MATURITY_ROADMAP.md
