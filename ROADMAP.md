@@ -113,10 +113,12 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ## Milestone 3 — Reliability, Ops, and DX (P2)
 
-1 Peer lifecycle and health
+1 Peer lifecycle and health ✅
 
-- Heartbeats with timeouts; remove dead peers; reconnect with exponential backoff.
-- Touchpoints: transport and fileserver.
+- Problem: No peer health monitoring, dead peers remain indefinitely, no automatic reconnection.
+- Solution: Implement health manager with heartbeats, timeouts, and exponential backoff reconnection.
+- Acceptance: Dead peers are detected and removed, automatic reconnection with backoff, only healthy peers used for operations.
+- Touchpoints: `internal/peer/health.go`, `internal/app/fileserver/server.go`.
 
 2 Resource limits and backpressure
 

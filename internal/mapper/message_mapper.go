@@ -1,8 +1,8 @@
 package mapper
 
 import (
-	"github.com/anthdm/foreverstore/internal/domain"
-	"github.com/anthdm/foreverstore/internal/dto"
+	"github.com/Skpow1234/Peervault/internal/domain"
+	"github.com/Skpow1234/Peervault/internal/dto"
 )
 
 // ToDTO converts domain metadata to a wire/message DTO used for broadcasting.

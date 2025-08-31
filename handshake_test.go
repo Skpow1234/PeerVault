@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	netp2p "github.com/anthdm/foreverstore/internal/transport/p2p"
+	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
 )
 
 func TestAuthenticatedHandshake(t *testing.T) {

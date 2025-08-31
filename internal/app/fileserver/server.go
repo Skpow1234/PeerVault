@@ -8,11 +8,13 @@ import (
 	"io"
 	"log/slog"
 	"sync"
+	"time"
 
-	"github.com/anthdm/foreverstore/internal/crypto"
-	"github.com/anthdm/foreverstore/internal/dto"
-	"github.com/anthdm/foreverstore/internal/storage"
-	netp2p "github.com/anthdm/foreverstore/internal/transport/p2p"
+	"github.com/Skpow1234/Peervault/internal/crypto"
+	"github.com/Skpow1234/Peervault/internal/dto"
+	"github.com/Skpow1234/Peervault/internal/peer"
+	"github.com/Skpow1234/Peervault/internal/storage"
+	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
 )
 
 type Options struct {
@@ -27,11 +29,12 @@ type Options struct {
 
 type Server struct {
 	Options
-	KeyManager *crypto.KeyManager
-	peerLock   sync.RWMutex
-	peers      map[string]netp2p.Peer
-	store      *storage.Store
-	quitch     chan struct{}
+	KeyManager    *crypto.KeyManager
+	peerLock      sync.RWMutex
+	peers         map[string]netp2p.Peer
+	store         *storage.Store
+	quitch        chan struct{}
+	healthManager *peer.HealthManager
 }
 
 // getEncryptionKey returns the current encryption key, preferring KeyManager over the legacy EncKey
@@ -61,13 +64,60 @@ func New(opts Options) *Server {
 		keyManager = opts.KeyManager
 	}
 
-	return &Server{
+	server := &Server{
 		Options:    opts,
 		KeyManager: keyManager,
 		store:      storage.NewStore(storeOpts),
 		quitch:     make(chan struct{}),
 		peers:      make(map[string]netp2p.Peer),
 	}
+
+	// Initialize health manager
+	server.initializeHealthManager()
+
+	return server
+}
+
+// initializeHealthManager sets up the peer health monitoring system
+func (s *Server) initializeHealthManager() {
+	opts := peer.HealthManagerOpts{
+		HeartbeatInterval:    30 * time.Second,
+		HealthTimeout:        90 * time.Second,
+		ReconnectInterval:    5 * time.Second,
+		MaxReconnectAttempts: 5,
+		OnPeerDisconnect:     s.handlePeerDisconnect,
+		OnPeerReconnect:      s.handlePeerReconnect,
+		DialFunc:             s.dialPeer,
+	}
+
+	s.healthManager = peer.NewHealthManager(opts)
+}
+
+// handlePeerDisconnect is called when a peer is disconnected
+func (s *Server) handlePeerDisconnect(address string) {
+	s.peerLock.Lock()
+	defer s.peerLock.Unlock()
+
+	if _, exists := s.peers[address]; exists {
+		delete(s.peers, address)
+		slog.Info("peer disconnected and removed", "address", address)
+	}
+}
+
+// handlePeerReconnect is called when a peer reconnects
+func (s *Server) handlePeerReconnect(address string, newPeer netp2p.Peer) {
+	s.peerLock.Lock()
+	defer s.peerLock.Unlock()
+
+	s.peers[address] = newPeer
+	slog.Info("peer reconnected", "address", address)
+}
+
+// dialPeer attempts to dial a peer address
+func (s *Server) dialPeer(address string) (netp2p.Peer, error) {
+	// This would use the transport's dial function
+	// For now, we'll return an error as this needs to be implemented
+	return nil, fmt.Errorf("dial not implemented yet")
 }
 
 type Message struct{ Payload any }
@@ -80,19 +130,29 @@ func (s *Server) broadcast(msg *Message) error {
 
 	payload := buf.Bytes()
 
-	// Copy peer list under read lock to avoid race conditions
-	s.peerLock.RLock()
-	peers := make([]netp2p.Peer, 0, len(s.peers))
-	for _, peer := range s.peers {
-		peers = append(peers, peer)
+	// Get healthy peers from health manager if available
+	var peers []netp2p.Peer
+	if s.healthManager != nil {
+		peers = s.healthManager.GetHealthyPeers()
+	} else {
+		// Fallback to all peers if health manager is not available
+		s.peerLock.RLock()
+		peers = make([]netp2p.Peer, 0, len(s.peers))
+		for _, peer := range s.peers {
+			peers = append(peers, peer)
+		}
+		s.peerLock.RUnlock()
 	}
-	s.peerLock.RUnlock()
 
-	// Send to all peers
-	for _, peer := range peers {
-		frameWriter := netp2p.NewFrameWriter(peer)
+	// Send to healthy peers only
+	for _, p := range peers {
+		frameWriter := netp2p.NewFrameWriter(p)
 		if err := frameWriter.WriteMessage(payload); err != nil {
-			return err
+			slog.Warn("failed to send message to peer", "peer", p.RemoteAddr(), "error", err)
+			// Update peer health status
+			if s.healthManager != nil {
+				s.healthManager.UpdatePeerHealth(p.RemoteAddr().String(), peer.StatusUnhealthy)
+			}
 		}
 	}
 	return nil
@@ -106,14 +166,14 @@ func (s *Server) Get(key string) (io.Reader, error) {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		// Create a buffer to hold the decrypted data
 		var decryptedBuffer bytes.Buffer
 		_, err = crypto.CopyDecrypt(s.getEncryptionKey(), encryptedReader, &decryptedBuffer)
 		if err != nil {
 			return nil, fmt.Errorf("failed to decrypt file: %w", err)
 		}
-		
+
 		return bytes.NewReader(decryptedBuffer.Bytes()), nil
 	}
 	slog.Info("dont have file", "key", key, "addr", s.Transport.Addr())
@@ -121,7 +181,7 @@ func (s *Server) Get(key string) (io.Reader, error) {
 	if err := s.broadcast(&msg); err != nil {
 		return nil, err
 	}
-	
+
 	// Copy peer list under read lock to avoid race conditions
 	s.peerLock.RLock()
 	peers := make([]netp2p.Peer, 0, len(s.peers))
@@ -129,7 +189,7 @@ func (s *Server) Get(key string) (io.Reader, error) {
 		peers = append(peers, peer)
 	}
 	s.peerLock.RUnlock()
-	
+
 	for _, peer := range peers {
 		var fileSize int64
 		binary.Read(peer, binary.LittleEndian, &fileSize)
@@ -140,19 +200,19 @@ func (s *Server) Get(key string) (io.Reader, error) {
 		slog.Info("received", "bytes", n, "peer", peer.RemoteAddr())
 		peer.CloseStream()
 	}
-	
+
 	// Read and decrypt the file from disk
 	_, encryptedReader, err := s.store.Read(key)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var decryptedBuffer bytes.Buffer
 	_, err = crypto.CopyDecrypt(s.getEncryptionKey(), encryptedReader, &decryptedBuffer)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt file: %w", err)
 	}
-	
+
 	return bytes.NewReader(decryptedBuffer.Bytes()), nil
 }
 
@@ -173,12 +233,24 @@ func (s *Server) Store(key string, r io.Reader) error {
 	return s.resilientStreamToPeers(key, size)
 }
 
-func (s *Server) Stop() { close(s.quitch) }
+func (s *Server) Stop() {
+	// Stop health manager
+	if s.healthManager != nil {
+		s.healthManager.Stop()
+	}
+	close(s.quitch)
+}
 
 func (s *Server) OnPeer(p netp2p.Peer) error {
 	s.peerLock.Lock()
 	defer s.peerLock.Unlock()
 	s.peers[p.RemoteAddr().String()] = p
+
+	// Add peer to health monitoring
+	if s.healthManager != nil {
+		s.healthManager.AddPeer(p)
+	}
+
 	slog.Info("connected", "peer", p.RemoteAddr())
 	return nil
 }
@@ -339,6 +411,12 @@ func (s *Server) BootstrapNetwork() error {
 
 func (s *Server) Start() error {
 	slog.Info("starting fileserver", "addr", s.Transport.Addr())
+
+	// Start health manager
+	if s.healthManager != nil {
+		s.healthManager.Start()
+	}
+
 	if err := s.Transport.ListenAndAccept(); err != nil {
 		return err
 	}

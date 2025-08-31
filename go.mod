@@ -1,4 +1,4 @@
-module github.com/anthdm/foreverstore
+module github.com/Skpow1234/Peervault
 
 go 1.18
 

@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/anthdm/foreverstore/internal/logging"
+	"github.com/Skpow1234/Peervault/internal/logging"
 )
 
 // TestLoggingConfiguration verifies that logging can be configured properly

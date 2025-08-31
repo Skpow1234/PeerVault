@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	internalcrypto "github.com/anthdm/foreverstore/internal/crypto"
+	internalcrypto "github.com/Skpow1234/Peervault/internal/crypto"
 )
 
 func TestHashKey(t *testing.T) {

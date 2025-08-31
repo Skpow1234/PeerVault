@@ -55,7 +55,7 @@ slog.Debug("processing request", "request_id", "abc123")
 The logging package provides helper functions for common contexts:
 
 ```go
-import "github.com/anthdm/foreverstore/internal/logging"
+import "github.com/Skpow1234/Peervault/internal/logging"
 
 // Component-specific logger
 logger := logging.Logger("fileserver")

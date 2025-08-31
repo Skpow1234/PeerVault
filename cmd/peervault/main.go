@@ -8,11 +8,11 @@ import (
 	"log/slog"
 	"os"
 
-	fs "github.com/anthdm/foreverstore/internal/app/fileserver"
-	"github.com/anthdm/foreverstore/internal/crypto"
-	"github.com/anthdm/foreverstore/internal/logging"
-	"github.com/anthdm/foreverstore/internal/storage"
-	netp2p "github.com/anthdm/foreverstore/internal/transport/p2p"
+	fs "github.com/Skpow1234/Peervault/internal/app/fileserver"
+	"github.com/Skpow1234/Peervault/internal/crypto"
+	"github.com/Skpow1234/Peervault/internal/logging"
+	"github.com/Skpow1234/Peervault/internal/storage"
+	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
 )
 
 func makeServer(listenAddr string, nodes ...string) *fs.Server {

@@ -6,7 +6,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/anthdm/foreverstore/internal/crypto"
+	"github.com/Skpow1234/Peervault/internal/crypto"
 )
 
 // TestStreamingEncryption verifies that encryption works with streaming data
@@ -16,43 +16,43 @@ func TestStreamingEncryption(t *testing.T) {
 	if _, err := io.ReadFull(rand.Reader, largeData); err != nil {
 		t.Fatalf("failed to generate test data: %v", err)
 	}
-	
+
 	// Create a streaming reader
 	streamingReader := bytes.NewReader(largeData)
-	
+
 	// Create encryption key
 	key := crypto.NewEncryptionKey()
-	
+
 	// Create output buffer
 	outputBuffer := new(bytes.Buffer)
-	
+
 	// Test streaming encryption
 	n, err := crypto.CopyEncrypt(key, streamingReader, outputBuffer)
 	if err != nil {
 		t.Fatalf("failed to encrypt streaming data: %v", err)
 	}
-	
+
 	// Verify that data was encrypted
 	if n == 0 {
 		t.Error("no data was encrypted")
 	}
-	
+
 	// The encrypted data should be larger than the original due to AES-GCM overhead
 	expectedMinSize := len(largeData)
 	actualSize := outputBuffer.Len()
 	if actualSize < expectedMinSize {
 		t.Errorf("encrypted data too small: expected at least %d bytes, got %d", expectedMinSize, actualSize)
 	}
-	
+
 	// Test streaming decryption
 	encryptedReader := bytes.NewReader(outputBuffer.Bytes())
 	decryptedBuffer := new(bytes.Buffer)
-	
+
 	n, err = crypto.CopyDecrypt(key, encryptedReader, decryptedBuffer)
 	if err != nil {
 		t.Fatalf("failed to decrypt streaming data: %v", err)
 	}
-	
+
 	// Verify decryption worked
 	if !bytes.Equal(largeData, decryptedBuffer.Bytes()) {
 		t.Error("decrypted data does not match original")
@@ -66,30 +66,30 @@ func TestStreamingWithoutBuffering(t *testing.T) {
 	if _, err := io.ReadFull(rand.Reader, largeData); err != nil {
 		t.Fatalf("failed to generate test data: %v", err)
 	}
-	
+
 	// Create a streaming reader that reads in chunks
 	streamingReader := &chunkedReader{
-		data:   largeData,
+		data:      largeData,
 		chunkSize: 4096, // 4KB chunks
 	}
-	
+
 	// Create encryption key
 	key := crypto.NewEncryptionKey()
-	
+
 	// Create output buffer
 	outputBuffer := new(bytes.Buffer)
-	
+
 	// Test streaming encryption with chunked reading
 	n, err := crypto.CopyEncrypt(key, streamingReader, outputBuffer)
 	if err != nil {
 		t.Fatalf("failed to encrypt chunked streaming data: %v", err)
 	}
-	
+
 	// Verify that data was encrypted
 	if n == 0 {
 		t.Error("no data was encrypted")
 	}
-	
+
 	// The encrypted data should be larger than the original due to AES-GCM overhead
 	expectedMinSize := len(largeData)
 	actualSize := outputBuffer.Len()
@@ -109,7 +109,7 @@ func (cr *chunkedReader) Read(p []byte) (n int, err error) {
 	if cr.offset >= len(cr.data) {
 		return 0, io.EOF
 	}
-	
+
 	// Read up to chunkSize bytes
 	remaining := len(cr.data) - cr.offset
 	toRead := cr.chunkSize
@@ -119,9 +119,9 @@ func (cr *chunkedReader) Read(p []byte) (n int, err error) {
 	if toRead > len(p) {
 		toRead = len(p)
 	}
-	
+
 	copy(p, cr.data[cr.offset:cr.offset+toRead])
 	cr.offset += toRead
-	
+
 	return toRead, nil
 }
