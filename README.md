@@ -187,16 +187,16 @@ For production-like environments with separate containers:
 
 ```bash
 # Build and run all services
-docker-compose up --build
+docker-compose -f docker/docker-compose.yml up --build
 
 # Run in background
-docker-compose up -d --build
+docker-compose -f docker/docker-compose.yml up -d --build
 
 # View logs
-docker-compose logs -f
+docker-compose -f docker/docker-compose.yml logs -f
 
 # Stop all services
-docker-compose down
+docker-compose -f docker/docker-compose.yml down
 ```
 
 ### Development Setup
@@ -204,7 +204,7 @@ docker-compose down
 For development and testing:
 
 ```bash
-docker-compose -f docker-compose.dev.yml up --build
+docker-compose -f docker/docker-compose.dev.yml up --build
 ```
 
 ### Individual Nodes
@@ -213,7 +213,7 @@ Run individual nodes for custom topologies:
 
 ```bash
 # Build node image
-docker build -f Dockerfile.node -t peervault-node .
+docker build -f docker/Dockerfile.node -t peervault-node .
 
 # Run bootstrap node
 docker run -d --name node1 -p 3000:3000 peervault-node --listen :3000
@@ -223,7 +223,7 @@ docker run -d --name node2 -p 5000:5000 peervault-node \
   --listen :5000 --bootstrap node1:3000
 ```
 
-For detailed containerization documentation, see [CONTAINERIZATION.md](CONTAINERIZATION.md).
+For detailed containerization documentation, see [documentation/CONTAINERIZATION.md](documentation/CONTAINERIZATION.md).
 
 ## How it works (high level)
 
@@ -236,17 +236,89 @@ For detailed containerization documentation, see [CONTAINERIZATION.md](CONTAINER
   - If not present locally, a request is broadcast and another peer streams the file back.
 - Network messages are framed by a minimal protocol in `internal/transport/p2p` with small control bytes to distinguish messages vs. streams.
 
-## Project layout
+## Project Structure
 
-- `cmd/peervault/`: example entrypoint that boots 3 nodes and runs a demo store/get loop
-- `internal/app/fileserver/`: core file server logic (broadcast, store, get, message handling, bootstrap)
-- `internal/storage/`: content-addressable storage implementation
-- `internal/crypto/`: ID/key generation and AES-CTR encrypt/decrypt helpers
-- `internal/transport/p2p/`: TCP transport, peer management, message framing/decoding
-- `internal/dto/`: message DTOs used over the wire
-- `internal/domain/`, `internal/mapper/`: domain entities and mappers between domain and DTOs
-- `Makefile`: build/run/test helpers for Unix-like systems
-- `Dockerfile`, `.dockerignore`: container build and context exclusions
+```bash
+peervault/
+├── cmd/                          # Application entrypoints
+│   ├── peervault/               # Main application binary
+│   ├── peervault-node/          # Standalone node binary
+│   └── peervault-demo/          # Demo client binary
+├── internal/                     # Core application code
+│   ├── app/                     # Application logic
+│   │   └── fileserver/          # Core file server implementation
+│   ├── crypto/                  # Cryptographic functions and key management
+│   ├── domain/                  # Domain entities and business logic
+│   ├── dto/                     # Data transfer objects for network communication
+│   ├── logging/                 # Logging utilities and configuration
+│   ├── mapper/                  # Data mapping between domain and DTOs
+│   ├── peer/                    # Peer management and health monitoring
+│   ├── storage/                 # Content-addressable storage implementation
+│   └── transport/               # Network transport layer
+│       └── p2p/                 # P2P transport implementation
+├── tests/                       # Comprehensive test suite
+│   ├── unit/                    # Unit tests for all components
+│   │   ├── concurrency/         # Concurrency safety tests
+│   │   ├── crypto/              # Cryptographic function tests
+│   │   ├── logging/             # Logging system tests
+│   │   ├── peer/                # Peer management tests
+│   │   ├── storage/             # Storage layer tests
+│   │   └── transport/           # Transport layer tests
+│   ├── integration/             # Integration tests
+│   │   ├── end-to-end/          # End-to-end workflow tests
+│   │   ├── multi-node/          # Multi-node network tests
+│   │   └── performance/         # Performance and benchmark tests
+│   ├── fuzz/                    # Fuzz testing for robustness
+│   │   ├── crypto/              # Crypto layer fuzz tests
+│   │   ├── storage/             # Storage layer fuzz tests
+│   │   └── transport/           # Transport layer fuzz tests
+│   ├── utils/                   # Test utilities and helpers
+│   └── fixtures/                # Test data and fixtures
+├── documentation/               # Project documentation
+│   ├── README.md               # Documentation index
+│   ├── CONTRIBUTING.md         # Contribution guidelines
+│   ├── SECURITY.md             # Security policy
+│   ├── ROADMAP.md              # Project roadmap
+│   ├── ENCRYPTION.md           # Encryption implementation details
+│   ├── LOGGING.md              # Logging system documentation
+│   └── CONTAINERIZATION.md     # Docker and deployment guide
+├── scripts/                     # Build and automation scripts
+│   ├── build.sh                # Unix build script
+│   ├── build.ps1               # Windows build script
+│   ├── run.sh                  # Unix run script
+│   ├── run.ps1                 # Windows run script
+│   ├── test.sh                 # Unix test script
+│   └── test.ps1                # Windows test script
+├── docker/                      # Containerization files
+│   ├── Dockerfile              # Main application container
+│   ├── Dockerfile.node         # Node-specific container
+│   ├── Dockerfile.demo         # Demo client container
+│   ├── docker-compose.yml      # Production multi-container setup
+│   └── docker-compose.dev.yml  # Development container setup
+├── .github/                     # GitHub configuration
+│   ├── workflows/              # CI/CD pipeline configuration
+│   ├── ISSUE_TEMPLATE/         # Issue and PR templates
+│   └── dependabot.yml          # Automated dependency updates
+├── bin/                         # Build artifacts (generated)
+├── Makefile                     # Build automation for Unix systems
+├── Taskfile.yml                 # Cross-platform task runner
+├── .gitignore                   # Git ignore patterns
+├── .golangci.yml               # Linting configuration
+├── codecov.yml                 # Code coverage configuration
+├── go.mod                      # Go module definition
+├── go.sum                      # Go module checksums
+└── README.md                   # This file - project overview
+```
+
+### Key Components
+
+- **`cmd/`**: Application entrypoints for different use cases
+- **`internal/`**: Core application code organized by domain
+- **`tests/`**: Comprehensive test suite with unit, integration, and fuzz tests
+- **`documentation/`**: Complete project documentation
+- **`scripts/`**: Cross-platform build and automation scripts
+- **`docker/`**: Containerization for development and production
+- **`.github/`**: CI/CD pipeline and GitHub automation
 
 ## Test
 
