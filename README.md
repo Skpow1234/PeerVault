@@ -93,6 +93,58 @@ If no auth token is provided, a default demo token is used (suitable for develop
 - Go 1.18+ (tested with Go 1.18)
 - Make (optional; for Unix-like systems)
 
+## Windows Defender Setup
+
+If you're developing on Windows, you may encounter Windows Defender popups when running the application or tests. This is because Go applications that create network connections and access the file system are often flagged as potentially suspicious.
+
+### Quick Fix (Recommended)
+
+Run the quick trust script as Administrator:
+
+```cmd
+# Right-click and "Run as Administrator"
+scripts\quick_trust.bat
+```
+
+### Full Setup (Advanced)
+
+For a complete setup with code signing, run the PowerShell script as Administrator:
+
+```powershell
+# Right-click PowerShell and "Run as Administrator"
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\scripts\trust_application.ps1
+```
+
+This will:
+
+- Add Windows Defender exclusions for the project folder
+- Create a self-signed certificate for code signing
+- Set up a build script that signs your binaries
+- Configure your PowerShell profile for development
+
+### Manual Setup
+
+If you prefer to do it manually:
+
+1. Open **Windows Security**
+2. Go to **Virus & threat protection**
+3. Click **Manage settings**
+4. Under **Exclusions**, add:
+   - Folder: Your project directory
+   - Process: `peervault.exe`, `peervault-node.exe`, `peervault-demo.exe`, `go.exe`
+
+### Why This Happens
+
+Windows Defender flags Go applications because they:
+
+- Create network connections (P2P networking)
+- Access the file system (storage operations)
+- Generate random data (crypto operations)
+- Are compiled from source (not signed by trusted publishers)
+
+This is normal for development and doesn't indicate any security issues.
+
 ## Install
 
 ```bash
