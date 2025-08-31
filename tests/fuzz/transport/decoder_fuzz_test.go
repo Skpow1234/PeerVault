@@ -77,7 +77,7 @@ func FuzzHandshake(f *testing.F) {
 		[]byte("valid_handshake_data"),
 
 		// Empty data
-		[]byte{},
+		{},
 
 		// Large data
 		bytes.Repeat([]byte{0x41}, 1024), // 1KB of 'A'
@@ -125,7 +125,7 @@ func FuzzMessageEncoding(f *testing.F) {
 		[]byte("test message"),
 
 		// Empty message
-		[]byte{},
+		{},
 
 		// Binary data
 		{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},
@@ -173,7 +173,7 @@ func FuzzStreamProcessing(f *testing.F) {
 		[]byte("small stream"),
 
 		// Empty stream
-		[]byte{},
+		{},
 
 		// Binary stream data
 		{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},

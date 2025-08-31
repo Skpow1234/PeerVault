@@ -8,7 +8,6 @@ on:
 
 env:
   GO_VERSION: '1.21'
-  CGO_ENABLED: 0
 
 jobs:
   # Lint and format check
@@ -67,6 +66,8 @@ jobs:
           cache: true
 
       - name: Run unit tests
+        env:
+          CGO_ENABLED: 1
         run: |
           go test -v -race -coverprofile=coverage.out ./tests/unit/...
           go test -v -race -coverprofile=coverage.out ./internal/...
@@ -210,8 +211,8 @@ jobs:
       - name: Build Docker images
         run: |
           docker build -t peervault:test .
-          docker build -t peervault-node:test -f Dockerfile.node .
-          docker build -t peervault-demo:test -f Dockerfile.demo .
+          docker build -t peervault-node:test -f docker/Dockerfile.node .
+          docker build -t peervault-demo:test -f docker/Dockerfile.demo .
 
       - name: Test Docker images
         run: |
@@ -222,8 +223,8 @@ jobs:
 
       - name: Test Docker Compose
         run: |
-          docker-compose -f docker-compose.yml config
-          docker-compose -f docker-compose.dev.yml config
+          docker-compose -f docker/docker-compose.yml config
+          docker-compose -f docker/docker-compose.dev.yml config
 
   # Performance benchmarks
   benchmarks:
