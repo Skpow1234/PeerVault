@@ -172,24 +172,24 @@ jobs:
             }
           done
           
-                     echo "Running storage fuzz tests..."
-           echo "Running FuzzSanitizePath..."
-           go test -fuzz=FuzzSanitizePath -fuzztime=30s ./tests/fuzz/storage/path_utils_fuzz_test.go || {
-             echo "Fuzz test FuzzSanitizePath failed"
-             exit 1
-           }
-           
-           echo "Running FuzzSanitizeStorageRoot..."
-           go test -fuzz=FuzzSanitizeStorageRoot -fuzztime=30s ./tests/fuzz/storage/path_utils_fuzz_test.go || {
-             echo "Fuzz test FuzzSanitizeStorageRoot failed"
-             exit 1
-           }
-           
-           echo "Running FuzzSanitizeStorageRootWithPrefix..."
-           go test -fuzz=FuzzSanitizeStorageRootWithPrefix -fuzztime=30s ./tests/fuzz/storage/path_utils_fuzz_test.go || {
-             echo "Fuzz test FuzzSanitizeStorageRootWithPrefix failed"
-             exit 1
-           }
+          echo "Running storage fuzz tests..."
+          echo "Running FuzzSanitizePath..."
+          go test -fuzz=FuzzSanitizePath -fuzztime=30s ./tests/fuzz/storage/path_utils_fuzz_test.go || {
+            echo "Fuzz test FuzzSanitizePath failed"
+            exit 1
+          }
+          
+          echo "Running FuzzSanitizeStorageRoot..."
+          go test -fuzz="^FuzzSanitizeStorageRoot$" -fuzztime=30s ./tests/fuzz/storage/path_utils_fuzz_test.go || {
+            echo "Fuzz test FuzzSanitizeStorageRoot failed"
+            exit 1
+          }
+          
+          echo "Running FuzzSanitizeStorageRootWithPrefix..."
+          go test -fuzz="^FuzzSanitizeStorageRootWithPrefix$" -fuzztime=30s ./tests/fuzz/storage/path_utils_fuzz_test.go || {
+            echo "Fuzz test FuzzSanitizeStorageRootWithPrefix failed"
+            exit 1
+          }
           
           echo "Running crypto fuzz tests..."
           for test in FuzzEncryptDecrypt FuzzKeyGeneration FuzzHashFunction FuzzSignature FuzzRandomGeneration FuzzCryptoUtils; do

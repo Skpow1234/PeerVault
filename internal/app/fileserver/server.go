@@ -38,6 +38,7 @@ type Server struct {
 	quitch          chan struct{}
 	healthManager   *peer.HealthManager
 	resourceManager *peer.ResourceManager
+	fileOpManager   *FileOperationManager
 }
 
 // getEncryptionKey returns the current encryption key, preferring KeyManager over the legacy EncKey
@@ -85,6 +86,9 @@ func New(opts Options) *Server {
 
 	// Initialize resource manager
 	server.resourceManager = peer.NewResourceManager(opts.ResourceLimits)
+
+	// Initialize file operation manager
+	server.fileOpManager = NewFileOperationManager(20) // Allow up to 20 concurrent file operations
 
 	return server
 }
@@ -476,10 +480,10 @@ func (s *Server) Start() error {
 		slog.Error("failed to bootstrap network", "err", err)
 		// Don't return error here as we can still function without bootstrap
 	}
-	
+
 	// Start the main loop in a goroutine so Start() can return
 	go s.loop()
-	
+
 	return nil
 }
 
@@ -620,4 +624,77 @@ func (s *Server) streamToSinglePeer(ctx context.Context, key string, fileReader 
 
 	slog.Info("streamed", "bytes", n, "peer", peer.RemoteAddr())
 	return nil
+}
+
+// FileOperationManager manages concurrent file operations
+type FileOperationManager struct {
+	semaphore  chan struct{}
+	mu         sync.RWMutex
+	operations map[string]*FileOperation
+}
+
+// FileOperation represents a file operation in progress
+type FileOperation struct {
+	Key       string
+	Type      string // "store", "get", "delete"
+	StartTime time.Time
+	Status    string // "running", "completed", "failed"
+	Error     error
+}
+
+// NewFileOperationManager creates a new file operation manager
+func NewFileOperationManager(maxConcurrentOps int) *FileOperationManager {
+	if maxConcurrentOps <= 0 {
+		maxConcurrentOps = 10 // Default limit
+	}
+
+	return &FileOperationManager{
+		semaphore:  make(chan struct{}, maxConcurrentOps),
+		operations: make(map[string]*FileOperation),
+	}
+}
+
+// AcquireOperation acquires a slot for a file operation
+func (fom *FileOperationManager) AcquireOperation(key, opType string) (*FileOperation, error) {
+	select {
+	case fom.semaphore <- struct{}{}:
+		op := &FileOperation{
+			Key:       key,
+			Type:      opType,
+			StartTime: time.Now(),
+			Status:    "running",
+		}
+
+		fom.mu.Lock()
+		fom.operations[key] = op
+		fom.mu.Unlock()
+
+		return op, nil
+	default:
+		return nil, fmt.Errorf("too many concurrent file operations")
+	}
+}
+
+// ReleaseOperation releases a file operation slot
+func (fom *FileOperationManager) ReleaseOperation(key string, err error) {
+	fom.mu.Lock()
+	if op, exists := fom.operations[key]; exists {
+		if err != nil {
+			op.Status = "failed"
+			op.Error = err
+		} else {
+			op.Status = "completed"
+		}
+		delete(fom.operations, key)
+	}
+	fom.mu.Unlock()
+
+	<-fom.semaphore
+}
+
+// GetActiveOperations returns the number of active operations
+func (fom *FileOperationManager) GetActiveOperations() int {
+	fom.mu.RLock()
+	defer fom.mu.RUnlock()
+	return len(fom.operations)
 }
