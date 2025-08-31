@@ -517,19 +517,19 @@ api:
 	require.NoError(t, err)
 
 	// Set environment variables to override file values
-	os.Setenv("PEERVAULT_SERVER_DEBUG", "true")
-	os.Setenv("PEERVAULT_LOGGING_LEVEL", "debug")
-	os.Setenv("PEERVAULT_STORAGE_ROOT", "/env/storage")
-	os.Setenv("PEERVAULT_API_REST_PORT", "8093")
-	os.Setenv("PEERVAULT_API_GRAPHQL_PORT", "8094")
-	os.Setenv("PEERVAULT_API_GRPC_PORT", "8095")
+	require.NoError(t, os.Setenv("PEERVAULT_SERVER_DEBUG", "true"))
+	require.NoError(t, os.Setenv("PEERVAULT_LOGGING_LEVEL", "debug"))
+	require.NoError(t, os.Setenv("PEERVAULT_STORAGE_ROOT", "/env/storage"))
+	require.NoError(t, os.Setenv("PEERVAULT_API_REST_PORT", "8093"))
+	require.NoError(t, os.Setenv("PEERVAULT_API_GRAPHQL_PORT", "8094"))
+	require.NoError(t, os.Setenv("PEERVAULT_API_GRPC_PORT", "8095"))
 	defer func() {
-		os.Unsetenv("PEERVAULT_SERVER_DEBUG")
-		os.Unsetenv("PEERVAULT_LOGGING_LEVEL")
-		os.Unsetenv("PEERVAULT_STORAGE_ROOT")
-		os.Unsetenv("PEERVAULT_API_REST_PORT")
-		os.Unsetenv("PEERVAULT_API_GRAPHQL_PORT")
-		os.Unsetenv("PEERVAULT_API_GRPC_PORT")
+		require.NoError(t, os.Unsetenv("PEERVAULT_SERVER_DEBUG"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_LOGGING_LEVEL"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_STORAGE_ROOT"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_API_REST_PORT"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_API_GRAPHQL_PORT"))
+		require.NoError(t, os.Unsetenv("PEERVAULT_API_GRPC_PORT"))
 	}()
 
 	// Create configuration manager
