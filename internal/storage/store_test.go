@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -39,6 +40,8 @@ func TestStore(t *testing.T) {
 		if string(b) != string(data) {
 			t.Errorf("want %s have %s", data, b)
 		}
+		// Add a small delay to ensure file handles are released
+		time.Sleep(1 * time.Millisecond)
 		if err := s.Delete(key); err != nil {
 			t.Error(err)
 		}

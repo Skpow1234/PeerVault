@@ -31,7 +31,7 @@ func makeServer(listenAddr string, nodes ...string) *fs.Server {
 	fileServerOpts := fs.Options{
 		ID:                nodeID,
 		EncKey:            crypto.NewEncryptionKey(),
-		StorageRoot:       listenAddr + "_network",
+		StorageRoot:       storage.SanitizeStorageRootFromAddr(listenAddr),
 		PathTransformFunc: storage.CASPathTransformFunc,
 		Transport:         tcpTransport,
 		BootstrapNodes:    nodes,
