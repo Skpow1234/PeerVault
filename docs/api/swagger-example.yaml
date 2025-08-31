@@ -535,8 +535,8 @@ components:
           description: MIME type
         custom_fields:
           type: object
-          additionalProperties: true
           description: Custom metadata fields
+          additionalProperties: true
 
     FileReplica:
       type: object
@@ -805,10 +805,10 @@ components:
           description: Health check timestamp
         components:
           type: object
+          description: Health status of individual components
           additionalProperties:
             type: string
             enum: [healthy, unhealthy, degraded]
-          description: Health status of individual components
         message:
           type: string
           description: Additional health information
@@ -897,8 +897,8 @@ components:
           description: Event timestamp
         data:
           type: object
-          additionalProperties: true
           description: Event-specific data
+          additionalProperties: true
         signature:
           type: string
           description: Webhook signature for verification
@@ -918,8 +918,8 @@ components:
           description: Error code
         details:
           type: object
-          additionalProperties: true
           description: Additional error details
+          additionalProperties: true
         timestamp:
           type: string
           format: date-time
