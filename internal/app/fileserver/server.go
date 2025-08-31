@@ -476,7 +476,10 @@ func (s *Server) Start() error {
 		slog.Error("failed to bootstrap network", "err", err)
 		// Don't return error here as we can still function without bootstrap
 	}
-	s.loop()
+	
+	// Start the main loop in a goroutine so Start() can return
+	go s.loop()
+	
 	return nil
 }
 

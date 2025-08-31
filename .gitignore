@@ -11,6 +11,22 @@ ggnetwork/
 tests/integration/*/node*_network/
 tests/integration/*/*/node*_network/
 
+# Benchmark test artifacts and subfolders
+tests/integration/performance/*_network/
+tests/integration/performance/node*_network/
+tests/integration/performance/node*_network_*/
+tests/integration/performance/*network*/
+tests/integration/performance/benchmark_*/
+tests/integration/performance/*.bench
+tests/integration/performance/*.prof
+tests/integration/performance/*.out
+tests/integration/performance/*.tmp
+tests/integration/performance/*.log
+
+# Specific network directories created by performance tests
+tests/integration/performance/node*_network_bootstrap/
+tests/integration/performance/node*_network_client/
+
 # Fuzz test generated data and artifacts
 tests/fuzz/*/testdata/
 tests/fuzz/*/*/testdata/

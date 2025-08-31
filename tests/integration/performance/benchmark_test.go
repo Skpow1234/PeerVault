@@ -277,6 +277,10 @@ func BenchmarkResourceLimits(b *testing.B) {
 
 // TestPerformanceMetrics tests various performance metrics
 func TestPerformanceMetrics(t *testing.T) {
+	// Set overall test timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
 	// Create test network
 	config := utils.NetworkConfig{
 		BootstrapNodes: []utils.NodeConfig{
@@ -288,8 +292,13 @@ func TestPerformanceMetrics(t *testing.T) {
 	}
 
 	manager := utils.CreateTestNetwork(t, config)
-	defer manager.StopAll()
+	defer func() {
+		manager.StopAll()
+		// Give servers time to stop
+		time.Sleep(500 * time.Millisecond)
+	}()
 
+	t.Log("Getting servers...")
 	// Get servers
 	bootstrap := manager.GetServer("bootstrap")
 	client := manager.GetServer("client")
@@ -298,12 +307,14 @@ func TestPerformanceMetrics(t *testing.T) {
 	dataGen := utils.NewTestDataGenerator()
 	testData := dataGen.GenerateSmallFile()
 
-	// Create context
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
 	// Test store performance
 	t.Run("Store Performance", func(t *testing.T) {
+		select {
+		case <-ctx.Done():
+			t.Fatalf("Test timed out: %v", ctx.Err())
+		default:
+		}
+
 		start := time.Now()
 		err := bootstrap.Store(ctx, "perf_test_file", bytes.NewReader(testData))
 		duration := time.Since(start)
@@ -314,6 +325,12 @@ func TestPerformanceMetrics(t *testing.T) {
 
 	// Test get performance
 	t.Run("Get Performance", func(t *testing.T) {
+		select {
+		case <-ctx.Done():
+			t.Fatalf("Test timed out: %v", ctx.Err())
+		default:
+		}
+
 		start := time.Now()
 		reader, err := client.Get(ctx, "perf_test_file")
 		duration := time.Since(start)
@@ -344,10 +361,22 @@ func TestPerformanceMetrics(t *testing.T) {
 
 	// Test throughput
 	t.Run("Throughput Test", func(t *testing.T) {
+		select {
+		case <-ctx.Done():
+			t.Fatalf("Test timed out: %v", ctx.Err())
+		default:
+		}
+
 		const numFiles = 10
 		start := time.Now()
 
 		for i := 0; i < numFiles; i++ {
+			select {
+			case <-ctx.Done():
+				t.Fatalf("Test timed out: %v", ctx.Err())
+			default:
+			}
+
 			key := "throughput_file_" + string(rune(i))
 			err := bootstrap.Store(ctx, key, bytes.NewReader(testData))
 			utils.AssertNoError(t, err, "Store operation failed")

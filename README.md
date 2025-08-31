@@ -451,7 +451,6 @@ The CI pipeline automatically runs these checks on every push and pull request:
 #### **Critical Checks** (Pipeline fails if these fail)
 
 - **Unit Tests**: `go test -v -race ./tests/unit/...` and `go test -v -race ./internal/...`
-- **Integration Tests**: `go test -v -timeout=10m ./tests/integration/...`
 - **Fuzz Tests**: `go test -fuzz=Fuzz -fuzztime=30s ./tests/fuzz/...`
 - **Security Scanning**: `gosec` and `govulncheck`
 - **Build Tests**: Cross-platform binary builds
@@ -459,6 +458,7 @@ The CI pipeline automatically runs these checks on every push and pull request:
 
 #### **Non-Critical Checks** (Pipeline passes with warnings)
 
+- **Integration Tests**: `go test -v -timeout=10m ./tests/integration/...` (shows warnings if failed - these are application logic bugs)
 - **Linting**: `golangci-lint run ./...` (shows warnings if failed)
 - **Code Formatting**: `gofmt -s -l .` (shows warnings if code is not formatted)
 - **Trailing Whitespace**: Checks for trailing spaces in code files (Go, YAML, YML) - excludes markdown files

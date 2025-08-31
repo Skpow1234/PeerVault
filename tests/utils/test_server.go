@@ -84,18 +84,38 @@ func (tsm *TestServerManager) StartAll(t *testing.T) {
 	tsm.mu.RUnlock()
 
 	var wg sync.WaitGroup
+	errors := make(chan error, len(servers))
+
+	// Start all servers with timeout
 	for _, server := range servers {
 		wg.Add(1)
 		go func(s *fs.Server) {
 			defer wg.Done()
 			if err := s.Start(); err != nil {
-				t.Errorf("Failed to start server: %v", err)
+				errors <- err
 			}
 		}(server)
 	}
 
-	// Wait for all servers to start
-	wg.Wait()
+	// Wait for all servers to start with timeout
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		// Check for any errors
+		close(errors)
+		for err := range errors {
+			if err != nil {
+				t.Errorf("Failed to start server: %v", err)
+			}
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatalf("Timeout waiting for servers to start")
+	}
 
 	// Give servers time to connect
 	time.Sleep(2 * time.Second)
