@@ -1,0 +1,842 @@
+openapi: 3.0.3
+info:
+  title: PeerVault REST API
+  description: |
+    PeerVault is a distributed, encrypted file storage system with peer-to-peer replication.
+    
+    This REST API provides endpoints for file operations, peer management, and system monitoring.
+    
+    ## Features
+    - **File Operations**: Upload, download, delete, and manage files with metadata
+    - **Peer Management**: Discover, monitor, and manage peer nodes in the network
+    - **System Monitoring**: Real-time metrics, health checks, and system information
+    - **Webhook Support**: Event-driven notifications for system events
+    
+    ## Authentication
+    API endpoints support optional token-based authentication. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your-token>
+    ```
+    
+    ## Rate Limiting
+    API requests are rate-limited to 100 requests per minute per client IP address.
+    
+    ## CORS Support
+    All endpoints support Cross-Origin Resource Sharing (CORS) for web applications.
+    
+    ## Architecture
+    The API follows a clean layered architecture with:
+    - **Entities**: Core business objects (File, Peer, SystemInfo)
+    - **DTOs**: Data Transfer Objects for API requests/responses
+    - **Services**: Business logic interfaces
+    - **Endpoints**: HTTP handlers with proper error handling
+    
+    ## Base URL
+    - **Development**: `http://localhost:8081`
+    - **Production**: `https://api.peervault.dev`
+    
+    ## API Versioning
+    All endpoints are versioned under `/api/v1/` for future compatibility.
+  version: 1.0.0
+  contact:
+    name: PeerVault Support
+    url: https://github.com/Skpow1234/Peervault
+    email: support@peervault.dev
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8081
+    description: Local development server
+  - url: https://api.peervault.dev
+    description: Production API server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /:
+    get:
+      summary: Get API information
+      description: Returns basic information about the PeerVault REST API
+      operationId: getApiInfo
+      tags:
+        - System
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: "PeerVault REST API"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  description:
+                    type: string
+                    example: "A distributed file storage system with P2P capabilities"
+                  endpoints:
+                    type: object
+                    properties:
+                      files:
+                        type: string
+                        example: "/api/v1/files"
+                      peers:
+                        type: string
+                        example: "/api/v1/peers"
+                      health:
+                        type: string
+                        example: "/health"
+                      metrics:
+                        type: string
+                        example: "/metrics"
+                      system:
+                        type: string
+                        example: "/api/v1/system/info"
+                      webhook:
+                        type: string
+                        example: "/api/v1/webhook"
+                      docs:
+                        type: string
+                        example: "/docs"
+                      swagger:
+                        type: string
+                        example: "/swagger.json"
+
+  /health:
+    get:
+      summary: Health check
+      description: Check the health status of the PeerVault system
+      operationId: healthCheck
+      tags:
+        - System
+      responses:
+        '200':
+          description: System health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /metrics:
+    get:
+      summary: Get system metrics
+      description: Retrieve real-time system metrics and performance statistics
+      operationId: getMetrics
+      tags:
+        - System
+      responses:
+        '200':
+          description: System metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+
+  /docs:
+    get:
+      summary: API documentation
+      description: Interactive Swagger UI for API documentation and testing
+      operationId: getDocs
+      tags:
+        - System
+      responses:
+        '200':
+          description: Swagger UI HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /swagger.json:
+    get:
+      summary: OpenAPI specification
+      description: Machine-readable OpenAPI 3.0 specification
+      operationId: getSwaggerSpec
+      tags:
+        - System
+      responses:
+        '200':
+          description: OpenAPI specification
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/v1/files:
+    get:
+      summary: List files
+      description: Retrieve a list of all files in the system
+      operationId: listFiles
+      tags:
+        - Files
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of files to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of files to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: List of files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileListResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Upload file
+      description: Upload a new file to the system
+      operationId: uploadFile
+      tags:
+        - Files
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+                metadata:
+                  type: string
+                  description: JSON string containing file metadata
+                  example: '{"owner": "user1", "category": "documents"}'
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '400':
+          description: Bad request - invalid file or metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/files/{key}:
+    get:
+      summary: Get file by key
+      description: Retrieve file information by its unique key
+      operationId: getFile
+      tags:
+        - Files
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Unique file identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete file
+      description: Delete a file from the system
+      operationId: deleteFile
+      tags:
+        - Files
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Unique file identifier
+          schema:
+            type: string
+      responses:
+        '204':
+          description: File deleted successfully
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/files/{key}/metadata:
+    put:
+      summary: Update file metadata
+      description: Update metadata for an existing file
+      operationId: updateFileMetadata
+      tags:
+        - Files
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Unique file identifier
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileMetadataUpdateRequest'
+      responses:
+        '200':
+          description: File metadata updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/peers:
+    get:
+      summary: List peers
+      description: Retrieve a list of all peer nodes in the network
+      operationId: listPeers
+      tags:
+        - Peers
+      responses:
+        '200':
+          description: List of peers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeerListResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Add peer
+      description: Add a new peer node to the network
+      operationId: addPeer
+      tags:
+        - Peers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeerAddRequest'
+      responses:
+        '201':
+          description: Peer added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeerResponse'
+        '400':
+          description: Bad request - invalid peer data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/peers/{peerID}:
+    get:
+      summary: Get peer by ID
+      description: Retrieve information about a specific peer node
+      operationId: getPeer
+      tags:
+        - Peers
+      parameters:
+        - name: peerID
+          in: path
+          required: true
+          description: Unique peer identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Peer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeerResponse'
+        '404':
+          description: Peer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Remove peer
+      description: Remove a peer node from the network
+      operationId: removePeer
+      tags:
+        - Peers
+      parameters:
+        - name: peerID
+          in: path
+          required: true
+          description: Unique peer identifier
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Peer removed successfully
+        '404':
+          description: Peer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/system/info:
+    get:
+      summary: Get system information
+      description: Retrieve detailed system information and statistics
+      operationId: getSystemInfo
+      tags:
+        - System
+      responses:
+        '200':
+          description: System information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemInfoResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/webhook:
+    post:
+      summary: Webhook endpoint
+      description: Receive webhook notifications for system events
+      operationId: webhook
+      tags:
+        - System
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRequest'
+      responses:
+        '200':
+          description: Webhook received successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "received"
+        '400':
+          description: Bad request - invalid webhook data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for API authentication
+
+  schemas:
+    FileResponse:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Unique file identifier
+          example: "file_1234567890"
+        name:
+          type: string
+          description: Original file name
+          example: "document.pdf"
+        size:
+          type: integer
+          description: File size in bytes
+          example: 1024
+        content_type:
+          type: string
+          description: MIME type of the file
+          example: "application/pdf"
+        hash:
+          type: string
+          description: SHA-256 hash of the file content
+          example: "abc123def456..."
+        created_at:
+          type: string
+          format: date-time
+          description: File creation timestamp
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last modification timestamp
+          example: "2024-01-15T10:30:00Z"
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom metadata associated with the file
+          example:
+            owner: "user1"
+            category: "documents"
+        replicas:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileReplicaResponse'
+          description: List of file replicas across peer nodes
+
+    FileReplicaResponse:
+      type: object
+      properties:
+        peer_id:
+          type: string
+          description: ID of the peer node hosting the replica
+          example: "peer1"
+        status:
+          type: string
+          description: Replica status (active, syncing, failed)
+          example: "active"
+        created_at:
+          type: string
+          format: date-time
+          description: Replica creation timestamp
+          example: "2024-01-15T10:30:00Z"
+
+    FileListResponse:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileResponse'
+          description: List of files
+        total:
+          type: integer
+          description: Total number of files
+          example: 25
+
+    FileUploadRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: File name
+          example: "document.pdf"
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom metadata for the file
+          example:
+            owner: "user1"
+            category: "documents"
+
+    FileMetadataUpdateRequest:
+      type: object
+      required:
+        - metadata
+      properties:
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Updated metadata for the file
+          example:
+            owner: "user2"
+            category: "archived"
+
+    PeerResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique peer identifier
+          example: "peer1"
+        address:
+          type: string
+          description: Peer IP address
+          example: "192.168.1.100"
+        port:
+          type: integer
+          description: Peer port number
+          example: 8080
+        status:
+          type: string
+          description: Peer status (active, inactive, offline)
+          example: "active"
+        last_seen:
+          type: string
+          format: date-time
+          description: Last time the peer was seen
+          example: "2024-01-15T10:30:00Z"
+        created_at:
+          type: string
+          format: date-time
+          description: Peer registration timestamp
+          example: "2024-01-15T09:00:00Z"
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom metadata associated with the peer
+          example:
+            location: "datacenter1"
+            version: "1.0.0"
+
+    PeerListResponse:
+      type: object
+      properties:
+        peers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PeerResponse'
+          description: List of peers
+        total:
+          type: integer
+          description: Total number of peers
+          example: 5
+
+    PeerAddRequest:
+      type: object
+      required:
+        - address
+        - port
+      properties:
+        address:
+          type: string
+          description: Peer IP address
+          example: "192.168.1.100"
+        port:
+          type: integer
+          description: Peer port number
+          example: 8080
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom metadata for the peer
+          example:
+            location: "datacenter1"
+            description: "Production node"
+
+    SystemInfoResponse:
+      type: object
+      properties:
+        version:
+          type: string
+          description: PeerVault version
+          example: "1.0.0"
+        uptime:
+          type: string
+          description: System uptime duration
+          example: "2h30m15s"
+        start_time:
+          type: string
+          format: date-time
+          description: System start timestamp
+          example: "2024-01-15T08:00:00Z"
+        storage_used:
+          type: integer
+          description: Used storage in bytes
+          example: 1073741824
+        storage_total:
+          type: integer
+          description: Total storage capacity in bytes
+          example: 107374182400
+        peer_count:
+          type: integer
+          description: Number of connected peers
+          example: 5
+        file_count:
+          type: integer
+          description: Number of files in the system
+          example: 100
+
+    MetricsResponse:
+      type: object
+      properties:
+        requests_total:
+          type: integer
+          description: Total number of API requests
+          example: 1000
+        requests_per_minute:
+          type: number
+          format: float
+          description: Average requests per minute
+          example: 10.5
+        active_connections:
+          type: integer
+          description: Number of active network connections
+          example: 15
+        storage_usage_percent:
+          type: number
+          format: float
+          description: Storage usage percentage
+          example: 9.8
+        last_updated:
+          type: string
+          format: date-time
+          description: Last metrics update timestamp
+          example: "2024-01-15T10:30:00Z"
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: System health status
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+          example: "2024-01-15T10:30:00Z"
+        version:
+          type: string
+          description: PeerVault version
+          example: "1.0.0"
+
+    WebhookRequest:
+      type: object
+      required:
+        - event
+        - timestamp
+        - data
+      properties:
+        event:
+          type: string
+          description: Webhook event type
+          example: "file.uploaded"
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp
+          example: "2024-01-15T10:30:00Z"
+        data:
+          type: object
+          additionalProperties: true
+          description: Event-specific data
+          example:
+            file_key: "file_1234567890"
+            size: 1024
+            peer_id: "peer1"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "ValidationError"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Invalid file key provided"
+        code:
+          type: integer
+          description: HTTP status code
+          example: 400
+
+tags:
+  - name: Files
+    description: File management operations
+  - name: Peers
+    description: Peer node management operations
+  - name: System
+    description: System monitoring and information endpoints

@@ -147,7 +147,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ## Milestone 4 — API Interfaces and External Integration (P3)
 
-1 GraphQL API interface ✅
+1 GraphQL API interface
 
 - Problem: No flexible API for complex queries and real-time data access across the distributed system.
 - Solution: Implement GraphQL API with schema-first design for file operations, peer management, and system monitoring.

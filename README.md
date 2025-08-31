@@ -13,7 +13,9 @@ The included entrypoint at `cmd/peervault/main.go` boots 3 nodes locally and run
 - Simple P2P transport abstraction (`internal/transport/p2p`)
 - Content-addressable storage layout (SHA-256 based path transform)
 - **GraphQL API** for flexible queries, mutations, and real-time subscriptions
+- **REST API** for simple CRUD operations and webhook integrations
 - **Interactive GraphQL Playground** for testing and development
+- **Swagger UI** for REST API documentation and testing
 - **Real-time monitoring** with health checks and metrics
 - Minimal example that launches 3 local nodes and exchanges files
 
@@ -199,6 +201,9 @@ make build
 
 # Build GraphQL server
 go build -o bin/peervault-graphql ./cmd/peervault-graphql
+
+# Build REST API server
+go build -o bin/peervault-api ./cmd/peervault-api
 ```
 
 ### Windows (PowerShell)
@@ -298,6 +303,108 @@ curl -X POST http://localhost:8080/graphql \
 ```
 
 For complete GraphQL API documentation, see [docs/graphql/README.md](docs/graphql/README.md).
+
+## REST API
+
+PeerVault includes a REST API for simple operations and webhook integrations, built with a clean architecture using entities, DTOs, mappers, endpoints, services, and service implementations.
+
+### Architecture
+
+The REST API follows a clean, layered architecture pattern with consolidated types:
+
+```bash
+internal/api/rest/
+├── types/            # Consolidated types, entities, DTOs, and mappers
+│   ├── entities.go   # Core business entities
+│   ├── requests/     # API request DTOs
+│   │   ├── file_requests.go
+│   │   ├── peer_requests.go
+│   │   └── system_requests.go
+│   ├── responses/    # API response DTOs
+│   │   ├── file_responses.go
+│   │   ├── peer_responses.go
+│   │   └── system_responses.go
+│   └── mappers.go    # Entity-DTO mapping functions
+├── endpoints/        # HTTP endpoint handlers
+│   ├── file_endpoints.go
+│   ├── peer_endpoints.go
+│   └── system_endpoints.go
+├── services/         # Business logic interfaces
+│   ├── file_service.go
+│   ├── peer_service.go
+│   └── system_service.go
+├── implementations/  # Service implementations
+│   ├── file_service_impl.go
+│   ├── peer_service_impl.go
+│   └── system_service_impl.go
+└── server.go        # Main server configuration
+```
+
+### Running the REST API Server
+
+```bash
+# Build and run the REST API server
+go build -o peervault-api.exe ./cmd/peervault-api
+./peervault-api.exe
+
+# Or run directly
+go run ./cmd/peervault-api
+```
+
+### REST API Endpoints
+
+- **REST API**: `http://localhost:8081/api/v1`
+- **Swagger UI**: `http://localhost:8081/docs`
+- **Health Check**: `http://localhost:8081/health`
+- **Metrics**: `http://localhost:8081/metrics`
+
+### Example Requests
+
+```bash
+# Health check
+curl http://localhost:8081/health
+
+# List files
+curl http://localhost:8081/api/v1/files
+
+# Upload a file
+curl -X POST http://localhost:8081/api/v1/files \
+  -F "file=@example.txt" \
+  -F "metadata={\"owner\":\"user1\"}"
+
+# Add a peer
+curl -X POST http://localhost:8081/api/v1/peers \
+  -H "Content-Type: application/json" \
+  -d '{"address": "192.168.1.100", "port": 8080}'
+```
+
+### Architecture Benefits
+
+- **Consolidated Types**: All types, entities, DTOs, and mappers in one organized package
+- **Separation of Concerns**: Clear separation between types, endpoints, services, and implementations
+- **Testability**: Each layer can be tested independently
+- **Maintainability**: Easy to modify or extend individual components
+- **Scalability**: Services can be easily replaced or enhanced
+- **Type Safety**: Strong typing throughout the application
+- **Reduced Complexity**: Simplified import structure and better organization
+
+For complete REST API documentation, see [docs/api/README.md](docs/api/README.md).
+
+### Swagger Documentation
+
+The REST API includes comprehensive OpenAPI/Swagger documentation:
+
+- **Interactive Swagger UI**: `http://localhost:8081/docs` - Explore and test endpoints directly in your browser
+- **OpenAPI Specification**: `http://localhost:8081/swagger.json` - Machine-readable API specification
+- **Complete Documentation**: [docs/api/peervault-rest-api.yaml](docs/api/peervault-rest-api.yaml) - Full OpenAPI 3.0 specification
+
+The Swagger documentation includes:
+
+- Detailed endpoint descriptions with examples
+- Request/response schemas for all data types
+- Authentication and security information
+- Error handling documentation
+- Rate limiting details
 
 ## Docker
 
@@ -475,6 +582,9 @@ make test
 
 # Test GraphQL API specifically
 go test ./tests/integration/graphql/ -v
+
+# Test REST API specifically
+go test ./tests/integration/rest/ -v
 ```
 
 ## Lint
@@ -557,5 +667,6 @@ The demo writes files under a per-node storage root. To remove all data, delete 
 - Add proper peer discovery and resilient replication
 - Replace demo logic in `main.go` with your own application code
 - **GraphQL API**: Use the GraphQL API for building web applications and integrations
+- **REST API**: Use the REST API for simple operations and webhook integrations
 - **Real-time monitoring**: Leverage GraphQL subscriptions for real-time system monitoring
 - **API extensions**: Extend the GraphQL schema with custom types and resolvers
