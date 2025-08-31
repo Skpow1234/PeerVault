@@ -147,13 +147,14 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ## Milestone 4 — API Interfaces and External Integration (P3)
 
-1 GraphQL API interface
+1 GraphQL API interface ✅
 
 - Problem: No flexible API for complex queries and real-time data access across the distributed system.
 - Solution: Implement GraphQL API with schema-first design for file operations, peer management, and system monitoring.
 - Features: Flexible queries, real-time subscriptions, file metadata queries, peer network graph, performance metrics.
 - Acceptance: GraphQL schema, query/mutation/subscription support, introspection, GraphQL Playground, authentication.
 - Touchpoints: `internal/api/graphql/`, `internal/schema/`, `cmd/peervault-graphql/`, `docs/graphql/`.
+- Tests: We want to have integration and unit tests for this
 
 2 REST API interface (Complementary)
 
@@ -162,6 +163,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Features: File upload/download, basic peer operations, health checks, webhook endpoints.
 - Acceptance: RESTful endpoints, OpenAPI/Swagger documentation, authentication, rate limiting.
 - Touchpoints: `internal/api/rest/`, `cmd/peervault-api/`, `internal/handlers/`, `docs/api/`.
+- Tests: We want to have integration and unit tests for this
 
 3 gRPC API interface (High-performance)
 
@@ -170,6 +172,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Features: Bidirectional streaming, service discovery, load balancing support, high-throughput operations.
 - Acceptance: gRPC client libraries, streaming file transfer, service health checks, protobuf definitions.
 - Touchpoints: `internal/api/grpc/`, `proto/`, `cmd/peervault-grpc/`, `docs/grpc/`.
+- Tests: We want to have integration and unit tests for this
 
 3 Configuration management system
 
@@ -178,6 +181,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Features: YAML/JSON config files, environment variable support, configuration validation, hot reloading.
 - Acceptance: Centralized configuration, validation rules, documentation, examples.
 - Touchpoints: `internal/config/`, `config/`, `cmd/peervault/config.go`.
+- Tests: We want to have integration and unit tests for this
 
 4 Developer documentation and API reference
 
@@ -186,6 +190,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Features: Interactive API documentation, code examples, SDK documentation, integration guides, tutorials.
 - Acceptance: Swagger UI, GraphQL Playground, comprehensive docs, code examples, SDK documentation.
 - Touchpoints: `docs/`, `docs/api/`, `docs/graphql/`, `docs/sdk/`, `docs/examples/`.
+- Tests: We want to have integration and unit tests for this
 
 5 Plugin architecture
 
@@ -194,6 +199,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Features: Plugin discovery, lifecycle management, configuration injection, error handling.
 - Acceptance: Plugin SDK, example plugins, documentation, testing framework.
 - Touchpoints: `internal/plugins/`, `plugins/`, `cmd/peervault-plugin/`.
+- Tests: We want to have integration and unit tests for this
 
 ---
 
@@ -242,6 +248,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Features: Object pooling for network buffers, streaming without full buffering, memory usage monitoring.
 - Acceptance: Reduced memory footprint, stable memory usage over time, GC metrics.
 - Touchpoints: `internal/pool/`, `internal/app/fileserver/server.go`, `internal/transport/p2p/`.
+- Tests: We want to have integration and unit tests for this
 
 2 Connection pooling and multiplexing
 
@@ -250,6 +257,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Features: Pooled connections, multiplexed streams, connection health checks, load balancing.
 - Acceptance: Higher throughput, better resource utilization, connection metrics.
 - Touchpoints: `internal/transport/p2p/`, `internal/pool/`, `internal/app/fileserver/server.go`.
+- Tests: We want to have integration and unit tests for this
 
 3 Caching layer
 
@@ -258,6 +266,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Features: LRU cache, TTL-based expiration, cache warming, cache statistics.
 - Acceptance: Improved read performance, configurable cache sizes, cache hit metrics.
 - Touchpoints: `internal/cache/`, `internal/storage/`, `internal/app/fileserver/server.go`.
+- Tests: We want to have integration and unit tests for this
 
 4 Compression and deduplication
 
@@ -266,6 +275,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Features: Configurable compression levels, chunk-based deduplication, compression metrics.
 - Acceptance: Reduced storage usage, faster transfers, compression ratio metrics.
 - Touchpoints: `internal/compression/`, `internal/deduplication/`, `internal/storage/`.
+- Tests: We want to have integration and unit tests for this
 
 ---
 

@@ -1,0 +1,265 @@
+scalar Time
+scalar Upload
+
+type File {
+  id: ID!
+  key: String!
+  hashedKey: String!
+  size: Int!
+  createdAt: Time!
+  updatedAt: Time!
+  owner: Node!
+  replicas: [FileReplica!]!
+  metadata: FileMetadata
+}
+
+type FileMetadata {
+  contentType: String
+  checksum: String
+  tags: [String!]
+  customFields: String
+}
+
+type FileReplica {
+  node: Node!
+  status: ReplicaStatus!
+  lastSync: Time
+  size: Int
+}
+
+enum ReplicaStatus {
+  SYNCED
+  SYNCING
+  FAILED
+  PENDING
+}
+
+type Node {
+  id: ID!
+  address: String!
+  port: Int!
+  status: NodeStatus!
+  lastSeen: Time
+  health: NodeHealth
+  capabilities: [String!]
+}
+
+type NodeHealth {
+  isHealthy: Boolean!
+  lastHeartbeat: Time
+  responseTime: Float
+  uptime: Float
+  errors: [String!]
+}
+
+enum NodeStatus {
+  ONLINE
+  OFFLINE
+  DEGRADED
+  UNKNOWN
+}
+
+type PeerNetwork {
+  nodes: [Node!]!
+  connections: [Connection!]!
+  topology: NetworkTopology
+}
+
+type Connection {
+  from: Node!
+  to: Node!
+  status: ConnectionStatus!
+  latency: Float
+  bandwidth: Float
+  lastActivity: Time
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  INACTIVE
+  FAILED
+  PENDING
+}
+
+type NetworkTopology {
+  totalNodes: Int!
+  connectedNodes: Int!
+  averageLatency: Float
+  networkDiameter: Int
+  clusters: [Cluster!]
+}
+
+type Cluster {
+  id: ID!
+  nodes: [Node!]!
+  leader: Node
+  size: Int!
+}
+
+type SystemMetrics {
+  storage: StorageMetrics!
+  network: NetworkMetrics!
+  performance: PerformanceMetrics!
+  uptime: Float!
+}
+
+type StorageMetrics {
+  totalSpace: Int!
+  usedSpace: Int!
+  availableSpace: Int!
+  fileCount: Int!
+  replicationFactor: Float
+}
+
+type NetworkMetrics {
+  activeConnections: Int!
+  totalBytesTransferred: Int!
+  averageBandwidth: Float
+  errorRate: Float
+}
+
+type PerformanceMetrics {
+  averageResponseTime: Float
+  requestsPerSecond: Float
+  errorRate: Float
+  memoryUsage: Float
+  cpuUsage: Float
+}
+
+type FileUpload {
+  id: ID!
+  key: String!
+  size: Int!
+  status: UploadStatus!
+  progress: Float
+  uploadedAt: Time
+  replicas: [FileReplica!]
+}
+
+enum UploadStatus {
+  PENDING
+  UPLOADING
+  REPLICATING
+  COMPLETED
+  FAILED
+}
+
+type FileDownload {
+  id: ID!
+  key: String!
+  size: Int!
+  status: DownloadStatus!
+  progress: Float
+  downloadedAt: Time
+  source: Node
+}
+
+enum DownloadStatus {
+  PENDING
+  DOWNLOADING
+  COMPLETED
+  FAILED
+}
+
+type Query {
+  # File operations
+  file(key: String!): File
+  files(limit: Int, offset: Int, filter: FileFilter): [File!]!
+  fileMetadata(key: String!): FileMetadata
+  
+  # Node and peer operations
+  node(id: ID!): Node
+  nodes: [Node!]!
+  peerNetwork: PeerNetwork!
+  
+  # System monitoring
+  systemMetrics: SystemMetrics!
+  performanceStats: PerformanceMetrics!
+  storageStats: StorageMetrics!
+  
+  # Health checks
+  health: HealthStatus!
+}
+
+type Mutation {
+  # File operations
+  uploadFile(file: Upload!, key: String, metadata: FileMetadataInput): FileUpload!
+  deleteFile(key: String!): Boolean!
+  updateFileMetadata(key: String!, metadata: FileMetadataInput!): FileMetadata!
+  
+  # Node operations
+  addPeer(address: String!, port: Int!): Node!
+  removePeer(id: ID!): Boolean!
+  
+  # System operations
+  updateConfiguration(config: ConfigurationInput!): Boolean!
+}
+
+type Subscription {
+  # Real-time file events
+  fileUploaded: File!
+  fileDeleted: String!
+  fileUpdated: File!
+  
+  # Real-time peer events
+  peerConnected: Node!
+  peerDisconnected: Node!
+  peerHealthChanged: NodeHealth!
+  
+  # Real-time system events
+  systemMetricsUpdated: SystemMetrics!
+  performanceAlert: PerformanceAlert!
+}
+
+input FileFilter {
+  owner: ID
+  sizeMin: Int
+  sizeMax: Int
+  createdAtAfter: Time
+  createdAtBefore: Time
+  tags: [String!]
+}
+
+input FileMetadataInput {
+  contentType: String
+  tags: [String!]
+  customFields: String
+}
+
+input ConfigurationInput {
+  storageRoot: String
+  replicationFactor: Int
+  maxFileSize: Int
+  encryptionEnabled: Boolean
+}
+
+type HealthStatus {
+  status: String!
+  timestamp: Time!
+  details: String
+}
+
+type PerformanceAlert {
+  type: AlertType!
+  message: String!
+  severity: AlertSeverity!
+  timestamp: Time!
+  metrics: PerformanceMetrics
+}
+
+enum AlertType {
+  HIGH_CPU
+  HIGH_MEMORY
+  SLOW_RESPONSE
+  NETWORK_ERROR
+  STORAGE_FULL
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+

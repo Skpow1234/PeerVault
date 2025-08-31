@@ -12,6 +12,9 @@ The included entrypoint at `cmd/peervault/main.go` boots 3 nodes locally and run
 - Length-prefixed message framing for reliable transport
 - Simple P2P transport abstraction (`internal/transport/p2p`)
 - Content-addressable storage layout (SHA-256 based path transform)
+- **GraphQL API** for flexible queries, mutations, and real-time subscriptions
+- **Interactive GraphQL Playground** for testing and development
+- **Real-time monitoring** with health checks and metrics
 - Minimal example that launches 3 local nodes and exchanges files
 
 ## Message Framing
@@ -193,12 +196,18 @@ go mod download
 ```bash
 make build
 # binary at ./bin/peervault
+
+# Build GraphQL server
+go build -o bin/peervault-graphql ./cmd/peervault-graphql
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
 go build -o bin\peervault.exe .\cmd\peervault
+
+# Build GraphQL server
+go build -o bin\peervault-graphql.exe .\cmd\peervault-graphql
 ```
 
 ## Run
@@ -251,6 +260,44 @@ StorageRoot: fmt.Sprintf("node%s_network", strings.TrimPrefix(listenAddr, ":")),
 or even hardcode per node (e.g., `"node3000_network"`, `"node7000_network"`, `"node5000_network"`).
 
 File to edit: `cmd/peervault/main.go`, function `makeServer`.
+
+## GraphQL API
+
+PeerVault includes a comprehensive GraphQL API for interacting with the distributed storage system.
+
+### Running the GraphQL Server
+
+```bash
+# Build and run the GraphQL server
+go build -o peervault-graphql.exe ./cmd/peervault-graphql
+./peervault-graphql.exe
+
+# Or run directly
+go run ./cmd/peervault-graphql
+```
+
+### GraphQL Endpoints
+
+- **GraphQL API**: `http://localhost:8080/graphql`
+- **GraphQL Playground**: `http://localhost:8080/playground`
+- **Health Check**: `http://localhost:8080/health`
+- **Metrics**: `http://localhost:8080/metrics`
+
+### Example Queries
+
+```bash
+# Health check
+curl -X POST http://localhost:8080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ health { status timestamp } }"}'
+
+# Get system metrics
+curl -X POST http://localhost:8080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ systemMetrics { storage { totalSpace usedSpace } } }"}'
+```
+
+For complete GraphQL API documentation, see [docs/graphql/README.md](docs/graphql/README.md).
 
 ## Docker
 
@@ -319,6 +366,7 @@ For detailed containerization documentation, see [documentation/CONTAINERIZATION
 - On get:
   - If not present locally, a request is broadcast and another peer streams the file back.
 - Network messages are framed by a minimal protocol in `internal/transport/p2p` with small control bytes to distinguish messages vs. streams.
+- **GraphQL API**: The `cmd/peervault-graphql` binary provides a GraphQL interface for querying files, monitoring peers, and accessing system metrics through HTTP endpoints.
 
 ## Project Structure
 
@@ -327,8 +375,15 @@ peervault/
 ├── cmd/                          # Application entrypoints
 │   ├── peervault/               # Main application binary
 │   ├── peervault-node/          # Standalone node binary
-│   └── peervault-demo/          # Demo client binary
+│   ├── peervault-demo/          # Demo client binary
+│   └── peervault-graphql/       # GraphQL API server binary
 ├── internal/                     # Core application code
+│   ├── api/                     # API interfaces
+│   │   └── graphql/             # GraphQL API implementation
+│   │       ├── schema/          # GraphQL schema definitions
+│   │       ├── types/           # Go types for GraphQL
+│   │       ├── resolvers/       # GraphQL resolvers
+│   │       └── server.go        # GraphQL HTTP server
 │   ├── app/                     # Application logic
 │   │   └── fileserver/          # Core file server implementation
 │   ├── crypto/                  # Cryptographic functions and key management
@@ -350,6 +405,7 @@ peervault/
 │   │   └── transport/           # Transport layer tests
 │   ├── integration/             # Integration tests
 │   │   ├── end-to-end/          # End-to-end workflow tests
+│   │   ├── graphql/             # GraphQL API integration tests
 │   │   ├── multi-node/          # Multi-node network tests
 │   │   └── performance/         # Performance and benchmark tests
 │   ├── fuzz/                    # Fuzz testing for robustness
@@ -366,6 +422,10 @@ peervault/
 │   ├── ENCRYPTION.md           # Encryption implementation details
 │   ├── LOGGING.md              # Logging system documentation
 │   └── CONTAINERIZATION.md     # Docker and deployment guide
+├── docs/                        # API and feature documentation
+│   └── graphql/                # GraphQL API documentation
+│       ├── README.md           # GraphQL API guide
+│       └── schema.graphql      # GraphQL schema definition
 ├── scripts/                     # Build and automation scripts
 │   ├── build.sh                # Unix build script
 │   ├── build.ps1               # Windows build script
@@ -398,8 +458,10 @@ peervault/
 
 - **`cmd/`**: Application entrypoints for different use cases
 - **`internal/`**: Core application code organized by domain
+- **`internal/api/`**: API interfaces including GraphQL implementation
 - **`tests/`**: Comprehensive test suite with unit, integration, and fuzz tests
 - **`documentation/`**: Complete project documentation
+- **`docs/`**: API and feature documentation including GraphQL
 - **`scripts/`**: Cross-platform build and automation scripts
 - **`docker/`**: Containerization for development and production
 - **`.github/`**: CI/CD pipeline and GitHub automation
@@ -410,6 +472,9 @@ peervault/
 go test ./...
 # or
 make test
+
+# Test GraphQL API specifically
+go test ./tests/integration/graphql/ -v
 ```
 
 ## Lint
@@ -491,3 +556,6 @@ The demo writes files under a per-node storage root. To remove all data, delete 
 - Turn the example into a long-running daemon and add a CLI/API
 - Add proper peer discovery and resilient replication
 - Replace demo logic in `main.go` with your own application code
+- **GraphQL API**: Use the GraphQL API for building web applications and integrations
+- **Real-time monitoring**: Leverage GraphQL subscriptions for real-time system monitoring
+- **API extensions**: Extend the GraphQL schema with custom types and resolvers
