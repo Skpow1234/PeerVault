@@ -309,7 +309,7 @@ func main() {
 
 ## Built-in Plugins
 
-### Storage Plugins
+### Available Storage Plugins
 
 - **Local Storage**: File system storage (default)
 - **Memory Storage**: In-memory storage for testing
@@ -317,7 +317,7 @@ func main() {
 - **Azure Blob**: Azure Blob Storage integration
 - **Google Cloud**: Google Cloud Storage integration
 
-### Authentication Plugins
+### Available Authentication Plugins
 
 - **JWT Auth**: JWT-based authentication (default)
 - **OAuth 2.0**: OAuth 2.0 integration
@@ -325,14 +325,14 @@ func main() {
 - **SAML**: SAML authentication
 - **API Key**: API key authentication
 
-### Transport Plugins
+### Available Transport Plugins
 
 - **TCP**: TCP transport (default)
 - **WebRTC**: WebRTC transport for browser clients
 - **QUIC**: QUIC transport for improved performance
 - **WebSocket**: WebSocket transport for real-time communication
 
-### Processing Plugins
+### Available Processing Plugins
 
 - **Compression**: File compression (gzip, lz4, etc.)
 - **Encryption**: File encryption
