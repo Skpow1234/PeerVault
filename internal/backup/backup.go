@@ -194,6 +194,8 @@ func (bm *BackupManager) performBackup(ctx context.Context, backup *Backup, conf
 
 // performFullBackup performs a full backup
 func (bm *BackupManager) performFullBackup(ctx context.Context, backup *Backup, config *BackupConfig) error {
+	_ = ctx    // Context will be used in real implementation
+	_ = config // Config will be used in real implementation
 	// In a real implementation, this would:
 	// 1. Scan all files in the source directory
 	// 2. Copy files to backup location
@@ -212,6 +214,8 @@ func (bm *BackupManager) performFullBackup(ctx context.Context, backup *Backup, 
 
 // performIncrementalBackup performs an incremental backup
 func (bm *BackupManager) performIncrementalBackup(ctx context.Context, backup *Backup, config *BackupConfig) error {
+	_ = ctx    // Context will be used in real implementation
+	_ = config // Config will be used in real implementation
 	// In a real implementation, this would:
 	// 1. Compare with last backup
 	// 2. Only backup changed files
@@ -227,6 +231,8 @@ func (bm *BackupManager) performIncrementalBackup(ctx context.Context, backup *B
 
 // performDifferentialBackup performs a differential backup
 func (bm *BackupManager) performDifferentialBackup(ctx context.Context, backup *Backup, config *BackupConfig) error {
+	_ = ctx    // Context will be used in real implementation
+	_ = config // Config will be used in real implementation
 	// In a real implementation, this would:
 	// 1. Compare with last full backup
 	// 2. Backup all changed files since full backup
@@ -310,6 +316,8 @@ func (rm *RestoreManager) Restore(ctx context.Context, request *RestoreRequest) 
 
 // performRestore performs the actual restore operation
 func (rm *RestoreManager) performRestore(ctx context.Context, backup *Backup, request *RestoreRequest, result *RestoreResult) error {
+	_ = ctx     // Context will be used in real implementation
+	_ = request // Request will be used in real implementation
 	// In a real implementation, this would:
 	// 1. Create destination directory
 	// 2. Extract files from backup
