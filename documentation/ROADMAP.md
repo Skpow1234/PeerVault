@@ -183,7 +183,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/config/`, `config/`, `cmd/peervault/config.go`.
 - Tests: We want to have integration and unit tests for this
 
-5 Developer documentation and API reference
+5 Developer documentation and API reference ✅
 
 - Problem: No comprehensive developer documentation, API reference, or interactive documentation.
 - Solution: Implement comprehensive documentation with Swagger/OpenAPI, GraphQL Playground, and developer guides here C:\Users\jfhvj\Desktop\peervault\docs
@@ -191,7 +191,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Swagger UI, GraphQL Playground, comprehensive docs, code examples, SDK documentation.
 - Touchpoints: `docs/`, `docs/api/`, `docs/graphql/`, `docs/sdk/`, `docs/examples/`.
 
-6 Plugin architecture
+6 Plugin architecture ✅
 
 - Problem: No extensibility for custom storage backends, authentication methods, or transport protocols.
 - Solution: Design plugin system for storage providers, authentication mechanisms, and transport layers.
