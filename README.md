@@ -58,6 +58,15 @@ The included entrypoint at `cmd/peervault/main.go` boots 3 nodes locally and run
 - **Interactive Documentation**: Swagger UI and GraphQL Playground
 - **Local Development Tools**: Security check scripts and validation tools
 
+### Advanced Features & Ecosystem
+
+- **🔗 Content Addressing**: IPFS-compatible content addressing with CID support
+- **🔗 IPFS Compatibility**: Full IPFS protocol support with DAG structures
+- **⛓️ Blockchain Integration**: Smart contracts, decentralized identity, token economics
+- **🤖 Machine Learning**: AI-based file classification, optimization, and cache prediction
+- **🌐 Edge Computing**: Distributed edge node management and task distribution
+- **📱 IoT Support**: Comprehensive IoT device management and sensor data processing
+
 ## Message Framing
 
 The system uses a robust length-prefixed framing protocol for reliable message transport:
@@ -734,6 +743,13 @@ For a comprehensive getting started guide, see [docs/portal/guides/getting-start
 - ✅ **Security Policies**: Access control and data classification policies
 - ✅ **CI/CD Security Integration**: Comprehensive security pipeline
 
+#### **Milestone 9 — Advanced Features and Ecosystem (P8)** ✅
+
+- ✅ **Content Addressing and IPFS Compatibility**: Full IPFS compatibility with CID support and DAG structures
+- ✅ **Blockchain Integration and Smart Contracts**: Smart contract deployment, decentralized identity, token economics
+- ✅ **Machine Learning and AI Integration**: Intelligent file classification, optimization, and cache prediction
+- ✅ **Edge Computing and IoT Support**: Edge node management, task distribution, and IoT device integration
+
 ### 🔄 **Current Status**
 
 **PeerVault is now a production-ready, enterprise-grade P2P file storage system** with:
@@ -874,7 +890,11 @@ peervault/
 │   ├── peervault-graphql/       # GraphQL API server binary
 │   ├── peervault-api/           # REST API server binary
 │   ├── peervault-grpc/          # gRPC API server binary
-│   └── peervault-config/        # Configuration management tool
+│   ├── peervault-config/        # Configuration management tool
+│   ├── peervault-ipfs/          # IPFS compatibility tool
+│   ├── peervault-chain/         # Blockchain integration tool
+│   ├── peervault-ml/            # Machine learning tool
+│   └── peervault-edge/          # Edge computing tool
 ├── internal/                     # Core application code
 │   ├── api/                     # API interfaces
 │   │   ├── graphql/             # GraphQL API implementation
@@ -892,6 +912,18 @@ peervault/
 │   │       ├── services/        # gRPC service implementations
 │   │       ├── types/           # gRPC type definitions
 │   │       └── server.go        # gRPC server
+│   ├── blockchain/              # Blockchain integration
+│   │   └── integration.go       # Blockchain integration and smart contracts
+│   ├── content/                 # Content addressing
+│   │   └── addressing.go        # Content addressing and CID support
+│   ├── edge/                    # Edge computing
+│   │   └── computing.go         # Edge computing and task distribution
+│   ├── ipfs/                    # IPFS compatibility
+│   │   └── compatibility.go     # IPFS protocol compatibility
+│   ├── iot/                     # IoT device management
+│   │   └── devices.go           # IoT devices and sensor data
+│   ├── ml/                      # Machine learning
+│   │   └── classification.go    # ML classification and optimization
 │   ├── app/                     # Application logic
 │   │   ├── fileserver/          # Core file server implementation
 │   │   └── service.go           # Main application service
@@ -982,6 +1014,7 @@ peervault/
 │   │   ├── end-to-end/          # End-to-end workflow tests
 │   │   ├── graphql/             # GraphQL API integration tests
 │   │   ├── grpc/                # gRPC API integration tests
+│   │   ├── milestone9/          # Milestone 9 advanced features tests
 │   │   ├── multi-node/          # Multi-node network tests
 │   │   ├── performance/         # Performance and benchmark tests
 │   │   └── rest/                # REST API integration tests
@@ -1024,6 +1057,8 @@ peervault/
 │   ├── portal/                  # Developer portal
 │   │   ├── guides/              # Getting started guides
 │   │   └── README.md            # Developer portal
+│   ├── milestone9/              # Milestone 9 documentation
+│   │   └── README.md            # Advanced features documentation
 │   ├── swagger/                 # Swagger UI
 │   │   └── index.html           # Interactive API documentation
 │   └── graphql-playground/      # GraphQL Playground
@@ -1095,12 +1130,18 @@ peervault/
 - **`internal/auth/`**: Authentication and authorization (RBAC)
 - **`internal/audit/`**: Audit logging and security monitoring
 - **`internal/backup/`**: Backup and disaster recovery
+- **`internal/blockchain/`**: Blockchain integration and smart contracts
 - **`internal/cache/`**: Multi-level caching system
 - **`internal/compression/`**: Data compression utilities
 - **`internal/config/`**: Configuration management and validation
+- **`internal/content/`**: Content addressing and CID support
 - **`internal/deduplication/`**: Content-based data deduplication
+- **`internal/edge/`**: Edge computing and task distribution
 - **`internal/health/`**: Health checking and monitoring
+- **`internal/ipfs/`**: IPFS protocol compatibility
+- **`internal/iot/`**: IoT device management and sensor data
 - **`internal/metrics/`**: Prometheus-compatible metrics collection
+- **`internal/ml/`**: Machine learning and AI integration
 - **`internal/pki/`**: PKI and certificate management
 - **`internal/plugins/`**: Plugin architecture and management
 - **`internal/pool/`**: Object and connection pooling
