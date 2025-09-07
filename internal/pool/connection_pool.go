@@ -199,7 +199,7 @@ func (cp *ConnectionPool) prePopulate() {
 		select {
 		case cp.connections <- conn:
 		default:
-			conn.Close()
+			_ = conn.Close() // Ignore close error when pool is full
 			atomic.AddInt32(&cp.currentSize, -1)
 		}
 	}
@@ -237,14 +237,14 @@ process:
 	for _, conn := range connections {
 		if now.Sub(conn.LastUsed()) > maxIdleTime && int(atomic.LoadInt32(&cp.currentSize)) > cp.minSize {
 			// Connection is idle and we're above minimum size
-			conn.Close()
+			_ = conn.Close() // Ignore close error for idle connection cleanup
 			atomic.AddInt32(&cp.currentSize, -1)
 		} else {
 			// Return connection to pool
 			select {
 			case cp.connections <- conn:
 			default:
-				conn.Close()
+				_ = conn.Close() // Ignore close error when pool is full during cleanup
 				atomic.AddInt32(&cp.currentSize, -1)
 			}
 		}
