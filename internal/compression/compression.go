@@ -63,7 +63,7 @@ func (gc *GzipCompressor) Compress(ctx context.Context, data []byte) ([]byte, er
 	}
 
 	if _, err := writer.Write(data); err != nil {
-		writer.Close()
+		_ = writer.Close() // Ignore close error when write fails
 		return nil, err
 	}
 
@@ -80,7 +80,9 @@ func (gc *GzipCompressor) Decompress(ctx context.Context, data []byte) ([]byte, 
 	if err != nil {
 		return nil, err
 	}
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close() // Ignore close error in defer
+	}()
 
 	return io.ReadAll(reader)
 }
@@ -122,7 +124,7 @@ func (zc *ZlibCompressor) Compress(ctx context.Context, data []byte) ([]byte, er
 	}
 
 	if _, err := writer.Write(data); err != nil {
-		writer.Close()
+		_ = writer.Close() // Ignore close error when write fails
 		return nil, err
 	}
 
@@ -139,7 +141,9 @@ func (zc *ZlibCompressor) Decompress(ctx context.Context, data []byte) ([]byte, 
 	if err != nil {
 		return nil, err
 	}
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close() // Ignore close error in defer
+	}()
 
 	return io.ReadAll(reader)
 }

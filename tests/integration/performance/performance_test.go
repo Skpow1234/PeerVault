@@ -54,7 +54,9 @@ func TestConnectionPool(t *testing.T) {
 	}
 
 	connectionPool := pool.NewConnectionPool(factory, "localhost:8080", config)
-	defer connectionPool.Close()
+	defer func() {
+		_ = connectionPool.Close() // Ignore close error in test cleanup
+	}()
 
 	// Test getting connections
 	ctx := context.Background()
@@ -74,7 +76,9 @@ func TestConnectionPool(t *testing.T) {
 func TestMemoryCache(t *testing.T) {
 	// Test memory cache functionality
 	cache := cache.NewMemoryCache[string](100)
-	defer cache.Close()
+	defer func() {
+		_ = cache.Close() // Ignore close error in test cleanup
+	}()
 
 	ctx := context.Background()
 
@@ -100,7 +104,9 @@ func TestMemoryCache(t *testing.T) {
 func TestMultiLevelCache(t *testing.T) {
 	// Test multi-level cache functionality
 	mlCache := cache.NewMultiLevelCache[string](50, 100)
-	defer mlCache.Close()
+	defer func() {
+		_ = mlCache.Close() // Ignore close error in test cleanup
+	}()
 
 	ctx := context.Background()
 

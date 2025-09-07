@@ -340,7 +340,6 @@ type BackupScheduler struct {
 	ticker  *time.Ticker
 	ctx     context.Context
 	cancel  context.CancelFunc
-	mu      sync.RWMutex
 }
 
 // NewBackupScheduler creates a new backup scheduler

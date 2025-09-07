@@ -121,7 +121,9 @@ func (al *AuditLogger) LogEvent(ctx context.Context, event *AuditEvent) error {
 
 	// Flush if buffer is full
 	if len(al.buffer) >= al.batchSize {
-		go al.flush()
+		go func() {
+			_ = al.flush() // Ignore error in goroutine
+		}()
 	}
 
 	return nil
@@ -358,9 +360,9 @@ func (al *AuditLogger) flushRoutine() {
 	for {
 		select {
 		case <-ticker.C:
-			al.flush()
+			_ = al.flush() // Ignore error in periodic flush
 		case <-al.stopChan:
-			al.flush() // Final flush
+			_ = al.flush() // Final flush - ignore error
 			return
 		}
 	}

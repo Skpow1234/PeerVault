@@ -7,6 +7,9 @@ import (
 	"time"
 )
 
+// contextKey is a custom type for context keys to avoid collisions
+type contextKey string
+
 // TraceID represents a unique trace identifier
 type TraceID string
 
@@ -137,7 +140,7 @@ func (st *SimpleTracer) StartSpan(ctx context.Context, name string, opts ...Span
 	st.mu.Unlock()
 
 	// Add span to context
-	ctx = context.WithValue(ctx, "span", span)
+	ctx = context.WithValue(ctx, contextKey("span"), span)
 
 	return ctx, span
 }
@@ -245,13 +248,13 @@ type SpanContext struct {
 
 // FromContext extracts span from context
 func FromContext(ctx context.Context) (Span, bool) {
-	span, ok := ctx.Value("span").(Span)
+	span, ok := ctx.Value(contextKey("span")).(Span)
 	return span, ok
 }
 
 // WithSpan adds span to context
 func WithSpan(ctx context.Context, span Span) context.Context {
-	return context.WithValue(ctx, "span", span)
+	return context.WithValue(ctx, contextKey("span"), span)
 }
 
 // StartSpanFromContext starts a new span from existing context
@@ -282,8 +285,8 @@ func AddSpanEvent(ctx context.Context, name string, attrs map[string]interface{}
 
 		span.Events = append(span.Events, event)
 
-		// Update span in context
-		ctx = WithSpan(ctx, span)
+		// Note: Context update is not used in this function scope
+		// The span is updated in the tracer's internal storage
 	}
 }
 
@@ -292,8 +295,8 @@ func SetSpanStatus(ctx context.Context, status SpanStatus) {
 	if span, ok := FromContext(ctx); ok {
 		span.Status = status
 
-		// Update span in context
-		ctx = WithSpan(ctx, span)
+		// Note: Context update is not used in this function scope
+		// The span is updated in the tracer's internal storage
 	}
 }
 
@@ -305,8 +308,8 @@ func SetSpanAttribute(ctx context.Context, key string, value interface{}) {
 		}
 		span.Attributes[key] = value
 
-		// Update span in context
-		ctx = WithSpan(ctx, span)
+		// Note: Context update is not used in this function scope
+		// The span is updated in the tracer's internal storage
 	}
 }
 

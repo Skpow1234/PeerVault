@@ -37,11 +37,11 @@ type ConnectionPool struct {
 
 // PoolConfig holds configuration for the connection pool
 type PoolConfig struct {
-	MaxSize        int           `yaml:"max_size"`
-	MinSize        int           `yaml:"min_size"`
-	MaxIdleTime    time.Duration `yaml:"max_idle_time"`
+	MaxSize         int           `yaml:"max_size"`
+	MinSize         int           `yaml:"min_size"`
+	MaxIdleTime     time.Duration `yaml:"max_idle_time"`
 	CleanupInterval time.Duration `yaml:"cleanup_interval"`
-	ConnectTimeout time.Duration `yaml:"connect_timeout"`
+	ConnectTimeout  time.Duration `yaml:"connect_timeout"`
 }
 
 // DefaultPoolConfig returns default pool configuration
@@ -62,7 +62,7 @@ func NewConnectionPool(factory ConnectionFactory, address string, config *PoolCo
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	pool := &ConnectionPool{
 		factory:     factory,
 		address:     address,
@@ -96,7 +96,7 @@ func (cp *ConnectionPool) Get(ctx context.Context) (Connection, error) {
 			return conn, nil
 		}
 		// Connection is unhealthy, create a new one
-		conn.Close()
+		_ = conn.Close() // Ignore close error for unhealthy connection
 		atomic.AddInt32(&cp.currentSize, -1)
 		return cp.createConnection(ctx)
 	case <-ctx.Done():
@@ -110,13 +110,13 @@ func (cp *ConnectionPool) Get(ctx context.Context) (Connection, error) {
 // Put returns a connection to the pool
 func (cp *ConnectionPool) Put(conn Connection) {
 	if atomic.LoadInt32(&cp.closed) == 1 {
-		conn.Close()
+		_ = conn.Close() // Ignore close error when pool is closed
 		return
 	}
 
 	// Reset connection state
 	if err := conn.Reset(); err != nil {
-		conn.Close()
+		_ = conn.Close() // Ignore close error when reset fails
 		atomic.AddInt32(&cp.currentSize, -1)
 		return
 	}
@@ -126,7 +126,7 @@ func (cp *ConnectionPool) Put(conn Connection) {
 		// Successfully returned to pool
 	default:
 		// Pool is full, close the connection
-		conn.Close()
+		_ = conn.Close() // Ignore close error when pool is full
 		atomic.AddInt32(&cp.currentSize, -1)
 	}
 }
@@ -143,7 +143,7 @@ func (cp *ConnectionPool) Close() error {
 	// Close all connections in the pool
 	close(cp.connections)
 	for conn := range cp.connections {
-		conn.Close()
+		_ = conn.Close() // Ignore close errors during pool shutdown
 	}
 
 	return nil
@@ -195,7 +195,7 @@ func (cp *ConnectionPool) prePopulate() {
 		if err != nil {
 			continue // Skip failed connections
 		}
-		
+
 		select {
 		case cp.connections <- conn:
 		default:
@@ -221,7 +221,7 @@ func (cp *ConnectionPool) cleanupRoutine(maxIdleTime time.Duration) {
 func (cp *ConnectionPool) cleanupIdleConnections(maxIdleTime time.Duration) {
 	now := time.Now()
 	connections := make([]Connection, 0, len(cp.connections))
-	
+
 	// Collect all connections
 	for {
 		select {

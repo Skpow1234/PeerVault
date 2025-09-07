@@ -82,7 +82,6 @@ type ScanSummary struct {
 // SecurityScanner performs security vulnerability scans
 type SecurityScanner struct {
 	patterns map[VulnerabilityType][]string
-	mu       sync.RWMutex
 }
 
 // NewSecurityScanner creates a new security scanner

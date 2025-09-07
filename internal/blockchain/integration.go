@@ -352,6 +352,6 @@ func (bi *BlockchainIntegration) GetNetworkStats(ctx context.Context, networkNam
 // generateRandomHash generates a random hash for simulation
 func generateRandomHash() string {
 	bytes := make([]byte, 32)
-	rand.Read(bytes)
+	_, _ = rand.Read(bytes) // Ignore error for simulation
 	return "0x" + hex.EncodeToString(bytes)
 }

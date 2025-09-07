@@ -31,6 +31,8 @@ func (bp *BufferPool) Get() []byte {
 func (bp *BufferPool) Put(buf []byte) {
 	// Only put back buffers of the correct size
 	if cap(buf) == bp.size {
+		// Reset the slice length to the original size
+		//nolint:staticcheck // SA6002: We need to reset the slice length for proper pool behavior
 		bp.pool.Put(buf[:bp.size])
 	}
 }
@@ -44,13 +46,13 @@ func (bp *BufferPool) Size() int {
 var (
 	// Small buffers for headers and small messages (1KB)
 	SmallBufferPool = NewBufferPool(1024)
-	
+
 	// Medium buffers for typical file chunks (64KB)
 	MediumBufferPool = NewBufferPool(64 * 1024)
-	
+
 	// Large buffers for large file transfers (1MB)
 	LargeBufferPool = NewBufferPool(1024 * 1024)
-	
+
 	// Extra large buffers for very large transfers (16MB)
 	ExtraLargeBufferPool = NewBufferPool(16 * 1024 * 1024)
 )
