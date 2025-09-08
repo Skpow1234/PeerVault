@@ -100,7 +100,7 @@ for _, insight := range insights {
 
 ## Performance Monitoring
 
-### Basic Usage
+### Basic Usage performance
 
 ```go
 // Create performance monitor

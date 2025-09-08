@@ -1,0 +1,30 @@
+# GitHub Security Configuration
+# This file configures security features for the repository
+
+# Enable Dependabot alerts
+dependabot:
+  enabled: true
+  
+# Enable code scanning
+code_scanning:
+  enabled: true
+  
+# Enable secret scanning
+secret_scanning:
+  enabled: true
+  
+# Security policy
+security_policy:
+  enabled: true
+  
+# Vulnerability reporting
+vulnerability_reporting:
+  enabled: true
+  
+# Dependency review
+dependency_review:
+  enabled: true
+  
+# Security advisories
+security_advisories:
+  enabled: true

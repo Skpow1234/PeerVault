@@ -489,7 +489,7 @@ for _, insight := range insights {
 - `POST /cache/invalidate` - Invalidate cache entries
 - `GET /cache/insights` - Get cache performance insights
 
-### Cache Warming
+### Cache Warming endpoints
 
 - `GET /cache/warmup/status` - Get warmup status
 - `POST /cache/warmup/start` - Start cache warming

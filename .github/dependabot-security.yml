@@ -1,0 +1,142 @@
+# Dependabot Security Configuration
+# This file configures Dependabot to create issues for security vulnerabilities
+# and provides additional security scanning capabilities
+
+version: 2
+updates:
+  # Security updates for Go modules
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+    open-pull-requests-limit: 0
+    assignees:
+      - "Skpow1234"
+    commit-message:
+      prefix: "security"
+      include: "scope"
+    labels:
+      - "security"
+      - "dependencies"
+      - "go"
+      - "high-priority"
+    reviewers:
+      - "Skpow1234"
+    # Only security updates
+    allow:
+      - dependency-type: "security"
+    # Enable security alerts
+    security-advisories:
+      enabled: true
+    # Group security updates
+    groups:
+      security-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "security"
+
+  # Security updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+    open-pull-requests-limit: 10
+    assignees:
+      - "Skpow1234"
+    commit-message:
+      prefix: "security:actions"
+      include: "scope"
+    labels:
+      - "security"
+      - "dependencies"
+      - "github-actions"
+      - "high-priority"
+    reviewers:
+      - "Skpow1234"
+    # Only security updates
+    allow:
+      - dependency-type: "security"
+    # Enable security alerts
+    security-advisories:
+      enabled: true
+
+  # Security updates for Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+    open-pull-requests-limit: 10
+    assignees:
+      - "Skpow1234"
+    commit-message:
+      prefix: "security:docker"
+      include: "scope"
+    labels:
+      - "security"
+      - "dependencies"
+      - "docker"
+      - "high-priority"
+    reviewers:
+      - "Skpow1234"
+    # Only security updates
+    allow:
+      - dependency-type: "security"
+    # Enable security alerts
+    security-advisories:
+      enabled: true
+
+  # Security updates for npm (if any JavaScript dependencies)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    assignees:
+      - "Skpow1234"
+    commit-message:
+      prefix: "security:npm"
+      include: "scope"
+    labels:
+      - "security"
+      - "dependencies"
+      - "npm"
+      - "high-priority"
+    reviewers:
+      - "Skpow1234"
+    # Only security updates
+    allow:
+      - dependency-type: "security"
+    # Enable security alerts
+    security-advisories:
+      enabled: true
+
+  # Security updates for pip (if any Python dependencies)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    assignees:
+      - "Skpow1234"
+    commit-message:
+      prefix: "security:pip"
+      include: "scope"
+    labels:
+      - "security"
+      - "dependencies"
+      - "pip"
+      - "high-priority"
+    reviewers:
+      - "Skpow1234"
+    # Only security updates
+    allow:
+      - dependency-type: "security"
+    # Enable security alerts
+    security-advisories:
+      enabled: true

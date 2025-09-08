@@ -1,13 +1,13 @@
 version: 2
 updates:
-  # Enable version updates for Go
+  # Enable version updates for Go modules (main project)
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 15
     assignees:
       - "Skpow1234"
     commit-message:
@@ -16,6 +16,64 @@ updates:
     labels:
       - "dependencies"
       - "go"
+      - "security"
+    reviewers:
+      - "Skpow1234"
+    # Allow all dependency types including security updates
+    allow:
+      - dependency-type: "all"
+    # Ignore major version updates to prevent breaking changes
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # Group updates for better management
+    groups:
+      go-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Enable version updates for Go modules in plugins
+  - package-ecosystem: "gomod"
+    directory: "/plugins/s3-storage"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    assignees:
+      - "Skpow1234"
+    commit-message:
+      prefix: "deps:plugins"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "go"
+      - "plugins"
+    reviewers:
+      - "Skpow1234"
+
+  # Enable version updates for Go modules in proto
+  - package-ecosystem: "gomod"
+    directory: "/proto"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    assignees:
+      - "Skpow1234"
+    commit-message:
+      prefix: "deps:proto"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "go"
+      - "proto"
+    reviewers:
+      - "Skpow1234"
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
@@ -33,6 +91,17 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+      - "ci"
+    reviewers:
+      - "Skpow1234"
+    # Group GitHub Actions updates
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # Enable version updates for Docker
   - package-ecosystem: "docker"
@@ -50,3 +119,62 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+      - "containers"
+    reviewers:
+      - "Skpow1234"
+    # Group Docker updates
+    groups:
+      docker:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Enable version updates for npm (if any JavaScript/Node.js dependencies)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    assignees:
+      - "Skpow1234"
+    commit-message:
+      prefix: "deps:npm"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "javascript"
+    reviewers:
+      - "Skpow1234"
+    # Only create PRs if package.json exists
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for pip (if any Python dependencies)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    assignees:
+      - "Skpow1234"
+    commit-message:
+      prefix: "deps:pip"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "pip"
+      - "python"
+    reviewers:
+      - "Skpow1234"
+    # Only create PRs if requirements.txt exists
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

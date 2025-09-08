@@ -1,0 +1,237 @@
+name: Dependabot Security Analysis
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_scan:
+        description: 'Force a complete security scan'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  security-analysis:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      issues: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Run Go vulnerability check
+        run: |
+          echo "🔍 Running Go vulnerability analysis..."
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./... || true
+
+      - name: Run Go security scan
+        run: |
+          echo "🔒 Running Go security scan..."
+          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+          gosec -fmt json -out gosec-report.json ./... || true
+          gosec ./... || true
+
+      - name: Analyze Go dependencies
+        run: |
+          echo "📦 Analyzing Go dependencies..."
+          go list -m all > dependencies.txt
+          echo "Dependencies found:"
+          cat dependencies.txt
+
+      - name: Check for outdated dependencies
+        run: |
+          echo "🔄 Checking for outdated dependencies..."
+          go list -u -m all 2>/dev/null | grep '\[' || echo "No outdated dependencies found"
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Create security summary
+        run: |
+          echo "📊 Creating security analysis summary..."
+          cat > security-summary.md << EOF
+          # Security Analysis Summary
+          
+          **Date:** $(date)
+          **Repository:** ${{ github.repository }}
+          **Branch:** ${{ github.ref_name }}
+          
+          ## Analysis Results
+          
+          ### Go Dependencies
+          - **Total dependencies:** $(wc -l < dependencies.txt)
+          - **Outdated dependencies:** $(go list -u -m all 2>/dev/null | grep '\[' | wc -l)
+          
+          ### Security Scans
+          - **Go vulnerability check:** Completed
+          - **Go security scan (gosec):** Completed
+          - **Trivy filesystem scan:** Completed
+          
+          ## Recommendations
+          
+          1. Review any security vulnerabilities found
+          2. Update outdated dependencies
+          3. Monitor for new security advisories
+          4. Consider implementing automated security testing
+          
+          ## Next Steps
+          
+          - Review the generated reports
+          - Address any high/critical vulnerabilities
+          - Update dependencies as needed
+          - Monitor Dependabot alerts
+          
+          EOF
+          
+          cat security-summary.md
+
+      - name: Comment on issues (if any vulnerabilities found)
+        if: failure()
+        run: |
+          echo "⚠️ Security vulnerabilities detected!"
+          echo "Please review the security analysis results and address any issues found."
+
+      - name: Create issue for critical vulnerabilities
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = `🚨 Security Analysis Detected Issues - ${new Date().toISOString().split('T')[0]}`;
+            const body = `
+            ## Security Analysis Results
+            
+            The automated security analysis has detected potential issues that require attention.
+            
+            **Analysis Date:** ${new Date().toISOString()}
+            **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            ### What was checked:
+            - Go dependency vulnerabilities (govulncheck)
+            - Go security issues (gosec)
+            - Filesystem vulnerabilities (Trivy)
+            - Outdated dependencies
+            
+            ### Next Steps:
+            1. Review the workflow logs for detailed findings
+            2. Check the Security tab for vulnerability details
+            3. Update dependencies as needed
+            4. Address any security issues found
+            
+            ### Labels:
+            - \`security\`
+            - \`dependencies\`
+            - \`automated\`
+            - \`high-priority\`
+            `;
+            
+            // Check if an issue with this title already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'security,automated'
+            });
+            
+            const existingIssue = issues.data.find(issue => 
+              issue.title.includes('Security Analysis Detected Issues')
+            );
+            
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['security', 'dependencies', 'automated', 'high-priority']
+              });
+            }
+
+  dependabot-monitoring:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Dependabot status
+        run: |
+          echo "🤖 Checking Dependabot configuration..."
+          if [ -f ".github/dependabot.yml" ]; then
+            echo "✅ Dependabot configuration found"
+            echo "Configuration:"
+            cat .github/dependabot.yml
+          else
+            echo "❌ No Dependabot configuration found"
+          fi
+
+      - name: Monitor Dependabot alerts
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Check for open Dependabot alerts
+            const alerts = await github.rest.dependabot.listAlertsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            
+            console.log(`Found ${alerts.data.length} open Dependabot alerts`);
+            
+            if (alerts.data.length > 0) {
+              console.log('Open alerts:');
+              alerts.data.forEach(alert => {
+                console.log(`- ${alert.dependency.package.name}: ${alert.security_advisory.summary}`);
+              });
+            }
+
+      - name: Create weekly dependency report
+        run: |
+          echo "📈 Creating weekly dependency report..."
+          cat > dependency-report.md << EOF
+          # Weekly Dependency Report
+          
+          **Date:** $(date)
+          **Repository:** ${{ github.repository }}
+          
+          ## Dependabot Status
+          - **Configuration:** Active
+          - **Last check:** $(date)
+          
+          ## Recommendations
+          1. Review any open Dependabot pull requests
+          2. Address security alerts promptly
+          3. Keep dependencies up to date
+          4. Monitor for breaking changes
+          
+          EOF
+          
+          cat dependency-report.md
