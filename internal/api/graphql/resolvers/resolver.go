@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Skpow1234/Peervault/internal/api/graphql/types"
 	"github.com/Skpow1234/Peervault/internal/app/fileserver"
@@ -134,43 +135,43 @@ func (r *BaseResolver) UpdateConfiguration(ctx context.Context, config *types.Co
 	return false, nil
 }
 
-// Subscription resolvers
+// Subscription resolvers - these will be implemented by the subscription resolver
 func (r *BaseResolver) FileUploaded(ctx context.Context) (<-chan *types.File, error) {
-	// TODO: Implement file uploaded subscription
-	return nil, nil
+	// This will be handled by the subscription resolver
+	return nil, fmt.Errorf("subscription resolver not configured")
 }
 
 func (r *BaseResolver) FileDeleted(ctx context.Context) (<-chan string, error) {
-	// TODO: Implement file deleted subscription
-	return nil, nil
+	// This will be handled by the subscription resolver
+	return nil, fmt.Errorf("subscription resolver not configured")
 }
 
 func (r *BaseResolver) FileUpdated(ctx context.Context) (<-chan *types.File, error) {
-	// TODO: Implement file updated subscription
-	return nil, nil
+	// This will be handled by the subscription resolver
+	return nil, fmt.Errorf("subscription resolver not configured")
 }
 
 func (r *BaseResolver) PeerConnected(ctx context.Context) (<-chan *types.Node, error) {
-	// TODO: Implement peer connected subscription
-	return nil, nil
+	// This will be handled by the subscription resolver
+	return nil, fmt.Errorf("subscription resolver not configured")
 }
 
 func (r *BaseResolver) PeerDisconnected(ctx context.Context) (<-chan *types.Node, error) {
-	// TODO: Implement peer disconnected subscription
-	return nil, nil
+	// This will be handled by the subscription resolver
+	return nil, fmt.Errorf("subscription resolver not configured")
 }
 
 func (r *BaseResolver) PeerHealthChanged(ctx context.Context) (<-chan *types.NodeHealth, error) {
-	// TODO: Implement peer health changed subscription
-	return nil, nil
+	// This will be handled by the subscription resolver
+	return nil, fmt.Errorf("subscription resolver not configured")
 }
 
 func (r *BaseResolver) SystemMetricsUpdated(ctx context.Context) (<-chan *types.SystemMetrics, error) {
-	// TODO: Implement system metrics updated subscription
-	return nil, nil
+	// This will be handled by the subscription resolver
+	return nil, fmt.Errorf("subscription resolver not configured")
 }
 
 func (r *BaseResolver) PerformanceAlert(ctx context.Context) (<-chan *types.PerformanceAlert, error) {
-	// TODO: Implement performance alert subscription
-	return nil, nil
+	// This will be handled by the subscription resolver
+	return nil, fmt.Errorf("subscription resolver not configured")
 }

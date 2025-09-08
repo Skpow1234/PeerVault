@@ -1,6 +1,7 @@
 package graphql
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -8,14 +9,19 @@ import (
 	"os"
 	"time"
 
+	"github.com/Skpow1234/Peervault/internal/api/graphql/subscriptions"
 	"github.com/Skpow1234/Peervault/internal/app/fileserver"
+	"github.com/Skpow1234/Peervault/internal/websocket"
 )
 
 // Server represents the GraphQL server
 type Server struct {
-	server *fileserver.Server
-	config *Config
-	logger *slog.Logger
+	server               *fileserver.Server
+	config               *Config
+	logger               *slog.Logger
+	hub                  *websocket.Hub
+	subscriptionManager  *websocket.SubscriptionManager
+	subscriptionResolver *subscriptions.SubscriptionResolver
 }
 
 // Config holds the configuration for the GraphQL server
@@ -23,8 +29,10 @@ type Config struct {
 	Port             int
 	PlaygroundPath   string
 	GraphQLPath      string
+	WebSocketPath    string
 	AllowedOrigins   []string
 	EnablePlayground bool
+	EnableWebSocket  bool
 }
 
 // DefaultConfig returns the default configuration
@@ -33,8 +41,10 @@ func DefaultConfig() *Config {
 		Port:             8080,
 		PlaygroundPath:   "/playground",
 		GraphQLPath:      "/graphql",
+		WebSocketPath:    "/ws",
 		AllowedOrigins:   []string{"*"},
 		EnablePlayground: true,
+		EnableWebSocket:  true,
 	}
 }
 
@@ -44,11 +54,24 @@ func NewServer(fileserver *fileserver.Server, config *Config) *Server {
 		config = DefaultConfig()
 	}
 
-	return &Server{
-		server: fileserver,
-		config: config,
-		logger: slog.New(slog.NewJSONHandler(os.Stdout, nil)),
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	hub := websocket.NewHub(logger)
+	subscriptionManager := websocket.NewSubscriptionManager(hub, logger)
+	subscriptionResolver := subscriptions.NewSubscriptionResolver(hub, subscriptionManager, logger)
+
+	server := &Server{
+		server:               fileserver,
+		config:               config,
+		logger:               logger,
+		hub:                  hub,
+		subscriptionManager:  subscriptionManager,
+		subscriptionResolver: subscriptionResolver,
 	}
+
+	// Start the WebSocket hub
+	go hub.Run(context.Background())
+
+	return server
 }
 
 // Start starts the GraphQL server
@@ -61,6 +84,12 @@ func (s *Server) Start(config *Config) error {
 
 	// GraphQL endpoint
 	mux.HandleFunc(config.GraphQLPath, s.CORSMiddleware(s.GraphQLHandler))
+
+	// WebSocket endpoint for GraphQL subscriptions
+	if config.EnableWebSocket {
+		wsHandler := websocket.NewGraphQLSubscriptionHandler(s.hub, s.logger)
+		mux.HandleFunc(config.WebSocketPath, s.CORSMiddleware(wsHandler.ServeHTTP))
+	}
 
 	// GraphQL Playground
 	if config.EnablePlayground {
@@ -77,6 +106,8 @@ func (s *Server) Start(config *Config) error {
 		"port", config.Port,
 		"playground", config.PlaygroundPath,
 		"graphql", config.GraphQLPath,
+		"websocket", config.WebSocketPath,
+		"websocketEnabled", config.EnableWebSocket,
 	)
 
 	server := &http.Server{

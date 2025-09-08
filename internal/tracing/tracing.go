@@ -285,18 +285,30 @@ func AddSpanEvent(ctx context.Context, name string, attrs map[string]interface{}
 
 		span.Events = append(span.Events, event)
 
-		// Note: Context update is not used in this function scope
-		// The span is updated in the tracer's internal storage
+		// Update the span in the tracer's storage
+		if tracer, ok := GlobalTracer.(*SimpleTracer); ok {
+			tracer.mu.Lock()
+			if storedSpan, exists := tracer.spans[span.SpanID]; exists {
+				storedSpan.Events = append(storedSpan.Events, event)
+				tracer.spans[span.SpanID] = storedSpan
+			}
+			tracer.mu.Unlock()
+		}
 	}
 }
 
 // SetSpanStatus sets the status of the current span
 func SetSpanStatus(ctx context.Context, status SpanStatus) {
 	if span, ok := FromContext(ctx); ok {
-		span.Status = status
-
-		// Note: Context update is not used in this function scope
-		// The span is updated in the tracer's internal storage
+		// Update the span in the tracer's storage
+		if tracer, ok := GlobalTracer.(*SimpleTracer); ok {
+			tracer.mu.Lock()
+			if storedSpan, exists := tracer.spans[span.SpanID]; exists {
+				storedSpan.Status = status
+				tracer.spans[span.SpanID] = storedSpan
+			}
+			tracer.mu.Unlock()
+		}
 	}
 }
 
@@ -308,8 +320,18 @@ func SetSpanAttribute(ctx context.Context, key string, value interface{}) {
 		}
 		span.Attributes[key] = value
 
-		// Note: Context update is not used in this function scope
-		// The span is updated in the tracer's internal storage
+		// Update the span in the tracer's storage
+		if tracer, ok := GlobalTracer.(*SimpleTracer); ok {
+			tracer.mu.Lock()
+			if storedSpan, exists := tracer.spans[span.SpanID]; exists {
+				if storedSpan.Attributes == nil {
+					storedSpan.Attributes = make(map[string]interface{})
+				}
+				storedSpan.Attributes[key] = value
+				tracer.spans[span.SpanID] = storedSpan
+			}
+			tracer.mu.Unlock()
+		}
 	}
 }
 

@@ -5,6 +5,7 @@ go 1.24.2
 require (
 	github.com/Skpow1234/Peervault/proto/peervault v0.0.0-00010101000000-000000000000
 	github.com/ethereum/go-ethereum v1.13.5
+	github.com/gorilla/websocket v1.4.2
 	github.com/multiformats/go-multihash v0.2.3
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/time v0.12.0
@@ -24,7 +25,6 @@ require (
 	github.com/ethereum/c-kzg-4844 v0.4.0 // indirect
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/holiman/uint256 v1.2.3 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect

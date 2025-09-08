@@ -386,9 +386,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 10 — Advanced GraphQL Features (P9)
+## Milestone 10 — Advanced GraphQL Features (P9) ✅
 
-1 Real-time Subscriptions
+1 Real-time Subscriptions ✅
 
 - Problem: No real-time updates for file operations, peer status changes, or system events.
 - Solution: Implement WebSocket-based GraphQL subscriptions with live updates.
@@ -396,7 +396,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: GraphQL subscriptions working, WebSocket connections stable, real-time updates functional.
 - Touchpoints: `internal/api/graphql/subscriptions/`, `internal/websocket/`, `docs/graphql/subscriptions/`.
 
-2 GraphQL Federation
+2 GraphQL Federation ✅
 
 - Problem: Single GraphQL schema limits scalability and team collaboration.
 - Solution: Implement GraphQL federation for multi-service composition.
@@ -404,7 +404,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Multiple services can compose GraphQL schemas, federation gateway working.
 - Touchpoints: `internal/api/graphql/federation/`, `cmd/peervault-federation/`, `docs/graphql/federation/`.
 
-3 Advanced Caching
+3 Advanced Caching ✅
 
 - Problem: No query result caching leads to repeated expensive operations.
 - Solution: Implement intelligent GraphQL query result caching with invalidation strategies.
@@ -412,7 +412,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Improved query performance, cache hit rates >80%, cache invalidation working.
 - Touchpoints: `internal/api/graphql/cache/`, `internal/cache/graphql/`, `docs/graphql/caching/`.
 
-4 Schema Stitching
+4 Schema Stitching ✅
 
 - Problem: Static schemas limit dynamic service composition.
 - Solution: Implement dynamic schema stitching for runtime schema composition.
@@ -420,7 +420,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Schemas can be composed at runtime, versioning working, updates seamless.
 - Touchpoints: `internal/api/graphql/stitching/`, `internal/schema/`, `docs/graphql/stitching/`.
 
-5 GraphQL Analytics
+5 GraphQL Analytics ✅
 
 - Problem: No visibility into GraphQL query performance and usage patterns.
 - Solution: Implement comprehensive GraphQL analytics and performance monitoring.
