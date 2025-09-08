@@ -8,7 +8,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/multiformats/go-multihash v0.2.3
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/time v0.12.0
+	golang.org/x/time v0.13.0
 	google.golang.org/protobuf v1.33.0
 )
 
