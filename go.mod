@@ -7,8 +7,8 @@ require (
 	github.com/ethereum/go-ethereum v1.13.5
 	github.com/gorilla/websocket v1.5.3
 	github.com/multiformats/go-multihash v0.2.3
-	github.com/stretchr/testify v1.11.1
-	golang.org/x/time v0.12.0
+	github.com/stretchr/testify v1.8.4
+	golang.org/x/time v0.13.0
 	google.golang.org/protobuf v1.33.0
 )
 
