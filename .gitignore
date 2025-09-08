@@ -81,3 +81,24 @@ temp/
 
 # Project maturity roadmap (internal planning document)
 documentation/PROJECT_MATURITY_ROADMAP.md
+# Binaries and build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.app
+*.deb
+*.rpm
+*.msi
+*.dmg
+*.pkg
+*.tar.gz
+*.zip
+*.7z
+
+# Build directories
+/bin/
+/dist/
+/build/
+/out/
+/release/

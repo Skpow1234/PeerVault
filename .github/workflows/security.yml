@@ -89,6 +89,12 @@ jobs:
         run: |
           echo "Running secrets detection..."
           mkdir -p security-reports
+          # First, create baseline if it doesn't exist
+          if [ ! -f "security-reports/secrets-baseline.json" ]; then
+            echo "Creating initial secrets baseline..."
+            detect-secrets scan --all-files --baseline security-reports/secrets-baseline.json ./... || true
+          fi
+          # Then scan and compare against baseline
           detect-secrets scan --all-files --baseline security-reports/secrets-baseline.json ./... || {
             echo "Potential secrets found"
             # This is usually non-blocking as it may have false positives
@@ -395,16 +401,16 @@ jobs:
           fi
           
           echo ""
-          echo "Security Features Implemented:"
+          echo "Security Features Status:"
           echo "✅ Security vulnerability scanning (gosec, semgrep, govulncheck)"
-          echo "✅ Compliance checking (SOC 2, GDPR, ISO 27001)"
-          echo "✅ Security policy validation"
+          echo "✅ Basic security policy validation"
           echo "✅ Container security scanning (Trivy)"
-          echo "✅ RBAC and access control system"
-          echo "✅ Audit logging and monitoring"
-          echo "✅ Data privacy and protection"
-          echo "✅ PKI and certificate management"
-          echo "✅ Custom security tools and scripts"
+          echo "🚧 Compliance checking (SOC 2, GDPR, ISO 27001) - Guidance only"
+          echo "🚧 RBAC and access control system - Planned"
+          echo "🚧 Audit logging and monitoring - Planned"
+          echo "🚧 Data privacy and protection - Planned"
+          echo "🚧 PKI and certificate management - Planned"
+          echo "🚧 Custom security tools and scripts - Planned"
           echo ""
           
           if [ $critical_failures -gt 0 ]; then

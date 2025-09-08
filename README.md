@@ -1,71 +1,168 @@
 # PeerVault — P2P encrypted file store (Go)
 
-Lightweight peer-to-peer file store demo written in Go. Nodes communicate over TCP, replicate files across peers, and encrypt file transfers using AES-CTR.
+Lightweight peer-to-peer file store demo written in Go. Nodes communicate over TCP, replicate files across peers, and encrypt file transfers using AES-GCM with authentication.
 
 The included entrypoint at `cmd/peervault/main.go` boots 3 nodes locally and runs a simple store/get flow to demonstrate replication.
 
-## Features
+## MVP Features
 
-### Core P2P Functionality
+PeerVault MVP focuses on core P2P file storage with a single, well-implemented API interface.
 
-- Encrypted file streaming over TCP (AES-GCM with authentication)
-- Advanced key management with derivation and rotation
-- Authenticated peer connections with HMAC-SHA256 signatures
-- Length-prefixed message framing for reliable transport
-- Simple P2P transport abstraction (`internal/transport/p2p`)
-- Content-addressable storage layout (SHA-256 based path transform)
-- Minimal example that launches 3 local nodes and exchanges files
+### ✅ Core P2P Functionality (MVP)
+
+- **Encrypted file streaming** over TCP using AES-GCM with authentication
+- **Content-addressable storage** with SHA-256 based path transform
+- **Length-prefixed message framing** for reliable transport (1MB max frame size)
+- **Basic peer discovery** and connection management
+- **File replication** across connected peers
+- **Simple demo** that launches 3 local nodes and exchanges files
+
+### ✅ Primary API Interface (MVP)
+
+- **gRPC API** with grpc-gateway for REST compatibility
+- **Protocol Buffers** for type-safe communication
+- **Basic file operations**: store, retrieve, list files
+- **Health checks** and system status endpoints
+- **Authentication** with HMAC-SHA256 and timestamp validation
+
+### ✅ Essential Security (MVP)
+
+- **AES-GCM encryption** with secure nonce management
+- **HMAC-SHA256 authentication** for peer connections
+- **Key derivation** from cluster key with rotation support
+- **Basic vulnerability scanning** with govulncheck and gosec
+
+### ✅ Basic Observability (MVP)
+
+- **Structured logging** with configurable levels
+- **Health check endpoints** for monitoring
+- **Basic metrics** for file operations and peer connections
+
+## 🚧 Future Features (Post-MVP)
+
+The following features are planned for future releases and are **not included in the MVP**:
 
 ### API Interfaces
 
-- **GraphQL API** for flexible queries, mutations, and real-time subscriptions
-- **REST API** for simple CRUD operations and webhook integrations
-- **gRPC API** for high-performance streaming and service-to-service communication
-- **Interactive GraphQL Playground** for testing and development
-- **Swagger UI** for REST API documentation and testing
+- **GraphQL API** - Flexible queries and real-time subscriptions
+- **Standalone REST API** - Direct REST without grpc-gateway
+- **Interactive documentation** - GraphQL Playground and Swagger UI
 
-### Security & Compliance (Enterprise-Grade)
+### Advanced Security & Compliance
 
-- **🔒 Security Vulnerability Scanning**: Automated scanning with govulncheck, gosec, semgrep
-- **🔒 Compliance Checking**: SOC 2, GDPR, ISO 27001, HIPAA, PCI DSS assessments
-- **🔒 Role-Based Access Control (RBAC)**: Comprehensive authorization system
-- **🔒 Audit Logging**: Complete security event logging and monitoring
-- **🔒 Data Privacy Controls**: GDPR-compliant data protection and privacy features
-- **🔒 PKI & Certificate Management**: Public Key Infrastructure and certificate lifecycle
-- **🔒 Security Policies**: Access control and data classification policies
-- **🔒 Container Security**: Trivy vulnerability scanning for containerized deployments
+- **Enterprise compliance** - SOC 2, GDPR, ISO 27001 assessments
+- **Role-Based Access Control (RBAC)** - Comprehensive authorization
+- **Audit logging** - Complete security event logging
+- **PKI & Certificate Management** - Public Key Infrastructure
+- **Container security** - Trivy scanning and SLSA provenance
 
 ### Performance & Optimization
 
-- **Memory Optimization**: Buffer pooling, object pooling, connection pooling
-- **Multi-level Caching**: LRU cache with TTL support
-- **Data Efficiency**: Compression (gzip, zlib) and content-based deduplication
-- **Connection Management**: Connection pooling and multiplexing
-
-### Observability & Monitoring
-
-- **Real-time monitoring** with health checks and metrics
-- **Prometheus-compatible metrics** for system monitoring
-- **Distributed tracing** for request tracking
-- **Structured logging** with configurable levels
-- **Performance benchmarks** and profiling tools
-
-### Developer Experience
-
-- **Plugin Architecture**: Extensible system for custom storage, authentication, transport
-- **SDK Documentation**: Comprehensive developer documentation and guides
-- **Code Examples**: Ready-to-use examples for all APIs and features
-- **Interactive Documentation**: Swagger UI and GraphQL Playground
-- **Local Development Tools**: Security check scripts and validation tools
+- **Memory optimization** - Buffer pooling, object pooling, connection pooling
+- **Multi-level caching** - LRU cache with TTL support
+- **Data efficiency** - Compression and content-based deduplication
+- **Connection management** - Advanced pooling and multiplexing
 
 ### Advanced Features & Ecosystem
 
-- **🔗 Content Addressing**: IPFS-compatible content addressing with CID support
-- **🔗 IPFS Compatibility**: Full IPFS protocol support with DAG structures
-- **⛓️ Blockchain Integration**: Smart contracts, decentralized identity, token economics
-- **🤖 Machine Learning**: AI-based file classification, optimization, and cache prediction
-- **🌐 Edge Computing**: Distributed edge node management and task distribution
-- **📱 IoT Support**: Comprehensive IoT device management and sensor data processing
+- **IPFS compatibility** - Full IPFS protocol support with CID
+- **Blockchain integration** - Smart contracts and decentralized identity
+- **Machine learning** - AI-based file classification and optimization
+- **Edge computing** - Distributed edge node management
+- **IoT support** - Device management and sensor data processing
+
+### Developer Experience
+
+- **Plugin architecture** - Extensible system for custom integrations
+- **SDK documentation** - Comprehensive guides and examples
+- **Advanced observability** - Prometheus metrics, distributed tracing
+- **Performance benchmarks** - Comprehensive benchmarking suite
+
+See [ROADMAP.md](documentation/ROADMAP.md) for detailed release planning.
+
+## Content Addressing
+
+PeerVault uses content-addressed storage to ensure data integrity and enable efficient deduplication.
+
+### SHA-256 Based Content Addressing (MVP)
+
+The MVP uses a simple SHA-256 based path transform for content addressing:
+
+#### Path Layout
+
+```bash
+Storage Root/
+├── ab/                    # First 2 characters of SHA-256 hash
+│   └── cdef1234...        # Remaining 62 characters as filename
+├── cd/
+│   └── ef567890...
+└── ...
+```
+
+#### Implementation Details
+
+- **Hash Algorithm**: SHA-256 (256-bit hash)
+- **Path Depth**: 2-level fan-out (first 2 chars as directory)
+- **Filename**: Remaining 62 characters of hex-encoded hash
+- **Collision Handling**: SHA-256 provides 2^256 possible values, making collisions cryptographically infeasible
+
+#### Example
+
+```go
+// Input: file content "hello world"
+// SHA-256: b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
+// Path: b9/4d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
+```
+
+### IPFS-Compatible Content Addressing (Future)
+
+For future IPFS compatibility, PeerVault includes a more sophisticated content addressing system:
+
+#### CID (Content Identifier) Support
+
+- **Version**: CIDv1 format
+- **Codec**: Raw data codec (extensible to other codecs)
+- **Hash**: SHA-256 multihash
+- **Format**: `bafy...` (base32 encoded) or `Qm...` (base58 encoded)
+
+#### Advanced Path Layout
+
+```bash
+IPFS Storage/
+├── bafy/                  # CID prefix
+│   ├── bei/              # First 3 characters
+│   │   └── 2a...         # Remaining characters
+│   └── ...
+└── ...
+```
+
+### Collision Handling
+
+#### SHA-256 Collision Resistance
+
+- **Theoretical Collision Probability**: ~1 in 2^256 (practically impossible)
+- **Birthday Paradox**: Even with 2^64 files, collision probability is negligible
+- **Cryptographic Security**: SHA-256 is considered cryptographically secure
+
+#### Implementation Safeguards
+
+- **Hash Verification**: Content is verified against its hash on retrieval
+- **Integrity Checks**: SHA-256 provides built-in integrity verification
+- **Error Handling**: Hash mismatches are detected and reported
+
+### Storage Efficiency
+
+#### Deduplication Benefits
+
+- **Content-Based**: Identical content always maps to the same path
+- **Automatic**: No manual deduplication required
+- **Space Savings**: Duplicate files are automatically deduplicated
+
+#### Path Distribution
+
+- **Even Distribution**: SHA-256 provides uniform distribution across directories
+- **Load Balancing**: 2-level fan-out prevents directory overload
+- **Scalability**: System scales to millions of files without performance degradation
 
 ## Message Framing
 
@@ -95,6 +192,24 @@ The system uses a robust length-prefixed framing protocol for reliable message t
 ```
 
 This framing ensures reliable message delivery and eliminates the need for `time.Sleep` coordination.
+
+## Encryption & Security
+
+### AES-GCM Encryption
+
+PeerVault uses **AES-GCM (Galois/Counter Mode)** for authenticated encryption, providing both confidentiality and integrity protection:
+
+- **Algorithm**: AES-256-GCM with 12-byte nonces
+- **Nonce Management**: Cryptographically secure random nonces, never reused
+- **Authentication**: Built-in authentication prevents tampering
+- **Key Size**: 256-bit encryption keys derived from cluster key
+
+### Nonce Management & Security Guarantees
+
+- **Nonce Generation**: Each message uses a fresh, cryptographically secure random 12-byte nonce
+- **Nonce Reuse Prevention**: Nonces are never reused - each encryption operation gets a unique nonce
+- **Replay Protection**: Timestamp validation in handshake prevents replay attacks
+- **Forward Secrecy**: Keys are derived per-session and rotated regularly
 
 ## Key Management
 
@@ -148,44 +263,27 @@ If no auth token is provided, a default demo token is used (suitable for develop
 
 ## Security
 
-### Enterprise-Grade Security Features
+### Security Features
 
-PeerVault implements comprehensive security features for production environments:
+#### ✅ **Implemented (MVP)**
 
-#### 🔒 **Security Infrastructure**
+- **AES-GCM Encryption**: Authenticated encryption with secure nonce management
+- **HMAC-SHA256 Authentication**: Peer connection authentication with timestamp validation
+- **Key Derivation**: HMAC-SHA256 based key derivation from cluster key
+- **Basic Vulnerability Scanning**: govulncheck and gosec integration
+- **Secure Nonce Management**: Cryptographically secure random nonces, never reused
 
-- **Vulnerability Scanning**: Automated scanning with govulncheck, gosec, semgrep, detect-secrets
-- **Compliance Checking**: SOC 2, GDPR, ISO 27001, HIPAA, PCI DSS assessments
-- **Security Policies**: Access control and data classification policies
-- **Container Security**: Trivy vulnerability scanning for containerized deployments
+#### 🚧 **Planned (Post-MVP)**
 
-#### 🔒 **Access Control & Authorization**
-
+- **Advanced Vulnerability Scanning**: semgrep, detect-secrets, Trivy integration
+- **Compliance Guidance**: Example controls for SOC 2, GDPR, ISO 27001 (guidance only, not certification)
 - **Role-Based Access Control (RBAC)**: Comprehensive authorization system
-- **Access Control Lists (ACLs)**: Fine-grained permission management
-- **Authentication**: Token-based authentication with metadata
-- **Authorization Policies**: Configurable access control policies
-
-#### 🔒 **Data Protection & Privacy**
-
-- **Data Classification**: Automatic data sensitivity classification
-- **Privacy Controls**: GDPR-compliant data protection features
-- **Data Retention**: Configurable data retention policies
-- **Encryption**: End-to-end encryption for data at rest and in transit
-
-#### 🔒 **Audit & Monitoring**
-
 - **Audit Logging**: Comprehensive security event logging
-- **Security Monitoring**: Real-time security event monitoring
-- **Compliance Reporting**: Automated compliance assessment reports
-- **Incident Response**: Security incident detection and response
+- **PKI & Certificate Management**: Public Key Infrastructure
+- **Container Security**: Trivy scanning and SLSA provenance
+- **Security Policies**: Access control and data classification policies
 
-#### 🔒 **PKI & Certificate Management**
-
-- **Public Key Infrastructure**: Complete PKI implementation
-- **Certificate Lifecycle**: Automated certificate generation, rotation, and revocation
-- **Key Management**: Secure key storage and management
-- **Certificate Validation**: Automated certificate validation and trust management
+**Important**: Compliance features provide guidance and example controls only. They do not provide actual certification or guarantee compliance with regulatory requirements.
 
 ### Security Tools & Scripts
 
@@ -274,6 +372,8 @@ The CI pipeline includes automated security scanning:
 ## Windows Defender Setup
 
 If you're developing on Windows, you may encounter Windows Defender popups when running the application or tests. This is because Go applications that create network connections and access the file system are often flagged as potentially suspicious.
+
+**⚠️ Security Note**: The trust script adds Windows Defender exclusions for the project folder. This is necessary for development but should only be used in trusted environments. Never run this on production systems or with untrusted code.
 
 ### Quick Fix (Recommended)
 
@@ -700,75 +800,61 @@ For a comprehensive getting started guide, see [docs/portal/guides/getting-start
 
 ## Project Status & Roadmap
 
-### ✅ **Completed Milestones**
+### 🎯 **Current Status: MVP Development**
 
-#### **Milestone 4 — API Interfaces and Developer Experience (P3)** ✅
+**PeerVault is currently in MVP development phase** focusing on core P2P file storage functionality:
 
-- ✅ **GraphQL API**: Complete GraphQL implementation with schema, resolvers, and playground
-- ✅ **REST API**: Full REST API with OpenAPI/Swagger documentation
-- ✅ **gRPC API**: gRPC implementation with Protocol Buffers
-- ✅ **Interactive Documentation**: Swagger UI and GraphQL Playground
-- ✅ **SDK Documentation**: Go and JavaScript SDK documentation
-- ✅ **Code Examples**: Comprehensive examples for all APIs
-- ✅ **Developer Portal**: Complete developer portal with guides
+- **✅ Core P2P**: Basic peer-to-peer file storage with encryption
+- **✅ gRPC API**: Primary API interface with grpc-gateway for REST
+- **✅ Security**: AES-GCM encryption and HMAC-SHA256 authentication
+- **✅ Storage**: Content-addressable storage with SHA-256
+- **🔄 In Progress**: Message framing, peer discovery, basic replication
 
-#### **Milestone 5 — Developer Experience and Documentation (P4)** ✅
+### 📋 **MVP Goals (Current Focus)**
 
-- ✅ **Interactive API Documentation**: Swagger UI and GraphQL Playground
-- ✅ **SDK and Client Libraries**: Go and JavaScript SDKs
-- ✅ **Developer Portal and Guides**: Comprehensive developer resources
-- ✅ **Code Examples and Demos**: Ready-to-use examples and demos
+1. **Stable P2P Core**: Reliable file storage and replication between peers
+2. **Single API Interface**: gRPC with grpc-gateway (no GraphQL/REST complexity)
+3. **Essential Security**: Proper encryption and authentication
+4. **Basic Observability**: Health checks and structured logging
+5. **Simple Demo**: Working 3-node example with file exchange
 
-#### **Milestone 6 — Performance Optimization and Efficiency (P5)** ✅
+### 🚧 **Post-MVP Roadmap**
 
-- ✅ **Memory Optimization**: Buffer pooling, object pooling, connection pooling
-- ✅ **Connection Management**: Connection pooling and multiplexing
-- ✅ **Caching**: Multi-level caching with LRU and TTL
-- ✅ **Data Efficiency**: Compression (gzip, zlib) and content-based deduplication
+After MVP completion, features will be added incrementally:
 
-#### **Milestone 7 — Monitoring, Observability, and Production Readiness (P6)** ✅
+#### **Phase 1: API Expansion**
 
-- ✅ **Metrics Collection**: Prometheus-compatible metrics
-- ✅ **Distributed Tracing**: Request tracking and performance monitoring
-- ✅ **Health Checks**: Comprehensive health checking system
-- ✅ **Backup and Disaster Recovery**: Automated backup and restore capabilities
-- ✅ **Structured Logging**: Configurable logging with multiple levels
+- GraphQL API for flexible queries
+- Standalone REST API
+- Interactive documentation (Swagger UI, GraphQL Playground)
 
-#### **Milestone 8 — Security Hardening and Compliance (P7)** ✅
+#### **Phase 2: Advanced Security**
 
-- ✅ **Security Audit and Penetration Testing**: Automated vulnerability scanning
-- ✅ **Access Control and Authorization**: RBAC system with ACLs
-- ✅ **Data Privacy and Compliance**: GDPR-compliant privacy controls
-- ✅ **Certificate Management and PKI**: Complete PKI infrastructure
-- ✅ **Security Policies**: Access control and data classification policies
-- ✅ **CI/CD Security Integration**: Comprehensive security pipeline
+- Enterprise compliance (SOC 2, GDPR guidance)
+- Role-Based Access Control (RBAC)
+- PKI and certificate management
+- Advanced audit logging
 
-#### **Milestone 9 — Advanced Features and Ecosystem (P8)** ✅
+#### **Phase 3: Performance & Scale**
 
-- ✅ **Content Addressing and IPFS Compatibility**: Full IPFS compatibility with CID support and DAG structures
-- ✅ **Blockchain Integration and Smart Contracts**: Smart contract deployment, decentralized identity, token economics
-- ✅ **Machine Learning and AI Integration**: Intelligent file classification, optimization, and cache prediction
-- ✅ **Edge Computing and IoT Support**: Edge node management, task distribution, and IoT device integration
+- Memory optimization and caching
+- Data compression and deduplication
+- Advanced connection management
+- Performance benchmarking
 
-### 🔄 **Current Status**
+#### **Phase 4: Ecosystem Integration**
 
-**PeerVault is now a production-ready, enterprise-grade P2P file storage system** with:
+- IPFS compatibility
+- Blockchain integration
+- Machine learning features
+- Edge computing and IoT support
 
-- **🔒 Enterprise Security**: Comprehensive security, compliance, and audit capabilities
-- **🚀 High Performance**: Optimized for speed, efficiency, and scalability
-- **📊 Full Observability**: Complete monitoring, metrics, and tracing
-- **🛠️ Developer Friendly**: Extensive documentation, SDKs, and examples
-- **🔌 Extensible**: Plugin architecture for custom integrations
-- **🐳 Production Ready**: Docker support and CI/CD pipeline
+### 📊 **Development Approach**
 
-### 📋 **Next Steps (Milestone 9)**
-
-The next milestone focuses on advanced features and ecosystem integration:
-
-- **Advanced P2P Features**: Enhanced peer discovery and network resilience
-- **Ecosystem Integration**: Third-party service integrations
-- **Advanced Analytics**: Machine learning and data analytics capabilities
-- **Enterprise Features**: Advanced enterprise-grade features
+- **MVP First**: Focus on core functionality before adding complexity
+- **Incremental**: Add features one at a time with proper testing
+- **Quality**: Each feature must be production-ready before moving to next
+- **Documentation**: Clear status indicators for what exists vs. planned
 
 For detailed roadmap information, see [documentation/ROADMAP.md](documentation/ROADMAP.md).
 
