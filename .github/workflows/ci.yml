@@ -7,8 +7,8 @@ on:
     branches: [ main, develop ]
 
 env:
-  GO_VERSION: '1.24.4'
-  GOTOOLCHAIN: go1.24.4
+  GO_VERSION: '1.23.1'
+  GOTOOLCHAIN: auto
 
 jobs:
   # Lint and format check
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.22, 1.23, 1.24.4]
+        go-version: ['1.22.7', '1.23.1']
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -84,9 +84,6 @@ jobs:
           cache: true
 
       - name: Download dependencies
-        env:
-          GO_VERSION: ${{ matrix.go-version }}
-          GOTOOLCHAIN: go${{ matrix.go-version }}
         run: go mod download
 
       - name: Run unit tests
@@ -284,7 +281,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        go-version: [1.24.4]
+        go-version: ['1.23.1']
     needs: [unit-tests, integration-tests]
     steps:
       - name: Checkout code

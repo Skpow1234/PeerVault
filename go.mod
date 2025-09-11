@@ -1,6 +1,8 @@
 module github.com/Skpow1234/Peervault
 
-go 1.24.2
+go 1.24.0
+
+toolchain go1.24.2
 
 require (
 	github.com/Skpow1234/Peervault/proto/peervault v0.0.0-00010101000000-000000000000
