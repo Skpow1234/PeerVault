@@ -3,6 +3,7 @@ package websocket
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"sync"
 	"time"
@@ -234,13 +235,21 @@ func NewClient(conn *websocket.Conn, hub *Hub, id string) *Client {
 func (c *Client) ReadPump() {
 	defer func() {
 		c.hub.unregister <- c
-		c.conn.Close()
+		if err := c.conn.Close(); err != nil {
+			// Connection might already be closed, log but don't fail
+			fmt.Printf("Warning: failed to close websocket connection: %v\n", err)
+		}
 	}()
 
 	c.conn.SetReadLimit(512)
-	c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	if err := c.conn.SetReadDeadline(time.Now().Add(60 * time.Second)); err != nil {
+		fmt.Printf("Warning: failed to set read deadline: %v\n", err)
+		return
+	}
 	c.conn.SetPongHandler(func(string) error {
-		c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		if err := c.conn.SetReadDeadline(time.Now().Add(60 * time.Second)); err != nil {
+			fmt.Printf("Warning: failed to set read deadline in pong handler: %v\n", err)
+		}
 		return nil
 	})
 
@@ -274,15 +283,23 @@ func (c *Client) WritePump() {
 	ticker := time.NewTicker(54 * time.Second)
 	defer func() {
 		ticker.Stop()
-		c.conn.Close()
+		if err := c.conn.Close(); err != nil {
+			// Connection might already be closed, log but don't fail
+			fmt.Printf("Warning: failed to close websocket connection: %v\n", err)
+		}
 	}()
 
 	for {
 		select {
 		case message, ok := <-c.send:
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if err := c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second)); err != nil {
+				fmt.Printf("Warning: failed to set write deadline: %v\n", err)
+				return
+			}
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				if err := c.conn.WriteMessage(websocket.CloseMessage, []byte{}); err != nil {
+					fmt.Printf("Warning: failed to write close message: %v\n", err)
+				}
 				return
 			}
 
@@ -290,13 +307,22 @@ func (c *Client) WritePump() {
 			if err != nil {
 				return
 			}
-			w.Write(message)
+			if _, err := w.Write(message); err != nil {
+				fmt.Printf("Warning: failed to write message: %v\n", err)
+				return
+			}
 
 			// Add queued chat messages to the current websocket message
 			n := len(c.send)
 			for i := 0; i < n; i++ {
-				w.Write([]byte{'\n'})
-				w.Write(<-c.send)
+				if _, err := w.Write([]byte{'\n'}); err != nil {
+					fmt.Printf("Warning: failed to write newline: %v\n", err)
+					return
+				}
+				if _, err := w.Write(<-c.send); err != nil {
+					fmt.Printf("Warning: failed to write queued message: %v\n", err)
+					return
+				}
 			}
 
 			if err := w.Close(); err != nil {
@@ -304,7 +330,10 @@ func (c *Client) WritePump() {
 			}
 
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if err := c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second)); err != nil {
+				fmt.Printf("Warning: failed to set write deadline for ping: %v\n", err)
+				return
+			}
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
@@ -348,5 +377,7 @@ func (c *Client) handleMessage(message *Message) {
 // Close closes the client connection
 func (c *Client) Close() {
 	c.cancel()
-	c.conn.Close()
+	if err := c.conn.Close(); err != nil {
+		fmt.Printf("Warning: failed to close websocket connection: %v\n", err)
+	}
 }

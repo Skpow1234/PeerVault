@@ -113,7 +113,10 @@ func (ad *AnalyticsDashboard) DashboardHandler(w http.ResponseWriter, r *http.Re
 
 	dashboardHTML := ad.generateDashboardHTML()
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(dashboardHTML))
+	if _, err := w.Write([]byte(dashboardHTML)); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // MetricsHandler returns comprehensive metrics
@@ -130,7 +133,10 @@ func (ad *AnalyticsDashboard) MetricsHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(metrics)
+	if err := json.NewEncoder(w).Encode(metrics); err != nil {
+		http.Error(w, "Failed to encode metrics", http.StatusInternalServerError)
+		return
+	}
 }
 
 // QueriesHandler returns query analytics data
@@ -175,7 +181,10 @@ func (ad *AnalyticsDashboard) QueriesHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // PerformanceHandler returns performance analytics data
@@ -187,7 +196,10 @@ func (ad *AnalyticsDashboard) PerformanceHandler(w http.ResponseWriter, r *http.
 
 	performance := ad.performanceMonitor.GetPerformanceReport()
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(performance)
+	if err := json.NewEncoder(w).Encode(performance); err != nil {
+		http.Error(w, "Failed to encode performance data", http.StatusInternalServerError)
+		return
+	}
 }
 
 // InsightsHandler returns insights and recommendations
@@ -246,7 +258,10 @@ func (ad *AnalyticsDashboard) ExportHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	w.Write(data)
+	if _, err := w.Write(data); err != nil {
+		http.Error(w, "Failed to write export data", http.StatusInternalServerError)
+		return
+	}
 }
 
 // WebSocketHandler handles WebSocket connections for real-time updates

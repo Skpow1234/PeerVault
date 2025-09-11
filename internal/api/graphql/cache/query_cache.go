@@ -126,7 +126,9 @@ func (qc *QueryCache) Get(ctx context.Context, query string, variables map[strin
 			return result, true
 		} else {
 			// Result expired, remove it
-			qc.storage.Delete(ctx, key)
+			if err := qc.storage.Delete(ctx, key); err != nil {
+				qc.logger.Warn("Failed to delete expired cache entry", "key", key, "error", err)
+			}
 			qc.metrics.Misses++
 			qc.logger.Debug("Cache miss (expired)", "key", key)
 			return nil, false

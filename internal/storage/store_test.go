@@ -81,6 +81,9 @@ func TestAtomicFileCreation(t *testing.T) {
 	s := newStore()
 	defer teardown(t, s)
 
+	// Clean up any existing test data first
+	s.Clear()
+
 	key := "atomic_test_file"
 	data := []byte("test data")
 

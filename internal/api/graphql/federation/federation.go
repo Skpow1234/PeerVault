@@ -189,7 +189,11 @@ func (fg *FederationGateway) checkServiceHealth(service *FederatedService) {
 		fg.updateServiceHealth(service, false)
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fg.logger.Warn("Failed to close response body", "error", err)
+		}
+	}()
 
 	isHealthy := resp.StatusCode >= 200 && resp.StatusCode < 300
 	fg.updateServiceHealth(service, isHealthy)
@@ -303,7 +307,11 @@ func (fg *FederationGateway) executeQueryOnService(ctx context.Context, service 
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fg.logger.Warn("Failed to close response body", "error", err)
+		}
+	}()
 
 	var result FederationResult
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {

@@ -210,7 +210,11 @@ func (ss *SchemaStitcher) RegisterSchema(schema *SchemaDefinition) error {
 
 	// Auto-stitch if enabled
 	if ss.shouldAutoStitch() {
-		go ss.StitchSchemas()
+		go func() {
+			if err := ss.StitchSchemas(); err != nil {
+				ss.logger.Error("Failed to auto-stitch schemas after registration", "error", err)
+			}
+		}()
 	}
 
 	return nil
@@ -232,7 +236,11 @@ func (ss *SchemaStitcher) UnregisterSchema(schemaID string) error {
 
 	// Auto-stitch if enabled
 	if ss.shouldAutoStitch() {
-		go ss.StitchSchemas()
+		go func() {
+			if err := ss.StitchSchemas(); err != nil {
+				ss.logger.Error("Failed to auto-stitch schemas after unregistration", "error", err)
+			}
+		}()
 	}
 
 	return nil
@@ -264,7 +272,11 @@ func (ss *SchemaStitcher) UpdateSchema(schema *SchemaDefinition) error {
 
 	// Auto-stitch if enabled
 	if ss.shouldAutoStitch() {
-		go ss.StitchSchemas()
+		go func() {
+			if err := ss.StitchSchemas(); err != nil {
+				ss.logger.Error("Failed to auto-stitch schemas after update", "error", err)
+			}
+		}()
 	}
 
 	return nil
