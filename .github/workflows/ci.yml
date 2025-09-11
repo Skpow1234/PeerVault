@@ -8,6 +8,7 @@ on:
 
 env:
   GO_VERSION: '1.24.4'
+  GOTOOLCHAIN: go1.24.4
 
 jobs:
   # Lint and format check
@@ -83,6 +84,9 @@ jobs:
           cache: true
 
       - name: Download dependencies
+        env:
+          GO_VERSION: ${{ matrix.go-version }}
+          GOTOOLCHAIN: go${{ matrix.go-version }}
         run: go mod download
 
       - name: Run unit tests

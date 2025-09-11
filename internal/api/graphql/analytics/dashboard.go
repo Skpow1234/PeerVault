@@ -216,7 +216,10 @@ func (ad *AnalyticsDashboard) InsightsHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(insights)
+	if err := json.NewEncoder(w).Encode(insights); err != nil {
+		http.Error(w, "Failed to encode insights", http.StatusInternalServerError)
+		return
+	}
 }
 
 // ExportHandler exports analytics data
@@ -269,9 +272,12 @@ func (ad *AnalyticsDashboard) WebSocketHandler(w http.ResponseWriter, r *http.Re
 	// This would implement WebSocket functionality for real-time updates
 	// For now, return a simple response
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
+	if err := json.NewEncoder(w).Encode(map[string]string{
 		"message": "WebSocket endpoint - implementation pending",
-	})
+	}); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // HealthHandler handles health check requests
@@ -284,7 +290,10 @@ func (ad *AnalyticsDashboard) HealthHandler(w http.ResponseWriter, r *http.Reque
 		"service":   "peervault-analytics-dashboard",
 	}
 
-	json.NewEncoder(w).Encode(health)
+	if err := json.NewEncoder(w).Encode(health); err != nil {
+		http.Error(w, "Failed to encode health status", http.StatusInternalServerError)
+		return
+	}
 }
 
 // generateDashboardHTML generates the HTML for the analytics dashboard

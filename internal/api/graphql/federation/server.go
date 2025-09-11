@@ -110,7 +110,10 @@ func (fs *FederationServer) GraphQLHandler(w http.ResponseWriter, r *http.Reques
 			}},
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
@@ -183,7 +186,10 @@ func (fs *FederationServer) registerService(w http.ResponseWriter, r *http.Reque
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(service)
+	if err := json.NewEncoder(w).Encode(service); err != nil {
+		http.Error(w, "Failed to encode service", http.StatusInternalServerError)
+		return
+	}
 }
 
 // getService gets a specific service
@@ -195,7 +201,10 @@ func (fs *FederationServer) getService(w http.ResponseWriter, _ *http.Request, s
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(service)
+	if err := json.NewEncoder(w).Encode(service); err != nil {
+		http.Error(w, "Failed to encode service", http.StatusInternalServerError)
+		return
+	}
 }
 
 // unregisterService unregisters a service
@@ -222,7 +231,10 @@ func (fs *FederationServer) SchemaHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
-	w.Write([]byte(schema))
+	if _, err := w.Write([]byte(schema)); err != nil {
+		http.Error(w, "Failed to write schema response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // HealthHandler handles health check requests
