@@ -118,7 +118,7 @@ jobs:
 
       - name: Create issue for critical vulnerabilities
         if: failure()
-        uses: actions/github-script@v6
+        uses: actions/github-script@v8
         with:
           script: |
             const title = `🚨 Security Analysis Detected Issues - ${new Date().toISOString().split('T')[0]}`;
@@ -194,7 +194,7 @@ jobs:
           fi
 
       - name: Monitor Dependabot alerts
-        uses: actions/github-script@v6
+        uses: actions/github-script@v8
         with:
           script: |
             // Check for open Dependabot alerts
