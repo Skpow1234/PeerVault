@@ -14,7 +14,7 @@ With the completion of **Milestone 8 — Security Hardening and Compliance (P7)*
 
 **Features**:
 
-- 🔒 **Vulnerability Scanning**: govulncheck, gosec, semgrep, detect-secrets
+- 🔒 **Vulnerability Scanning**: govulncheck, semgrep, detect-secrets
 - 🔒 **Compliance Checking**: SOC 2, GDPR, ISO 27001 assessments
 - 🔒 **Security Policy Validation**: YAML syntax and content validation
 - 🔒 **Container Security**: Trivy vulnerability scanning
@@ -115,8 +115,7 @@ The final status check now includes:
 ### External Security Tools
 
 - **govulncheck**: Go vulnerability database scanning
-- **gosec**: Static analysis security scanner
-- **semgrep**: Multi-language security scanner
+- **semgrep**: Static analysis security scanner
 - **detect-secrets**: Secrets and credentials detection
 - **Trivy**: Container vulnerability scanning
 

@@ -30,7 +30,7 @@ PeerVault MVP focuses on core P2P file storage with a single, well-implemented A
 - **AES-GCM encryption** with secure nonce management
 - **HMAC-SHA256 authentication** for peer connections
 - **Key derivation** from cluster key with rotation support
-- **Basic vulnerability scanning** with govulncheck and gosec
+- **Basic vulnerability scanning** with govulncheck and semgrep
 
 ### ✅ Basic Observability (MVP)
 
@@ -270,7 +270,7 @@ If no auth token is provided, a default demo token is used (suitable for develop
 - **AES-GCM Encryption**: Authenticated encryption with secure nonce management
 - **HMAC-SHA256 Authentication**: Peer connection authentication with timestamp validation
 - **Key Derivation**: HMAC-SHA256 based key derivation from cluster key
-- **Basic Vulnerability Scanning**: govulncheck and gosec integration
+- **Basic Vulnerability Scanning**: govulncheck and semgrep integration
 - **Secure Nonce Management**: Cryptographically secure random nonces, never reused
 
 #### 🚧 **Planned (Post-MVP)**
@@ -363,8 +363,7 @@ This project includes fixes for the following security vulnerabilities:
 The CI pipeline includes automated security scanning:
 
 - **govulncheck** - Scans for known vulnerabilities in dependencies
-- **gosec** - Static analysis for security issues
-- **semgrep** - Multi-language security scanner
+- **semgrep** - Static analysis for security issues
 - **detect-secrets** - Secrets and credentials detection
 - **Trivy** - Container vulnerability scanning
 - **Dependabot** - Automated dependency updates with security patches
@@ -1268,7 +1267,7 @@ golangci-lint run --config config/.golangci.yml
 golangci-lint run
 
 # Run specific linters
-golangci-lint run --disable-all --enable=errcheck,gosec,gofmt
+golangci-lint run --disable-all --enable=errcheck,gofmt
 
 # Fix formatting issues
 go fmt ./...
@@ -1298,7 +1297,7 @@ The CI pipeline automatically runs these checks on every push and pull request:
 
 - **Unit Tests**: `go test -v -race ./tests/unit/...` and `go test -v -race ./internal/...`
 - **Fuzz Tests**: `go test -fuzz=Fuzz -fuzztime=30s ./tests/fuzz/...`
-- **Security Scanning**: `gosec` and `govulncheck`
+- **Security Scanning**: `semgrep` and `govulncheck`
 - **Build Tests**: Cross-platform binary builds
 - **Docker Tests**: Container builds and validation
 

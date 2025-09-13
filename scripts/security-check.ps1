@@ -56,9 +56,23 @@ function Install-GoTools {
         go install golang.org/x/vuln/cmd/govulncheck@latest
     }
     
-    if (-not (Test-Command "gosec")) {
-        Write-Status "Installing gosec..."
-        go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+    if (-not (Test-Command "semgrep")) {
+        Write-Status "Installing semgrep..."
+        try {
+            python -m pip install semgrep
+            Write-Success "semgrep installed successfully"
+        }
+        catch {
+            Write-Warning "Failed to install semgrep with pip, trying alternative method..."
+            try {
+                Invoke-WebRequest -Uri "https://github.com/semgrep/semgrep/releases/latest/download/semgrep-windows64.exe" -OutFile "$env:TEMP\semgrep.exe"
+                Move-Item "$env:TEMP\semgrep.exe" "C:\Windows\System32\semgrep.exe"
+                Write-Success "semgrep installed successfully via direct download"
+            }
+            catch {
+                Write-Error "Unable to install semgrep. Please install it manually: pip install semgrep"
+            }
+        }
     }
     
     Write-Success "Go security tools installed"
@@ -83,14 +97,14 @@ function Invoke-VulnerabilityScan {
         Write-Warning "Vulnerabilities found by govulncheck (check security-reports/govulncheck-report.txt)"
     }
     
-    # Run gosec
-    Write-Status "Running gosec..."
+    # Run semgrep
+    Write-Status "Running semgrep security scan..."
     try {
-        gosec -fmt json -out security-reports/gosec-report.json ./...
-        Write-Success "No security issues found by gosec"
+        semgrep --config auto --json -o security-reports/semgrep-report.json ./... 2>$null
+        Write-Success "No security issues found by semgrep"
     }
     catch {
-        Write-Warning "Security issues found by gosec (check security-reports/gosec-report.json)"
+        Write-Warning "Security issues found by semgrep (check security-reports/semgrep-report.json)"
     }
 }
 

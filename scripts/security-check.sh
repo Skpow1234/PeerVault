@@ -43,9 +43,16 @@ install_go_tools() {
         go install golang.org/x/vuln/cmd/govulncheck@latest
     fi
     
-    if ! command_exists gosec; then
-        print_status "Installing gosec..."
-        go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+    if ! command_exists semgrep; then
+        print_status "Installing semgrep..."
+        python3 -m pip install semgrep || {
+            print_warning "Failed to install semgrep with pip, trying alternative method..."
+            if command -v curl >/dev/null 2>&1; then
+                curl -L https://github.com/semgrep/semgrep/releases/latest/download/semgrep-linux64 -o /usr/local/bin/semgrep && chmod +x /usr/local/bin/semgrep
+            else
+                print_error "Unable to install semgrep. Please install it manually: pip install semgrep"
+            fi
+        }
     fi
     
     print_success "Go security tools installed"
@@ -66,12 +73,12 @@ run_vulnerability_scan() {
         print_warning "Vulnerabilities found by govulncheck (check security-reports/govulncheck-report.txt)"
     fi
     
-    # Run gosec
-    print_status "Running gosec..."
-    if gosec -fmt json -out security-reports/gosec-report.json ./...; then
-        print_success "No security issues found by gosec"
+    # Run semgrep
+    print_status "Running semgrep security scan..."
+    if semgrep --config auto --json -o security-reports/semgrep-report.json ./... 2>/dev/null; then
+        print_success "No security issues found by semgrep"
     else
-        print_warning "Security issues found by gosec (check security-reports/gosec-report.json)"
+        print_warning "Security issues found by semgrep (check security-reports/semgrep-report.json)"
     fi
 }
 

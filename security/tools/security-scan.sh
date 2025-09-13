@@ -43,22 +43,15 @@ command_exists() {
 # 1. Static Code Analysis
 print_section "Static Code Analysis"
 
-if command_exists gosec; then
-    echo -e "${GREEN}✓ Running gosec security scanner${NC}"
-    gosec -fmt json -out "$OUTPUT_DIR/gosec_$TIMESTAMP.json" "$SCAN_DIR" || true
-    gosec -fmt sarif -out "$OUTPUT_DIR/gosec_$TIMESTAMP.sarif" "$SCAN_DIR" || true
-else
-    echo -e "${YELLOW}⚠ gosec not found, skipping Go security scan${NC}"
-    echo "Install with: go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest"
-fi
-
 if command_exists semgrep; then
     echo -e "${GREEN}✓ Running semgrep security scanner${NC}"
-    semgrep --config=auto --json --output="$OUTPUT_DIR/semgrep_$TIMESTAMP.json" "$SCAN_DIR" || true
+    semgrep --config auto --json -o "$OUTPUT_DIR/semgrep_$TIMESTAMP.json" "$SCAN_DIR" || true
+    semgrep --config auto --sarif -o "$OUTPUT_DIR/semgrep_$TIMESTAMP.sarif" "$SCAN_DIR" || true
 else
-    echo -e "${YELLOW}⚠ semgrep not found, skipping semantic security scan${NC}"
+    echo -e "${YELLOW}⚠ semgrep not found, skipping static security scan${NC}"
     echo "Install with: pip install semgrep"
 fi
+
 
 # 2. Dependency Scanning
 print_section "Dependency Scanning"
@@ -143,7 +136,6 @@ cat > "$SUMMARY_FILE" << EOF
 ## Scan Results
 
 ### Static Code Analysis
-- **gosec:** $([ -f "$OUTPUT_DIR/gosec_$TIMESTAMP.json" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
 - **semgrep:** $([ -f "$OUTPUT_DIR/semgrep_$TIMESTAMP.json" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
 
 ### Dependency Scanning
@@ -190,7 +182,6 @@ If any tools were missing, install them using:
 
 \`\`\`bash
 # Go security tools
-go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
 go install golang.org/x/vuln/cmd/govulncheck@latest
 go install github.com/google/go-licenses@latest
 

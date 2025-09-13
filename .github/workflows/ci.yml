@@ -244,65 +244,110 @@ jobs:
 
       - name: Run basic security checks
         run: |
-          # Install basic security tools
+          # Install reliable security tools
+          echo "Installing Go security tools..."
+
+          # Install govulncheck (official Go vulnerability scanner)
           echo "Installing Go vulnerability checker..."
           go install golang.org/x/vuln/cmd/govulncheck@latest
 
-          # Try to install gosec with multiple fallback methods
-          echo "Installing gosec security scanner..."
-          GOSSEC_INSTALLED=false
+          # Install staticcheck for additional static analysis
+          echo "Installing staticcheck..."
+          go install honnef.co/go/tools/cmd/staticcheck@latest
 
-          # Method 1: Try the official installation script
-          if curl -sfL https://raw.githubusercontent.com/securecodewarrior/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.20.0 2>/dev/null; then
-            echo "✅ gosec installed successfully using install script"
-            GOSSEC_INSTALLED=true
+          # Install ineffassign for detecting ineffective assignments
+          echo "Installing ineffassign..."
+          go install github.com/gordonklaus/ineffassign@latest
+
+          # Install semgrep for static security analysis
+          echo "Installing semgrep..."
+          python3 -m pip install --user semgrep || {
+            echo "⚠️  Semgrep installation failed, but continuing with other tools"
+          }
+
+          # Install trivy for container vulnerability scanning
+          echo "Installing Trivy vulnerability scanner..."
+          if curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin; then
+            echo "✅ Trivy installed successfully"
           else
-            echo "⚠️  Official install script failed, trying direct download..."
-
-            # Method 2: Direct download from GitHub releases
-            if curl -L https://github.com/securecodewarrior/gosec/releases/download/v2.20.0/gosec_2.20.0_linux_amd64.tar.gz -o gosec.tar.gz 2>/dev/null; then
-              tar -xzf gosec.tar.gz 2>/dev/null
-              chmod +x gosec
-              sudo mv gosec /usr/local/bin/ 2>/dev/null || mv gosec $(go env GOPATH)/bin/ 2>/dev/null
-              rm -f gosec.tar.gz
-              if command -v gosec >/dev/null 2>&1; then
-                echo "✅ gosec installed successfully via direct download"
-                GOSSEC_INSTALLED=true
-              else
-                echo "⚠️  Direct download installation failed"
-              fi
-            else
-              echo "⚠️  Direct download failed, gosec will be skipped"
-            fi
+            echo "⚠️  Trivy installation failed, skipping container scanning"
           fi
 
-          # Run vulnerability check
+          # Run Go vulnerability check
           echo "Running Go vulnerability check..."
           govulncheck ./... || {
             echo "Vulnerabilities found (checking severity)"
             exit 0  # Non-blocking for basic scan
           }
 
-          # Run gosec scan if available
-          if [ "$GOSSEC_INSTALLED" = true ] && command -v gosec >/dev/null 2>&1; then
-            echo "Running gosec security scan..."
-            gosec ./... || {
-              echo "Security issues found by gosec (non-blocking)"
-              exit 0  # Non-blocking for basic scan
+          # Run staticcheck for additional security and code quality checks
+          echo "Running staticcheck security analysis..."
+          staticcheck ./... || {
+            echo "Staticcheck found issues (non-blocking)"
+            exit 0
+          }
+
+          # Run semgrep for static security analysis
+          echo "Running semgrep security analysis..."
+          if command -v semgrep >/dev/null 2>&1; then
+            semgrep --config auto --json -o semgrep-report.json ./... || {
+              echo "Semgrep found security issues (non-blocking)"
+              exit 0
             }
           else
-            echo "⚠️  gosec not available, skipping gosec scan"
-            echo "   Alternative: Consider using GitHub CodeQL for security scanning"
-            echo "   This is non-critical - the build will continue"
+            echo "⚠️  Semgrep not available, skipping static security analysis"
           fi
-          
+
+          # Run ineffassign to detect ineffective assignments
+          echo "Running ineffassign check..."
+          ineffassign ./... || {
+            echo "Ineffective assignments found (non-blocking)"
+            exit 0
+          }
+
+          # Run Trivy scan on dependencies if available
+          if command -v trivy >/dev/null 2>&1; then
+            echo "Running Trivy dependency vulnerability scan..."
+            trivy fs --scanners vuln --format table . || {
+              echo "Trivy found vulnerabilities (non-blocking)"
+              exit 0
+            }
+          else
+            echo "⚠️  Trivy not available, skipping container scanning"
+          fi
+
           # Test security modules compilation
           echo "Testing security modules compilation..."
           go build ./internal/auth/... ./internal/audit/... ./internal/privacy/... ./internal/pki/... || {
             echo "Security modules compilation failed"
             exit 1
           }
-          
+
+          # Basic security checks on source code
+          echo "Running basic security checks..."
+
+          # Check for hardcoded secrets (basic pattern matching)
+          if grep -r --include="*.go" --include="*.yaml" --include="*.yml" -i "password\|secret\|token\|key.*=.*["'][^"']*["']" . --exclude-dir=.git --exclude-dir=vendor; then
+            echo "⚠️  Found potential hardcoded secrets (review above matches)"
+            echo "   This is a basic check - consider using dedicated secret scanning tools"
+          else
+            echo "✅ No obvious hardcoded secrets found"
+          fi
+
+          # Check for unsafe pointer usage
+          if grep -r --include="*.go" "unsafe\." . --exclude-dir=.git --exclude-dir=vendor; then
+            echo "⚠️  Found unsafe pointer usage (review for security implications)"
+          else
+            echo "✅ No unsafe pointer usage found"
+          fi
+
+          # Check for SQL injection patterns (basic)
+          if grep -r --include="*.go" -i "exec.*select\|query.*insert\|query.*update\|query.*delete" . --exclude-dir=.git --exclude-dir=vendor; then
+            echo "⚠️  Found potential SQL operations (review for injection vulnerabilities)"
+          else
+            echo "✅ No obvious SQL operations found"
+          fi
+
           echo "Basic security scan completed"
 
   # Build and test binaries
@@ -557,7 +602,7 @@ jobs:
           echo "- Configuration validation integrated into build process"
           echo ""
           echo "Security Features (Milestone 8):"
-          echo "- ✅ Security vulnerability scanning (gosec, govulncheck)"
+          echo "- ✅ Security vulnerability scanning (govulncheck, staticcheck, semgrep, Trivy)"
           echo "- ✅ RBAC and access control system"
           echo "- ✅ Audit logging and monitoring"
           echo "- ✅ Data privacy and protection"
@@ -565,6 +610,13 @@ jobs:
           echo "- ✅ Compliance checking (SOC 2, GDPR, ISO 27001)"
           echo "- ✅ Security policies and documentation"
           echo "- ✅ Custom security tools and scripts"
+          echo ""
+          echo "Security Scanning Tools:"
+          echo "- govulncheck: Official Go vulnerability scanner"
+          echo "- staticcheck: Advanced static analysis for security issues"
+          echo "- semgrep: Static analysis security scanner"
+          echo "- Trivy: Container and filesystem vulnerability scanner"
+          echo "- ineffassign: Detects ineffective variable assignments"
           echo ""
           echo "Note: Comprehensive security scanning is available in the separate security pipeline"
           echo "Run the security pipeline for detailed vulnerability and compliance reports"
