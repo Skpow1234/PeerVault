@@ -145,8 +145,10 @@ func TestLoadFromEnvironment(t *testing.T) {
 
 	// Set environment variables
 	for key, value := range envVars {
-		os.Setenv(key, value)
-		defer os.Unsetenv(key)
+		assert.NoError(t, os.Setenv(key, value))
+		defer func(k string) {
+			assert.NoError(t, os.Unsetenv(k))
+		}(key)
 	}
 
 	manager := NewManager("")
@@ -182,11 +184,11 @@ storage:
 	require.NoError(t, err)
 
 	// Set environment variable to override file
-	os.Setenv("PEERVAULT_LISTEN_ADDR", ":7000")
-	os.Setenv("PEERVAULT_STORAGE_ROOT", "/env/storage")
+	assert.NoError(t, os.Setenv("PEERVAULT_LISTEN_ADDR", ":7000"))
+	assert.NoError(t, os.Setenv("PEERVAULT_STORAGE_ROOT", "/env/storage"))
 	defer func() {
-		os.Unsetenv("PEERVAULT_LISTEN_ADDR")
-		os.Unsetenv("PEERVAULT_STORAGE_ROOT")
+		assert.NoError(t, os.Unsetenv("PEERVAULT_LISTEN_ADDR"))
+		assert.NoError(t, os.Unsetenv("PEERVAULT_STORAGE_ROOT"))
 	}()
 
 	manager := NewManager(configPath)

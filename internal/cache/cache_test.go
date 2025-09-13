@@ -46,12 +46,14 @@ func TestNewMemoryCache(t *testing.T) {
 	assert.Equal(t, 100, cache.maxSize)
 
 	// Cleanup
-	cache.Close()
+	assert.NoError(t, cache.Close())
 }
 
 func TestMemoryCache_SetGet(t *testing.T) {
 	cache := NewMemoryCache[string](100)
-	defer cache.Close()
+	defer func() {
+		assert.NoError(t, cache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -74,7 +76,9 @@ func TestMemoryCache_SetGet(t *testing.T) {
 
 func TestMemoryCache_Get_NonExistent(t *testing.T) {
 	cache := NewMemoryCache[string](100)
-	defer cache.Close()
+	defer func() {
+		assert.NoError(t, cache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -91,7 +95,9 @@ func TestMemoryCache_Get_NonExistent(t *testing.T) {
 
 func TestMemoryCache_Get_Expired(t *testing.T) {
 	cache := NewMemoryCache[string](100)
-	defer cache.Close()
+	defer func() {
+		assert.NoError(t, cache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -116,7 +122,9 @@ func TestMemoryCache_Get_Expired(t *testing.T) {
 
 func TestMemoryCache_Delete(t *testing.T) {
 	cache := NewMemoryCache[string](100)
-	defer cache.Close()
+	defer func() {
+		assert.NoError(t, cache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -139,7 +147,9 @@ func TestMemoryCache_Delete(t *testing.T) {
 
 func TestMemoryCache_Clear(t *testing.T) {
 	cache := NewMemoryCache[string](100)
-	defer cache.Close()
+	defer func() {
+		assert.NoError(t, cache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -170,7 +180,9 @@ func TestMemoryCache_Clear(t *testing.T) {
 
 func TestMemoryCache_Keys(t *testing.T) {
 	cache := NewMemoryCache[string](100)
-	defer cache.Close()
+	defer func() {
+		assert.NoError(t, cache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -190,7 +202,9 @@ func TestMemoryCache_Keys(t *testing.T) {
 
 func TestMemoryCache_LRUEviction(t *testing.T) {
 	cache := NewMemoryCache[string](2) // Very small cache
-	defer cache.Close()
+	defer func() {
+		assert.NoError(t, cache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -241,7 +255,9 @@ func TestMemoryCache_LRUEviction(t *testing.T) {
 
 func TestMemoryCache_Stats(t *testing.T) {
 	cache := NewMemoryCache[string](100)
-	defer cache.Close()
+	defer func() {
+		assert.NoError(t, cache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -272,7 +288,9 @@ func TestMemoryCache_Stats(t *testing.T) {
 
 func TestMemoryCache_CleanupExpired(t *testing.T) {
 	cache := NewMemoryCache[string](100)
-	defer cache.Close()
+	defer func() {
+		assert.NoError(t, cache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -307,7 +325,9 @@ func TestMemoryCache_CleanupExpired(t *testing.T) {
 func TestMemoryCache_WithGenericTypes(t *testing.T) {
 	// Test with different types
 	intCache := NewMemoryCache[int](10)
-	defer intCache.Close()
+	defer func() {
+		assert.NoError(t, intCache.Close())
+	}()
 
 	ctx := context.Background()
 
@@ -325,7 +345,9 @@ func TestMemoryCache_WithGenericTypes(t *testing.T) {
 	}
 
 	structCache := NewMemoryCache[TestStruct](10)
-	defer structCache.Close()
+	defer func() {
+		assert.NoError(t, structCache.Close())
+	}()
 
 	testStruct := TestStruct{Name: "test", Value: 123}
 	err = structCache.Set(ctx, "struct_key", testStruct, 1*time.Hour)

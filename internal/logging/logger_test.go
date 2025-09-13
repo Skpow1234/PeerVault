@@ -25,7 +25,7 @@ func TestConfigureLogger_Debug(t *testing.T) {
 	logger.Debug("test debug message", "key", "value")
 
 	// Restore stdout
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	// Read the output
@@ -54,7 +54,7 @@ func TestConfigureLogger_Info(t *testing.T) {
 	logger := Logger("test")
 	logger.Info("test info message")
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -77,7 +77,7 @@ func TestConfigureLogger_Warn(t *testing.T) {
 	logger := Logger("test")
 	logger.Warn("test warn message")
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -100,7 +100,7 @@ func TestConfigureLogger_Error(t *testing.T) {
 	logger := Logger("test")
 	logger.Error("test error message")
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -123,7 +123,7 @@ func TestConfigureLogger_DefaultLevel(t *testing.T) {
 	logger := Logger("test")
 	logger.Info("test message") // Should work with default level (info)
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -145,7 +145,7 @@ func TestLogger(t *testing.T) {
 
 	logger.Info("test message")
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -167,7 +167,7 @@ func TestWithError(t *testing.T) {
 
 	logger.Error("test error")
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -189,7 +189,7 @@ func TestWithPeer(t *testing.T) {
 
 	logger.Info("test message")
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -211,7 +211,7 @@ func TestWithKey(t *testing.T) {
 
 	logger.Info("test message")
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -233,7 +233,7 @@ func TestWithBytes(t *testing.T) {
 
 	logger.Info("test message")
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -255,7 +255,7 @@ func TestJSONOutputFormat(t *testing.T) {
 	logger := Logger("test")
 	logger.Info("test message", "key1", "value1", "key2", 42)
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)
@@ -291,7 +291,7 @@ func TestLogLevelFiltering(t *testing.T) {
 	logger.Warn("warn message")   // Should appear
 	logger.Error("error message") // Should appear
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	os.Stdout = oldStdout
 
 	buf := make([]byte, 1024)

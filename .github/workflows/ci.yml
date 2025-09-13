@@ -245,22 +245,56 @@ jobs:
       - name: Run basic security checks
         run: |
           # Install basic security tools
+          echo "Installing Go vulnerability checker..."
           go install golang.org/x/vuln/cmd/govulncheck@latest
-          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
-          
+
+          # Try to install gosec with multiple fallback methods
+          echo "Installing gosec security scanner..."
+          GOSSEC_INSTALLED=false
+
+          # Method 1: Try the official installation script
+          if curl -sfL https://raw.githubusercontent.com/securecodewarrior/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.20.0 2>/dev/null; then
+            echo "✅ gosec installed successfully using install script"
+            GOSSEC_INSTALLED=true
+          else
+            echo "⚠️  Official install script failed, trying direct download..."
+
+            # Method 2: Direct download from GitHub releases
+            if curl -L https://github.com/securecodewarrior/gosec/releases/download/v2.20.0/gosec_2.20.0_linux_amd64.tar.gz -o gosec.tar.gz 2>/dev/null; then
+              tar -xzf gosec.tar.gz 2>/dev/null
+              chmod +x gosec
+              sudo mv gosec /usr/local/bin/ 2>/dev/null || mv gosec $(go env GOPATH)/bin/ 2>/dev/null
+              rm -f gosec.tar.gz
+              if command -v gosec >/dev/null 2>&1; then
+                echo "✅ gosec installed successfully via direct download"
+                GOSSEC_INSTALLED=true
+              else
+                echo "⚠️  Direct download installation failed"
+              fi
+            else
+              echo "⚠️  Direct download failed, gosec will be skipped"
+            fi
+          fi
+
           # Run vulnerability check
           echo "Running Go vulnerability check..."
           govulncheck ./... || {
             echo "Vulnerabilities found (checking severity)"
             exit 0  # Non-blocking for basic scan
           }
-          
-          # Run basic gosec scan
-          echo "Running basic gosec scan..."
-          gosec ./... || {
-            echo "Security issues found by gosec (non-blocking)"
-            exit 0  # Non-blocking for basic scan
-          }
+
+          # Run gosec scan if available
+          if [ "$GOSSEC_INSTALLED" = true ] && command -v gosec >/dev/null 2>&1; then
+            echo "Running gosec security scan..."
+            gosec ./... || {
+              echo "Security issues found by gosec (non-blocking)"
+              exit 0  # Non-blocking for basic scan
+            }
+          else
+            echo "⚠️  gosec not available, skipping gosec scan"
+            echo "   Alternative: Consider using GitHub CodeQL for security scanning"
+            echo "   This is non-critical - the build will continue"
+          fi
           
           # Test security modules compilation
           echo "Testing security modules compilation..."
