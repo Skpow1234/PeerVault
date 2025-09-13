@@ -179,7 +179,7 @@ func (cs *ClientState) isAllowedLeakyBucket(config *RateLimitConfig, now time.Ti
 	cs.WaterLevel = math.Max(0, cs.WaterLevel-leaked)
 	cs.LastLeak = now
 
-	return cs.WaterLevel < float64(config.BurstSize)
+	return cs.WaterLevel+1.0 <= float64(config.BurstSize)
 }
 
 func (cs *ClientState) updateLeakyBucket(_ *RateLimitConfig, _ time.Time, allowed bool) {

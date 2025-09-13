@@ -24,8 +24,8 @@ func TestNewKeyManager(t *testing.T) {
 func TestNewKeyManager_WithEnvVar(t *testing.T) {
 	// Set a known cluster key
 	testKey := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-	os.Setenv("PEERVAULT_CLUSTER_KEY", testKey)
-	defer os.Unsetenv("PEERVAULT_CLUSTER_KEY")
+	require.NoError(t, os.Setenv("PEERVAULT_CLUSTER_KEY", testKey))
+	defer require.NoError(t, os.Unsetenv("PEERVAULT_CLUSTER_KEY"))
 
 	km, err := NewKeyManager()
 	require.NoError(t, err)

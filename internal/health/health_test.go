@@ -349,7 +349,10 @@ func TestHealthChecker_ConcurrentAccess(t *testing.T) {
 	// Concurrent check operations
 	go func() {
 		for i := 0; i < 10; i++ {
-			hc.Check(ctx, "concurrent-check")
+			_, err := hc.Check(ctx, "concurrent-check")
+			if err != nil {
+				t.Errorf("Concurrent check failed: %v", err)
+			}
 		}
 		done <- true
 	}()
