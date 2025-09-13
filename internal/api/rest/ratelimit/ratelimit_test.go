@@ -182,7 +182,9 @@ func TestMiddleware(t *testing.T) {
 	middleware := rl.Middleware()
 	handler := middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		if _, err := w.Write([]byte("OK")); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
 	}))
 
 	// First request should succeed

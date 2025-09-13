@@ -303,7 +303,11 @@ func (wm *WebhookManager) attemptDelivery(deliveryID, webhookID string, webhook 
 			Duration:  duration,
 		}
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			wm.logger.Warn("Failed to close response body", "error", err)
+		}
+	}()
 
 	responseBody := ""
 	if resp.Body != nil {

@@ -27,7 +27,9 @@ func TestGatewayBasicRouting(t *testing.T) {
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{"message": "hello from upstream"})
+		if err := json.NewEncoder(w).Encode(map[string]string{"message": "hello from upstream"}); err != nil {
+			t.Errorf("Failed to encode JSON response: %v", err)
+		}
 	}))
 	defer upstream.Close()
 
@@ -81,7 +83,9 @@ func TestGatewayBasicRouting(t *testing.T) {
 func TestGatewayURLRewriting(t *testing.T) {
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(r.URL.Path))
+		if _, err := w.Write([]byte(r.URL.Path)); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
 	}))
 	defer upstream.Close()
 
@@ -127,7 +131,10 @@ func TestGatewayRequestTransformation(t *testing.T) {
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
 		var data map[string]interface{}
-		json.Unmarshal(body, &data)
+		if err := json.Unmarshal(body, &data); err != nil {
+			t.Errorf("Failed to unmarshal JSON: %v", err)
+			return
+		}
 
 		// Check if transformed field exists
 		if _, exists := data["gateway_processed"]; !exists {
@@ -136,7 +143,9 @@ func TestGatewayRequestTransformation(t *testing.T) {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(data)
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			t.Errorf("Failed to encode JSON response: %v", err)
+		}
 	}))
 	defer upstream.Close()
 
@@ -188,7 +197,9 @@ func TestGatewayResponseTransformation(t *testing.T) {
 			"original_field": "value",
 			"unwanted_field": "remove_me",
 		}
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("Failed to encode JSON response: %v", err)
+		}
 	}))
 	defer upstream.Close()
 
@@ -325,7 +336,11 @@ func TestGatewayRateLimiting(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create gateway: %v", err)
 	}
-	defer gw.Stop(context.Background())
+	defer func() {
+		if err := gw.Stop(context.Background()); err != nil {
+			t.Errorf("Failed to stop gateway: %v", err)
+		}
+	}()
 
 	route := gw.routes["/api/"]
 	handler := gw.createRouteHandler(route)

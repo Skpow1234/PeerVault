@@ -253,7 +253,11 @@ func (gw *Gateway) createRouteHandler(route *Route) http.HandlerFunc {
 			http.Error(w, "Service unavailable", http.StatusServiceUnavailable)
 			return
 		}
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				gw.logger.Warn("Failed to close response body", "error", err)
+			}
+		}()
 
 		// Apply response transformation
 		if err := gw.applyResponseTransform(resp, route.Transform); err != nil {
@@ -283,7 +287,7 @@ func (gw *Gateway) rewriteURL(originalURL *url.URL, route *Route) *url.URL {
 	// Apply rewrite rules
 	path := originalURL.Path
 	for _, rule := range route.RewriteRules {
-		path = strings.Replace(path, rule.Pattern, rule.Replace, -1)
+		path = strings.ReplaceAll(path, rule.Pattern, rule.Replace)
 	}
 
 	// Strip prefix if configured
@@ -426,7 +430,9 @@ func (gw *Gateway) copyResponse(w http.ResponseWriter, resp *http.Response) {
 	w.WriteHeader(resp.StatusCode)
 
 	// Copy body
-	io.Copy(w, resp.Body)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		gw.logger.Error("Failed to copy response body", "error", err)
+	}
 }
 
 // loggingMiddleware logs requests

@@ -27,7 +27,11 @@ func TestWebhookManagerBasic(t *testing.T) {
 	}
 
 	wm := NewManager(config, createTestLogger())
-	defer wm.Stop(context.Background())
+	defer func() {
+		if err := wm.Stop(context.Background()); err != nil {
+			t.Errorf("Failed to stop webhook manager: %v", err)
+		}
+	}()
 
 	// Test registering a webhook
 	webhookConfig := &WebhookConfig{
@@ -82,7 +86,9 @@ func TestWebhookDelivery(t *testing.T) {
 
 		receivedEvents <- &event
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		if _, err := w.Write([]byte("OK")); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -94,7 +100,11 @@ func TestWebhookDelivery(t *testing.T) {
 	}
 
 	wm := NewManager(config, createTestLogger())
-	defer wm.Stop(context.Background())
+	defer func() {
+		if err := wm.Stop(context.Background()); err != nil {
+			t.Errorf("Failed to stop webhook manager: %v", err)
+		}
+	}()
 
 	// Register webhook
 	webhookConfig := &WebhookConfig{
@@ -180,7 +190,11 @@ func TestWebhookRetry(t *testing.T) {
 	}
 
 	wm := NewManager(config, createTestLogger())
-	defer wm.Stop(context.Background())
+	defer func() {
+		if err := wm.Stop(context.Background()); err != nil {
+			t.Errorf("Failed to stop webhook manager: %v", err)
+		}
+	}()
 
 	// Register webhook
 	webhookConfig := &WebhookConfig{
@@ -230,7 +244,11 @@ func TestWebhookSignature(t *testing.T) {
 	}
 
 	wm := NewManager(config, createTestLogger())
-	defer wm.Stop(context.Background())
+	defer func() {
+		if err := wm.Stop(context.Background()); err != nil {
+			t.Errorf("Failed to stop webhook manager: %v", err)
+		}
+	}()
 
 	// Register webhook with secret
 	webhookConfig := &WebhookConfig{
@@ -267,7 +285,10 @@ func TestWebhookEventFiltering(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
 		var event WebhookEvent
-		json.Unmarshal(body, &event)
+		if err := json.Unmarshal(body, &event); err != nil {
+			t.Errorf("Failed to unmarshal webhook event: %v", err)
+			return
+		}
 		eventsReceived <- event.Event
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -281,7 +302,11 @@ func TestWebhookEventFiltering(t *testing.T) {
 	}
 
 	wm := NewManager(config, createTestLogger())
-	defer wm.Stop(context.Background())
+	defer func() {
+		if err := wm.Stop(context.Background()); err != nil {
+			t.Errorf("Failed to stop webhook manager: %v", err)
+		}
+	}()
 
 	// Register webhook that only listens to file.uploaded events
 	webhookConfig := &WebhookConfig{
@@ -340,7 +365,11 @@ func TestWebhookStats(t *testing.T) {
 	}
 
 	wm := NewManager(config, createTestLogger())
-	defer wm.Stop(context.Background())
+	defer func() {
+		if err := wm.Stop(context.Background()); err != nil {
+			t.Errorf("Failed to stop webhook manager: %v", err)
+		}
+	}()
 
 	// Register a webhook
 	webhookConfig := &WebhookConfig{

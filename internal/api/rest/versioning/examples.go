@@ -33,7 +33,10 @@ func (vf *VersionedFeature) HandleWebhookFeature(w http.ResponseWriter, r *http.
 	// Handle webhook-specific logic for v1.1.0+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"message": "Webhook processed with API version %s"}`, version.String())
+	if _, err := fmt.Fprintf(w, `{"message": "Webhook processed with API version %s"}`, version.String()); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // HandleLegacyFeature demonstrates backward compatibility
@@ -85,12 +88,15 @@ func (vf *VersionedFeature) HandleLegacyFeature(w http.ResponseWriter, r *http.R
 	// Send JSON response (simplified for example)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{
+	if _, err := fmt.Fprintf(w, `{
 		"name": "%s",
 		"version": "%s",
 		"description": "%s",
 		"endpoints": %s
-	}`, response.Name, response.Version, response.Description, formatEndpoints(response.Endpoints))
+	}`, response.Name, response.Version, response.Description, formatEndpoints(response.Endpoints)); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // formatEndpoints is a helper to format the endpoints map as JSON
@@ -126,5 +132,8 @@ func (vf *VersionedFeature) VersionedRateLimit(w http.ResponseWriter, r *http.Re
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"rate_limit": %d, "version": "%s"}`, limit, version.String())
+	if _, err := fmt.Fprintf(w, `{"rate_limit": %d, "version": "%s"}`, limit, version.String()); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
