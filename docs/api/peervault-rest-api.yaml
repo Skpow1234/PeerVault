@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: PeerVault REST API
   description: |
@@ -36,8 +36,19 @@ info:
     - **Production**: `https://api.peervault.dev`
     
     ## API Versioning
-    All endpoints are versioned under `/api/v1/` for future compatibility.
-  version: 1.0.0
+    This API follows semantic versioning (SemVer) with URL-based versioning:
+
+    - **Current Version**: `v1.1.0` (OpenAPI 3.1 compliant with webhooks)
+    - **Base URL**: `/api/v1/` for backward compatibility
+    - **Version Headers**: Include `Accept-Version: v1.1.0` header for version-specific behavior
+    - **Deprecation Policy**: Features are deprecated with 6 months notice via response headers
+    - **Breaking Changes**: Introduced in new major versions (v2, v3, etc.)
+
+    ### Version Compatibility
+    - **v1.0.x**: Basic CRUD operations, legacy rate limiting
+    - **v1.1.x**: OpenAPI 3.1, enhanced schemas, webhooks, advanced rate limiting (current)
+    - **v2.0.x**: GraphQL federation, breaking API changes (planned)
+  version: 1.1.0
   contact:
     name: PeerVault Support
     url: https://github.com/Skpow1234/Peervault
@@ -525,6 +536,207 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+webhooks:
+  fileUploaded:
+    post:
+      summary: File upload notification
+      description: Webhook triggered when a new file is uploaded to the system
+      operationId: fileUploadedWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  enum: [file.uploaded]
+                  example: "file.uploaded"
+                timestamp:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T10:30:00Z"
+                data:
+                  type: object
+                  properties:
+                    file_key:
+                      type: string
+                      example: "file_1234567890"
+                    name:
+                      type: string
+                      example: "document.pdf"
+                    size:
+                      type: integer
+                      example: 1024
+                    content_type:
+                      type: string
+                      example: "application/pdf"
+                    hash:
+                      type: string
+                      example: "abc123def456..."
+                    peer_id:
+                      type: string
+                      example: "peer1"
+                    metadata:
+                      type: object
+                      additionalProperties:
+                        type: string
+                      example:
+                        owner: "user1"
+                        category: "documents"
+      responses:
+        '200':
+          description: Webhook acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "acknowledged"
+                  webhook_id:
+                    type: string
+                    example: "wh_1234567890"
+
+  fileDeleted:
+    post:
+      summary: File deletion notification
+      description: Webhook triggered when a file is deleted from the system
+      operationId: fileDeletedWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  enum: [file.deleted]
+                  example: "file.deleted"
+                timestamp:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T10:30:00Z"
+                data:
+                  type: object
+                  properties:
+                    file_key:
+                      type: string
+                      example: "file_1234567890"
+                    deleted_by:
+                      type: string
+                      example: "user1"
+                    peer_id:
+                      type: string
+                      example: "peer1"
+      responses:
+        '200':
+          description: Webhook acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "acknowledged"
+
+  peerJoined:
+    post:
+      summary: Peer join notification
+      description: Webhook triggered when a new peer joins the network
+      operationId: peerJoinedWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  enum: [peer.joined]
+                  example: "peer.joined"
+                timestamp:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T10:30:00Z"
+                data:
+                  type: object
+                  properties:
+                    peer_id:
+                      type: string
+                      example: "peer2"
+                    address:
+                      type: string
+                      example: "192.168.1.101"
+                    port:
+                      type: integer
+                      example: 8080
+                    metadata:
+                      type: object
+                      additionalProperties:
+                        type: string
+                      example:
+                        location: "datacenter2"
+                        version: "1.0.0"
+      responses:
+        '200':
+          description: Webhook acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "acknowledged"
+
+  peerLeft:
+    post:
+      summary: Peer leave notification
+      description: Webhook triggered when a peer leaves the network
+      operationId: peerLeftWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  enum: [peer.left]
+                  example: "peer.left"
+                timestamp:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T10:30:00Z"
+                data:
+                  type: object
+                  properties:
+                    peer_id:
+                      type: string
+                      example: "peer2"
+                    reason:
+                      type: string
+                      enum: [voluntary, timeout, error]
+                      example: "timeout"
+      responses:
+        '200':
+          description: Webhook acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "acknowledged"
+
 components:
   securitySchemes:
     BearerAuth:
@@ -535,27 +747,35 @@ components:
 
   schemas:
     FileResponse:
+      $schema: https://json-schema.org/draft/2020-12/schema
       type: object
       properties:
         key:
           type: string
           description: Unique file identifier
+          pattern: '^file_[a-f0-9]{10}$'
           example: "file_1234567890"
         name:
           type: string
           description: Original file name
+          minLength: 1
+          maxLength: 255
           example: "document.pdf"
         size:
           type: integer
           description: File size in bytes
+          minimum: 0
+          maximum: 1073741824  # 1GB limit
           example: 1024
         content_type:
           type: string
           description: MIME type of the file
+          pattern: '^[a-zA-Z][a-zA-Z0-9\-+.]*/[a-zA-Z0-9\-+.]+$'
           example: "application/pdf"
         hash:
           type: string
           description: SHA-256 hash of the file content
+          pattern: '^[a-f0-9]{64}$'
           example: "abc123def456..."
         created_at:
           type: string
@@ -569,17 +789,35 @@ components:
           example: "2024-01-15T10:30:00Z"
         metadata:
           type: object
-          additionalProperties:
-            type: string
           description: Custom metadata associated with the file
+          propertyNames:
+            pattern: '^[a-zA-Z_][a-zA-Z0-9_]*$'
+            minLength: 1
+            maxLength: 50
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: number
+              - type: boolean
+          maxProperties: 20
           example:
             owner: "user1"
             category: "documents"
+            tags: ["important", "work"]
         replicas:
           type: array
           items:
             $ref: '#/components/schemas/FileReplicaResponse'
           description: List of file replicas across peer nodes
+          maxItems: 10
+      required:
+        - key
+        - name
+        - size
+        - content_type
+        - hash
+        - created_at
+        - updated_at
 
     FileReplicaResponse:
       type: object

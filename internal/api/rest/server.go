@@ -8,12 +8,15 @@ import (
 
 	"github.com/Skpow1234/Peervault/internal/api/rest/endpoints"
 	"github.com/Skpow1234/Peervault/internal/api/rest/implementations"
+	"github.com/Skpow1234/Peervault/internal/api/rest/ratelimit"
+	"github.com/Skpow1234/Peervault/internal/api/rest/versioning"
 )
 
 type Server struct {
 	config          *Config
 	logger          *slog.Logger
 	httpServer      *http.Server
+	rateLimiter     *ratelimit.RateLimiter
 	FileEndpoints   *endpoints.FileEndpoints
 	PeerEndpoints   *endpoints.PeerEndpoints
 	SystemEndpoints *endpoints.SystemEndpoints
@@ -27,6 +30,8 @@ type Config struct {
 	AllowedOrigins  []string
 	RateLimitPerMin int
 	AuthToken       string
+	VersionConfig   *versioning.VersionConfig
+	RateLimitConfig *ratelimit.RateLimitConfig
 }
 
 func DefaultConfig() *Config {
@@ -38,6 +43,8 @@ func DefaultConfig() *Config {
 		AllowedOrigins:  []string{"*"},
 		RateLimitPerMin: 100,
 		AuthToken:       "demo-token",
+		VersionConfig:   versioning.NewVersionConfig(),
+		RateLimitConfig: ratelimit.DefaultConfig(),
 	}
 }
 
@@ -47,6 +54,9 @@ func NewServer(config *Config, logger *slog.Logger) *Server {
 	peerService := implementations.NewPeerService()
 	systemService := implementations.NewSystemService()
 
+	// Initialize rate limiter
+	rateLimiter := ratelimit.NewRateLimiter(config.RateLimitConfig)
+
 	// Initialize endpoints
 	fileEndpoints := endpoints.NewFileEndpoints(fileService, logger)
 	peerEndpoints := endpoints.NewPeerEndpoints(peerService, logger)
@@ -55,6 +65,7 @@ func NewServer(config *Config, logger *slog.Logger) *Server {
 	return &Server{
 		config:          config,
 		logger:          logger,
+		rateLimiter:     rateLimiter,
 		FileEndpoints:   fileEndpoints,
 		PeerEndpoints:   peerEndpoints,
 		SystemEndpoints: systemEndpoints,
@@ -65,7 +76,9 @@ func (s *Server) Start() error {
 	mux := http.NewServeMux()
 
 	// Apply middleware
-	handler := s.CORSMiddleware(s.rateLimitMiddleware(s.authMiddleware(s.loggingMiddleware(mux))))
+	versionMiddleware := versioning.VersionMiddleware(s.config.VersionConfig)
+	rateLimitMiddleware := s.rateLimiter.Middleware()
+	handler := s.CORSMiddleware(versionMiddleware(rateLimitMiddleware(s.authMiddleware(s.loggingMiddleware(mux)))))
 
 	// API routes
 	api := http.NewServeMux()
@@ -105,6 +118,11 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
+	// Stop rate limiter
+	if s.rateLimiter != nil {
+		s.rateLimiter.Stop()
+	}
+
 	if s.httpServer != nil {
 		return s.httpServer.Shutdown(ctx)
 	}
@@ -129,31 +147,6 @@ func (s *Server) CORSMiddleware(next http.Handler) http.Handler {
 
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (s *Server) rateLimitMiddleware(next http.Handler) http.Handler {
-	// Simple in-memory rate limiting
-	clients := make(map[string]int)
-	lastReset := time.Now()
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		clientIP := r.RemoteAddr
-		now := time.Now()
-
-		// Reset counters every minute
-		if now.Sub(lastReset) > time.Minute {
-			clients = make(map[string]int)
-			lastReset = now
-		}
-
-		clients[clientIP]++
-		if clients[clientIP] > s.config.RateLimitPerMin {
-			http.Error(w, "Rate limit exceeded", http.StatusTooManyRequests)
 			return
 		}
 
