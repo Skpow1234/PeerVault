@@ -77,7 +77,7 @@ func TestSlidingWindowAlgorithm(t *testing.T) {
 func TestLeakyBucketAlgorithm(t *testing.T) {
 	config := &RateLimitConfig{
 		Algorithm:       LeakyBucket,
-		RequestsPerMin:  10,
+		RequestsPerMin:  60, // 1 request per second for faster testing
 		BurstSize:       3,
 		CleanupInterval: 5 * time.Minute,
 		Enabled:         true,
@@ -96,13 +96,13 @@ func TestLeakyBucketAlgorithm(t *testing.T) {
 		}
 	}
 
-	// Should deny further requests
+	// Should deny further requests (burst limit exceeded)
 	if rl.IsAllowed(req, version) {
 		t.Error("Request should be denied after burst")
 	}
 
-	// Wait for leak
-	time.Sleep(200 * time.Millisecond)
+	// Wait for leak (at 60 requests/minute = 1 request/second, wait 1.1 seconds)
+	time.Sleep(1100 * time.Millisecond)
 
 	// Should allow requests after leak
 	if !rl.IsAllowed(req, version) {

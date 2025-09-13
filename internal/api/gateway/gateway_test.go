@@ -342,8 +342,10 @@ func TestGatewayRateLimiting(t *testing.T) {
 		}
 	}()
 
-	route := gw.routes["/api/"]
-	handler := gw.createRouteHandler(route)
+	// Create a handler that includes all middleware (including rate limiting)
+	mux := http.NewServeMux()
+	handler := gw.applyMiddleware(mux)
+	mux.HandleFunc("/api/", gw.createRouteHandler(gw.routes["/api/"]))
 
 	// Make requests up to the limit
 	for i := 0; i < 2; i++ {
