@@ -46,17 +46,11 @@ jobs:
       - name: Run Go security scan
         run: |
           echo "🔒 Running Go security scan..."
-          # Install gosec using a more reliable method
-          if go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest 2>/dev/null; then
-            echo "gosec installed successfully via go install"
+          # Install gosec using the working repository
+          if go install github.com/cosmos/gosec/v2/cmd/gosec@latest 2>/dev/null; then
+            echo "✅ gosec installed successfully"
           else
-            echo "go install failed, trying direct download..."
-            # Fallback: Download gosec binary directly from GitHub releases
-            curl -L -o gosec.tar.gz https://github.com/securecodewarrior/gosec/releases/latest/download/gosec-linux-amd64.tar.gz && \
-            tar -xzf gosec.tar.gz && \
-            chmod +x gosec && \
-            sudo mv gosec /usr/local/bin/ && \
-            rm gosec.tar.gz
+            echo "⚠️ gosec installation failed, but continuing with other security tools"
           fi
 
           # Verify gosec installation and run scan

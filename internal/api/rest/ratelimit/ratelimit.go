@@ -114,11 +114,9 @@ func (cs *ClientState) UpdateState(config *RateLimitConfig, now time.Time, allow
 			}
 			cs.BannedUntil = now.Add(banDuration)
 		}
-	} else {
+	} else if cs.ConsecutiveViolations > 0 {
 		// Reset consecutive violations on successful request
-		if cs.ConsecutiveViolations > 0 {
-			cs.ConsecutiveViolations--
-		}
+		cs.ConsecutiveViolations--
 	}
 
 	switch cs.Algorithm {

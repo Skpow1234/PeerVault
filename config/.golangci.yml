@@ -1,12 +1,11 @@
+version: "2"
+
 run:
   timeout: 5m
-  go: "1.18"
+  go: "1.24"
 
 linters:
   disable:
-    - varcheck
-    - structcheck
-    - gomnd
     - dupl
     - lll
     - godot

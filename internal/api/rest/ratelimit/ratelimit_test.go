@@ -139,6 +139,7 @@ func TestAbuseDetection(t *testing.T) {
 	state := rl.GetClientState(req, version)
 	if state == nil {
 		t.Fatal("Client state should exist")
+		return // This return is unreachable due to t.Fatal, but satisfies staticcheck
 	}
 
 	if time.Now().Before(state.BannedUntil) {
