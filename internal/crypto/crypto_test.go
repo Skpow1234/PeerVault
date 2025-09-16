@@ -22,20 +22,42 @@ func TestNewKeyManager(t *testing.T) {
 }
 
 func TestNewKeyManager_WithEnvVar(t *testing.T) {
-	// Set a known cluster key
+	// Test that environment variable setting works first
 	testKey := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-	require.NoError(t, os.Setenv("PEERVAULT_CLUSTER_KEY", testKey))
-	defer require.NoError(t, os.Unsetenv("PEERVAULT_CLUSTER_KEY"))
+	
+	// Clean up any existing environment variable
+	os.Unsetenv("PEERVAULT_CLUSTER_KEY")
+	
+	// Set the environment variable
+	err := os.Setenv("PEERVAULT_CLUSTER_KEY", testKey)
+	require.NoError(t, err, "Setting environment variable should not fail")
+	defer func() {
+		err := os.Unsetenv("PEERVAULT_CLUSTER_KEY")
+		require.NoError(t, err, "Unsetting environment variable should not fail")
+	}()
+
+	// Immediately verify the environment variable is accessible
+	envValue := os.Getenv("PEERVAULT_CLUSTER_KEY")
+	if envValue != testKey {
+		t.Skipf("Environment variable handling not working in test environment. Expected %q, got %q", testKey, envValue)
+	}
 
 	km, err := NewKeyManager()
 	require.NoError(t, err)
 	assert.NotNil(t, km)
 
-	// Should derive the same key from the same cluster key
+	// Verify the key properties
+	assert.Len(t, km.GetEncryptionKey(), 32) // AES-256 key size
+	assert.NotEmpty(t, km.GetKeyID())
+	assert.Len(t, km.GetKeyID(), 16) // Key ID should be 16 characters (8 bytes hex)
+
+	// Test deterministic behavior by creating a second key manager
 	km2, err := NewKeyManager()
 	require.NoError(t, err)
-	assert.Equal(t, km.GetEncryptionKey(), km2.GetEncryptionKey())
-	assert.Equal(t, km.GetKeyID(), km2.GetKeyID())
+	
+	// Both key managers should produce identical results when using the same cluster key
+	assert.Equal(t, km.GetEncryptionKey(), km2.GetEncryptionKey(), "Same cluster key should produce same derived key")
+	assert.Equal(t, km.GetKeyID(), km2.GetKeyID(), "Same cluster key should produce same key ID")
 }
 
 func TestKeyManager_KeyRotation(t *testing.T) {
