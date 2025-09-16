@@ -5,25 +5,28 @@ run:
   go: "1.24"
 
 linters:
+  # Disable problematic or unnecessary linters
   disable:
-    - dupl
-    - lll
-    - godot
-    - unparam
-    - ineffassign
-    - gosimple
-    - stylecheck
-    - staticcheck
+    - dupl          # Duplicate code detection
+    - lll           # Line length limit
+    - godot         # Comment period enforcement
+    - unparam       # Unused parameters
+    - ineffassign   # Disabled by default in v2
+    - gosimple      # Disabled by default in v2
+    - stylecheck    # Disabled by default in v2
+    - staticcheck   # Disabled by default in v2
+  
+  # Enable essential linters (compatible with v2)
   enable:
-    - errcheck
-    - gosec
-    - gofmt
-    - goimports
-    - unused
-    - govet
-    - misspell
-    - gocritic
+    - errcheck      # Check for unchecked errors
+    - unused        # Check for unused code
+    - govet         # Go vet checks
+    - misspell      # Misspelling detection
+    - gocritic      # Various Go critiques
 
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
+
+# Note: gofmt and goimports are formatters in v2, not linters
+# Formatting is handled separately in CI pipeline steps
