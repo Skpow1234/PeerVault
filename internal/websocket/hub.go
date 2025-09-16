@@ -377,7 +377,9 @@ func (c *Client) handleMessage(message *Message) {
 // Close closes the client connection
 func (c *Client) Close() {
 	c.cancel()
-	if err := c.conn.Close(); err != nil {
-		fmt.Printf("Warning: failed to close websocket connection: %v\n", err)
+	if c.conn != nil {
+		if err := c.conn.Close(); err != nil {
+			fmt.Printf("Warning: failed to close websocket connection: %v\n", err)
+		}
 	}
 }
