@@ -24,10 +24,10 @@ func TestNewKeyManager(t *testing.T) {
 func TestNewKeyManager_WithEnvVar(t *testing.T) {
 	// Test that environment variable setting works first
 	testKey := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-	
+
 	// Clean up any existing environment variable
-	os.Unsetenv("PEERVAULT_CLUSTER_KEY")
-	
+	_ = os.Unsetenv("PEERVAULT_CLUSTER_KEY")
+
 	// Set the environment variable
 	err := os.Setenv("PEERVAULT_CLUSTER_KEY", testKey)
 	require.NoError(t, err, "Setting environment variable should not fail")
@@ -54,7 +54,7 @@ func TestNewKeyManager_WithEnvVar(t *testing.T) {
 	// Test deterministic behavior by creating a second key manager
 	km2, err := NewKeyManager()
 	require.NoError(t, err)
-	
+
 	// Both key managers should produce identical results when using the same cluster key
 	assert.Equal(t, km.GetEncryptionKey(), km2.GetEncryptionKey(), "Same cluster key should produce same derived key")
 	assert.Equal(t, km.GetKeyID(), km2.GetKeyID(), "Same cluster key should produce same key ID")
