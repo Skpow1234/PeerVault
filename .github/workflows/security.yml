@@ -33,8 +33,29 @@ jobs:
         run: |
           # Install Go security tools
           go install golang.org/x/vuln/cmd/govulncheck@latest
-          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
-          
+
+          # Install gosec using a more reliable method
+          echo "Installing gosec..."
+          if go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest 2>/dev/null; then
+            echo "gosec installed successfully via go install"
+          else
+            echo "go install failed, trying direct download..."
+            # Fallback: Download gosec binary directly from GitHub releases
+            curl -L -o gosec.tar.gz https://github.com/securecodewarrior/gosec/releases/latest/download/gosec-linux-amd64.tar.gz && \
+            tar -xzf gosec.tar.gz && \
+            chmod +x gosec && \
+            sudo mv gosec /usr/local/bin/ && \
+            rm gosec.tar.gz
+          fi
+
+          # Verify gosec installation
+          if ! command -v gosec >/dev/null 2>&1; then
+            echo "❌ gosec installation failed completely"
+            exit 1
+          else
+            echo "✅ gosec installed successfully"
+          fi
+
           # Install Python tools for additional scanning
           pip install semgrep
           pip install detect-secrets
