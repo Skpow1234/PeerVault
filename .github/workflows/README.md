@@ -178,7 +178,7 @@ The security pipeline generates comprehensive reports:
 
 ### Environment Variables
 
-- `GO_VERSION`: Go version for builds (default: 1.23.1)
+- `GO_VERSION`: Go version for builds (default: 1.24.6)
 - `CGO_ENABLED`: CGO support for tests (default: 1)
 
 ### Security Configuration
