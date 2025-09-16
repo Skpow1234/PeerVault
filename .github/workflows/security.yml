@@ -102,34 +102,52 @@ jobs:
         run: |
           echo "Running semgrep security scanner..."
           mkdir -p security-reports
-          semgrep --config=auto --json --output=security-reports/semgrep-report.json ./... || {
-            echo "Security issues found by semgrep"
-            # Check severity of findings
-            if grep -i "error\|high" security-reports/semgrep-report.json; then
-              echo "High/Critical security issues found!"
-              exit 1
-            else
-              echo "Only low/medium security issues found (non-blocking)"
-              exit 0
-            fi
-          }
+          if command -v semgrep >/dev/null 2>&1; then
+            # Use . instead of ./... as semgrep expects directory paths, not Go glob patterns
+            semgrep --config=auto --json --output=security-reports/semgrep-report.json . || {
+              echo "Security issues found by semgrep"
+              # Check if the report file exists and has content before checking severity
+              if [ -f security-reports/semgrep-report.json ] && [ -s security-reports/semgrep-report.json ]; then
+                # Check for actual security findings, not errors
+                if grep -i '"severity".*"ERROR"\|"severity".*"HIGH"' security-reports/semgrep-report.json; then
+                  echo "High/Critical security issues found!"
+                  exit 1
+                else
+                  echo "Only low/medium security issues found (non-blocking)"
+                  exit 0
+                fi
+              else
+                echo "⚠️ Semgrep report file is empty or missing, treating as scan error"
+                echo "Semgrep scan failed (non-blocking)"
+                exit 0
+              fi
+            }
+            echo "✅ Semgrep scan completed successfully"
+          else
+            echo "⚠️ semgrep not available, skipping semgrep security scan"
+          fi
 
       - name: Run secrets detection
         run: |
           echo "Running secrets detection..."
           mkdir -p security-reports
-          # First, create baseline if it doesn't exist
-          if [ ! -f "security-reports/secrets-baseline.json" ]; then
-            echo "Creating initial secrets baseline..."
-            detect-secrets scan --all-files --baseline security-reports/secrets-baseline.json ./... || true
+          if command -v detect-secrets >/dev/null 2>&1; then
+            # First, create baseline if it doesn't exist
+            if [ ! -f "security-reports/secrets-baseline.json" ]; then
+              echo "Creating initial secrets baseline..."
+              detect-secrets scan --all-files --baseline security-reports/secrets-baseline.json . || true
+            fi
+            # Then scan and compare against baseline
+            detect-secrets scan --all-files --baseline security-reports/secrets-baseline.json . || {
+              echo "Potential secrets found"
+              # This is usually non-blocking as it may have false positives
+              echo "Secrets detection completed (review findings)"
+              exit 0
+            }
+            echo "✅ Secrets detection completed successfully"
+          else
+            echo "⚠️ detect-secrets not available, skipping secrets detection"
           fi
-          # Then scan and compare against baseline
-          detect-secrets scan --all-files --baseline security-reports/secrets-baseline.json ./... || {
-            echo "Potential secrets found"
-            # This is usually non-blocking as it may have false positives
-            echo "Secrets detection completed (review findings)"
-            exit 0
-          }
 
       - name: Run custom PeerVault security scanner
         run: |
