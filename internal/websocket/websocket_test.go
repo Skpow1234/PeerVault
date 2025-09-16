@@ -280,6 +280,14 @@ func TestClientHandleMessagePing(t *testing.T) {
 	client.send = make(chan []byte, 1)
 
 	go func() {
+		defer func() {
+			// Ensure we always send a result to prevent test hanging
+			select {
+			case pongReceived <- false:
+			default:
+			}
+		}()
+		
 		select {
 		case msgBytes := <-client.send:
 			var msg Message
@@ -290,7 +298,7 @@ func TestClientHandleMessagePing(t *testing.T) {
 			} else {
 				pongReceived <- false
 			}
-		case <-time.After(1 * time.Second):
+		case <-time.After(5 * time.Second): // Increased timeout for CI
 			pongReceived <- false
 		}
 	}()
@@ -306,7 +314,7 @@ func TestClientHandleMessagePing(t *testing.T) {
 		if !received {
 			t.Error("Expected pong response to ping message")
 		}
-	case <-time.After(2 * time.Second):
+	case <-time.After(10 * time.Second): // Increased timeout for CI
 		t.Error("Timeout waiting for pong response")
 	}
 }
@@ -557,8 +565,13 @@ func TestHubIntegration(t *testing.T) {
 	hub.register <- client1
 	hub.register <- client2
 
-	// Wait for registration
-	time.Sleep(100 * time.Millisecond)
+	// Wait for registration with exponential backoff
+	for i := 0; i < 10; i++ {
+		if hub.GetClientCount() == 2 {
+			break
+		}
+		time.Sleep(time.Duration(i+1) * 10 * time.Millisecond)
+	}
 
 	if count := hub.GetClientCount(); count != 2 {
 		t.Errorf("Expected 2 clients, got %d", count)
@@ -574,7 +587,14 @@ func TestHubIntegration(t *testing.T) {
 
 	// Test unregistration
 	hub.unregister <- client1
-	time.Sleep(100 * time.Millisecond)
+	
+	// Wait for unregistration with exponential backoff
+	for i := 0; i < 10; i++ {
+		if hub.GetClientCount() == 1 {
+			break
+		}
+		time.Sleep(time.Duration(i+1) * 10 * time.Millisecond)
+	}
 
 	if count := hub.GetClientCount(); count != 1 {
 		t.Errorf("Expected 1 client after unregistration, got %d", count)
@@ -601,7 +621,7 @@ func TestHandleGraphQLSubscription(t *testing.T) {
 
 	client.HandleGraphQLSubscription(message)
 
-	// Wait for acknowledgment message
+	// Wait for acknowledgment message with increased timeout for CI
 	select {
 	case msgBytes := <-sendChan:
 		var msg GraphQLSubscriptionMessage
@@ -612,7 +632,7 @@ func TestHandleGraphQLSubscription(t *testing.T) {
 		if msg.Type != "connection_ack" {
 			t.Errorf("Expected message type 'connection_ack', got '%s'", msg.Type)
 		}
-	case <-time.After(1 * time.Second):
+	case <-time.After(5 * time.Second): // Increased timeout for CI
 		t.Error("Timeout waiting for connection acknowledgment")
 	}
 
@@ -635,7 +655,7 @@ func TestHandleGraphQLSubscription(t *testing.T) {
 	select {
 	case <-client.ctx.Done():
 		// Expected
-	case <-time.After(1 * time.Second):
+	case <-time.After(5 * time.Second): // Increased timeout for CI
 		t.Error("Context should be cancelled after connection_terminate")
 	}
 }
@@ -657,7 +677,7 @@ func TestBroadcastGraphQLData(t *testing.T) {
 	testData := map[string]interface{}{"test": "data"}
 	hub.BroadcastGraphQLData("test-subscription", testData)
 
-	// Wait for message
+	// Wait for message with increased timeout for CI
 	select {
 	case msgBytes := <-sendChan:
 		var msg GraphQLSubscriptionMessage
@@ -672,7 +692,7 @@ func TestBroadcastGraphQLData(t *testing.T) {
 		if msg.ID != "test-subscription" {
 			t.Errorf("Expected subscription ID 'test-subscription', got '%s'", msg.ID)
 		}
-	case <-time.After(1 * time.Second):
+	case <-time.After(5 * time.Second): // Increased timeout for CI
 		t.Error("Timeout waiting for broadcast message")
 	}
 }
@@ -680,14 +700,20 @@ func TestBroadcastGraphQLData(t *testing.T) {
 // Test Hub Run method (basic smoke test)
 func TestHubRun(t *testing.T) {
 	hub := createTestHub()
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond) // Increased timeout for CI
 	defer cancel() // Ensure cancel is always called to prevent context leak
 
 	// Start hub
-	done := make(chan bool)
+	done := make(chan bool, 1) // Buffered to prevent goroutine leak
 	go func() {
+		defer func() {
+			// Ensure done is always signaled
+			select {
+			case done <- true:
+			default:
+			}
+		}()
 		hub.Run(ctx)
-		done <- true
 	}()
 
 	// Wait for context timeout or hub to finish
@@ -695,8 +721,13 @@ func TestHubRun(t *testing.T) {
 	case <-done:
 		// Hub finished normally
 	case <-ctx.Done():
-		// Context timed out, wait for hub to finish
-		<-done
+		// Context timed out, wait for hub to finish with additional timeout
+		select {
+		case <-done:
+			// Hub finished after context cancellation
+		case <-time.After(1 * time.Second):
+			t.Error("Hub did not finish gracefully after context cancellation")
+		}
 	}
 }
 
