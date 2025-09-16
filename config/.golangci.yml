@@ -1,3 +1,5 @@
+version: "2"
+
 run:
   timeout: 5m
   go: "1.24"
@@ -10,23 +12,10 @@ linters:
     - govet        # Go vet tool  
     - ineffassign  # Detect ineffectual assignments
     - unused       # Check for unused code (replaces deadcode/varcheck)
-  disable-all: true
 
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-dirs:
-    # Skip external dependencies that cause issues
-    - vendor
-    # Skip blockchain directory due to ethereum client dependencies
-    - internal/blockchain
-  exclude-files:
-    # Skip files that import problematic packages
-    - ".*blockchain.*"
-    - ".*ethclient.*"
-  exclude:
-    # Ignore ethereum client issues that are external dependencies
-    - "could not load export data.*go-ethereum"
-    - "no export data.*ethclient"
 
-# This minimal config avoids deprecated linters and v2 compatibility issues
+# Note: Directory/file exclusions will be handled in CI args rather than config
+# This minimal config focuses on linter compatibility between v1 and v2
