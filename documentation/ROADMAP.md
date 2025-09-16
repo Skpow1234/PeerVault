@@ -474,7 +474,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 12 — gRPC Advanced Features (P9) 
+## Milestone 12 — gRPC Advanced Features (P9)
 
 1 gRPC-Web Support
 
