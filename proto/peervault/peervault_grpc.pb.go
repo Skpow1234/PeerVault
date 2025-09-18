@@ -37,6 +37,13 @@ const (
 	PeerVaultService_StreamFileOperations_FullMethodName = "/peervault.PeerVaultService/StreamFileOperations"
 	PeerVaultService_StreamPeerEvents_FullMethodName     = "/peervault.PeerVaultService/StreamPeerEvents"
 	PeerVaultService_StreamSystemEvents_FullMethodName   = "/peervault.PeerVaultService/StreamSystemEvents"
+	PeerVaultService_StreamHealthEvents_FullMethodName   = "/peervault.PeerVaultService/StreamHealthEvents"
+	PeerVaultService_GetDetailedHealth_FullMethodName    = "/peervault.PeerVaultService/GetDetailedHealth"
+	PeerVaultService_GetComponentHealth_FullMethodName   = "/peervault.PeerVaultService/GetComponentHealth"
+	PeerVaultService_ForceHealthCheck_FullMethodName     = "/peervault.PeerVaultService/ForceHealthCheck"
+	PeerVaultService_GetHealthMetrics_FullMethodName     = "/peervault.PeerVaultService/GetHealthMetrics"
+	PeerVaultService_GetHealthTraces_FullMethodName      = "/peervault.PeerVaultService/GetHealthTraces"
+	PeerVaultService_GetHealthProfiles_FullMethodName    = "/peervault.PeerVaultService/GetHealthProfiles"
 )
 
 // PeerVaultServiceClient is the client API for PeerVaultService service.
@@ -62,6 +69,14 @@ type PeerVaultServiceClient interface {
 	StreamFileOperations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamFileOperationsClient, error)
 	StreamPeerEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamPeerEventsClient, error)
 	StreamSystemEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamSystemEventsClient, error)
+	StreamHealthEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamHealthEventsClient, error)
+	// Advanced health operations
+	GetDetailedHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthResponse, error)
+	GetComponentHealth(ctx context.Context, in *ComponentHealthRequest, opts ...grpc.CallOption) (*ComponentHealthResponse, error)
+	ForceHealthCheck(ctx context.Context, in *ForceHealthCheckRequest, opts ...grpc.CallOption) (*ForceHealthCheckResponse, error)
+	GetHealthMetrics(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthMetricsResponse, error)
+	GetHealthTraces(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthTracesResponse, error)
+	GetHealthProfiles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthProfilesResponse, error)
 }
 
 type peerVaultServiceClient struct {
@@ -325,6 +340,75 @@ func (c *peerVaultServiceClient) StreamSystemEvents(ctx context.Context, in *emp
 	return x, nil
 }
 
+func (c *peerVaultServiceClient) StreamHealthEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamHealthEventsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_PeerVaultService_serviceDesc.Streams[5], PeerVaultService_StreamHealthEvents_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &peerVaultServiceStreamHealthEventsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+func (c *peerVaultServiceClient) GetDetailedHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthResponse, error) {
+	out := new(HealthResponse)
+	err := c.cc.Invoke(ctx, PeerVaultService_GetDetailedHealth_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *peerVaultServiceClient) GetComponentHealth(ctx context.Context, in *ComponentHealthRequest, opts ...grpc.CallOption) (*ComponentHealthResponse, error) {
+	out := new(ComponentHealthResponse)
+	err := c.cc.Invoke(ctx, PeerVaultService_GetComponentHealth_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *peerVaultServiceClient) ForceHealthCheck(ctx context.Context, in *ForceHealthCheckRequest, opts ...grpc.CallOption) (*ForceHealthCheckResponse, error) {
+	out := new(ForceHealthCheckResponse)
+	err := c.cc.Invoke(ctx, PeerVaultService_ForceHealthCheck_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *peerVaultServiceClient) GetHealthMetrics(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthMetricsResponse, error) {
+	out := new(HealthMetricsResponse)
+	err := c.cc.Invoke(ctx, PeerVaultService_GetHealthMetrics_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *peerVaultServiceClient) GetHealthTraces(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthTracesResponse, error) {
+	out := new(HealthTracesResponse)
+	err := c.cc.Invoke(ctx, PeerVaultService_GetHealthTraces_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *peerVaultServiceClient) GetHealthProfiles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthProfilesResponse, error) {
+	out := new(HealthProfilesResponse)
+	err := c.cc.Invoke(ctx, PeerVaultService_GetHealthProfiles_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 type PeerVaultService_StreamSystemEventsClient interface {
 	Recv() (*SystemEvent, error)
 	grpc.ClientStream
@@ -336,6 +420,23 @@ type peerVaultServiceStreamSystemEventsClient struct {
 
 func (x *peerVaultServiceStreamSystemEventsClient) Recv() (*SystemEvent, error) {
 	m := new(SystemEvent)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+type PeerVaultService_StreamHealthEventsClient interface {
+	Recv() (*HealthEvent, error)
+	grpc.ClientStream
+}
+
+type peerVaultServiceStreamHealthEventsClient struct {
+	grpc.ClientStream
+}
+
+func (x *peerVaultServiceStreamHealthEventsClient) Recv() (*HealthEvent, error) {
+	m := new(HealthEvent)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -365,6 +466,14 @@ type PeerVaultServiceServer interface {
 	StreamFileOperations(*emptypb.Empty, PeerVaultService_StreamFileOperationsServer) error
 	StreamPeerEvents(*emptypb.Empty, PeerVaultService_StreamPeerEventsServer) error
 	StreamSystemEvents(*emptypb.Empty, PeerVaultService_StreamSystemEventsServer) error
+	StreamHealthEvents(*emptypb.Empty, PeerVaultService_StreamHealthEventsServer) error
+	// Advanced health operations
+	GetDetailedHealth(context.Context, *emptypb.Empty) (*HealthResponse, error)
+	GetComponentHealth(context.Context, *ComponentHealthRequest) (*ComponentHealthResponse, error)
+	ForceHealthCheck(context.Context, *ForceHealthCheckRequest) (*ForceHealthCheckResponse, error)
+	GetHealthMetrics(context.Context, *emptypb.Empty) (*HealthMetricsResponse, error)
+	GetHealthTraces(context.Context, *emptypb.Empty) (*HealthTracesResponse, error)
+	GetHealthProfiles(context.Context, *emptypb.Empty) (*HealthProfilesResponse, error)
 }
 
 // UnimplementedPeerVaultServiceServer can be embedded to have forward compatible implementations.
@@ -421,6 +530,27 @@ func (UnimplementedPeerVaultServiceServer) StreamPeerEvents(*emptypb.Empty, Peer
 }
 func (UnimplementedPeerVaultServiceServer) StreamSystemEvents(*emptypb.Empty, PeerVaultService_StreamSystemEventsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamSystemEvents not implemented")
+}
+func (UnimplementedPeerVaultServiceServer) StreamHealthEvents(*emptypb.Empty, PeerVaultService_StreamHealthEventsServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamHealthEvents not implemented")
+}
+func (UnimplementedPeerVaultServiceServer) GetDetailedHealth(context.Context, *emptypb.Empty) (*HealthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDetailedHealth not implemented")
+}
+func (UnimplementedPeerVaultServiceServer) GetComponentHealth(context.Context, *ComponentHealthRequest) (*ComponentHealthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetComponentHealth not implemented")
+}
+func (UnimplementedPeerVaultServiceServer) ForceHealthCheck(context.Context, *ForceHealthCheckRequest) (*ForceHealthCheckResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ForceHealthCheck not implemented")
+}
+func (UnimplementedPeerVaultServiceServer) GetHealthMetrics(context.Context, *emptypb.Empty) (*HealthMetricsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHealthMetrics not implemented")
+}
+func (UnimplementedPeerVaultServiceServer) GetHealthTraces(context.Context, *emptypb.Empty) (*HealthTracesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHealthTraces not implemented")
+}
+func (UnimplementedPeerVaultServiceServer) GetHealthProfiles(context.Context, *emptypb.Empty) (*HealthProfilesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHealthProfiles not implemented")
 }
 
 // UnsafePeerVaultServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -758,6 +888,19 @@ type peerVaultServiceStreamSystemEventsServer struct {
 }
 
 func (x *peerVaultServiceStreamSystemEventsServer) Send(m *SystemEvent) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+type PeerVaultService_StreamHealthEventsServer interface {
+	Send(*HealthEvent) error
+	grpc.ServerStream
+}
+
+type peerVaultServiceStreamHealthEventsServer struct {
+	grpc.ServerStream
+}
+
+func (x *peerVaultServiceStreamHealthEventsServer) Send(m *HealthEvent) error {
 	return x.ServerStream.SendMsg(m)
 }
 

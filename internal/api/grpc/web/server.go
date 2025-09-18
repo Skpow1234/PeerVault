@@ -10,9 +10,10 @@ import (
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/Skpow1234/Peervault/internal/api/grpc"
+	grpcapi "github.com/Skpow1234/Peervault/internal/api/grpc"
 	"github.com/Skpow1234/Peervault/proto/peervault"
 )
 
@@ -64,7 +65,7 @@ func NewWebServer(config *Config, logger *slog.Logger) *WebServer {
 	)
 
 	// Register services
-	peervault.RegisterPeerVaultServiceServer(grpcServer, &grpc.PeerVaultServiceImpl{})
+	peervault.RegisterPeerVaultServiceServer(grpcServer, &grpcapi.PeerVaultServiceImpl{})
 
 	// Wrap gRPC server for web
 	webServer := grpcweb.WrapServer(grpcServer, grpcweb.WithOriginFunc(func(origin string) bool {
@@ -169,7 +170,7 @@ func (s *WebServer) handleHealthCheck(w http.ResponseWriter, r *http.Request) {
 func unaryAuthInterceptor(authToken string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		// Extract token from metadata
-		md, ok := grpc.FromIncomingContext(ctx)
+		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			return nil, status.Error(codes.Unauthenticated, "missing metadata")
 		}
@@ -193,7 +194,7 @@ func unaryAuthInterceptor(authToken string) grpc.UnaryServerInterceptor {
 func streamAuthInterceptor(authToken string) grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		// Extract token from metadata
-		md, ok := grpc.FromIncomingContext(ss.Context())
+		md, ok := metadata.FromIncomingContext(ss.Context())
 		if !ok {
 			return status.Error(codes.Unauthenticated, "missing metadata")
 		}

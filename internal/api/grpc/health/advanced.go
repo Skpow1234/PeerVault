@@ -395,22 +395,10 @@ func (ahc *AdvancedHealthChecker) GetHealthStatus() *peervault.HealthResponse {
 	healthyCount := 0
 	totalCount := len(ahc.checkers)
 
-	componentStatuses := make([]map[string]interface{}, 0)
-
 	for _, checker := range ahc.checkers {
 		checker.mutex.RLock()
 		result := checker.LastResult
 		checker.mutex.RUnlock()
-
-		componentStatus := map[string]interface{}{
-			"component": result.Component,
-			"status":    result.Status,
-			"message":   result.Message,
-			"timestamp": result.Timestamp,
-			"duration":  result.Duration,
-		}
-
-		componentStatuses = append(componentStatuses, componentStatus)
 
 		if result.Status == HealthStatusHealthy {
 			healthyCount++

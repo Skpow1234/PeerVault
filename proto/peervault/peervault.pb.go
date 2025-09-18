@@ -170,6 +170,69 @@ type SystemEvent struct {
 	Metadata  map[string]string      `json:"metadata,omitempty"`
 }
 
+// Health service messages
+type ComponentHealthRequest struct {
+	Component string `json:"component,omitempty"`
+}
+
+type ComponentHealthResponse struct {
+	Component string                 `json:"component,omitempty"`
+	Status    string                 `json:"status,omitempty"`
+	Message   string                 `json:"message,omitempty"`
+	Timestamp *timestamppb.Timestamp `json:"timestamp,omitempty"`
+	Duration  int64                  `json:"duration,omitempty"`
+	Metrics   map[string]string      `json:"metrics,omitempty"`
+	Details   map[string]string      `json:"details,omitempty"`
+}
+
+type ForceHealthCheckRequest struct {
+	Component string `json:"component,omitempty"`
+}
+
+type ForceHealthCheckResponse struct {
+	Success bool   `json:"success,omitempty"`
+	Message string `json:"message,omitempty"`
+}
+
+type HealthMetricsResponse struct {
+	Metrics map[string]interface{} `json:"metrics,omitempty"`
+}
+
+type HealthTrace struct {
+	Id        string                 `json:"id,omitempty"`
+	Component string                 `json:"component,omitempty"`
+	StartTime *timestamppb.Timestamp `json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp `json:"end_time,omitempty"`
+	Duration  int64                  `json:"duration,omitempty"`
+	Status    string                 `json:"status,omitempty"`
+	Details   map[string]string      `json:"details,omitempty"`
+}
+
+type HealthTracesResponse struct {
+	Traces []*HealthTrace `json:"traces,omitempty"`
+}
+
+type HealthProfile struct {
+	Id          string                 `json:"id,omitempty"`
+	Name        string                 `json:"name,omitempty"`
+	Description string                 `json:"description,omitempty"`
+	CreatedAt   *timestamppb.Timestamp `json:"created_at,omitempty"`
+	Metrics     map[string]interface{} `json:"metrics,omitempty"`
+}
+
+type HealthProfilesResponse struct {
+	Profiles []*HealthProfile `json:"profiles,omitempty"`
+}
+
+type HealthEvent struct {
+	EventType string                 `json:"event_type,omitempty"`
+	Component string                 `json:"component,omitempty"`
+	Status    string                 `json:"status,omitempty"`
+	Message   string                 `json:"message,omitempty"`
+	Timestamp *timestamppb.Timestamp `json:"timestamp,omitempty"`
+	Metadata  map[string]string      `json:"metadata,omitempty"`
+}
+
 // Helper functions to create timestamps
 func NewTimestamp(t time.Time) *timestamppb.Timestamp {
 	return timestamppb.New(t)

@@ -74,7 +74,7 @@ func (hs *HealthService) GetComponentHealth(ctx context.Context, req *peervault.
 		Component: result.Component,
 		Status:    string(result.Status),
 		Message:   result.Message,
-		Timestamp: result.Timestamp,
+		Timestamp: timestamppb.New(result.Timestamp),
 		Duration:  int64(result.Duration.Nanoseconds()),
 		Metrics:   make(map[string]string),
 		Details:   make(map[string]string),
@@ -128,7 +128,7 @@ func (hs *HealthService) GetHealthMetrics(ctx context.Context, req *emptypb.Empt
 	metrics := hs.healthChecker.GetHealthMetrics()
 
 	response := &peervault.HealthMetricsResponse{
-		Metrics: make(map[string]string),
+		Metrics: make(map[string]interface{}),
 	}
 
 	// Convert metrics to string map
@@ -155,8 +155,8 @@ func (hs *HealthService) GetHealthTraces(ctx context.Context, req *emptypb.Empty
 		pbTrace := &peervault.HealthTrace{
 			Id:        trace.ID,
 			Component: trace.Component,
-			StartTime: trace.StartTime,
-			EndTime:   trace.EndTime,
+			StartTime: timestamppb.New(trace.StartTime),
+			EndTime:   timestamppb.New(trace.EndTime),
 			Duration:  int64(trace.Duration.Nanoseconds()),
 			Status:    string(trace.Status),
 			Details:   make(map[string]string),
@@ -187,13 +187,18 @@ func (hs *HealthService) GetHealthProfiles(ctx context.Context, req *emptypb.Emp
 	// Convert profiles to protobuf format
 	for _, profile := range profiles {
 		pbProfile := &peervault.HealthProfile{
-			Component:     profile.Component,
-			CheckCount:    profile.CheckCount,
-			TotalDuration: int64(profile.TotalDuration.Nanoseconds()),
-			AvgDuration:   int64(profile.AvgDuration.Nanoseconds()),
-			MinDuration:   int64(profile.MinDuration.Nanoseconds()),
-			MaxDuration:   int64(profile.MaxDuration.Nanoseconds()),
-			LastUpdated:   profile.LastUpdated,
+			Id:          fmt.Sprintf("profile_%s", profile.Component),
+			Name:        fmt.Sprintf("Health Profile for %s", profile.Component),
+			Description: fmt.Sprintf("Performance profile for %s component", profile.Component),
+			CreatedAt:   timestamppb.New(profile.LastUpdated),
+			Metrics: map[string]interface{}{
+				"component":      profile.Component,
+				"check_count":    profile.CheckCount,
+				"total_duration": int64(profile.TotalDuration.Nanoseconds()),
+				"avg_duration":   int64(profile.AvgDuration.Nanoseconds()),
+				"min_duration":   int64(profile.MinDuration.Nanoseconds()),
+				"max_duration":   int64(profile.MaxDuration.Nanoseconds()),
+			},
 		}
 
 		response.Profiles = append(response.Profiles, pbProfile)
@@ -243,7 +248,7 @@ func (hs *HealthService) generateHealthEvents(eventChan chan<- *peervault.Health
 			event := &peervault.HealthEvent{
 				EventType: "health_check",
 				Component: "system",
-				Timestamp: time.Now(),
+				Timestamp: timestamppb.Now(),
 				Status:    status.Status,
 				Message:   "Periodic health check",
 				Metadata: map[string]string{
