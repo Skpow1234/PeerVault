@@ -273,7 +273,7 @@ func (ci *CacheInterceptor) UnaryCacheInterceptor() grpc.UnaryServerInterceptor 
 }
 
 // generateCacheKey generates a cache key for the request
-func (ci *CacheInterceptor) generateCacheKey(method string, req interface{}) string {
+func (ci *CacheInterceptor) generateCacheKey(method string, _ interface{}) string {
 	// Simple cache key generation - in production, use a proper hash function
 	return method + "_" + time.Now().Format("20060102150405")
 }

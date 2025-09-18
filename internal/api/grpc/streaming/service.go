@@ -142,7 +142,11 @@ func (s *StreamingService) StreamSystemEventsWithRecovery(ctx context.Context, s
 // generateFileOperationEvents generates file operation events with error recovery
 func (s *StreamingService) generateFileOperationEvents(stream *BidirectionalStream, eventChan chan<- *peervault.FileOperationEvent) {
 	defer close(eventChan)
-	defer s.CloseBidirectionalStream(stream.ID)
+	defer func() {
+		if err := s.CloseBidirectionalStream(stream.ID); err != nil {
+			s.logger.Warn("Failed to close bidirectional stream", "stream_id", stream.ID, "error", err)
+		}
+	}()
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -203,7 +207,11 @@ func (s *StreamingService) generateFileOperationEvents(stream *BidirectionalStre
 // generatePeerEvents generates peer events with error recovery
 func (s *StreamingService) generatePeerEvents(stream *BidirectionalStream, eventChan chan<- *peervault.PeerEvent) {
 	defer close(eventChan)
-	defer s.CloseBidirectionalStream(stream.ID)
+	defer func() {
+		if err := s.CloseBidirectionalStream(stream.ID); err != nil {
+			s.logger.Warn("Failed to close bidirectional stream", "stream_id", stream.ID, "error", err)
+		}
+	}()
 
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -263,7 +271,11 @@ func (s *StreamingService) generatePeerEvents(stream *BidirectionalStream, event
 // generateSystemEvents generates system events with error recovery
 func (s *StreamingService) generateSystemEvents(stream *BidirectionalStream, eventChan chan<- *peervault.SystemEvent) {
 	defer close(eventChan)
-	defer s.CloseBidirectionalStream(stream.ID)
+	defer func() {
+		if err := s.CloseBidirectionalStream(stream.ID); err != nil {
+			s.logger.Warn("Failed to close bidirectional stream", "stream_id", stream.ID, "error", err)
+		}
+	}()
 
 	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()

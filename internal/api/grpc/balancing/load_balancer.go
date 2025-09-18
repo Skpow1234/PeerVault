@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // LoadBalancerConfig represents load balancer configuration
@@ -60,7 +61,6 @@ type Server struct {
 	LastHealth   time.Time
 	HealthStatus HealthStatus
 	Conn         *grpc.ClientConn
-	mutex        sync.RWMutex
 }
 
 // HealthStatus represents the health status of a server
@@ -115,7 +115,7 @@ func (lb *LoadBalancer) AddServer(id, address string, port int, weight int) erro
 	}
 
 	// Create gRPC connection
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", address, port), grpc.WithInsecure())
+	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", address, port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return fmt.Errorf("failed to connect to server %s: %w", id, err)
 	}
@@ -149,7 +149,9 @@ func (lb *LoadBalancer) RemoveServer(id string) error {
 		if server.ID == id {
 			// Close connection
 			if server.Conn != nil {
-				server.Conn.Close()
+				if err := server.Conn.Close(); err != nil {
+					lb.logger.Warn("Failed to close server connection", "server_id", id, "error", err)
+				}
 			}
 
 			// Remove from slice
@@ -456,7 +458,9 @@ func (lb *LoadBalancer) Close() error {
 	// Close all server connections
 	for _, server := range lb.servers {
 		if server.Conn != nil {
-			server.Conn.Close()
+			if err := server.Conn.Close(); err != nil {
+				lb.logger.Warn("Failed to close server connection", "server_id", server.ID, "error", err)
+			}
 		}
 	}
 

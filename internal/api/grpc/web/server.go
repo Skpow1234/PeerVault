@@ -162,8 +162,10 @@ func (s *WebServer) corsMiddleware(next http.Handler) http.Handler {
 func (s *WebServer) handleHealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"status":"healthy","service":"grpc-web","timestamp":"%s"}`,
-		fmt.Sprintf("%d", r.Context().Value("timestamp")))
+	if _, err := fmt.Fprintf(w, `{"status":"healthy","service":"grpc-web","timestamp":"%s"}`,
+		fmt.Sprintf("%d", r.Context().Value("timestamp"))); err != nil {
+		s.logger.Warn("Failed to write health check response", "error", err)
+	}
 }
 
 // unaryAuthInterceptor provides authentication for unary RPC calls

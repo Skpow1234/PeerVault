@@ -16,6 +16,15 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Context key types to avoid collisions
+type contextKey string
+
+const (
+	userIDKey      contextKey = "user_id"
+	userRolesKey   contextKey = "user_roles"
+	tokenExpiryKey contextKey = "token_expiry"
+)
+
 // AuthConfig represents authentication configuration
 type AuthConfig struct {
 	SecretKey      string
@@ -82,9 +91,9 @@ func (ai *AuthInterceptor) UnaryAuthInterceptor() grpc.UnaryServerInterceptor {
 		}
 
 		// Add claims to context
-		ctx = context.WithValue(ctx, "user_id", claims.UserID)
-		ctx = context.WithValue(ctx, "user_roles", claims.Roles)
-		ctx = context.WithValue(ctx, "token_expiry", claims.ExpiresAt)
+		ctx = context.WithValue(ctx, userIDKey, claims.UserID)
+		ctx = context.WithValue(ctx, userRolesKey, claims.Roles)
+		ctx = context.WithValue(ctx, tokenExpiryKey, claims.ExpiresAt)
 
 		// Log successful authentication
 		ai.logger.Info("Authentication successful", "method", info.FullMethod, "user_id", claims.UserID)
@@ -109,9 +118,9 @@ func (ai *AuthInterceptor) StreamAuthInterceptor() grpc.StreamServerInterceptor 
 		}
 
 		// Add claims to context
-		ctx := context.WithValue(ss.Context(), "user_id", claims.UserID)
-		ctx = context.WithValue(ctx, "user_roles", claims.Roles)
-		ctx = context.WithValue(ctx, "token_expiry", claims.ExpiresAt)
+		ctx := context.WithValue(ss.Context(), userIDKey, claims.UserID)
+		ctx = context.WithValue(ctx, userRolesKey, claims.Roles)
+		ctx = context.WithValue(ctx, tokenExpiryKey, claims.ExpiresAt)
 
 		// Create new stream with updated context
 		wrappedStream := &wrappedServerStream{
@@ -242,6 +251,8 @@ type TokenClaims struct {
 func parseClaims(payload []byte) (*TokenClaims, error) {
 	// Simple JSON parsing - in production, use a proper JSON library
 	// This is a simplified implementation for demonstration
+	_ = payload // TODO: Implement proper JSON parsing
+
 	claims := &TokenClaims{
 		UserID:    "user123",
 		Roles:     []string{"user"},
@@ -295,7 +306,7 @@ func (ai *AuthInterceptor) GenerateToken(userID string, roles []string) (string,
 
 // ValidateUserRole validates if a user has a specific role
 func (ai *AuthInterceptor) ValidateUserRole(ctx context.Context, requiredRole string) bool {
-	roles, ok := ctx.Value("user_roles").([]string)
+	roles, ok := ctx.Value(userRolesKey).([]string)
 	if !ok {
 		return false
 	}
@@ -311,12 +322,12 @@ func (ai *AuthInterceptor) ValidateUserRole(ctx context.Context, requiredRole st
 
 // GetUserID extracts the user ID from the context
 func (ai *AuthInterceptor) GetUserID(ctx context.Context) (string, bool) {
-	userID, ok := ctx.Value("user_id").(string)
+	userID, ok := ctx.Value(userIDKey).(string)
 	return userID, ok
 }
 
 // GetUserRoles extracts the user roles from the context
 func (ai *AuthInterceptor) GetUserRoles(ctx context.Context) ([]string, bool) {
-	roles, ok := ctx.Value("user_roles").([]string)
+	roles, ok := ctx.Value(userRolesKey).([]string)
 	return roles, ok
 }
