@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package peervault.health;
+
+option go_package = "github.com/Skpow1234/Peervault/proto/peervault";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// Health service definitions
+service HealthService {
+  // Basic health check
+  rpc HealthCheck(google.protobuf.Empty) returns (HealthResponse);
+  
+  // Detailed health check
+  rpc GetDetailedHealth(google.protobuf.Empty) returns (HealthResponse);
+  
+  // Component-specific health check
+  rpc GetComponentHealth(ComponentHealthRequest) returns (ComponentHealthResponse);
+  
+  // Force health check
+  rpc ForceHealthCheck(ForceHealthCheckRequest) returns (ForceHealthCheckResponse);
+  
+  // Get health metrics
+  rpc GetHealthMetrics(google.protobuf.Empty) returns (HealthMetricsResponse);
+  
+  // Get health traces
+  rpc GetHealthTraces(google.protobuf.Empty) returns (HealthTracesResponse);
+  
+  // Get health profiles
+  rpc GetHealthProfiles(google.protobuf.Empty) returns (HealthProfilesResponse);
+  
+  // Stream health events
+  rpc StreamHealthEvents(google.protobuf.Empty) returns (stream HealthEvent);
+}
+
+// Health response message
+message HealthResponse {
+  string status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string version = 3;
+  map<string, string> metadata = 4;
+}
+
+// Component health request
+message ComponentHealthRequest {
+  string component = 1;
+}
+
+// Component health response
+message ComponentHealthResponse {
+  string component = 1;
+  string status = 2;
+  string message = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  int64 duration = 5; // Duration in nanoseconds
+  map<string, string> metrics = 6;
+  map<string, string> details = 7;
+}
+
+// Force health check request
+message ForceHealthCheckRequest {
+  string component = 1; // Empty for all components
+}
+
+// Force health check response
+message ForceHealthCheckResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Health metrics response
+message HealthMetricsResponse {
+  map<string, string> metrics = 1;
+}
+
+// Health trace
+message HealthTrace {
+  string id = 1;
+  string component = 2;
+  google.protobuf.Timestamp start_time = 3;
+  google.protobuf.Timestamp end_time = 4;
+  int64 duration = 5; // Duration in nanoseconds
+  string status = 6;
+  map<string, string> details = 7;
+}
+
+// Health traces response
+message HealthTracesResponse {
+  repeated HealthTrace traces = 1;
+}
+
+// Health profile
+message HealthProfile {
+  string component = 1;
+  int64 check_count = 2;
+  int64 total_duration = 3; // Total duration in nanoseconds
+  int64 avg_duration = 4;   // Average duration in nanoseconds
+  int64 min_duration = 5;   // Minimum duration in nanoseconds
+  int64 max_duration = 6;   // Maximum duration in nanoseconds
+  google.protobuf.Timestamp last_updated = 7;
+}
+
+// Health profiles response
+message HealthProfilesResponse {
+  repeated HealthProfile profiles = 1;
+}
+
+// Health event
+message HealthEvent {
+  string event_type = 1;
+  string component = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string status = 4;
+  string message = 5;
+  map<string, string> metadata = 6;
+}

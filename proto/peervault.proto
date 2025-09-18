@@ -33,6 +33,15 @@ service PeerVaultService {
   rpc StreamFileOperations(google.protobuf.Empty) returns (stream FileOperationEvent);
   rpc StreamPeerEvents(google.protobuf.Empty) returns (stream PeerEvent);
   rpc StreamSystemEvents(google.protobuf.Empty) returns (stream SystemEvent);
+  rpc StreamHealthEvents(google.protobuf.Empty) returns (stream HealthEvent);
+
+  // Advanced health operations
+  rpc GetDetailedHealth(google.protobuf.Empty) returns (HealthResponse);
+  rpc GetComponentHealth(ComponentHealthRequest) returns (ComponentHealthResponse);
+  rpc ForceHealthCheck(ForceHealthCheckRequest) returns (ForceHealthCheckResponse);
+  rpc GetHealthMetrics(google.protobuf.Empty) returns (HealthMetricsResponse);
+  rpc GetHealthTraces(google.protobuf.Empty) returns (HealthTracesResponse);
+  rpc GetHealthProfiles(google.protobuf.Empty) returns (HealthProfilesResponse);
 }
 
 // File-related messages
@@ -175,4 +184,69 @@ message SystemEvent {
   google.protobuf.Timestamp timestamp = 3;
   string message = 4;
   map<string, string> metadata = 5;
+}
+
+// Health service messages
+message ComponentHealthRequest {
+  string component = 1;
+}
+
+message ComponentHealthResponse {
+  string component = 1;
+  string status = 2;
+  string message = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  int64 duration = 5; // Duration in nanoseconds
+  map<string, string> metrics = 6;
+  map<string, string> details = 7;
+}
+
+message ForceHealthCheckRequest {
+  string component = 1; // Empty for all components
+}
+
+message ForceHealthCheckResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message HealthMetricsResponse {
+  map<string, string> metrics = 1;
+}
+
+message HealthTrace {
+  string id = 1;
+  string component = 2;
+  google.protobuf.Timestamp start_time = 3;
+  google.protobuf.Timestamp end_time = 4;
+  int64 duration = 5; // Duration in nanoseconds
+  string status = 6;
+  map<string, string> details = 7;
+}
+
+message HealthTracesResponse {
+  repeated HealthTrace traces = 1;
+}
+
+message HealthProfile {
+  string component = 1;
+  int64 check_count = 2;
+  int64 total_duration = 3; // Total duration in nanoseconds
+  int64 avg_duration = 4;   // Average duration in nanoseconds
+  int64 min_duration = 5;   // Minimum duration in nanoseconds
+  int64 max_duration = 6;   // Maximum duration in nanoseconds
+  google.protobuf.Timestamp last_updated = 7;
+}
+
+message HealthProfilesResponse {
+  repeated HealthProfile profiles = 1;
+}
+
+message HealthEvent {
+  string event_type = 1;
+  string component = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string status = 4;
+  string message = 5;
+  map<string, string> metadata = 6;
 }
