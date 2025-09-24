@@ -1,0 +1,71 @@
+- name: "get-nodes"
+  description: "Get all nodes"
+  conditions:
+    - type: "path"
+      key: "path"
+      value: "/api/nodes"
+      operator: "equals"
+      required: true
+    - type: "header"
+      key: "Accept"
+      value: "application/json"
+      operator: "equals"
+      required: true
+  response:
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+    body:
+      - id: "node-1"
+        name: "test-node-1"
+        status: "active"
+        created_at: "2024-01-01T00:00:00Z"
+      - id: "node-2"
+        name: "test-node-2"
+        status: "active"
+        created_at: "2024-01-01T00:00:00Z"
+  enabled: true
+
+- name: "create-node"
+  description: "Create a new node"
+  conditions:
+    - type: "path"
+      key: "path"
+      value: "/api/nodes"
+      operator: "equals"
+      required: true
+    - type: "header"
+      key: "Content-Type"
+      value: "application/json"
+      operator: "equals"
+      required: true
+  response:
+    status_code: 201
+    headers:
+      Content-Type: "application/json"
+      Location: "/api/nodes/node-3"
+    body:
+      id: "node-3"
+      name: "new-node"
+      status: "active"
+      created_at: "2024-01-01T00:00:00Z"
+  enabled: true
+
+- name: "get-node-by-id"
+  description: "Get node by ID"
+  conditions:
+    - type: "path"
+      key: "path"
+      value: "/api/nodes/{id}"
+      operator: "contains"
+      required: true
+  response:
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+    body:
+      id: "node-1"
+      name: "test-node-1"
+      status: "active"
+      created_at: "2024-01-01T00:00:00Z"
+  enabled: true

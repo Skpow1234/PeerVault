@@ -1,0 +1,17 @@
+- name: "health-check"
+  description: "Health check endpoint"
+  conditions:
+    - type: "path"
+      key: "path"
+      value: "/health"
+      operator: "equals"
+      required: true
+  response:
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+    body:
+      status: "healthy"
+      timestamp: "2024-01-01T00:00:00Z"
+      service: "peervault-mock"
+  enabled: true

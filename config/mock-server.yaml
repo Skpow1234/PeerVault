@@ -1,0 +1,36 @@
+# PeerVault Mock Server Configuration
+
+# Server configuration
+port: 3001
+host: "localhost"
+
+# OpenAPI specification file
+openapi_spec: "docs/api/peervault-rest-api.yaml"
+
+# Mock data directory
+mock_data_dir: "tests/api/mock-data"
+
+# Response delay (simulate network latency)
+response_delay: 100ms
+
+# Enable analytics
+enable_analytics: true
+
+# Default headers
+headers:
+  Content-Type: "application/json"
+  X-Mock-Server: "peervault-mock"
+
+# Scenarios configuration
+scenarios:
+  health-check: "tests/api/mock-data/health.yaml"
+  api-status: "tests/api/mock-data/status.yaml"
+  auth-login: "tests/api/mock-data/auth.yaml"
+  nodes: "tests/api/mock-data/nodes.yaml"
+  graphql: "tests/api/mock-data/graphql.yaml"
+
+# Logging configuration
+logging:
+  level: "info"
+  format: "text"
+  output: "stdout"

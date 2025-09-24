@@ -1,0 +1,23 @@
+{
+  "name": "health-check-contract",
+  "description": "Health check endpoint contract",
+  "provider": "peervault-api",
+  "consumer": "peervault-client",
+  "request": {
+    "method": "GET",
+    "path": "/health",
+    "headers": {
+      "Accept": "application/json"
+    }
+  },
+  "response": {
+    "status_code": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "status": "healthy",
+      "timestamp": "2024-01-01T00:00:00Z"
+    }
+  }
+}
