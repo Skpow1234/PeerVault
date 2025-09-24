@@ -15,7 +15,8 @@ func NewBufferPool(bufferSize int) *BufferPool {
 	return &BufferPool{
 		pool: sync.Pool{
 			New: func() interface{} {
-				return make([]byte, bufferSize)
+				buf := make([]byte, bufferSize)
+				return &buf
 			},
 		},
 		size: bufferSize,
@@ -24,7 +25,17 @@ func NewBufferPool(bufferSize int) *BufferPool {
 
 // Get retrieves a buffer from the pool
 func (bp *BufferPool) Get() []byte {
-	return bp.pool.Get().([]byte)
+	if ptr := bp.pool.Get(); ptr != nil {
+		if bufPtr, ok := ptr.(*[]byte); ok {
+			return *bufPtr
+		}
+		// Fallback for old format
+		if buf, ok := ptr.([]byte); ok {
+			return buf
+		}
+	}
+	// Create new buffer if pool is empty
+	return make([]byte, bp.size)
 }
 
 // Put returns a buffer to the pool
@@ -32,8 +43,9 @@ func (bp *BufferPool) Put(buf []byte) {
 	// Only put back buffers of the correct size
 	if cap(buf) == bp.size {
 		// Reset the slice length to the original size
-		//nolint:staticcheck // SA6002: We need to reset the slice length for proper pool behavior
-		bp.pool.Put(buf[:bp.size])
+		// Use a pointer to the slice to avoid SA6002 warning
+		resetBuf := buf[:bp.size:bp.size] // set both len and cap to bp.size
+		bp.pool.Put(&resetBuf)
 	}
 }
 
