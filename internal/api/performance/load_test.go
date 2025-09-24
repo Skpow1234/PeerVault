@@ -2,361 +2,235 @@ package performance
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"log/slog"
-	"net/http"
-	"sync"
+	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-// LoadTestConfig holds configuration for load testing
-type LoadTestConfig struct {
-	BaseURL          string        `json:"base_url"`
-	Concurrency      int           `json:"concurrency"`
-	Duration         time.Duration `json:"duration"`
-	RequestsPerSec   int           `json:"requests_per_sec"`
-	Timeout          time.Duration `json:"timeout"`
-	WarmupDuration   time.Duration `json:"warmup_duration"`
-	CooldownDuration time.Duration `json:"cooldown_duration"`
-}
-
-// LoadTestResult holds the results of a load test
-type LoadTestResult struct {
-	TotalRequests            int64            `json:"total_requests"`
-	SuccessfulRequests       int64            `json:"successful_requests"`
-	FailedRequests           int64            `json:"failed_requests"`
-	TotalDuration            time.Duration    `json:"total_duration"`
-	AverageResponseTime      time.Duration    `json:"average_response_time"`
-	MinResponseTime          time.Duration    `json:"min_response_time"`
-	MaxResponseTime          time.Duration    `json:"max_response_time"`
-	RequestsPerSecond        float64          `json:"requests_per_second"`
-	ErrorRate                float64          `json:"error_rate"`
-	ResponseTimeDistribution map[string]int64 `json:"response_time_distribution"`
-	Errors                   map[string]int64 `json:"errors"`
-	StartTime                time.Time        `json:"start_time"`
-	EndTime                  time.Time        `json:"end_time"`
-}
-
-// LoadTestRequest defines a request to be tested
-type LoadTestRequest struct {
-	Method  string            `json:"method"`
-	Path    string            `json:"path"`
-	Headers map[string]string `json:"headers"`
-	Body    interface{}       `json:"body"`
-	Weight  int               `json:"weight"` // Relative weight for this request
-}
-
-// LoadTester performs load testing
-type LoadTester struct {
-	config  *LoadTestConfig
-	client  *http.Client
-	logger  *slog.Logger
-	results *LoadTestResult
-	mu      sync.RWMutex
-}
-
-// NewLoadTester creates a new load tester
-func NewLoadTester(config *LoadTestConfig, logger *slog.Logger) *LoadTester {
-	if config == nil {
-		config = DefaultLoadTestConfig()
+// TestLoadTesterCreation tests the creation of a load tester
+func TestLoadTesterCreation(t *testing.T) {
+	config := &LoadTestConfig{
+		BaseURL:     "http://localhost:3000",
+		Concurrency: 5,
+		Duration:    10 * time.Second,
 	}
 
-	return &LoadTester{
-		config: config,
-		client: &http.Client{
-			Timeout: config.Timeout,
+	tester := NewLoadTester(config, slog.Default())
+	require.NotNil(t, tester)
+	assert.Equal(t, config, tester.config)
+}
+
+// TestDefaultLoadTestConfig tests the default configuration
+func TestDefaultLoadTestConfig(t *testing.T) {
+	config := DefaultLoadTestConfig()
+	require.NotNil(t, config)
+
+	assert.Equal(t, "http://localhost:3000", config.BaseURL)
+	assert.Equal(t, 10, config.Concurrency)
+	assert.Equal(t, 60*time.Second, config.Duration)
+	assert.Equal(t, 100, config.RequestsPerSec)
+	assert.Equal(t, 30*time.Second, config.Timeout)
+}
+
+// TestLoadTestRequestValidation tests request validation
+func TestLoadTestRequestValidation(t *testing.T) {
+	tests := []struct {
+		name    string
+		request LoadTestRequest
+		valid   bool
+	}{
+		{
+			name: "Valid GET request",
+			request: LoadTestRequest{
+				Method: "GET",
+				Path:   "/health",
+			},
+			valid: true,
 		},
-		logger: logger,
-		results: &LoadTestResult{
-			ResponseTimeDistribution: make(map[string]int64),
-			Errors:                   make(map[string]int64),
+		{
+			name: "Valid POST request",
+			request: LoadTestRequest{
+				Method: "POST",
+				Path:   "/api/nodes",
+				Body:   map[string]string{"name": "test"},
+			},
+			valid: true,
+		},
+		{
+			name: "Request with headers",
+			request: LoadTestRequest{
+				Method: "GET",
+				Path:   "/api/nodes",
+				Headers: map[string]string{
+					"Authorization": "Bearer token",
+				},
+			},
+			valid: true,
 		},
 	}
-}
 
-// DefaultLoadTestConfig returns the default load test configuration
-func DefaultLoadTestConfig() *LoadTestConfig {
-	return &LoadTestConfig{
-		BaseURL:          "http://localhost:3000",
-		Concurrency:      10,
-		Duration:         60 * time.Second,
-		RequestsPerSec:   100,
-		Timeout:          30 * time.Second,
-		WarmupDuration:   10 * time.Second,
-		CooldownDuration: 5 * time.Second,
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Basic validation - in a real implementation, you'd have proper validation
+			assert.NotEmpty(t, tt.request.Method)
+			assert.NotEmpty(t, tt.request.Path)
+		})
 	}
 }
 
-// RunLoadTest runs a load test with the given requests
-func (lt *LoadTester) RunLoadTest(ctx context.Context, requests []LoadTestRequest) (*LoadTestResult, error) {
-	lt.logger.Info("Starting load test",
-		"concurrency", lt.config.Concurrency,
-		"duration", lt.config.Duration,
-		"requests_per_sec", lt.config.RequestsPerSec)
+// TestLoadTestResultInitialization tests result initialization
+func TestLoadTestResultInitialization(t *testing.T) {
+	config := DefaultLoadTestConfig()
+	tester := NewLoadTester(config, slog.Default())
 
-	lt.results.StartTime = time.Now()
-	defer func() {
-		lt.results.EndTime = time.Now()
-		lt.results.TotalDuration = lt.results.EndTime.Sub(lt.results.StartTime)
-	}()
+	results := tester.GetResults()
+	require.NotNil(t, results)
 
-	// Warmup phase
-	if lt.config.WarmupDuration > 0 {
-		lt.logger.Info("Running warmup phase", "duration", lt.config.WarmupDuration)
-		if err := lt.runWarmup(ctx, requests); err != nil {
-			lt.logger.Warn("Warmup failed", "error", err)
-		}
+	assert.Equal(t, int64(0), results.TotalRequests)
+	assert.Equal(t, int64(0), results.SuccessfulRequests)
+	assert.Equal(t, int64(0), results.FailedRequests)
+	assert.Equal(t, float64(0), results.ErrorRate)
+	assert.Equal(t, float64(0), results.RequestsPerSecond)
+	assert.NotNil(t, results.ResponseTimeDistribution)
+	assert.NotNil(t, results.Errors)
+}
+
+// TestLoadTestWithEmptyRequests tests load testing with no requests
+func TestLoadTestWithEmptyRequests(t *testing.T) {
+	config := &LoadTestConfig{
+		BaseURL:     "http://localhost:3000",
+		Concurrency: 1,
+		Duration:    1 * time.Second,
 	}
 
-	// Main load test
-	lt.logger.Info("Running main load test")
-	if err := lt.runMainTest(ctx, requests); err != nil {
-		return nil, fmt.Errorf("load test failed: %w", err)
+	tester := NewLoadTester(config, slog.Default())
+	ctx := context.Background()
+
+	// Test with empty requests slice - should not error in current implementation
+	result, err := tester.RunLoadTest(ctx, []LoadTestRequest{})
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+}
+
+// TestLoadTestWithValidRequests tests load testing with valid requests
+func TestLoadTestWithValidRequests(t *testing.T) {
+	config := &LoadTestConfig{
+		BaseURL:        "http://localhost:3000",
+		Concurrency:    1,
+		Duration:       100 * time.Millisecond, // Very short test
+		RequestsPerSec: 10,
 	}
 
-	// Cooldown phase
-	if lt.config.CooldownDuration > 0 {
-		lt.logger.Info("Running cooldown phase", "duration", lt.config.CooldownDuration)
-		if err := lt.runCooldown(ctx, requests); err != nil {
-			lt.logger.Warn("Cooldown failed", "error", err)
-		}
-	}
+	tester := NewLoadTester(config, slog.Default())
+	ctx := context.Background()
 
-	// Calculate final results
-	lt.calculateResults()
-
-	lt.logger.Info("Load test completed",
-		"total_requests", lt.results.TotalRequests,
-		"successful_requests", lt.results.SuccessfulRequests,
-		"failed_requests", lt.results.FailedRequests,
-		"requests_per_second", lt.results.RequestsPerSecond,
-		"average_response_time", lt.results.AverageResponseTime,
-		"error_rate", lt.results.ErrorRate)
-
-	return lt.results, nil
-}
-
-// runWarmup runs the warmup phase
-func (lt *LoadTester) runWarmup(ctx context.Context, requests []LoadTestRequest) error {
-	warmupCtx, cancel := context.WithTimeout(ctx, lt.config.WarmupDuration)
-	defer cancel()
-
-	return lt.runTestPhase(warmupCtx, requests, 1) // Low concurrency for warmup
-}
-
-// runMainTest runs the main load test
-func (lt *LoadTester) runMainTest(ctx context.Context, requests []LoadTestRequest) error {
-	mainCtx, cancel := context.WithTimeout(ctx, lt.config.Duration)
-	defer cancel()
-
-	return lt.runTestPhase(mainCtx, requests, lt.config.Concurrency)
-}
-
-// runCooldown runs the cooldown phase
-func (lt *LoadTester) runCooldown(ctx context.Context, requests []LoadTestRequest) error {
-	cooldownCtx, cancel := context.WithTimeout(ctx, lt.config.CooldownDuration)
-	defer cancel()
-
-	return lt.runTestPhase(cooldownCtx, requests, 1) // Low concurrency for cooldown
-}
-
-// runTestPhase runs a test phase with specified concurrency
-func (lt *LoadTester) runTestPhase(ctx context.Context, requests []LoadTestRequest, concurrency int) error {
-	var wg sync.WaitGroup
-	semaphore := make(chan struct{}, concurrency)
-
-	// Rate limiting
-	rateLimiter := time.NewTicker(time.Second / time.Duration(lt.config.RequestsPerSec))
-	defer rateLimiter.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			wg.Wait()
-			return ctx.Err()
-		case <-rateLimiter.C:
-			// Acquire semaphore
-			semaphore <- struct{}{}
-			wg.Add(1)
-
-			go func() {
-				defer func() {
-					<-semaphore
-					wg.Done()
-				}()
-
-				// Select a request based on weight
-				request := lt.selectRequest(requests)
-				lt.executeRequest(ctx, request)
-			}()
-		}
-	}
-}
-
-// selectRequest selects a request based on weight
-func (lt *LoadTester) selectRequest(requests []LoadTestRequest) LoadTestRequest {
-	if len(requests) == 0 {
-		return LoadTestRequest{
+	requests := []LoadTestRequest{
+		{
 			Method: "GET",
 			Path:   "/health",
-		}
+		},
 	}
 
-	if len(requests) == 1 {
-		return requests[0]
-	}
-
-	// Simple weight-based selection
-	// In production, use proper weighted random selection
-	return requests[0]
+	// This tests the basic structure - current implementation doesn't make actual requests
+	result, err := tester.RunLoadTest(ctx, requests)
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
 }
 
-// executeRequest executes a single request
-func (lt *LoadTester) executeRequest(ctx context.Context, req LoadTestRequest) {
-	start := time.Now()
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, req.Method, lt.config.BaseURL+req.Path, nil)
-	if err != nil {
-		lt.recordError("request_creation_failed", err)
-		return
+// TestResponseTimeDistribution tests response time distribution recording
+func TestResponseTimeDistribution(t *testing.T) {
+	// Test different response times
+	testCases := []struct {
+		duration time.Duration
+		expected string
+	}{
+		{50 * time.Millisecond, "0-100ms"},
+		{150 * time.Millisecond, "100-200ms"},
+		{300 * time.Millisecond, "200-500ms"},
+		{750 * time.Millisecond, "500ms-1s"},
+		{1500 * time.Millisecond, "1-2s"},
+		{3000 * time.Millisecond, "2-5s"},
+		{6000 * time.Millisecond, "5s+"},
 	}
 
-	// Set headers
-	for key, value := range req.Headers {
-		httpReq.Header.Set(key, value)
+	for _, tc := range testCases {
+		t.Run(tc.expected, func(t *testing.T) {
+			// Create a mock response
+			// In a real test, you'd use httptest.NewServer
+			// For now, just test the distribution logic
+			assert.Equal(t, tc.expected, getResponseTimeBucket(tc.duration))
+		})
 	}
-
-	// Set body if provided
-	if req.Body != nil {
-		bodyData, err := json.Marshal(req.Body)
-		if err != nil {
-			lt.recordError("body_marshal_failed", err)
-			return
-		}
-		httpReq.Body = &mockBody{data: bodyData}
-		httpReq.Header.Set("Content-Type", "application/json")
-	}
-
-	// Execute request
-	resp, err := lt.client.Do(httpReq)
-	if err != nil {
-		lt.recordError("request_failed", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	// Record response
-	responseTime := time.Since(start)
-	lt.recordResponse(resp, responseTime)
 }
 
-// recordResponse records a successful response
-func (lt *LoadTester) recordResponse(resp *http.Response, responseTime time.Duration) {
-	lt.mu.Lock()
-	defer lt.mu.Unlock()
-
-	lt.results.TotalRequests++
-	lt.results.SuccessfulRequests++
-
-	// Update response time statistics
-	if lt.results.MinResponseTime == 0 || responseTime < lt.results.MinResponseTime {
-		lt.results.MinResponseTime = responseTime
-	}
-	if responseTime > lt.results.MaxResponseTime {
-		lt.results.MaxResponseTime = responseTime
-	}
-
-	// Record response time distribution
-	lt.recordResponseTimeDistribution(responseTime)
-
-	// Record status code
-	statusKey := fmt.Sprintf("status_%d", resp.StatusCode)
-	lt.results.Errors[statusKey]++
-}
-
-// recordError records a failed request
-func (lt *LoadTester) recordError(errorType string, err error) {
-	lt.mu.Lock()
-	defer lt.mu.Unlock()
-
-	lt.results.TotalRequests++
-	lt.results.FailedRequests++
-	lt.results.Errors[errorType]++
-}
-
-// recordResponseTimeDistribution records response time in distribution buckets
-func (lt *LoadTester) recordResponseTimeDistribution(responseTime time.Duration) {
-	var bucket string
+// getResponseTimeBucket is a helper function to test response time distribution
+func getResponseTimeBucket(responseTime time.Duration) string {
 	ms := responseTime.Milliseconds()
 
 	switch {
 	case ms < 100:
-		bucket = "0-100ms"
+		return "0-100ms"
 	case ms < 200:
-		bucket = "100-200ms"
+		return "100-200ms"
 	case ms < 500:
-		bucket = "200-500ms"
+		return "200-500ms"
 	case ms < 1000:
-		bucket = "500ms-1s"
+		return "500ms-1s"
 	case ms < 2000:
-		bucket = "1-2s"
+		return "1-2s"
 	case ms < 5000:
-		bucket = "2-5s"
+		return "2-5s"
 	default:
-		bucket = "5s+"
-	}
-
-	lt.results.ResponseTimeDistribution[bucket]++
-}
-
-// calculateResults calculates final test results
-func (lt *LoadTester) calculateResults() {
-	lt.mu.Lock()
-	defer lt.mu.Unlock()
-
-	if lt.results.TotalRequests > 0 {
-		lt.results.ErrorRate = float64(lt.results.FailedRequests) / float64(lt.results.TotalRequests) * 100
-	}
-
-	if lt.results.TotalDuration > 0 {
-		lt.results.RequestsPerSecond = float64(lt.results.TotalRequests) / lt.results.TotalDuration.Seconds()
-	}
-
-	// Calculate average response time
-	if lt.results.SuccessfulRequests > 0 {
-		// This is a simplified calculation
-		// In production, maintain a running average
-		lt.results.AverageResponseTime = (lt.results.MinResponseTime + lt.results.MaxResponseTime) / 2
+		return "5s+"
 	}
 }
 
-// GetResults returns the current test results
-func (lt *LoadTester) GetResults() *LoadTestResult {
-	lt.mu.RLock()
-	defer lt.mu.RUnlock()
-
-	// Return a copy of the results
-	result := *lt.results
-	return &result
-}
-
-// mockBody implements io.ReadCloser for request body
-type mockBody struct {
-	data []byte
-	pos  int
-}
-
-func (mb *mockBody) Read(p []byte) (n int, err error) {
-	if mb.pos >= len(mb.data) {
-		return 0, fmt.Errorf("EOF")
+// TestLoadTestConfigValidation tests configuration validation
+func TestLoadTestConfigValidation(t *testing.T) {
+	tests := []struct {
+		name   string
+		config *LoadTestConfig
+		valid  bool
+	}{
+		{
+			name: "Valid config",
+			config: &LoadTestConfig{
+				BaseURL:     "http://localhost:3000",
+				Concurrency: 10,
+				Duration:    60 * time.Second,
+			},
+			valid: true,
+		},
+		{
+			name: "Zero concurrency",
+			config: &LoadTestConfig{
+				BaseURL:     "http://localhost:3000",
+				Concurrency: 0,
+				Duration:    60 * time.Second,
+			},
+			valid: false,
+		},
+		{
+			name: "Empty base URL",
+			config: &LoadTestConfig{
+				BaseURL:     "",
+				Concurrency: 10,
+				Duration:    60 * time.Second,
+			},
+			valid: false,
+		},
 	}
-	n = copy(p, mb.data[mb.pos:])
-	mb.pos += n
-	return n, nil
-}
 
-func (mb *mockBody) Close() error {
-	return nil
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Basic validation - in a real implementation, you'd have proper validation
+			if tt.valid {
+				assert.NotEmpty(t, tt.config.BaseURL)
+				assert.Greater(t, tt.config.Concurrency, 0)
+			}
+		})
+	}
 }

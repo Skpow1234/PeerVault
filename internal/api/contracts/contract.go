@@ -1,9 +1,11 @@
 package contracts
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"time"
@@ -81,7 +83,16 @@ func (cv *ContractVerifier) VerifyContract(ctx context.Context, contract *Contra
 func (cv *ContractVerifier) createRequest(req *ContractRequest) (*http.Request, error) {
 	url := cv.baseURL + req.Path
 
-	httpReq, err := http.NewRequest(req.Method, url, nil)
+	var bodyReader io.Reader
+	if req.Body != nil {
+		bodyData, err := json.Marshal(req.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal request body: %w", err)
+		}
+		bodyReader = bytes.NewReader(bodyData)
+	}
+
+	httpReq, err := http.NewRequest(req.Method, url, bodyReader)
 	if err != nil {
 		return nil, err
 	}
@@ -91,13 +102,8 @@ func (cv *ContractVerifier) createRequest(req *ContractRequest) (*http.Request, 
 		httpReq.Header.Set(key, value)
 	}
 
-	// Set body if provided
+	// Set content type if body is provided
 	if req.Body != nil {
-		bodyData, err := json.Marshal(req.Body)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal request body: %w", err)
-		}
-		httpReq.Body = &mockBody{data: bodyData}
 		httpReq.Header.Set("Content-Type", "application/json")
 	}
 
@@ -188,24 +194,5 @@ func ValidateContract(contract *ContractTest) error {
 		return fmt.Errorf("contract response status code is required")
 	}
 
-	return nil
-}
-
-// mockBody implements io.ReadCloser for request body
-type mockBody struct {
-	data []byte
-	pos  int
-}
-
-func (mb *mockBody) Read(p []byte) (n int, err error) {
-	if mb.pos >= len(mb.data) {
-		return 0, fmt.Errorf("EOF")
-	}
-	n = copy(p, mb.data[mb.pos:])
-	mb.pos += n
-	return n, nil
-}
-
-func (mb *mockBody) Close() error {
 	return nil
 }

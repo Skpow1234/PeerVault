@@ -31,6 +31,7 @@ PeerVault MVP focuses on core P2P file storage with a single, well-implemented A
 - **HMAC-SHA256 authentication** for peer connections
 - **Key derivation** from cluster key with rotation support
 - **Basic vulnerability scanning** with govulncheck and semgrep
+- **GitHub Actions security** with explicit permissions and least privilege
 
 ### ✅ Basic Observability (MVP)
 
@@ -444,6 +445,9 @@ go build -o bin/peervault-graphql ./cmd/peervault-graphql
 
 # Build REST API server
 go build -o bin/peervault-api ./cmd/peervault-api
+
+# Build Mock server
+go build -o bin/peervault-mock ./cmd/peervault-mock
 ```
 
 ### Windows (PowerShell)
@@ -453,6 +457,9 @@ go build -o bin\peervault.exe .\cmd\peervault
 
 # Build GraphQL server
 go build -o bin\peervault-graphql.exe .\cmd\peervault-graphql
+
+# Build Mock server
+go build -o bin\peervault-mock.exe .\cmd\peervault-mock
 ```
 
 ## Run
@@ -726,6 +733,127 @@ fmt.Printf("Status: %s\n", response.Status)
 
 For complete gRPC API documentation, see [docs/grpc/README.md](docs/grpc/README.md).
 
+## API Testing & Quality Assurance
+
+PeerVault includes comprehensive API testing capabilities for ensuring reliability, performance, and security across all API interfaces.
+
+### 🧪 **API Testing Features**
+
+#### ✅ **Interactive API Testing**
+- **Postman Collections**: Pre-configured collections for all API endpoints
+- **Environment Management**: Support for multiple environments (dev, staging, prod)
+- **Automated Testing**: Newman CLI integration for CI/CD pipelines
+- **Test Reporting**: Comprehensive test results and coverage reports
+
+#### ✅ **API Mocking**
+- **Mock Server**: Standalone mock server for development and testing
+- **OpenAPI Integration**: Automatic mock generation from OpenAPI specifications
+- **Scenario Testing**: Customizable response scenarios and conditions
+- **Analytics**: Request/response monitoring and analytics
+
+#### ✅ **Contract Testing**
+- **Consumer-Driven Contracts**: Pact-compatible contract testing
+- **Request/Response Validation**: Schema validation and compatibility checks
+- **Contract Evolution**: Track API changes and breaking changes
+- **Provider Verification**: Automated provider contract verification
+
+#### ✅ **Performance Testing**
+- **Load Testing**: Configurable concurrency and duration testing
+- **Stress Testing**: System limits and bottleneck identification
+- **Response Time Analysis**: Detailed performance metrics and distributions
+- **k6 Integration**: Advanced performance testing scenarios
+
+#### ✅ **Security Testing**
+- **OWASP Top 10**: Comprehensive API security vulnerability testing
+- **Injection Testing**: SQL injection, XSS, and command injection tests
+- **Authentication Testing**: Auth bypass and token validation tests
+- **Security Headers**: Security header validation and compliance
+
+### 🚀 **Quick Start**
+
+#### Run All API Tests
+```bash
+# Run comprehensive API test suite
+./scripts/api-testing/run-tests.sh
+
+# Run with custom configuration
+./scripts/api-testing/run-tests.sh --base-url http://localhost:8080 --verbose
+```
+
+#### Start Mock Server
+```bash
+# Start mock server for development
+go run cmd/peervault-mock/main.go --config config/mock-server.yaml
+
+# Generate scenarios from OpenAPI spec
+go run cmd/peervault-mock/main.go --generate --spec docs/api/peervault-rest-api.yaml
+```
+
+#### Run Individual Test Suites
+```bash
+# Contract tests
+go test ./tests/contracts/...
+
+# Performance tests
+go test -bench=. ./tests/performance/...
+
+# Security tests
+go test ./tests/security/...
+
+# Postman tests
+newman run tests/api/collections/peervault-postman.json
+```
+
+### 📊 **Test Coverage**
+
+The API testing framework provides comprehensive coverage:
+
+- **Contract Tests**: 19 test cases covering all major API endpoints
+- **Performance Tests**: 8 test scenarios with configurable load patterns
+- **Security Tests**: 6 OWASP Top 10 security test categories
+- **Mock Scenarios**: 15+ pre-configured mock response scenarios
+
+### 🔧 **Configuration**
+
+#### Mock Server Configuration
+```yaml
+# config/mock-server.yaml
+port: 3001
+host: "localhost"
+openapi_spec: "docs/api/peervault-rest-api.yaml"
+mock_data_dir: "tests/api/mock-data"
+response_delay: 100ms
+enable_analytics: true
+```
+
+#### Test Environment Variables
+```bash
+# API Testing Configuration
+export BASE_URL="http://localhost:3000"      # Target API URL
+export MOCK_URL="http://localhost:3001"      # Mock server URL
+export TEST_TIMEOUT="30s"                    # Test timeout duration
+export VERBOSE="true"                        # Enable verbose output
+```
+
+### 📈 **CI/CD Integration**
+
+The API testing framework integrates seamlessly with CI/CD pipelines:
+
+```yaml
+# GitHub Actions example
+- name: Run API Tests
+  run: |
+    ./scripts/api-testing/run-tests.sh --base-url ${{ env.API_URL }}
+```
+
+### 📚 **Documentation**
+
+- **API Testing Guide**: [docs/api/testing/README.md](docs/api/testing/README.md)
+- **Implementation Details**: [docs/api/testing/IMPLEMENTATION.md](docs/api/testing/IMPLEMENTATION.md)
+- **Security Configuration**: [.github/workflows/SECURITY.md](.github/workflows/SECURITY.md)
+
+For complete API testing documentation, see [docs/api/testing/README.md](docs/api/testing/README.md).
+
 ## Plugin Architecture
 
 PeerVault includes a comprehensive plugin architecture for extensibility:
@@ -975,6 +1103,7 @@ peervault/
 │   ├── peervault-graphql/       # GraphQL API server binary
 │   ├── peervault-api/           # REST API server binary
 │   ├── peervault-grpc/          # gRPC API server binary
+│   ├── peervault-mock/          # API mock server binary
 │   ├── peervault-config/        # Configuration management tool
 │   ├── peervault-ipfs/          # IPFS compatibility tool
 │   ├── peervault-chain/         # Blockchain integration tool
@@ -993,10 +1122,21 @@ peervault/
 │   │   │   ├── services/        # Business logic interfaces
 │   │   │   ├── types/           # API types and DTOs
 │   │   │   └── server.go        # REST HTTP server
-│   │   └── grpc/                # gRPC API implementation
-│   │       ├── services/        # gRPC service implementations
-│   │       ├── types/           # gRPC type definitions
-│   │       └── server.go        # gRPC server
+│   │   ├── grpc/                # gRPC API implementation
+│   │   │   ├── services/        # gRPC service implementations
+│   │   │   ├── types/           # gRPC type definitions
+│   │   │   └── server.go        # gRPC server
+│   │   ├── mocking/             # API mocking framework
+│   │   │   └── mock_server.go   # Mock server implementation
+│   │   ├── contracts/           # Contract testing framework
+│   │   │   ├── contract.go      # Contract verification logic
+│   │   │   └── contract_test.go # Contract test implementation
+│   │   ├── performance/         # Performance testing framework
+│   │   │   ├── performance.go   # Performance testing logic
+│   │   │   └── load_test.go     # Load test implementation
+│   │   └── security/            # Security testing framework
+│   │       ├── security.go      # Security testing logic
+│   │       └── security_test.go # Security test implementation
 │   ├── blockchain/              # Blockchain integration
 │   │   └── integration.go       # Blockchain integration and smart contracts
 │   ├── content/                 # Content addressing
@@ -1103,6 +1243,17 @@ peervault/
 │   │   ├── multi-node/          # Multi-node network tests
 │   │   ├── performance/         # Performance and benchmark tests
 │   │   └── rest/                # REST API integration tests
+│   ├── api/                     # API testing framework
+│   │   ├── collections/         # Postman/Insomnia collections
+│   │   └── mock-data/           # Mock server data and scenarios
+│   ├── contracts/               # Contract testing definitions
+│   │   ├── health_contract.json # Health check contract
+│   │   └── contract_test.go     # Contract verification tests
+│   ├── performance/             # Performance testing
+│   │   ├── load_test.go         # Go performance tests
+│   │   └── load-test.js         # k6 performance tests
+│   ├── security/                # Security testing
+│   │   └── security_test.go     # Security test implementation
 │   ├── fuzz/                    # Fuzz testing for robustness
 │   │   ├── crypto/              # Crypto layer fuzz tests
 │   │   ├── storage/             # Storage layer fuzz tests
@@ -1160,7 +1311,9 @@ peervault/
 │   ├── security-check.sh       # Security validation script (Unix)
 │   ├── security-check.ps1      # Security validation script (Windows)
 │   ├── quick_trust.bat         # Windows Defender trust script
-│   └── trust_application.ps1   # Windows Defender setup script
+│   ├── trust_application.ps1   # Windows Defender setup script
+│   └── api-testing/            # API testing scripts
+│       └── run-tests.sh        # Comprehensive API test runner
 ├── docker/                      # Containerization files
 │   ├── Dockerfile              # Main application container
 │   ├── Dockerfile.node         # Node-specific container
@@ -1195,6 +1348,7 @@ peervault/
 │   ├── test-demo.yaml          # Demo configuration
 │   ├── test-demo2.yaml         # Demo configuration 2
 │   ├── test-generated.yaml     # Generated test configuration
+│   ├── mock-server.yaml        # Mock server configuration
 │   └── codecov.yml             # Code coverage configuration
 ├── bin/                         # Build artifacts (generated)
 ├── storage/                     # Storage data directory (generated)
@@ -1211,7 +1365,11 @@ peervault/
 
 - **`cmd/`**: Application entrypoints for different use cases (main, node, demo, APIs, config)
 - **`internal/`**: Core application code organized by domain
-- **`internal/api/`**: API interfaces including GraphQL, REST, and gRPC implementations
+- **`internal/api/`**: API interfaces including GraphQL, REST, gRPC, and comprehensive testing frameworks
+- **`internal/api/mocking/`**: API mocking framework for development and testing
+- **`internal/api/contracts/`**: Contract testing framework for API compatibility
+- **`internal/api/performance/`**: Performance testing framework with load testing
+- **`internal/api/security/`**: Security testing framework with OWASP compliance
 - **`internal/auth/`**: Authentication and authorization (RBAC)
 - **`internal/audit/`**: Audit logging and security monitoring
 - **`internal/backup/`**: Backup and disaster recovery
@@ -1234,10 +1392,15 @@ peervault/
 - **`internal/tracing/`**: Distributed tracing
 - **`plugins/`**: Plugin implementations (S3 storage, etc.)
 - **`security/`**: Security infrastructure, policies, and tools
-- **`tests/`**: Comprehensive test suite with unit, integration, and fuzz tests
+- **`tests/`**: Comprehensive test suite with unit, integration, fuzz, and API testing
+- **`tests/api/`**: API testing collections and mock data
+- **`tests/contracts/`**: Contract testing definitions and verification
+- **`tests/performance/`**: Performance testing with load and stress tests
+- **`tests/security/`**: Security testing with OWASP compliance tests
 - **`documentation/`**: Complete project documentation
 - **`docs/`**: API documentation, SDKs, examples, and developer portal
-- **`scripts/`**: Cross-platform build, automation, and security scripts
+- **`scripts/`**: Cross-platform build, automation, security, and API testing scripts
+- **`scripts/api-testing/`**: API testing automation and test runners
 - **`docker/`**: Containerization for development and production
 - **`.github/`**: CI/CD pipeline with security integration and GitHub automation
 - **`proto/`**: Protocol Buffer definitions and generated code
@@ -1255,6 +1418,21 @@ go test ./tests/integration/graphql/ -v
 
 # Test REST API specifically
 go test ./tests/integration/rest/ -v
+
+# Test API testing frameworks
+go test ./internal/api/contracts/... ./internal/api/performance/... ./internal/api/security/...
+
+# Run comprehensive API test suite
+./scripts/api-testing/run-tests.sh
+
+# Run contract tests
+go test ./tests/contracts/...
+
+# Run performance tests
+go test -bench=. ./tests/performance/...
+
+# Run security tests
+go test ./tests/security/...
 ```
 
 ## Lint
