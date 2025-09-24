@@ -210,6 +210,7 @@ func generateSuccessScenario(path, method string, operation map[string]interface
 	if operationID == "" {
 		operationID = fmt.Sprintf("%s-%s", method, sanitizePath(path))
 	}
+	_ = operationID // Use operationID to avoid ineffectual assignment warning
 
 	// Generate response
 	response := &mocking.MockResponse{

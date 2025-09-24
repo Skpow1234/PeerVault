@@ -20,29 +20,39 @@ func TestContractVerification(t *testing.T) {
 		case "/health":
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			if err := json.NewEncoder(w).Encode(map[string]interface{}{
 				"status":    "healthy",
 				"timestamp": time.Now().UTC(),
-			})
+			}); err != nil {
+				http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+				return
+			}
 		case "/api/nodes":
-			if r.Method == "GET" {
+			switch r.Method {
+			case "GET":
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusOK)
-				json.NewEncoder(w).Encode([]map[string]interface{}{
+				if err := json.NewEncoder(w).Encode([]map[string]interface{}{
 					{
 						"id":     "node-1",
 						"name":   "test-node",
 						"status": "active",
 					},
-				})
-			} else if r.Method == "POST" {
+				}); err != nil {
+					http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+					return
+				}
+			case "POST":
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusCreated)
-				json.NewEncoder(w).Encode(map[string]interface{}{
+				if err := json.NewEncoder(w).Encode(map[string]interface{}{
 					"id":     "node-2",
 					"name":   "new-node",
 					"status": "active",
-				})
+				}); err != nil {
+					http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+					return
+				}
 			}
 		default:
 			w.WriteHeader(http.StatusNotFound)

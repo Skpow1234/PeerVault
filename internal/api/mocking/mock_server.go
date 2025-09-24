@@ -244,18 +244,24 @@ func (ms *MockServer) setupRoutes() {
 func (ms *MockServer) healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":    "healthy",
 		"service":   "peervault-mock-server",
 		"timestamp": time.Now().UTC(),
-	})
+	}); err != nil {
+		ms.logger.Error("Failed to encode health response", "error", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
 }
 
 // analyticsHandler returns mock server analytics
 func (ms *MockServer) analyticsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(ms.analytics)
+	if err := json.NewEncoder(w).Encode(ms.analytics); err != nil {
+		ms.logger.Error("Failed to encode analytics response", "error", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
 }
 
 // mockHandler handles all mock requests
@@ -297,7 +303,11 @@ func (ms *MockServer) mockHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Send response body
 	if scenario.Response.Body != nil {
-		json.NewEncoder(w).Encode(scenario.Response.Body)
+		if err := json.NewEncoder(w).Encode(scenario.Response.Body); err != nil {
+			ms.logger.Error("Failed to encode mock response", "error", err, "scenario", scenario.Name)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Update analytics

@@ -73,7 +73,11 @@ func (cv *ContractVerifier) VerifyContract(ctx context.Context, contract *Contra
 	if err != nil {
 		return fmt.Errorf("failed to execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			cv.logger.Warn("Failed to close response body", "error", closeErr)
+		}
+	}()
 
 	// Verify response
 	return cv.verifyResponse(resp, contract.Response)
