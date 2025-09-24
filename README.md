@@ -740,30 +740,35 @@ PeerVault includes comprehensive API testing capabilities for ensuring reliabili
 ### 🧪 **API Testing Features**
 
 #### ✅ **Interactive API Testing**
+
 - **Postman Collections**: Pre-configured collections for all API endpoints
 - **Environment Management**: Support for multiple environments (dev, staging, prod)
 - **Automated Testing**: Newman CLI integration for CI/CD pipelines
 - **Test Reporting**: Comprehensive test results and coverage reports
 
 #### ✅ **API Mocking**
+
 - **Mock Server**: Standalone mock server for development and testing
 - **OpenAPI Integration**: Automatic mock generation from OpenAPI specifications
 - **Scenario Testing**: Customizable response scenarios and conditions
 - **Analytics**: Request/response monitoring and analytics
 
 #### ✅ **Contract Testing**
+
 - **Consumer-Driven Contracts**: Pact-compatible contract testing
 - **Request/Response Validation**: Schema validation and compatibility checks
 - **Contract Evolution**: Track API changes and breaking changes
 - **Provider Verification**: Automated provider contract verification
 
 #### ✅ **Performance Testing**
+
 - **Load Testing**: Configurable concurrency and duration testing
 - **Stress Testing**: System limits and bottleneck identification
 - **Response Time Analysis**: Detailed performance metrics and distributions
 - **k6 Integration**: Advanced performance testing scenarios
 
 #### ✅ **Security Testing**
+
 - **OWASP Top 10**: Comprehensive API security vulnerability testing
 - **Injection Testing**: SQL injection, XSS, and command injection tests
 - **Authentication Testing**: Auth bypass and token validation tests
@@ -772,6 +777,7 @@ PeerVault includes comprehensive API testing capabilities for ensuring reliabili
 ### 🚀 **Quick Start**
 
 #### Run All API Tests
+
 ```bash
 # Run comprehensive API test suite
 ./scripts/api-testing/run-tests.sh
@@ -781,6 +787,7 @@ PeerVault includes comprehensive API testing capabilities for ensuring reliabili
 ```
 
 #### Start Mock Server
+
 ```bash
 # Start mock server for development
 go run cmd/peervault-mock/main.go --config config/mock-server.yaml
@@ -790,6 +797,7 @@ go run cmd/peervault-mock/main.go --generate --spec docs/api/peervault-rest-api.
 ```
 
 #### Run Individual Test Suites
+
 ```bash
 # Contract tests
 go test ./tests/contracts/...
@@ -816,6 +824,7 @@ The API testing framework provides comprehensive coverage:
 ### 🔧 **Configuration**
 
 #### Mock Server Configuration
+
 ```yaml
 # config/mock-server.yaml
 port: 3001
@@ -827,6 +836,7 @@ enable_analytics: true
 ```
 
 #### Test Environment Variables
+
 ```bash
 # API Testing Configuration
 export BASE_URL="http://localhost:3000"      # Target API URL
