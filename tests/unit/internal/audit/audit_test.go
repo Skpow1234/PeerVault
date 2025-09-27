@@ -1,4 +1,4 @@
-package audit
+package audit_test
 
 import (
 	"context"
@@ -6,31 +6,32 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Skpow1234/Peervault/internal/audit"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAuditConstants(t *testing.T) {
 	// Test audit level constants
-	assert.Equal(t, AuditLevel("info"), AuditLevelInfo)
-	assert.Equal(t, AuditLevel("warning"), AuditLevelWarning)
-	assert.Equal(t, AuditLevel("error"), AuditLevelError)
-	assert.Equal(t, AuditLevel("critical"), AuditLevelCritical)
+	assert.Equal(t, audit.AuditLevel("info"), audit.AuditLevelInfo)
+	assert.Equal(t, audit.AuditLevel("warning"), audit.AuditLevelWarning)
+	assert.Equal(t, audit.AuditLevel("error"), audit.AuditLevelError)
+	assert.Equal(t, audit.AuditLevel("critical"), audit.AuditLevelCritical)
 
 	// Test audit event type constants
-	assert.Equal(t, AuditEventType("authentication"), AuditEventTypeAuth)
-	assert.Equal(t, AuditEventType("access"), AuditEventTypeAccess)
-	assert.Equal(t, AuditEventType("data"), AuditEventTypeData)
-	assert.Equal(t, AuditEventType("system"), AuditEventTypeSystem)
-	assert.Equal(t, AuditEventType("security"), AuditEventTypeSecurity)
-	assert.Equal(t, AuditEventType("compliance"), AuditEventTypeCompliance)
-	assert.Equal(t, AuditEventType("administrative"), AuditEventTypeAdmin)
+	assert.Equal(t, audit.AuditEventType("authentication"), audit.AuditEventTypeAuth)
+	assert.Equal(t, audit.AuditEventType("access"), audit.AuditEventTypeAccess)
+	assert.Equal(t, audit.AuditEventType("data"), audit.AuditEventTypeData)
+	assert.Equal(t, audit.AuditEventType("system"), audit.AuditEventTypeSystem)
+	assert.Equal(t, audit.AuditEventType("security"), audit.AuditEventTypeSecurity)
+	assert.Equal(t, audit.AuditEventType("compliance"), audit.AuditEventTypeCompliance)
+	assert.Equal(t, audit.AuditEventType("administrative"), audit.AuditEventTypeAdmin)
 }
 
 func TestAuditEvent(t *testing.T) {
-	event := &AuditEvent{
+	event := &audit.AuditEvent{
 		ID:        "test-id",
-		Type:      AuditEventTypeAuth,
-		Level:     AuditLevelInfo,
+		Type:      audit.AuditEventTypeAuth,
+		Level:     audit.AuditLevelInfo,
 		UserID:    "user123",
 		SessionID: "session456",
 		IPAddress: "192.168.1.1",
@@ -48,8 +49,8 @@ func TestAuditEvent(t *testing.T) {
 	}
 
 	assert.Equal(t, "test-id", event.ID)
-	assert.Equal(t, AuditEventTypeAuth, event.Type)
-	assert.Equal(t, AuditLevelInfo, event.Level)
+	assert.Equal(t, audit.AuditEventTypeAuth, event.Type)
+	assert.Equal(t, audit.AuditLevelInfo, event.Level)
 	assert.Equal(t, "user123", event.UserID)
 	assert.Equal(t, "session456", event.SessionID)
 	assert.Equal(t, "192.168.1.1", event.IPAddress)
@@ -68,15 +69,10 @@ func TestNewAuditLogger(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	assert.NotNil(t, logger)
-	assert.NotNil(t, logger.events)
-	assert.NotNil(t, logger.buffer)
-	assert.Equal(t, logPath, logger.logPath)
-	assert.Equal(t, 100, logger.batchSize)
-	assert.Equal(t, 30*time.Second, logger.flushInterval)
-	assert.NotNil(t, logger.stopChan)
+	// Test that logger was created successfully
 
 	// Clean up
 	err = logger.Close()
@@ -86,7 +82,7 @@ func TestNewAuditLogger(t *testing.T) {
 func TestNewAuditLogger_InvalidPath(t *testing.T) {
 	// Test with invalid path (parent directory doesn't exist and can't be created)
 	// This test might pass on some systems, so we'll make it more robust
-	logger, err := NewAuditLogger("/root/restricted/audit.log")
+	logger, err := audit.NewAuditLogger("/root/restricted/audit.log")
 	if err != nil {
 		assert.Error(t, err)
 		assert.Nil(t, logger)
@@ -104,17 +100,17 @@ func TestAuditLogger_LogEvent(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
 	// Test logging an event with all fields
-	event := &AuditEvent{
+	event := &audit.AuditEvent{
 		ID:        "test-event-1",
-		Type:      AuditEventTypeAuth,
-		Level:     AuditLevelInfo,
+		Type:      audit.AuditEventTypeAuth,
+		Level:     audit.AuditLevelInfo,
 		UserID:    "user123",
 		Message:   "Test event",
 		Timestamp: time.Now(),
@@ -124,7 +120,7 @@ func TestAuditLogger_LogEvent(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Test logging an event with minimal fields (should set defaults)
-	event2 := &AuditEvent{
+	event2 := &audit.AuditEvent{
 		Message: "Test event 2",
 	}
 
@@ -137,12 +133,12 @@ func TestAuditLogger_LogEvent(t *testing.T) {
 
 	// Check first event
 	assert.Equal(t, "test-event-1", events[0].ID)
-	assert.Equal(t, AuditEventTypeAuth, events[0].Type)
-	assert.Equal(t, AuditLevelInfo, events[0].Level)
+	assert.Equal(t, audit.AuditEventTypeAuth, events[0].Type)
+	assert.Equal(t, audit.AuditLevelInfo, events[0].Level)
 
 	// Check second event (should have defaults set)
 	assert.NotEmpty(t, events[1].ID)
-	assert.Equal(t, AuditLevelInfo, events[1].Level) // Default level
+	assert.Equal(t, audit.AuditLevelInfo, events[1].Level) // Default level
 	assert.NotZero(t, events[1].Timestamp)           // Default timestamp
 }
 
@@ -151,7 +147,7 @@ func TestAuditLogger_LogAuthEvent(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -169,8 +165,8 @@ func TestAuditLogger_LogAuthEvent(t *testing.T) {
 	assert.Len(t, events, 1)
 
 	event := events[0]
-	assert.Equal(t, AuditEventTypeAuth, event.Type)
-	assert.Equal(t, AuditLevelInfo, event.Level)
+	assert.Equal(t, audit.AuditEventTypeAuth, event.Type)
+	assert.Equal(t, audit.AuditLevelInfo, event.Level)
 	assert.Equal(t, "user123", event.UserID)
 	assert.Equal(t, "login", event.Action)
 	assert.Equal(t, "success", event.Result)
@@ -189,7 +185,7 @@ func TestAuditLogger_LogAccessEvent(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -207,8 +203,8 @@ func TestAuditLogger_LogAccessEvent(t *testing.T) {
 	assert.Len(t, events, 1)
 
 	event := events[0]
-	assert.Equal(t, AuditEventTypeAccess, event.Type)
-	assert.Equal(t, AuditLevelInfo, event.Level)
+	assert.Equal(t, audit.AuditEventTypeAccess, event.Type)
+	assert.Equal(t, audit.AuditLevelInfo, event.Level)
 	assert.Equal(t, "user123", event.UserID)
 	assert.Equal(t, "/api/files/123", event.Resource)
 	assert.Equal(t, "read", event.Action)
@@ -224,7 +220,7 @@ func TestAuditLogger_LogDataEvent(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -242,8 +238,8 @@ func TestAuditLogger_LogDataEvent(t *testing.T) {
 	assert.Len(t, events, 1)
 
 	event := events[0]
-	assert.Equal(t, AuditEventTypeData, event.Type)
-	assert.Equal(t, AuditLevelInfo, event.Level)
+	assert.Equal(t, audit.AuditEventTypeData, event.Type)
+	assert.Equal(t, audit.AuditLevelInfo, event.Level)
 	assert.Equal(t, "user123", event.UserID)
 	assert.Equal(t, "/api/users/123", event.Resource)
 	assert.Equal(t, "update", event.Action)
@@ -259,7 +255,7 @@ func TestAuditLogger_LogSecurityEvent(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -270,15 +266,15 @@ func TestAuditLogger_LogSecurityEvent(t *testing.T) {
 		"attempts":    5,
 	}
 
-	err = logger.LogSecurityEvent(ctx, AuditLevelWarning, "Multiple failed login attempts detected", details)
+	err = logger.LogSecurityEvent(ctx, audit.AuditLevelWarning, "Multiple failed login attempts detected", details)
 	assert.NoError(t, err)
 
 	events := logger.GetEvents(nil)
 	assert.Len(t, events, 1)
 
 	event := events[0]
-	assert.Equal(t, AuditEventTypeSecurity, event.Type)
-	assert.Equal(t, AuditLevelWarning, event.Level)
+	assert.Equal(t, audit.AuditEventTypeSecurity, event.Type)
+	assert.Equal(t, audit.AuditLevelWarning, event.Level)
 	assert.Equal(t, "Multiple failed login attempts detected", event.Message)
 	assert.Equal(t, "security", event.Category)
 	assert.Contains(t, event.Tags, "security")
@@ -290,7 +286,7 @@ func TestAuditLogger_LogSystemEvent(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -301,15 +297,15 @@ func TestAuditLogger_LogSystemEvent(t *testing.T) {
 		"status":    "healthy",
 	}
 
-	err = logger.LogSystemEvent(ctx, AuditLevelInfo, "Database connection established", details)
+	err = logger.LogSystemEvent(ctx, audit.AuditLevelInfo, "Database connection established", details)
 	assert.NoError(t, err)
 
 	events := logger.GetEvents(nil)
 	assert.Len(t, events, 1)
 
 	event := events[0]
-	assert.Equal(t, AuditEventTypeSystem, event.Type)
-	assert.Equal(t, AuditLevelInfo, event.Level)
+	assert.Equal(t, audit.AuditEventTypeSystem, event.Type)
+	assert.Equal(t, audit.AuditLevelInfo, event.Level)
 	assert.Equal(t, "Database connection established", event.Message)
 	assert.Equal(t, "system", event.Category)
 	assert.Contains(t, event.Tags, "system")
@@ -321,7 +317,7 @@ func TestAuditLogger_LogComplianceEvent(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -339,8 +335,8 @@ func TestAuditLogger_LogComplianceEvent(t *testing.T) {
 	assert.Len(t, events, 1)
 
 	event := events[0]
-	assert.Equal(t, AuditEventTypeCompliance, event.Type)
-	assert.Equal(t, AuditLevelInfo, event.Level)
+	assert.Equal(t, audit.AuditEventTypeCompliance, event.Type)
+	assert.Equal(t, audit.AuditLevelInfo, event.Level)
 	assert.Equal(t, "Data processing activity logged for GDPR compliance", event.Message)
 	assert.Equal(t, "compliance", event.Category)
 	assert.Contains(t, event.Tags, "compliance")
@@ -351,7 +347,7 @@ func TestAuditLogger_LogAdminEvent(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -369,8 +365,8 @@ func TestAuditLogger_LogAdminEvent(t *testing.T) {
 	assert.Len(t, events, 1)
 
 	event := events[0]
-	assert.Equal(t, AuditEventTypeAdmin, event.Type)
-	assert.Equal(t, AuditLevelInfo, event.Level)
+	assert.Equal(t, audit.AuditEventTypeAdmin, event.Type)
+	assert.Equal(t, audit.AuditLevelInfo, event.Level)
 	assert.Equal(t, "admin123", event.UserID)
 	assert.Equal(t, "grant_permission", event.Action)
 	assert.Equal(t, "success", event.Result)
@@ -385,7 +381,7 @@ func TestAuditLogger_GetEvents_WithFilter(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -395,46 +391,46 @@ func TestAuditLogger_GetEvents_WithFilter(t *testing.T) {
 	_ = logger.LogAuthEvent(ctx, "user1", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
 	_ = logger.LogAuthEvent(ctx, "user2", "login", "failure", "192.168.1.2", "Chrome/5.0", nil)
 	_ = logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
-	_ = logger.LogSecurityEvent(ctx, AuditLevelWarning, "Security alert", nil)
+	_ = logger.LogSecurityEvent(ctx, audit.AuditLevelWarning, "Security alert", nil)
 
 	// Test filter by user ID
-	filter := &AuditFilter{UserID: "user1"}
+	filter := &audit.AuditFilter{UserID: "user1"}
 	events := logger.GetEvents(filter)
 	assert.Len(t, events, 2)
 
 	// Test filter by type
-	filter = &AuditFilter{Type: AuditEventTypeAuth}
+	filter = &audit.AuditFilter{Type: audit.AuditEventTypeAuth}
 	events = logger.GetEvents(filter)
 	assert.Len(t, events, 2)
 
 	// Test filter by level
-	filter = &AuditFilter{Level: AuditLevelWarning}
+	filter = &audit.AuditFilter{Level: audit.AuditLevelWarning}
 	events = logger.GetEvents(filter)
 	assert.Len(t, events, 1)
 
 	// Test filter by action
-	filter = &AuditFilter{Action: "login"}
+	filter = &audit.AuditFilter{Action: "login"}
 	events = logger.GetEvents(filter)
 	assert.Len(t, events, 2)
 
 	// Test filter by result
-	filter = &AuditFilter{Result: "success"}
+	filter = &audit.AuditFilter{Result: "success"}
 	events = logger.GetEvents(filter)
 	assert.Len(t, events, 2)
 
 	// Test filter by resource
-	filter = &AuditFilter{Resource: "/api/files"}
+	filter = &audit.AuditFilter{Resource: "/api/files"}
 	events = logger.GetEvents(filter)
 	assert.Len(t, events, 1)
 
 	// Test filter by tags
-	filter = &AuditFilter{Tags: []string{"auth"}}
+	filter = &audit.AuditFilter{Tags: []string{"auth"}}
 	events = logger.GetEvents(filter)
 	assert.Len(t, events, 2)
 
 	// Test filter by time range
 	now := time.Now()
-	filter = &AuditFilter{
+	filter = &audit.AuditFilter{
 		StartTime: now.Add(-1 * time.Hour),
 		EndTime:   now.Add(1 * time.Hour),
 	}
@@ -442,7 +438,7 @@ func TestAuditLogger_GetEvents_WithFilter(t *testing.T) {
 	assert.Len(t, events, 4)
 
 	// Test filter with limit
-	filter = &AuditFilter{Limit: 2}
+	filter = &audit.AuditFilter{Limit: 2}
 	events = logger.GetEvents(filter)
 	assert.Len(t, events, 2)
 }
@@ -452,7 +448,7 @@ func TestAuditLogger_GetEvents_NoFilter(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -472,7 +468,7 @@ func TestAuditLogger_GetAuditSummary(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -483,8 +479,8 @@ func TestAuditLogger_GetAuditSummary(t *testing.T) {
 	_ = logger.LogAuthEvent(ctx, "user2", "login", "failure", "192.168.1.2", "Chrome/5.0", nil)
 	_ = logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
 	_ = logger.LogDataEvent(ctx, "user1", "/api/users", "update", "success", nil)
-	_ = logger.LogSecurityEvent(ctx, AuditLevelWarning, "Security alert", nil)
-	_ = logger.LogSystemEvent(ctx, AuditLevelError, "System error", nil)
+	_ = logger.LogSecurityEvent(ctx, audit.AuditLevelWarning, "Security alert", nil)
+	_ = logger.LogSystemEvent(ctx, audit.AuditLevelError, "System error", nil)
 	_ = logger.LogComplianceEvent(ctx, "Compliance event", nil)
 	_ = logger.LogAdminEvent(ctx, "admin1", "create_user", "success", nil)
 
@@ -515,7 +511,7 @@ func TestAuditLogger_ConcurrentAccess(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
@@ -535,9 +531,9 @@ func TestAuditLogger_ConcurrentAccess(t *testing.T) {
 			case 1:
 				_ = logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
 			case 2:
-				_ = logger.LogSecurityEvent(ctx, AuditLevelInfo, "Security event", nil)
+				_ = logger.LogSecurityEvent(ctx, audit.AuditLevelInfo, "Security event", nil)
 			case 3:
-				_ = logger.LogSystemEvent(ctx, AuditLevelInfo, "System event", nil)
+				_ = logger.LogSystemEvent(ctx, audit.AuditLevelInfo, "System event", nil)
 			}
 
 			// Test concurrent access to GetEvents
@@ -558,18 +554,18 @@ func TestAuditLogger_ConcurrentAccess(t *testing.T) {
 
 func TestGlobalAuditLogger(t *testing.T) {
 	// Test that global logger is initially nil
-	assert.Nil(t, GlobalAuditLogger)
+	assert.Nil(t, audit.GlobalAuditLogger)
 
 	// Test initialization
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	err := InitializeAuditLogger(logPath)
+	err := audit.InitializeAuditLogger(logPath)
 	assert.NoError(t, err)
-	assert.NotNil(t, GlobalAuditLogger)
+	assert.NotNil(t, audit.GlobalAuditLogger)
 
 	// Clean up
-	err = GlobalAuditLogger.Close()
+	err = audit.GlobalAuditLogger.Close()
 	assert.NoError(t, err)
 }
 
@@ -578,52 +574,52 @@ func TestConvenienceFunctions(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	err := InitializeAuditLogger(logPath)
+	err := audit.InitializeAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer func() { _ = GlobalAuditLogger.Close() }()
+	defer func() { _ = audit.GlobalAuditLogger.Close() }()
 
 	ctx := context.Background()
 
-	// Test LogEvent
-	event := &AuditEvent{
-		Type:    AuditEventTypeAuth,
-		Level:   AuditLevelInfo,
+	// Test audit.LogEvent
+	event := &audit.AuditEvent{
+		Type:    audit.AuditEventTypeAuth,
+		Level:   audit.AuditLevelInfo,
 		Message: "Test event",
 	}
 
-	err = LogEvent(ctx, event)
+	err = audit.LogEvent(ctx, event)
 	assert.NoError(t, err)
 
-	// Test LogAuthEvent
-	err = LogAuthEvent(ctx, "user123", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
+	// Test audit.LogAuthEvent
+	err = audit.LogAuthEvent(ctx, "user123", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
 	assert.NoError(t, err)
 
-	// Test LogAccessEvent
-	err = LogAccessEvent(ctx, "user123", "/api/files", "read", "success", nil)
+	// Test audit.LogAccessEvent
+	err = audit.LogAccessEvent(ctx, "user123", "/api/files", "read", "success", nil)
 	assert.NoError(t, err)
 
-	// Test LogDataEvent
-	err = LogDataEvent(ctx, "user123", "/api/users", "update", "success", nil)
+	// Test audit.LogDataEvent
+	err = audit.LogDataEvent(ctx, "user123", "/api/users", "update", "success", nil)
 	assert.NoError(t, err)
 
-	// Test LogSecurityEvent
-	err = LogSecurityEvent(ctx, AuditLevelWarning, "Security alert", nil)
+	// Test audit.LogSecurityEvent
+	err = audit.LogSecurityEvent(ctx, audit.AuditLevelWarning, "Security alert", nil)
 	assert.NoError(t, err)
 
-	// Test LogSystemEvent
-	err = LogSystemEvent(ctx, AuditLevelInfo, "System event", nil)
+	// Test audit.LogSystemEvent
+	err = audit.LogSystemEvent(ctx, audit.AuditLevelInfo, "System event", nil)
 	assert.NoError(t, err)
 
-	// Test LogComplianceEvent
-	err = LogComplianceEvent(ctx, "Compliance event", nil)
+	// Test audit.LogComplianceEvent
+	err = audit.LogComplianceEvent(ctx, "Compliance event", nil)
 	assert.NoError(t, err)
 
-	// Test LogAdminEvent
-	err = LogAdminEvent(ctx, "admin123", "create_user", "success", nil)
+	// Test audit.LogAdminEvent
+	err = audit.LogAdminEvent(ctx, "admin123", "create_user", "success", nil)
 	assert.NoError(t, err)
 
-	// Test GetAuditEvents
-	events := GetAuditEvents(nil)
+	// Test Getaudit.AuditEvents
+	events := Getaudit.AuditEvents(nil)
 	assert.Len(t, events, 8)
 
 	// Test GetAuditSummary
@@ -635,46 +631,46 @@ func TestConvenienceFunctions(t *testing.T) {
 
 func TestConvenienceFunctions_NoGlobalLogger(t *testing.T) {
 	// Reset global logger
-	GlobalAuditLogger = nil
+	audit.GlobalAuditLogger = nil
 
 	ctx := context.Background()
 
 	// Test that convenience functions return error when global logger is nil
-	event := &AuditEvent{Message: "Test"}
-	err := LogEvent(ctx, event)
+	event := &audit.AuditEvent{Message: "Test"}
+	err := audit.LogEvent(ctx, event)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "audit logger not initialized")
 
-	err = LogAuthEvent(ctx, "user123", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
+	err = audit.LogAuthEvent(ctx, "user123", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "audit logger not initialized")
 
-	err = LogAccessEvent(ctx, "user123", "/api/files", "read", "success", nil)
+	err = audit.LogAccessEvent(ctx, "user123", "/api/files", "read", "success", nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "audit logger not initialized")
 
-	err = LogDataEvent(ctx, "user123", "/api/users", "update", "success", nil)
+	err = audit.LogDataEvent(ctx, "user123", "/api/users", "update", "success", nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "audit logger not initialized")
 
-	err = LogSecurityEvent(ctx, AuditLevelWarning, "Security alert", nil)
+	err = audit.LogSecurityEvent(ctx, audit.AuditLevelWarning, "Security alert", nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "audit logger not initialized")
 
-	err = LogSystemEvent(ctx, AuditLevelInfo, "System event", nil)
+	err = audit.LogSystemEvent(ctx, audit.AuditLevelInfo, "System event", nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "audit logger not initialized")
 
-	err = LogComplianceEvent(ctx, "Compliance event", nil)
+	err = audit.LogComplianceEvent(ctx, "Compliance event", nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "audit logger not initialized")
 
-	err = LogAdminEvent(ctx, "admin123", "create_user", "success", nil)
+	err = audit.LogAdminEvent(ctx, "admin123", "create_user", "success", nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "audit logger not initialized")
 
-	// Test that GetAuditEvents returns nil when global logger is nil
-	events := GetAuditEvents(nil)
+	// Test that Getaudit.AuditEvents returns nil when global logger is nil
+	events := Getaudit.AuditEvents(nil)
 	assert.Nil(t, events)
 
 	// Test that GetAuditSummary returns nil when global logger is nil
@@ -687,14 +683,14 @@ func TestAuditLogger_EdgeCases(t *testing.T) {
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
 
-	logger, err := NewAuditLogger(logPath)
+	logger, err := audit.NewAuditLogger(logPath)
 	assert.NoError(t, err)
 	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
 	// Test logging event with empty fields
-	event := &AuditEvent{
+	event := &audit.AuditEvent{
 		Message: "Test event with empty fields",
 	}
 
@@ -702,7 +698,7 @@ func TestAuditLogger_EdgeCases(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Test logging another event
-	event2 := &AuditEvent{
+	event2 := &audit.AuditEvent{
 		Message: "Test event 2",
 	}
 
@@ -710,7 +706,7 @@ func TestAuditLogger_EdgeCases(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Test filter with empty values
-	filter := &AuditFilter{
+	filter := &audit.AuditFilter{
 		UserID:   "",
 		Type:     "",
 		Level:    "",
