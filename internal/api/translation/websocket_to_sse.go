@@ -216,7 +216,12 @@ func (t *WebSocketToSSETranslator) SendToSSE(message *Message) error {
 	if err != nil {
 		return fmt.Errorf("failed to send SSE message: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			// Log the error but don't fail the operation
+			// as the main operation has already completed
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("SSE server returned status %d", resp.StatusCode)
