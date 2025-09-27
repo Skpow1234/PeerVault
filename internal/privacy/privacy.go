@@ -229,6 +229,10 @@ func (pm *PrivacyManager) CreateDataSubject(subject *DataSubject) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
+	if subject == nil {
+		return fmt.Errorf("data subject cannot be nil")
+	}
+
 	if _, exists := pm.subjects[subject.ID]; exists {
 		return fmt.Errorf("data subject %s already exists", subject.ID)
 	}

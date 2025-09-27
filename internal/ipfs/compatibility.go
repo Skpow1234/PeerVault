@@ -257,18 +257,18 @@ func (ic *IPFSCompatibility) ExportIPFSData(ctx context.Context, cid *content.CI
 
 // ImportIPFSData imports data from IPFS format
 func (ic *IPFSCompatibility) ImportIPFSData(ctx context.Context, data []byte) (*content.CID, error) {
+	// Try to parse as DAG node first (more specific)
+	var dagNode IPFSDAGNode
+	if err := json.Unmarshal(data, &dagNode); err == nil && dagNode.Links != nil {
+		ic.dagNodes[dagNode.CID.Hash] = &dagNode
+		return dagNode.CID, nil
+	}
+
 	// Try to parse as block
 	var block IPFSBlock
 	if err := json.Unmarshal(data, &block); err == nil {
 		ic.blocks[block.CID.Hash] = &block
 		return block.CID, nil
-	}
-
-	// Try to parse as DAG node
-	var dagNode IPFSDAGNode
-	if err := json.Unmarshal(data, &dagNode); err == nil {
-		ic.dagNodes[dagNode.CID.Hash] = &dagNode
-		return dagNode.CID, nil
 	}
 
 	return nil, fmt.Errorf("failed to parse IPFS data")

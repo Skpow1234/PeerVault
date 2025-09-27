@@ -536,18 +536,20 @@ func (im *IoTManager) updateMetrics() {
 		}
 
 		// Count sensors
-		for _, sensor := range device.Capabilities.Sensors {
-			im.metrics.TotalSensors++
-			if sensor.Status == "active" {
-				im.metrics.ActiveSensors++
+		if device.Capabilities != nil {
+			for _, sensor := range device.Capabilities.Sensors {
+				im.metrics.TotalSensors++
+				if sensor.Status == "active" {
+					im.metrics.ActiveSensors++
+				}
 			}
-		}
 
-		// Count actuators
-		for _, actuator := range device.Capabilities.Actuators {
-			im.metrics.TotalActuators++
-			if actuator.Status == "active" {
-				im.metrics.ActiveActuators++
+			// Count actuators
+			for _, actuator := range device.Capabilities.Actuators {
+				im.metrics.TotalActuators++
+				if actuator.Status == "active" {
+					im.metrics.ActiveActuators++
+				}
 			}
 		}
 	}

@@ -94,12 +94,14 @@ func (d *Deduplicator) ProcessFile(ctx context.Context, reader io.Reader) ([]*Ch
 		}
 
 		chunkData := buffer[:n]
-		chunk, err := d.processChunk(ctx, chunkData)
-		if err != nil {
-			return nil, err
-		}
+		if len(chunkData) > 0 {
+			chunk, err := d.processChunk(ctx, chunkData)
+			if err != nil {
+				return nil, err
+			}
 
-		chunks = append(chunks, chunk)
+			chunks = append(chunks, chunk)
+		}
 	}
 
 	return chunks, nil
