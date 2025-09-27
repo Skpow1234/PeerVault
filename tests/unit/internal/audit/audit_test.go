@@ -463,7 +463,7 @@ func TestAuditLogger_GetEvents_NoFilter(t *testing.T) {
 	assert.Len(t, events, 2)
 }
 
-func TestAuditLogger_GetAuditSummary(t *testing.T) {
+func TestAuditLogger_audit.GetAuditSummary(t *testing.T) {
 	// Create a temporary directory for testing
 	tempDir := t.TempDir()
 	logPath := filepath.Join(tempDir, "audit.log")
@@ -486,7 +486,7 @@ func TestAuditLogger_GetAuditSummary(t *testing.T) {
 
 	// Get summary
 	now := time.Now()
-	summary := logger.GetAuditSummary(now.Add(-1*time.Hour), now.Add(1*time.Hour))
+	summary := logger.audit.GetAuditSummary(now.Add(-1*time.Hour), now.Add(1*time.Hour))
 
 	assert.NotNil(t, summary)
 	assert.Equal(t, 8, summary.TotalEvents)
@@ -618,13 +618,13 @@ func TestConvenienceFunctions(t *testing.T) {
 	err = audit.LogAdminEvent(ctx, "admin123", "create_user", "success", nil)
 	assert.NoError(t, err)
 
-	// Test Getaudit.AuditEvents
-	events := Getaudit.AuditEvents(nil)
+	// Test audit.Get.AuditEvents
+	events := audit.Get.AuditEvents(nil)
 	assert.Len(t, events, 8)
 
-	// Test GetAuditSummary
+	// Test audit.GetAuditSummary
 	now := time.Now()
-	summary := GetAuditSummary(now.Add(-1*time.Hour), now.Add(1*time.Hour))
+	summary := audit.GetAuditSummary(now.Add(-1*time.Hour), now.Add(1*time.Hour))
 	assert.NotNil(t, summary)
 	assert.Equal(t, 8, summary.TotalEvents)
 }
@@ -669,12 +669,12 @@ func TestConvenienceFunctions_NoGlobalLogger(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "audit logger not initialized")
 
-	// Test that Getaudit.AuditEvents returns nil when global logger is nil
-	events := Getaudit.AuditEvents(nil)
+	// Test that audit.Get.AuditEvents returns nil when global logger is nil
+	events := audit.Get.AuditEvents(nil)
 	assert.Nil(t, events)
 
-	// Test that GetAuditSummary returns nil when global logger is nil
-	summary := GetAuditSummary(time.Now(), time.Now())
+	// Test that audit.GetAuditSummary returns nil when global logger is nil
+	summary := audit.GetAuditSummary(time.Now(), time.Now())
 	assert.Nil(t, summary)
 }
 
@@ -720,7 +720,7 @@ func TestAuditLogger_EdgeCases(t *testing.T) {
 	assert.Len(t, events, 2) // Should return all events when filter is empty
 
 	// Test summary with zero time range
-	summary := logger.GetAuditSummary(time.Time{}, time.Time{})
+	summary := logger.audit.GetAuditSummary(time.Time{}, time.Time{})
 	assert.NotNil(t, summary)
 	assert.Equal(t, 2, summary.TotalEvents)
 }
