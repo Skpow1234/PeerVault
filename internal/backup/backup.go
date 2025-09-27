@@ -3,6 +3,7 @@ package backup
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
 	"sync"
 	"time"
@@ -41,6 +42,91 @@ type Backup struct {
 	Location  string                 `json:"location"`
 	Metadata  map[string]interface{} `json:"metadata"`
 	Error     string                 `json:"error,omitempty"`
+	mu        sync.RWMutex           `json:"-"` // Mutex for thread-safe access
+}
+
+// GetStatus returns the backup status in a thread-safe manner
+func (b *Backup) GetStatus() BackupStatus {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.Status
+}
+
+// SetStatus sets the backup status in a thread-safe manner
+func (b *Backup) SetStatus(status BackupStatus) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.Status = status
+}
+
+// GetEndTime returns the backup end time in a thread-safe manner
+func (b *Backup) GetEndTime() time.Time {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.EndTime
+}
+
+// SetEndTime sets the backup end time in a thread-safe manner
+func (b *Backup) SetEndTime(endTime time.Time) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.EndTime = endTime
+}
+
+// GetDuration returns the backup duration in a thread-safe manner
+func (b *Backup) GetDuration() time.Duration {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.Duration
+}
+
+// SetDuration sets the backup duration in a thread-safe manner
+func (b *Backup) SetDuration(duration time.Duration) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.Duration = duration
+}
+
+// GetError returns the backup error in a thread-safe manner
+func (b *Backup) GetError() string {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.Error
+}
+
+// SetError sets the backup error in a thread-safe manner
+func (b *Backup) SetError(error string) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.Error = error
+}
+
+// GetSize returns the backup size in a thread-safe manner
+func (b *Backup) GetSize() int64 {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.Size
+}
+
+// SetSize sets the backup size in a thread-safe manner
+func (b *Backup) SetSize(size int64) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.Size = size
+}
+
+// GetFiles returns the backup files count in a thread-safe manner
+func (b *Backup) GetFiles() int64 {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.Files
+}
+
+// SetFiles sets the backup files count in a thread-safe manner
+func (b *Backup) SetFiles(files int64) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.Files = files
 }
 
 // BackupConfig holds configuration for backup operations
@@ -157,14 +243,15 @@ func (bm *BackupManager) DeleteBackup(ctx context.Context, id string) error {
 
 // performBackup performs the actual backup operation
 func (bm *BackupManager) performBackup(ctx context.Context, backup *Backup, config *BackupConfig) {
-	backup.Status = BackupStatusRunning
+	backup.SetStatus(BackupStatusRunning)
 
 	// Create backup directory
 	if err := os.MkdirAll(backup.Location, 0755); err != nil {
-		backup.Status = BackupStatusFailed
-		backup.Error = fmt.Sprintf("failed to create backup directory: %v", err)
-		backup.EndTime = time.Now()
-		backup.Duration = backup.EndTime.Sub(backup.StartTime)
+		backup.SetStatus(BackupStatusFailed)
+		backup.SetError(fmt.Sprintf("failed to create backup directory: %v", err))
+		endTime := time.Now()
+		backup.SetEndTime(endTime)
+		backup.SetDuration(endTime.Sub(backup.StartTime))
 		return
 	}
 
@@ -181,14 +268,15 @@ func (bm *BackupManager) performBackup(ctx context.Context, backup *Backup, conf
 		err = fmt.Errorf("unsupported backup type: %s", config.Type)
 	}
 
-	backup.EndTime = time.Now()
-	backup.Duration = backup.EndTime.Sub(backup.StartTime)
+	endTime := time.Now()
+	backup.SetEndTime(endTime)
+	backup.SetDuration(endTime.Sub(backup.StartTime))
 
 	if err != nil {
-		backup.Status = BackupStatusFailed
-		backup.Error = err.Error()
+		backup.SetStatus(BackupStatusFailed)
+		backup.SetError(err.Error())
 	} else {
-		backup.Status = BackupStatusCompleted
+		backup.SetStatus(BackupStatusCompleted)
 	}
 }
 
@@ -206,8 +294,8 @@ func (bm *BackupManager) performFullBackup(ctx context.Context, backup *Backup, 
 	// For now, we'll simulate the backup
 	time.Sleep(2 * time.Second) // Simulate backup time
 
-	backup.Size = 1024 * 1024 * 100 // 100MB
-	backup.Files = 1000
+	backup.SetSize(1024 * 1024 * 100) // 100MB
+	backup.SetFiles(1000)
 
 	return nil
 }
@@ -223,8 +311,8 @@ func (bm *BackupManager) performIncrementalBackup(ctx context.Context, backup *B
 
 	time.Sleep(1 * time.Second) // Simulate backup time
 
-	backup.Size = 1024 * 1024 * 10 // 10MB
-	backup.Files = 100
+	backup.SetSize(1024 * 1024 * 10) // 10MB
+	backup.SetFiles(100)
 
 	return nil
 }
@@ -240,8 +328,8 @@ func (bm *BackupManager) performDifferentialBackup(ctx context.Context, backup *
 
 	time.Sleep(1 * time.Second) // Simulate backup time
 
-	backup.Size = 1024 * 1024 * 50 // 50MB
-	backup.Files = 500
+	backup.SetSize(1024 * 1024 * 50) // 50MB
+	backup.SetFiles(500)
 
 	return nil
 }
@@ -387,7 +475,7 @@ func (bs *BackupScheduler) checkScheduledBackups() {
 
 // Utility functions
 func generateBackupID() string {
-	return fmt.Sprintf("backup_%d", time.Now().UnixNano())
+	return fmt.Sprintf("backup_%d-%d", time.Now().UnixNano(), rand.Int63())
 }
 
 // Global backup manager

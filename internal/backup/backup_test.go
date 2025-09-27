@@ -101,7 +101,7 @@ func TestBackupManager_StartBackup_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, backup)
 	assert.Equal(t, BackupTypeFull, backup.Type)
-	assert.Equal(t, BackupStatusPending, backup.Status)
+	assert.Equal(t, BackupStatusPending, backup.GetStatus())
 	assert.Equal(t, "/tmp/backup", backup.Location)
 	assert.NotEmpty(t, backup.ID)
 	assert.NotZero(t, backup.StartTime)
@@ -164,11 +164,21 @@ func TestBackupManager_ListBackups(t *testing.T) {
 
 	// Wait for backups to complete and verify they're both there
 	var backups []*Backup
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 30; i++ { // Increased timeout to 15 seconds
 		time.Sleep(500 * time.Millisecond)
 		backups = manager.ListBackups()
 		if len(backups) >= 2 {
-			break
+			// Check if both backups are completed
+			allCompleted := true
+			for _, backup := range backups {
+				if backup.GetStatus() != BackupStatusCompleted {
+					allCompleted = false
+					break
+				}
+			}
+			if allCompleted {
+				break
+			}
 		}
 	}
 	assert.Len(t, backups, 2)
@@ -242,11 +252,11 @@ func TestBackupManager_PerformBackup_Full(t *testing.T) {
 	// Check backup status
 	retrievedBackup, exists := manager.GetBackup(backup.ID)
 	assert.True(t, exists)
-	assert.Equal(t, BackupStatusCompleted, retrievedBackup.Status)
-	assert.Equal(t, int64(1024*1024*100), retrievedBackup.Size) // 100MB
-	assert.Equal(t, int64(1000), retrievedBackup.Files)
-	assert.NotZero(t, retrievedBackup.Duration)
-	assert.NotZero(t, retrievedBackup.EndTime)
+	assert.Equal(t, BackupStatusCompleted, retrievedBackup.GetStatus())
+	assert.Equal(t, int64(1024*1024*100), retrievedBackup.GetSize()) // 100MB
+	assert.Equal(t, int64(1000), retrievedBackup.GetFiles())
+	assert.NotZero(t, retrievedBackup.GetDuration())
+	assert.NotZero(t, retrievedBackup.GetEndTime())
 
 	// Verify backup directory was created
 	_, err = os.Stat(backupDir)
@@ -277,9 +287,9 @@ func TestBackupManager_PerformBackup_Incremental(t *testing.T) {
 	// Check backup status
 	retrievedBackup, exists := manager.GetBackup(backup.ID)
 	assert.True(t, exists)
-	assert.Equal(t, BackupStatusCompleted, retrievedBackup.Status)
-	assert.Equal(t, int64(1024*1024*10), retrievedBackup.Size) // 10MB
-	assert.Equal(t, int64(100), retrievedBackup.Files)
+	assert.Equal(t, BackupStatusCompleted, retrievedBackup.GetStatus())
+	assert.Equal(t, int64(1024*1024*10), retrievedBackup.GetSize()) // 10MB
+	assert.Equal(t, int64(100), retrievedBackup.GetFiles())
 }
 
 func TestBackupManager_PerformBackup_Differential(t *testing.T) {
@@ -306,9 +316,9 @@ func TestBackupManager_PerformBackup_Differential(t *testing.T) {
 	// Check backup status
 	retrievedBackup, exists := manager.GetBackup(backup.ID)
 	assert.True(t, exists)
-	assert.Equal(t, BackupStatusCompleted, retrievedBackup.Status)
-	assert.Equal(t, int64(1024*1024*50), retrievedBackup.Size) // 50MB
-	assert.Equal(t, int64(500), retrievedBackup.Files)
+	assert.Equal(t, BackupStatusCompleted, retrievedBackup.GetStatus())
+	assert.Equal(t, int64(1024*1024*50), retrievedBackup.GetSize()) // 50MB
+	assert.Equal(t, int64(500), retrievedBackup.GetFiles())
 }
 
 func TestBackupManager_PerformBackup_InvalidType(t *testing.T) {
@@ -335,8 +345,8 @@ func TestBackupManager_PerformBackup_InvalidType(t *testing.T) {
 	// Check backup status
 	retrievedBackup, exists := manager.GetBackup(backup.ID)
 	assert.True(t, exists)
-	assert.Equal(t, BackupStatusFailed, retrievedBackup.Status)
-	assert.Contains(t, retrievedBackup.Error, "unsupported backup type: invalid")
+	assert.Equal(t, BackupStatusFailed, retrievedBackup.GetStatus())
+	assert.Contains(t, retrievedBackup.GetError(), "unsupported backup type: invalid")
 }
 
 func TestRestoreManager_NewRestoreManager(t *testing.T) {
