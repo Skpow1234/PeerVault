@@ -145,7 +145,7 @@ func TestSimpleTracer_StartSpan_WithOptions(t *testing.T) {
 
 	// Test span with options
 	attrs := map[string]interface{}{"key": "value"}
-	ctx, span := tracer.StartSpan(ctx, "test-span",
+	_, span := tracer.StartSpan(ctx, "test-span",
 		WithSpanKind(SpanKindServer),
 		WithAttributes(attrs),
 	)
@@ -163,7 +163,7 @@ func TestSimpleTracer_StartSpan_WithParent(t *testing.T) {
 	ctx, parentSpan := tracer.StartSpan(ctx, "parent-span")
 
 	// Create child span
-	ctx, childSpan := tracer.StartSpan(ctx, "child-span", WithParent(parentSpan))
+	_, childSpan := tracer.StartSpan(ctx, "child-span", WithParent(parentSpan))
 
 	assert.Equal(t, parentSpan.SpanID, childSpan.ParentID)
 	assert.Equal(t, parentSpan.TraceID, childSpan.TraceID)
@@ -174,7 +174,7 @@ func TestSimpleTracer_Finish(t *testing.T) {
 	ctx := context.Background()
 
 	// Start span
-	ctx, span := tracer.StartSpan(ctx, "test-span")
+	_, span := tracer.StartSpan(ctx, "test-span")
 	startTime := span.StartTime
 
 	// Wait a bit to ensure duration is measurable
@@ -196,7 +196,7 @@ func TestSimpleTracer_Inject(t *testing.T) {
 	ctx := context.Background()
 
 	// Create span
-	ctx, span := tracer.StartSpan(ctx, "test-span")
+	_, span := tracer.StartSpan(ctx, "test-span")
 
 	// Inject span
 	headers, err := tracer.Inject(ctx, span)
@@ -275,7 +275,7 @@ func TestSimpleTracer_GetSpan(t *testing.T) {
 	assert.False(t, exists)
 
 	// Test getting existing span
-	ctx, span := tracer.StartSpan(ctx, "test-span")
+	_, span := tracer.StartSpan(ctx, "test-span")
 	storedSpan, exists := tracer.GetSpan(span.SpanID)
 	assert.True(t, exists)
 	assert.Equal(t, span.SpanID, storedSpan.SpanID)
@@ -290,7 +290,7 @@ func TestSimpleTracer_GetSpansByTraceID(t *testing.T) {
 	ctx, span2 := tracer.StartSpan(ctx, "span2", WithParent(span1))
 
 	// Create span with different trace ID
-	ctx, span3 := tracer.StartSpan(ctx, "span3")
+	_, span3 := tracer.StartSpan(ctx, "span3")
 
 	// Wait a bit to ensure spans are stored
 	time.Sleep(10 * time.Millisecond)
@@ -315,8 +315,8 @@ func TestSimpleTracer_GetAllSpans(t *testing.T) {
 
 	// Create multiple spans
 	ctx, span1 := tracer.StartSpan(ctx, "span1")
-	ctx, span2 := tracer.StartSpan(ctx, "span2")
-	ctx, span3 := tracer.StartSpan(ctx, "span3")
+	_, span2 := tracer.StartSpan(ctx, "span2")
+	_, span3 := tracer.StartSpan(ctx, "span3")
 
 	// Wait a bit to ensure spans are stored
 	time.Sleep(10 * time.Millisecond)
@@ -341,7 +341,7 @@ func TestSimpleTracer_Clear(t *testing.T) {
 
 	// Create some spans
 	ctx, span1 := tracer.StartSpan(ctx, "span1")
-	ctx, span2 := tracer.StartSpan(ctx, "span2")
+	_, span2 := tracer.StartSpan(ctx, "span2")
 
 	// Wait a bit to ensure spans are stored
 	time.Sleep(10 * time.Millisecond)
@@ -401,7 +401,7 @@ func TestStartSpanFromContext(t *testing.T) {
 	assert.Empty(t, span1.ParentID)
 
 	// Test starting span with parent
-	ctx, span2 := StartSpanFromContext(ctx, "span2")
+	_, span2 := StartSpanFromContext(ctx, "span2")
 	assert.NotEmpty(t, span2.SpanID)
 	assert.Equal(t, span1.SpanID, span2.ParentID)
 	assert.Equal(t, span1.TraceID, span2.TraceID)

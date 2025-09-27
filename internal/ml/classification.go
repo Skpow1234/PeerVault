@@ -6,6 +6,7 @@ import (
 	"math"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -58,6 +59,7 @@ type MLModel struct {
 
 // MLClassificationEngine provides machine learning classification functionality
 type MLClassificationEngine struct {
+	mu               sync.RWMutex
 	models           map[string]*MLModel
 	classifications  map[string]*FileClassification
 	optimizations    map[string]*OptimizationResult
@@ -95,7 +97,9 @@ func (mce *MLClassificationEngine) ClassifyFile(ctx context.Context, filePath st
 		Metadata:   metadata,
 	}
 
+	mce.mu.Lock()
 	mce.classifications[filePath] = classification
+	mce.mu.Unlock()
 
 	return classification, nil
 }
@@ -135,7 +139,9 @@ func (mce *MLClassificationEngine) OptimizeFile(ctx context.Context, filePath st
 		},
 	}
 
+	mce.mu.Lock()
 	mce.optimizations[filePath] = result
+	mce.mu.Unlock()
 
 	return result, nil
 }
@@ -163,7 +169,9 @@ func (mce *MLClassificationEngine) PredictCacheAccess(ctx context.Context, key s
 		Metadata:          metadata,
 	}
 
+	mce.mu.Lock()
 	mce.cachePredictions[key] = prediction
+	mce.mu.Unlock()
 
 	return prediction, nil
 }
@@ -183,14 +191,18 @@ func (mce *MLClassificationEngine) TrainModel(ctx context.Context, model *MLMode
 	model.CreatedAt = time.Now()
 	model.UpdatedAt = time.Now()
 
+	mce.mu.Lock()
 	mce.models[model.ID] = model
+	mce.mu.Unlock()
 
 	return nil
 }
 
 // GetModel retrieves a model by ID
 func (mce *MLClassificationEngine) GetModel(ctx context.Context, modelID string) (*MLModel, error) {
+	mce.mu.RLock()
 	model, exists := mce.models[modelID]
+	mce.mu.RUnlock()
 	if !exists {
 		return nil, fmt.Errorf("model not found: %s", modelID)
 	}
@@ -200,16 +212,20 @@ func (mce *MLClassificationEngine) GetModel(ctx context.Context, modelID string)
 
 // ListModels lists all models
 func (mce *MLClassificationEngine) ListModels(ctx context.Context) ([]*MLModel, error) {
+	mce.mu.RLock()
 	models := make([]*MLModel, 0, len(mce.models))
 	for _, model := range mce.models {
 		models = append(models, model)
 	}
+	mce.mu.RUnlock()
 	return models, nil
 }
 
 // GetClassification retrieves a classification by file path
 func (mce *MLClassificationEngine) GetClassification(ctx context.Context, filePath string) (*FileClassification, error) {
+	mce.mu.RLock()
 	classification, exists := mce.classifications[filePath]
+	mce.mu.RUnlock()
 	if !exists {
 		return nil, fmt.Errorf("classification not found: %s", filePath)
 	}
@@ -219,16 +235,20 @@ func (mce *MLClassificationEngine) GetClassification(ctx context.Context, filePa
 
 // ListClassifications lists all classifications
 func (mce *MLClassificationEngine) ListClassifications(ctx context.Context) ([]*FileClassification, error) {
+	mce.mu.RLock()
 	classifications := make([]*FileClassification, 0, len(mce.classifications))
 	for _, classification := range mce.classifications {
 		classifications = append(classifications, classification)
 	}
+	mce.mu.RUnlock()
 	return classifications, nil
 }
 
 // GetOptimization retrieves an optimization result by file path
 func (mce *MLClassificationEngine) GetOptimization(ctx context.Context, filePath string) (*OptimizationResult, error) {
+	mce.mu.RLock()
 	optimization, exists := mce.optimizations[filePath]
+	mce.mu.RUnlock()
 	if !exists {
 		return nil, fmt.Errorf("optimization not found: %s", filePath)
 	}
@@ -238,16 +258,20 @@ func (mce *MLClassificationEngine) GetOptimization(ctx context.Context, filePath
 
 // ListOptimizations lists all optimization results
 func (mce *MLClassificationEngine) ListOptimizations(ctx context.Context) ([]*OptimizationResult, error) {
+	mce.mu.RLock()
 	optimizations := make([]*OptimizationResult, 0, len(mce.optimizations))
 	for _, optimization := range mce.optimizations {
 		optimizations = append(optimizations, optimization)
 	}
+	mce.mu.RUnlock()
 	return optimizations, nil
 }
 
 // GetCachePrediction retrieves a cache prediction by key
 func (mce *MLClassificationEngine) GetCachePrediction(ctx context.Context, key string) (*CachePrediction, error) {
+	mce.mu.RLock()
 	prediction, exists := mce.cachePredictions[key]
+	mce.mu.RUnlock()
 	if !exists {
 		return nil, fmt.Errorf("cache prediction not found: %s", key)
 	}
@@ -257,10 +281,12 @@ func (mce *MLClassificationEngine) GetCachePrediction(ctx context.Context, key s
 
 // ListCachePredictions lists all cache predictions
 func (mce *MLClassificationEngine) ListCachePredictions(ctx context.Context) ([]*CachePrediction, error) {
+	mce.mu.RLock()
 	predictions := make([]*CachePrediction, 0, len(mce.cachePredictions))
 	for _, prediction := range mce.cachePredictions {
 		predictions = append(predictions, prediction)
 	}
+	mce.mu.RUnlock()
 	return predictions, nil
 }
 

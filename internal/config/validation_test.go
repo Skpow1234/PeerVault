@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -16,7 +17,7 @@ func TestValidationError(t *testing.T) {
 		Field:   "test.field",
 		Message: "test error message",
 	}
-	
+
 	expected := "validation error for field 'test.field': test error message"
 	assert.Equal(t, expected, err.Error())
 }
@@ -26,29 +27,29 @@ func TestValidationWarning(t *testing.T) {
 		Field:   "test.field",
 		Message: "test warning message",
 	}
-	
+
 	expected := "validation warning for field 'test.field': test warning message"
 	assert.Equal(t, expected, warning.Error())
 }
 
 func TestValidationResult(t *testing.T) {
 	result := &ValidationResult{}
-	
+
 	// Test initial state
 	assert.False(t, result.HasErrors())
 	assert.False(t, result.HasWarnings())
 	assert.Equal(t, "no validation issues", result.Error())
-	
+
 	// Add error
 	result.AddError("field1", "error message 1")
 	assert.True(t, result.HasErrors())
 	assert.False(t, result.HasWarnings())
-	
+
 	// Add warning
 	result.AddWarning("field2", "warning message 1")
 	assert.True(t, result.HasErrors())
 	assert.True(t, result.HasWarnings())
-	
+
 	// Test error message format
 	errorMsg := result.Error()
 	assert.Contains(t, errorMsg, "validation errors:")
@@ -60,14 +61,14 @@ func TestValidationResult(t *testing.T) {
 func TestDefaultValidator_Validate_ValidConfig(t *testing.T) {
 	validator := &DefaultValidator{}
 	config := DefaultConfig()
-	
+
 	err := validator.Validate(config)
 	assert.NoError(t, err)
 }
 
 func TestDefaultValidator_ValidateServer(t *testing.T) {
 	validator := &DefaultValidator{}
-	
+
 	tests := []struct {
 		name     string
 		config   ServerConfig
@@ -119,7 +120,7 @@ func TestDefaultValidator_ValidateServer(t *testing.T) {
 			field:    "server.shutdown_timeout",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validateServer(tt.config)
@@ -136,7 +137,7 @@ func TestDefaultValidator_ValidateServer(t *testing.T) {
 func TestDefaultValidator_ValidateStorage(t *testing.T) {
 	validator := &DefaultValidator{}
 	tempDir := t.TempDir()
-	
+
 	tests := []struct {
 		name     string
 		config   StorageConfig
@@ -227,7 +228,7 @@ func TestDefaultValidator_ValidateStorage(t *testing.T) {
 			field:    "storage.retention_period",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validateStorage(tt.config)
@@ -243,7 +244,7 @@ func TestDefaultValidator_ValidateStorage(t *testing.T) {
 
 func TestDefaultValidator_ValidateNetwork(t *testing.T) {
 	validator := &DefaultValidator{}
-	
+
 	tests := []struct {
 		name     string
 		config   NetworkConfig
@@ -253,24 +254,24 @@ func TestDefaultValidator_ValidateNetwork(t *testing.T) {
 		{
 			name: "valid network config",
 			config: NetworkConfig{
-				BootstrapNodes:     []string{"127.0.0.1:3000", "127.0.0.1:3001"},
-				ConnectionTimeout:  time.Second,
-				ReadTimeout:        time.Second,
-				WriteTimeout:       time.Second,
-				KeepAliveInterval:  time.Second,
-				MaxMessageSize:     1024,
+				BootstrapNodes:    []string{"127.0.0.1:3000", "127.0.0.1:3001"},
+				ConnectionTimeout: time.Second,
+				ReadTimeout:       time.Second,
+				WriteTimeout:      time.Second,
+				KeepAliveInterval: time.Second,
+				MaxMessageSize:    1024,
 			},
 			hasError: false,
 		},
 		{
 			name: "invalid bootstrap node",
 			config: NetworkConfig{
-				BootstrapNodes:     []string{"invalid-address"},
-				ConnectionTimeout:  time.Second,
-				ReadTimeout:        time.Second,
-				WriteTimeout:       time.Second,
-				KeepAliveInterval:  time.Second,
-				MaxMessageSize:     1024,
+				BootstrapNodes:    []string{"invalid-address"},
+				ConnectionTimeout: time.Second,
+				ReadTimeout:       time.Second,
+				WriteTimeout:      time.Second,
+				KeepAliveInterval: time.Second,
+				MaxMessageSize:    1024,
 			},
 			hasError: true,
 			field:    "network.bootstrap_nodes[0]",
@@ -278,24 +279,24 @@ func TestDefaultValidator_ValidateNetwork(t *testing.T) {
 		{
 			name: "empty bootstrap nodes are skipped",
 			config: NetworkConfig{
-				BootstrapNodes:     []string{"", "127.0.0.1:3000"},
-				ConnectionTimeout:  time.Second,
-				ReadTimeout:        time.Second,
-				WriteTimeout:       time.Second,
-				KeepAliveInterval:  time.Second,
-				MaxMessageSize:     1024,
+				BootstrapNodes:    []string{"", "127.0.0.1:3000"},
+				ConnectionTimeout: time.Second,
+				ReadTimeout:       time.Second,
+				WriteTimeout:      time.Second,
+				KeepAliveInterval: time.Second,
+				MaxMessageSize:    1024,
 			},
 			hasError: false,
 		},
 		{
 			name: "zero connection timeout",
 			config: NetworkConfig{
-				BootstrapNodes:     []string{},
-				ConnectionTimeout:  0,
-				ReadTimeout:        time.Second,
-				WriteTimeout:       time.Second,
-				KeepAliveInterval:  time.Second,
-				MaxMessageSize:     1024,
+				BootstrapNodes:    []string{},
+				ConnectionTimeout: 0,
+				ReadTimeout:       time.Second,
+				WriteTimeout:      time.Second,
+				KeepAliveInterval: time.Second,
+				MaxMessageSize:    1024,
 			},
 			hasError: true,
 			field:    "network.connection_timeout",
@@ -303,12 +304,12 @@ func TestDefaultValidator_ValidateNetwork(t *testing.T) {
 		{
 			name: "zero read timeout",
 			config: NetworkConfig{
-				BootstrapNodes:     []string{},
-				ConnectionTimeout:  time.Second,
-				ReadTimeout:        0,
-				WriteTimeout:       time.Second,
-				KeepAliveInterval:  time.Second,
-				MaxMessageSize:     1024,
+				BootstrapNodes:    []string{},
+				ConnectionTimeout: time.Second,
+				ReadTimeout:       0,
+				WriteTimeout:      time.Second,
+				KeepAliveInterval: time.Second,
+				MaxMessageSize:    1024,
 			},
 			hasError: true,
 			field:    "network.read_timeout",
@@ -316,12 +317,12 @@ func TestDefaultValidator_ValidateNetwork(t *testing.T) {
 		{
 			name: "zero write timeout",
 			config: NetworkConfig{
-				BootstrapNodes:     []string{},
-				ConnectionTimeout:  time.Second,
-				ReadTimeout:        time.Second,
-				WriteTimeout:       0,
-				KeepAliveInterval:  time.Second,
-				MaxMessageSize:     1024,
+				BootstrapNodes:    []string{},
+				ConnectionTimeout: time.Second,
+				ReadTimeout:       time.Second,
+				WriteTimeout:      0,
+				KeepAliveInterval: time.Second,
+				MaxMessageSize:    1024,
 			},
 			hasError: true,
 			field:    "network.write_timeout",
@@ -329,12 +330,12 @@ func TestDefaultValidator_ValidateNetwork(t *testing.T) {
 		{
 			name: "zero keep-alive interval",
 			config: NetworkConfig{
-				BootstrapNodes:     []string{},
-				ConnectionTimeout:  time.Second,
-				ReadTimeout:        time.Second,
-				WriteTimeout:       time.Second,
-				KeepAliveInterval:  0,
-				MaxMessageSize:     1024,
+				BootstrapNodes:    []string{},
+				ConnectionTimeout: time.Second,
+				ReadTimeout:       time.Second,
+				WriteTimeout:      time.Second,
+				KeepAliveInterval: 0,
+				MaxMessageSize:    1024,
 			},
 			hasError: true,
 			field:    "network.keep_alive_interval",
@@ -342,18 +343,18 @@ func TestDefaultValidator_ValidateNetwork(t *testing.T) {
 		{
 			name: "zero max message size",
 			config: NetworkConfig{
-				BootstrapNodes:     []string{},
-				ConnectionTimeout:  time.Second,
-				ReadTimeout:        time.Second,
-				WriteTimeout:       time.Second,
-				KeepAliveInterval:  time.Second,
-				MaxMessageSize:     0,
+				BootstrapNodes:    []string{},
+				ConnectionTimeout: time.Second,
+				ReadTimeout:       time.Second,
+				WriteTimeout:      time.Second,
+				KeepAliveInterval: time.Second,
+				MaxMessageSize:    0,
 			},
 			hasError: true,
 			field:    "network.max_message_size",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validateNetwork(tt.config)
@@ -370,14 +371,14 @@ func TestDefaultValidator_ValidateNetwork(t *testing.T) {
 func TestDefaultValidator_ValidateSecurity(t *testing.T) {
 	validator := &DefaultValidator{}
 	tempDir := t.TempDir()
-	
+
 	// Create test certificate and key files
 	certFile := filepath.Join(tempDir, "cert.pem")
 	keyFile := filepath.Join(tempDir, "key.pem")
-	
+
 	require.NoError(t, os.WriteFile(certFile, []byte("test cert"), 0644))
 	require.NoError(t, os.WriteFile(keyFile, []byte("test key"), 0644))
-	
+
 	tests := []struct {
 		name     string
 		config   SecurityConfig
@@ -473,7 +474,7 @@ func TestDefaultValidator_ValidateSecurity(t *testing.T) {
 			field:    "security.key_rotation_interval",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validateSecurity(tt.config)
@@ -490,7 +491,7 @@ func TestDefaultValidator_ValidateSecurity(t *testing.T) {
 func TestDefaultValidator_ValidateLogging(t *testing.T) {
 	validator := &DefaultValidator{}
 	tempDir := t.TempDir()
-	
+
 	tests := []struct {
 		name     string
 		config   LoggingConfig
@@ -585,7 +586,7 @@ func TestDefaultValidator_ValidateLogging(t *testing.T) {
 			hasError: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validateLogging(tt.config)
@@ -601,7 +602,7 @@ func TestDefaultValidator_ValidateLogging(t *testing.T) {
 
 func TestDefaultValidator_ValidateLogRotation(t *testing.T) {
 	validator := &DefaultValidator{}
-	
+
 	tests := []struct {
 		name     string
 		config   LogRotationConfig
@@ -648,7 +649,7 @@ func TestDefaultValidator_ValidateLogRotation(t *testing.T) {
 			field:    "logging.rotation.max_age",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validateLogRotation(tt.config)
@@ -664,7 +665,7 @@ func TestDefaultValidator_ValidateLogRotation(t *testing.T) {
 
 func TestDefaultValidator_ValidateREST(t *testing.T) {
 	validator := &DefaultValidator{}
-	
+
 	tests := []struct {
 		name     string
 		config   RESTConfig
@@ -674,30 +675,30 @@ func TestDefaultValidator_ValidateREST(t *testing.T) {
 		{
 			name: "valid REST config",
 			config: RESTConfig{
-				Enabled:        true,
-				Port:           8080,
+				Enabled:         true,
+				Port:            8080,
 				RateLimitPerMin: 100,
-				AuthToken:      "valid-token",
+				AuthToken:       "valid-token",
 			},
 			hasError: false,
 		},
 		{
 			name: "disabled REST config",
 			config: RESTConfig{
-				Enabled:        false,
-				Port:           0,
+				Enabled:         false,
+				Port:            0,
 				RateLimitPerMin: 0,
-				AuthToken:      "",
+				AuthToken:       "",
 			},
 			hasError: false,
 		},
 		{
 			name: "invalid port - too low",
 			config: RESTConfig{
-				Enabled:        true,
-				Port:           0,
+				Enabled:         true,
+				Port:            0,
 				RateLimitPerMin: 100,
-				AuthToken:      "valid-token",
+				AuthToken:       "valid-token",
 			},
 			hasError: true,
 			field:    "api.rest.port",
@@ -705,10 +706,10 @@ func TestDefaultValidator_ValidateREST(t *testing.T) {
 		{
 			name: "invalid port - too high",
 			config: RESTConfig{
-				Enabled:        true,
-				Port:           65536,
+				Enabled:         true,
+				Port:            65536,
 				RateLimitPerMin: 100,
-				AuthToken:      "valid-token",
+				AuthToken:       "valid-token",
 			},
 			hasError: true,
 			field:    "api.rest.port",
@@ -716,10 +717,10 @@ func TestDefaultValidator_ValidateREST(t *testing.T) {
 		{
 			name: "zero rate limit",
 			config: RESTConfig{
-				Enabled:        true,
-				Port:           8080,
+				Enabled:         true,
+				Port:            8080,
 				RateLimitPerMin: 0,
-				AuthToken:      "valid-token",
+				AuthToken:       "valid-token",
 			},
 			hasError: true,
 			field:    "api.rest.rate_limit_per_min",
@@ -727,16 +728,16 @@ func TestDefaultValidator_ValidateREST(t *testing.T) {
 		{
 			name: "empty auth token",
 			config: RESTConfig{
-				Enabled:        true,
-				Port:           8080,
+				Enabled:         true,
+				Port:            8080,
 				RateLimitPerMin: 100,
-				AuthToken:      "",
+				AuthToken:       "",
 			},
 			hasError: true,
 			field:    "api.rest.auth_token",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validateREST(tt.config)
@@ -752,7 +753,7 @@ func TestDefaultValidator_ValidateREST(t *testing.T) {
 
 func TestDefaultValidator_ValidateGraphQL(t *testing.T) {
 	validator := &DefaultValidator{}
-	
+
 	tests := []struct {
 		name     string
 		config   GraphQLConfig
@@ -762,9 +763,9 @@ func TestDefaultValidator_ValidateGraphQL(t *testing.T) {
 		{
 			name: "valid GraphQL config",
 			config: GraphQLConfig{
-				Enabled:         true,
-				Port:            8080,
-				GraphQLPath:     "/graphql",
+				Enabled:          true,
+				Port:             8080,
+				GraphQLPath:      "/graphql",
 				EnablePlayground: false,
 			},
 			hasError: false,
@@ -772,20 +773,20 @@ func TestDefaultValidator_ValidateGraphQL(t *testing.T) {
 		{
 			name: "valid GraphQL config with playground",
 			config: GraphQLConfig{
-				Enabled:         true,
-				Port:            8080,
-				GraphQLPath:     "/graphql",
+				Enabled:          true,
+				Port:             8080,
+				GraphQLPath:      "/graphql",
 				EnablePlayground: true,
-				PlaygroundPath:  "/playground",
+				PlaygroundPath:   "/playground",
 			},
 			hasError: false,
 		},
 		{
 			name: "disabled GraphQL config",
 			config: GraphQLConfig{
-				Enabled:         false,
-				Port:            0,
-				GraphQLPath:     "",
+				Enabled:          false,
+				Port:             0,
+				GraphQLPath:      "",
 				EnablePlayground: false,
 			},
 			hasError: false,
@@ -793,9 +794,9 @@ func TestDefaultValidator_ValidateGraphQL(t *testing.T) {
 		{
 			name: "invalid port",
 			config: GraphQLConfig{
-				Enabled:         true,
-				Port:            0,
-				GraphQLPath:     "/graphql",
+				Enabled:          true,
+				Port:             0,
+				GraphQLPath:      "/graphql",
 				EnablePlayground: false,
 			},
 			hasError: true,
@@ -804,9 +805,9 @@ func TestDefaultValidator_ValidateGraphQL(t *testing.T) {
 		{
 			name: "empty GraphQL path",
 			config: GraphQLConfig{
-				Enabled:         true,
-				Port:            8080,
-				GraphQLPath:     "",
+				Enabled:          true,
+				Port:             8080,
+				GraphQLPath:      "",
 				EnablePlayground: false,
 			},
 			hasError: true,
@@ -815,17 +816,17 @@ func TestDefaultValidator_ValidateGraphQL(t *testing.T) {
 		{
 			name: "playground enabled but no path",
 			config: GraphQLConfig{
-				Enabled:         true,
-				Port:            8080,
-				GraphQLPath:     "/graphql",
+				Enabled:          true,
+				Port:             8080,
+				GraphQLPath:      "/graphql",
 				EnablePlayground: true,
-				PlaygroundPath:  "",
+				PlaygroundPath:   "",
 			},
 			hasError: true,
 			field:    "api.graphql.playground_path",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validateGraphQL(tt.config)
@@ -841,7 +842,7 @@ func TestDefaultValidator_ValidateGraphQL(t *testing.T) {
 
 func TestDefaultValidator_ValidateGRPC(t *testing.T) {
 	validator := &DefaultValidator{}
-	
+
 	tests := []struct {
 		name     string
 		config   GRPCConfig
@@ -902,7 +903,7 @@ func TestDefaultValidator_ValidateGRPC(t *testing.T) {
 			field:    "api.grpc.max_concurrent_streams",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validateGRPC(tt.config)
@@ -918,7 +919,7 @@ func TestDefaultValidator_ValidateGRPC(t *testing.T) {
 
 func TestDefaultValidator_ValidatePeer(t *testing.T) {
 	validator := &DefaultValidator{}
-	
+
 	tests := []struct {
 		name     string
 		config   PeerConfig
@@ -997,7 +998,7 @@ func TestDefaultValidator_ValidatePeer(t *testing.T) {
 			field:    "peer.max_reconnect_attempts",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validatePeer(tt.config)
@@ -1013,7 +1014,7 @@ func TestDefaultValidator_ValidatePeer(t *testing.T) {
 
 func TestDefaultValidator_ValidatePerformance(t *testing.T) {
 	validator := &DefaultValidator{}
-	
+
 	tests := []struct {
 		name     string
 		config   PerformanceConfig
@@ -1092,7 +1093,7 @@ func TestDefaultValidator_ValidatePerformance(t *testing.T) {
 			field:    "performance.cache_ttl",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.validatePerformance(tt.config)
@@ -1108,7 +1109,7 @@ func TestDefaultValidator_ValidatePerformance(t *testing.T) {
 
 func TestPortValidator_Validate(t *testing.T) {
 	validator := &PortValidator{}
-	
+
 	tests := []struct {
 		name     string
 		config   *Config
@@ -1177,7 +1178,7 @@ func TestPortValidator_Validate(t *testing.T) {
 			hasError: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.Validate(tt.config)
@@ -1193,12 +1194,12 @@ func TestPortValidator_Validate(t *testing.T) {
 
 func TestSecurityValidator_Validate(t *testing.T) {
 	tests := []struct {
-		name         string
-		config       *Config
-		allowDemo    bool
-		hasError     bool
-		hasWarnings  bool
-		contains     string
+		name        string
+		config      *Config
+		allowDemo   bool
+		hasError    bool
+		hasWarnings bool
+		contains    string
 	}{
 		{
 			name: "valid security config",
@@ -1277,12 +1278,12 @@ func TestSecurityValidator_Validate(t *testing.T) {
 			hasWarnings: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			validator := NewSecurityValidator(tt.allowDemo)
 			err := validator.Validate(tt.config)
-			
+
 			if tt.hasError {
 				assert.Error(t, err)
 			} else if tt.hasWarnings {
@@ -1301,7 +1302,7 @@ func TestSecurityValidator_Validate(t *testing.T) {
 func TestStorageValidator_Validate(t *testing.T) {
 	tempDir := t.TempDir()
 	validator := &StorageValidator{}
-	
+
 	tests := []struct {
 		name        string
 		config      *Config
@@ -1345,11 +1346,11 @@ func TestStorageValidator_Validate(t *testing.T) {
 			contains:    "storage validation failed",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validator.Validate(tt.config)
-			
+
 			if tt.hasError {
 				assert.Error(t, err)
 				if result, ok := err.(*ValidationResult); ok {
@@ -1372,25 +1373,28 @@ func TestStorageValidator_Validate(t *testing.T) {
 func TestStorageValidator_CheckStorageWritable(t *testing.T) {
 	validator := &StorageValidator{}
 	tempDir := t.TempDir()
-	
+
 	// Test writable directory
 	err := validator.checkStorageWritable(tempDir)
 	assert.NoError(t, err)
-	
+
 	// Test creating directory
 	newDir := filepath.Join(tempDir, "newdir")
 	err = validator.checkStorageWritable(newDir)
 	assert.NoError(t, err)
-	
+
 	// Verify directory was created
 	_, err = os.Stat(newDir)
 	assert.NoError(t, err)
-	
+
 	// Test unwritable directory (this might fail on some systems)
 	// Skip this test on Windows as it might not have the same permission model
 	if runtime.GOOS != "windows" {
 		err = validator.checkStorageWritable("/root/restricted")
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "storage directory is not writable")
+		// The error could be either from directory creation or write test
+		assert.True(t, strings.Contains(err.Error(), "storage directory is not writable") ||
+			strings.Contains(err.Error(), "failed to create storage directory") ||
+			strings.Contains(err.Error(), "permission denied"))
 	}
 }
