@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerVault SSE API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .connect-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .disconnect-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .clear-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.connecting {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .events {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .event {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 4px solid #007bff;
+            background-color: white;
+            border-radius: 4px;
+        }
+        .event.connected {
+            border-left-color: #28a745;
+        }
+        .event.error {
+            border-left-color: #dc3545;
+        }
+        .event.keepalive {
+            border-left-color: #6c757d;
+        }
+        .event.file_uploaded {
+            border-left-color: #17a2b8;
+        }
+        .event.peer_connected {
+            border-left-color: #ffc107;
+        }
+        .event.system_metrics {
+            border-left-color: #6f42c1;
+        }
+        .event-time {
+            color: #666;
+            font-size: 10px;
+        }
+        .event-type {
+            font-weight: bold;
+            color: #333;
+        }
+        .event-data {
+            margin-top: 5px;
+            white-space: pre-wrap;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filter-group label {
+            font-size: 12px;
+            color: #666;
+        }
+        .filter-group input, .filter-group select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PeerVault SSE API Test</h1>
+        <p>Test the Server-Sent Events API for real-time updates</p>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <button id="connectBtn" class="connect-btn">Connect</button>
+            <button id="disconnectBtn" class="disconnect-btn" disabled>Disconnect</button>
+            <button id="clearBtn" class="clear-btn">Clear Events</button>
+        </div>
+
+        <div id="status" class="status disconnected">
+            Disconnected
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="serverUrl">Server URL:</label>
+                <input type="text" id="serverUrl" value="http://localhost:8084/sse" placeholder="SSE endpoint URL">
+            </div>
+            <div class="filter-group">
+                <label for="topicFilter">Topic:</label>
+                <select id="topicFilter">
+                    <option value="">All Topics</option>
+                    <option value="file_operations">File Operations</option>
+                    <option value="peer_network">Peer Network</option>
+                    <option value="system">System</option>
+                    <option value="alerts">Alerts</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="eventTypeFilter">Event Type:</label>
+                <input type="text" id="eventTypeFilter" placeholder="e.g., file_uploaded">
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalEvents">0</div>
+                <div class="stat-label">Total Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="connectionTime">0s</div>
+                <div class="stat-label">Connection Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="lastEvent">-</div>
+                <div class="stat-label">Last Event</div>
+            </div>
+        </div>
+
+        <h3>Events</h3>
+        <div id="events" class="events"></div>
+    </div>
+
+    <script>
+        let eventSource = null;
+        let eventCount = 0;
+        let connectionStartTime = null;
+        let connectionTimer = null;
+
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const status = document.getElementById('status');
+        const events = document.getElementById('events');
+        const serverUrl = document.getElementById('serverUrl');
+        const topicFilter = document.getElementById('topicFilter');
+        const eventTypeFilter = document.getElementById('eventTypeFilter');
+        const totalEvents = document.getElementById('totalEvents');
+        const connectionTime = document.getElementById('connectionTime');
+        const lastEvent = document.getElementById('lastEvent');
+
+        function updateStatus(message, className) {
+            status.textContent = message;
+            status.className = `status ${className}`;
+        }
+
+        function addEvent(eventType, data, timestamp) {
+            eventCount++;
+            totalEvents.textContent = eventCount;
+            lastEvent.textContent = new Date(timestamp).toLocaleTimeString();
+
+            const eventDiv = document.createElement('div');
+            eventDiv.className = `event ${eventType}`;
+            
+            eventDiv.innerHTML = `
+                <div class="event-time">${new Date(timestamp).toLocaleString()}</div>
+                <div class="event-type">${eventType}</div>
+                <div class="event-data">${JSON.stringify(data, null, 2)}</div>
+            `;
+
+            events.appendChild(eventDiv);
+            events.scrollTop = events.scrollHeight;
+        }
+
+        function buildUrl() {
+            let url = serverUrl.value;
+            const params = new URLSearchParams();
+
+            if (topicFilter.value) {
+                params.append('topic', topicFilter.value);
+            }
+
+            if (eventTypeFilter.value) {
+                params.append('include', eventTypeFilter.value);
+            }
+
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            return url;
+        }
+
+        function connect() {
+            if (eventSource) {
+                return;
+            }
+
+            const url = buildUrl();
+            updateStatus('Connecting...', 'connecting');
+            
+            eventSource = new EventSource(url);
+            connectionStartTime = Date.now();
+
+            eventSource.onopen = function(event) {
+                updateStatus('Connected', 'connected');
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                
+                // Start connection timer
+                connectionTimer = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - connectionStartTime) / 1000);
+                    connectionTime.textContent = `${elapsed}s`;
+                }, 1000);
+            };
+
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    addEvent('message', data, Date.now());
+                } catch (e) {
+                    addEvent('message', { raw: event.data }, Date.now());
+                }
+            };
+
+            eventSource.addEventListener('connected', function(event) {
+                const data = JSON.parse(event.data);
+                addEvent('connected', data, Date.now());
+            });
+
+            eventSource.addEventListener('keepalive', function(event) {
+                const data = JSON.parse(event.data);
+                addEvent('keepalive', data, Date.now());
+            });
+
+            eventSource.addEventListener('file_uploaded', function(event) {
+                const data = JSON.parse(event.data);
+                addEvent('file_uploaded', data, Date.now());
+            });
+
+            eventSource.addEventListener('file_deleted', function(event) {
+                const data = JSON.parse(event.data);
+                addEvent('file_deleted', data, Date.now());
+            });
+
+            eventSource.addEventListener('peer_connected', function(event) {
+                const data = JSON.parse(event.data);
+                addEvent('peer_connected', data, Date.now());
+            });
+
+            eventSource.addEventListener('peer_disconnected', function(event) {
+                const data = JSON.parse(event.data);
+                addEvent('peer_disconnected', data, Date.now());
+            });
+
+            eventSource.addEventListener('system_metrics', function(event) {
+                const data = JSON.parse(event.data);
+                addEvent('system_metrics', data, Date.now());
+            });
+
+            eventSource.addEventListener('performance_alert', function(event) {
+                const data = JSON.parse(event.data);
+                addEvent('performance_alert', data, Date.now());
+            });
+
+            eventSource.onerror = function(event) {
+                updateStatus('Connection Error', 'disconnected');
+                addEvent('error', { 
+                    type: event.type, 
+                    readyState: eventSource.readyState,
+                    message: 'Connection error occurred'
+                }, Date.now());
+            };
+        }
+
+        function disconnect() {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+
+            updateStatus('Disconnected', 'disconnected');
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            connectionTime.textContent = '0s';
+            
+            if (connectionTimer) {
+                clearInterval(connectionTimer);
+                connectionTimer = null;
+            }
+        }
+
+        function clearEvents() {
+            events.innerHTML = '';
+            eventCount = 0;
+            totalEvents.textContent = '0';
+            lastEvent.textContent = '-';
+        }
+
+        // Event listeners
+        connectBtn.addEventListener('click', connect);
+        disconnectBtn.addEventListener('click', disconnect);
+        clearBtn.addEventListener('click', clearEvents);
+
+        // Auto-connect on page load (optional)
+        // connect();
+    </script>
+</body>
+</html>
