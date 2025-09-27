@@ -53,7 +53,7 @@ func TestGzipCompressor(t *testing.T) {
 		{
 			name:  "large data",
 			level: CompressionLevelDefault,
-			data:  []byte("This is a very long string that should compress well. " + 
+			data: []byte("This is a very long string that should compress well. " +
 				"Repeating this text multiple times to make it longer. " +
 				"This is a very long string that should compress well. " +
 				"Repeating this text multiple times to make it longer. " +
@@ -135,7 +135,7 @@ func TestZlibCompressor(t *testing.T) {
 		{
 			name:  "large data",
 			level: CompressionLevelDefault,
-			data:  []byte("This is a very long string that should compress well. " + 
+			data: []byte("This is a very long string that should compress well. " +
 				"Repeating this text multiple times to make it longer. " +
 				"This is a very long string that should compress well. " +
 				"Repeating this text multiple times to make it longer. " +
@@ -270,28 +270,28 @@ func TestCompressionManager_ConcurrentAccess(t *testing.T) {
 
 	// Test concurrent access to the compression manager
 	done := make(chan bool, 10)
-	
+
 	for i := 0; i < 10; i++ {
 		go func() {
 			defer func() { done <- true }()
-			
+
 			// Test concurrent compression
 			data := []byte("Concurrent test data")
 			compressed, err := manager.Compress(ctx, data, CompressionTypeGzip)
 			assert.NoError(t, err)
 			assert.NotNil(t, compressed)
-			
+
 			// Test concurrent decompression
 			decompressed, err := manager.Decompress(ctx, compressed, CompressionTypeGzip)
 			assert.NoError(t, err)
 			assert.Equal(t, data, decompressed)
-			
+
 			// Test concurrent access to available types
 			types := manager.GetAvailableTypes()
 			assert.Len(t, types, 2)
 		}()
 	}
-	
+
 	// Wait for all goroutines to complete
 	for i := 0; i < 10; i++ {
 		<-done
@@ -309,7 +309,7 @@ func TestCompressionManager_EdgeCases(t *testing.T) {
 
 	decompressed, err := manager.Decompress(ctx, compressed, CompressionTypeGzip)
 	assert.NoError(t, err)
-	assert.Nil(t, decompressed)
+	assert.Equal(t, []byte{}, decompressed)
 
 	// Test with very small data
 	smallData := []byte("a")

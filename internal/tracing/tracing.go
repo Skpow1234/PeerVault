@@ -87,6 +87,7 @@ func WithSpanKind(kind SpanKind) SpanOption {
 func WithParent(parent Span) SpanOption {
 	return func(s *Span) {
 		s.ParentID = parent.SpanID
+		s.TraceID = parent.TraceID // Inherit trace ID from parent
 	}
 }
 

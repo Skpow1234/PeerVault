@@ -256,6 +256,10 @@ func (al *AuditLogger) GetEvents(filter *AuditFilter) []AuditEvent {
 	for _, event := range al.events {
 		if al.matchesFilter(event, filter) {
 			filtered = append(filtered, event)
+			// Apply limit if specified
+			if filter.Limit > 0 && len(filtered) >= filter.Limit {
+				break
+			}
 		}
 	}
 

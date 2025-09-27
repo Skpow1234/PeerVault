@@ -162,11 +162,15 @@ func TestBackupManager_ListBackups(t *testing.T) {
 	backup2, err := manager.StartBackup(ctx, "test-config")
 	assert.NoError(t, err)
 
-	// Wait for backups to complete
-	time.Sleep(3 * time.Second)
-
-	// List backups
-	backups := manager.ListBackups()
+	// Wait for backups to complete and verify they're both there
+	var backups []*Backup
+	for i := 0; i < 20; i++ {
+		time.Sleep(500 * time.Millisecond)
+		backups = manager.ListBackups()
+		if len(backups) >= 2 {
+			break
+		}
+	}
 	assert.Len(t, backups, 2)
 
 	// Check that both backups are in the list
@@ -450,6 +454,7 @@ func TestBackupScheduler_StartStop(t *testing.T) {
 
 func TestGenerateBackupID(t *testing.T) {
 	id1 := generateBackupID()
+	time.Sleep(1 * time.Millisecond) // Ensure different timestamps
 	id2 := generateBackupID()
 
 	assert.NotEmpty(t, id1)

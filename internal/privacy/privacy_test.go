@@ -528,10 +528,14 @@ func TestPrivacyManager_ListOperations(t *testing.T) {
 	activity := &DataProcessingActivity{ID: "activity1", Name: "Test Activity", DataCategories: []DataType{DataTypePersonal}}
 	assessment := &PrivacyImpactAssessment{ID: "assessment1", ActivityID: "activity1", Title: "Test PIA", RiskLevel: "low", Status: "draft"}
 	
-	pm.CreateDataSubject(subject)
-	pm.CreateDataAsset(asset)
-	pm.CreateDataProcessingActivity(activity)
-	pm.CreatePrivacyImpactAssessment(assessment)
+	err := pm.CreateDataSubject(subject)
+	assert.NoError(t, err)
+	err = pm.CreateDataAsset(asset)
+	assert.NoError(t, err)
+	err = pm.CreateDataProcessingActivity(activity)
+	assert.NoError(t, err)
+	err = pm.CreatePrivacyImpactAssessment(assessment)
+	assert.NoError(t, err)
 	
 	// Test populated lists
 	subjects = pm.ListDataSubjects()
