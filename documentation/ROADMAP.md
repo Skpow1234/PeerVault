@@ -562,9 +562,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 14 — Multi-Protocol Support (P9)
+## Milestone 14 — Multi-Protocol Support (P9) ✅
 
-1 WebSocket API
+1 WebSocket API ✅
 
 - Problem: No real-time bidirectional communication for dynamic applications.
 - Solution: Implement WebSocket API for real-time communication and live updates.
@@ -572,7 +572,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: WebSocket API working, real-time communication functional, connection management stable.
 - Touchpoints: `internal/api/websocket/`, `cmd/peervault-websocket/`, `docs/api/websocket/`.
 
-2 Server-Sent Events
+2 Server-Sent Events ✅
 
 - Problem: No efficient server-to-client event streaming for real-time updates.
 - Solution: Implement Server-Sent Events for efficient one-way event streaming.
@@ -580,7 +580,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: SSE working, event streaming functional, reconnection automatic, filtering available.
 - Touchpoints: `internal/api/sse/`, `docs/api/sse/`, `internal/events/`.
 
-3 MQTT Support
+3 MQTT Support ✅
 
 - Problem: No IoT messaging protocol support for lightweight device communication.
 - Solution: Implement MQTT broker and client support for IoT device integration.
