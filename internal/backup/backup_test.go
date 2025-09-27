@@ -525,14 +525,14 @@ func TestConvenienceFunctions(t *testing.T) {
 	// Update backup status to completed
 	GlobalBackupManager.mu.Lock()
 	if storedBackup, exists := GlobalBackupManager.backups[backup.ID]; exists {
-		storedBackup.Status = BackupStatusCompleted
+		storedBackup.SetStatus(BackupStatusCompleted)
 	}
 	GlobalBackupManager.mu.Unlock()
 
 	// Update restore manager backup status
 	GlobalRestoreManager.mu.Lock()
 	if storedBackup, exists := GlobalRestoreManager.backups[backup.ID]; exists {
-		storedBackup.Status = BackupStatusCompleted
+		storedBackup.SetStatus(BackupStatusCompleted)
 	}
 	GlobalRestoreManager.mu.Unlock()
 
