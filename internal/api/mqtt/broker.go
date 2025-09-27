@@ -96,7 +96,10 @@ func (b *Broker) ServeTCP(ctx context.Context, listener net.Listener) error {
 		}
 
 		// Set read timeout
-		listener.(*net.TCPListener).SetDeadline(time.Now().Add(1 * time.Second))
+		if err := listener.(*net.TCPListener).SetDeadline(time.Now().Add(1 * time.Second)); err != nil {
+			b.logger.Error("Failed to set deadline", "error", err)
+			continue
+		}
 
 		conn, err := listener.Accept()
 		if err != nil {
@@ -126,7 +129,9 @@ func (b *Broker) ServeWebSocket(ctx context.Context, addr string) error {
 		<-ctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		server.Shutdown(shutdownCtx)
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			b.logger.Error("Failed to shutdown WebSocket server", "error", err)
+		}
 	}()
 
 	return server.ListenAndServe()
@@ -134,7 +139,11 @@ func (b *Broker) ServeWebSocket(ctx context.Context, addr string) error {
 
 // handleConnection handles a new TCP connection
 func (b *Broker) handleConnection(conn net.Conn) {
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			b.logger.Error("Failed to close connection", "error", err)
+		}
+	}()
 
 	// Create client
 	client := NewClient(conn, b, b.logger)
@@ -186,7 +195,9 @@ func (b *Broker) removeClient(clientID string) {
 
 		// Send will message if configured
 		if client.WillMessage != nil {
-			b.publishMessage(client.WillMessage)
+			if err := b.publishMessage(client.WillMessage); err != nil {
+				b.logger.Error("Failed to publish will message", "error", err, "clientId", clientID)
+			}
 		}
 
 		delete(b.clients, clientID)
@@ -199,15 +210,6 @@ func (b *Broker) removeClient(clientID string) {
 			"activeConnections", b.getActiveConnections(),
 		)
 	}
-}
-
-// getClient returns a client by ID
-func (b *Broker) getClient(clientID string) (*Client, bool) {
-	b.clientsMu.RLock()
-	defer b.clientsMu.RUnlock()
-
-	client, exists := b.clients[clientID]
-	return client, exists
 }
 
 // getActiveConnections returns the number of active connections
@@ -327,11 +329,6 @@ func (b *Broker) topicMatches(pattern, topic string) bool {
 	// Simple exact match for now
 	// TODO: Implement wildcard matching (+ and #)
 	return pattern == topic
-}
-
-// getRetainedMessage returns a retained message for a topic
-func (b *Broker) getRetainedMessage(topic string) *Message {
-	return b.messageStore.GetRetainedMessage(topic)
 }
 
 // updateStats updates broker statistics

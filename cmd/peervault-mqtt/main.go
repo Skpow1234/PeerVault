@@ -73,7 +73,11 @@ func main() {
 			logger.Error("Failed to start MQTT TCP listener", "error", err, "addr", addr)
 			os.Exit(1)
 		}
-		defer listener.Close()
+		defer func() {
+			if err := listener.Close(); err != nil {
+				logger.Error("Failed to close listener", "error", err)
+			}
+		}()
 
 		logger.Info("Starting MQTT broker",
 			"host", *host,

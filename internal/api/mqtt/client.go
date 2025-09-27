@@ -159,7 +159,10 @@ func (c *Client) Handle() error {
 		}
 
 		// Set read timeout
-		c.conn.SetReadDeadline(time.Now().Add(30 * time.Second))
+		if err := c.conn.SetReadDeadline(time.Now().Add(30 * time.Second)); err != nil {
+			c.logger.Error("Failed to set read deadline", "error", err)
+			return err
+		}
 
 		packet, err := c.readPacket()
 		if err != nil {
@@ -569,7 +572,9 @@ func (c *Client) RemoteAddr() string {
 func (c *Client) Close() {
 	c.cancel()
 	if c.conn != nil {
-		c.conn.Close()
+		if err := c.conn.Close(); err != nil {
+			c.logger.Error("Failed to close connection", "error", err)
+		}
 	}
 }
 
@@ -638,8 +643,10 @@ func (c *Client) parseConnectPacket(packet *Packet) (*ConnectPacket, error) {
 
 		if offset+int(willMessageLen) <= len(data) {
 			connect.WillMessage = data[offset : offset+int(willMessageLen)]
-			offset += int(willMessageLen)
 		}
+		// Update offset for next field parsing
+		offset += int(willMessageLen)
+		_ = offset // Ensure offset is used
 	}
 
 	// Username
@@ -823,7 +830,9 @@ func (c *Client) handlePubrel(packet *Packet) error {
 
 	// Process the stored QoS 2 message
 	if message := c.broker.messageStore.GetQoS2Message(packetID); message != nil {
-		c.broker.publishMessage(message)
+		if err := c.broker.publishMessage(message); err != nil {
+			c.logger.Error("Failed to publish QoS 2 message", "error", err, "packetId", packetID)
+		}
 		c.broker.messageStore.RemoveQoS2Message(packetID)
 	}
 
