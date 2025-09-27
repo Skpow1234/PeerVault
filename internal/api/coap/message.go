@@ -404,13 +404,14 @@ func parseOption(data []byte, offset int, prevOptionNumber uint16) (Option, int,
 
 	// Parse delta
 	delta := uint16((firstByte >> 4) & 0x0F)
-	if delta == 13 {
+	switch delta {
+	case 13:
 		if offset >= len(data) {
 			return Option{}, offset, fmt.Errorf("unexpected end of message")
 		}
 		delta = uint16(data[offset]) + 13
 		offset++
-	} else if delta == 14 {
+	case 14:
 		if offset+1 >= len(data) {
 			return Option{}, offset, fmt.Errorf("unexpected end of message")
 		}
@@ -420,13 +421,14 @@ func parseOption(data []byte, offset int, prevOptionNumber uint16) (Option, int,
 
 	// Parse length
 	length := uint16(firstByte & 0x0F)
-	if length == 13 {
+	switch length {
+	case 13:
 		if offset >= len(data) {
 			return Option{}, offset, fmt.Errorf("unexpected end of message")
 		}
 		length = uint16(data[offset]) + 13
 		offset++
-	} else if length == 14 {
+	case 14:
 		if offset+1 >= len(data) {
 			return Option{}, offset, fmt.Errorf("unexpected end of message")
 		}

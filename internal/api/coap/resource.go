@@ -49,16 +49,8 @@ type Client struct {
 	CreatedAt time.Time
 	LastSeen  time.Time
 	MessageID uint16
-	mu        sync.Mutex
 }
 
-// getNextMessageID gets the next message ID for the client
-func (c *Client) getNextMessageID() uint16 {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.MessageID++
-	return c.MessageID
-}
 
 // Close closes the client connection
 func (c *Client) Close() {

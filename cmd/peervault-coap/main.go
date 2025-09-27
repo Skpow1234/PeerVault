@@ -79,7 +79,11 @@ func main() {
 			logger.Error("Failed to start CoAP UDP listener", "error", err, "addr", addr)
 			os.Exit(1)
 		}
-		defer conn.Close()
+		defer func() {
+			if err := conn.Close(); err != nil {
+				logger.Error("Failed to close connection", "error", err)
+			}
+		}()
 
 		logger.Info("Starting CoAP server",
 			"host", *host,

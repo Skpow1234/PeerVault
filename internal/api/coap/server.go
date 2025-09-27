@@ -105,7 +105,10 @@ func (s *Server) ServeUDP(ctx context.Context, conn *net.UDPConn) error {
 		}
 
 		// Set read timeout
-		conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+		if err := conn.SetReadDeadline(time.Now().Add(1 * time.Second)); err != nil {
+			s.logger.Error("Failed to set read deadline", "error", err)
+			continue
+		}
 
 		n, clientAddr, err := conn.ReadFromUDP(buffer)
 		if err != nil {
@@ -152,7 +155,9 @@ func (s *Server) handleMessage(conn *net.UDPConn, clientAddr *net.UDPAddr, data 
 		s.logger.Error("Failed to handle CoAP request", "error", err, "client", clientAddr)
 		// Send error response
 		errorResponse := s.createErrorResponse(message, InternalServerError)
-		s.sendResponse(conn, clientAddr, errorResponse)
+		if err := s.sendResponse(conn, clientAddr, errorResponse); err != nil {
+			s.logger.Error("Failed to send error response", "error", err)
+		}
 		return
 	}
 
@@ -332,58 +337,7 @@ func (s *Server) addObserver(path string, observer *Observer) {
 	)
 }
 
-// removeObserver removes an observer from a resource
-func (s *Server) removeObserver(path string, client *Client) {
-	s.observersMu.Lock()
-	defer s.observersMu.Unlock()
 
-	observers := s.observers[path]
-	for i, observer := range observers {
-		if observer.Client.ID == client.ID {
-			// Remove observer
-			s.observers[path] = append(observers[:i], observers[i+1:]...)
-			s.updateStats(func(stats *ServerStats) {
-				stats.TotalObservers--
-			})
-			break
-		}
-	}
-
-	s.logger.Debug("Observer removed",
-		"path", path,
-		"client", client.ID,
-		"totalObservers", len(s.observers[path]),
-	)
-}
-
-// notifyObservers notifies all observers of a resource
-func (s *Server) notifyObservers(path string, content []byte) {
-	s.observersMu.RLock()
-	defer s.observersMu.RUnlock()
-
-	observers := s.observers[path]
-	for _, observer := range observers {
-		// Create notification message
-		message := &Message{
-			Type:      NonConfirmable,
-			Code:      byte(Content),
-			MessageID: observer.Client.getNextMessageID(),
-			Token:     observer.Token,
-			Payload:   content,
-		}
-
-		// Add observe option
-		message.AddOption(Observe, uint32(time.Now().Unix()))
-
-		// Send notification (this would need the UDP connection)
-		// For now, we'll just log it
-		s.logger.Debug("Notifying observer",
-			"path", path,
-			"client", observer.Client.ID,
-			"messageId", message.MessageID,
-		)
-	}
-}
 
 // registerDefaultResources registers default CoAP resources
 func (s *Server) registerDefaultResources() {
