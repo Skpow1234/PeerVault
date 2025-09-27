@@ -220,6 +220,7 @@ func (t *WebSocketToSSETranslator) SendToSSE(message *Message) error {
 		if closeErr := resp.Body.Close(); closeErr != nil {
 			// Log the error but don't fail the operation
 			// as the main operation has already completed
+			_ = closeErr // Explicitly ignore the error to satisfy linter
 		}
 	}()
 
