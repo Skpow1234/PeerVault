@@ -1,4 +1,63 @@
-# PeerVault — P2P encrypted file store (Go)
+# PeerVault — Production-grade P2P encrypted file store (Go)
+
+> **Production-grade peer-to-peer encrypted file storage system with comprehensive API interfaces, security, and observability**
+
+[![Go](https://img.shields.io/badge/Go-1.24.6-blue.svg?style=for-the-badge&logo=go)](https://golang.org/)
+[![gRPC](https://img.shields.io/badge/gRPC-API-blue.svg?style=for-the-badge&logo=grpc)](https://grpc.io/)
+[![GraphQL](https://img.shields.io/badge/GraphQL-API-pink.svg?style=for-the-badge&logo=graphql)](https://graphql.org/)
+[![REST](https://img.shields.io/badge/REST-API-green.svg?style=for-the-badge&logo=rest)](https://restfulapi.net/)
+[![Protocol Buffers](https://img.shields.io/badge/Protobuf-Serialization-blue.svg?style=for-the-badge&logo=protobuf)](https://developers.google.com/protocol-buffers)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg?style=for-the-badge&logo=docker)](https://docker.com/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Helm-blue.svg?style=for-the-badge&logo=kubernetes)](https://kubernetes.io/)
+[![AES-GCM](https://img.shields.io/badge/AES--GCM-Encryption-green.svg?style=for-the-badge&logo=security)](https://en.wikipedia.org/wiki/Galois/Counter_Mode)
+[![HMAC-SHA256](https://img.shields.io/badge/HMAC--SHA256-Auth-orange.svg?style=for-the-badge&logo=security)](https://en.wikipedia.org/wiki/HMAC)
+[![SHA-256](https://img.shields.io/badge/SHA--256-Hashing-red.svg?style=for-the-badge&logo=security)](https://en.wikipedia.org/wiki/SHA-2)
+[![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-yellow.svg?style=for-the-badge&logo=websocket)](https://websockets.spec.whatwg.org/)
+[![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-green.svg?style=for-the-badge&logo=swagger)](https://swagger.io/)
+[![Postman](https://img.shields.io/badge/Postman-Testing-orange.svg?style=for-the-badge&logo=postman)](https://postman.com/)
+[![k6](https://img.shields.io/badge/k6-Performance-purple.svg?style=for-the-badge&logo=k6)](https://k6.io/)
+[![Prometheus](https://img.shields.io/badge/Prometheus-Metrics-orange.svg?style=for-the-badge&logo=prometheus)](https://prometheus.io/)
+[![Grafana](https://img.shields.io/badge/Grafana-Visualization-orange.svg?style=for-the-badge&logo=grafana)](https://grafana.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-blue.svg?style=for-the-badge&logo=github-actions)](https://github.com/features/actions)
+[![Trivy](https://img.shields.io/badge/Trivy-Security-red.svg?style=for-the-badge&logo=trivy)](https://trivy.dev/)
+[![Semgrep](https://img.shields.io/badge/Semgrep-Security-green.svg?style=for-the-badge&logo=semgrep)](https://semgrep.dev/)
+[![Ethereum](https://img.shields.io/badge/Ethereum-Blockchain-blue.svg?style=for-the-badge&logo=ethereum)](https://ethereum.org/)
+[![IPFS](https://img.shields.io/badge/IPFS-Protocol-purple.svg?style=for-the-badge&logo=ipfs)](https://ipfs.io/)
+
+---
+
+## Table of Contents
+
+- [MVP Features](#mvp-features)
+- [🚧 Future Features (Post-MVP)](#-future-features-post-mvp)
+- [Content Addressing](#content-addressing)
+- [Message Framing](#message-framing)
+- [Encryption & Security](#encryption--security)
+- [Key Management](#key-management)
+- [Authentication](#authentication)
+- [Requirements](#requirements)
+- [Security](#security)
+- [Windows Defender Setup](#windows-defender-setup)
+- [Install](#install)
+- [Build](#build)
+- [Run](#run)
+- [GraphQL API](#graphql-api)
+- [REST API](#rest-api)
+- [gRPC API](#grpc-api)
+- [API Testing & Quality Assurance](#api-testing--quality-assurance)
+- [Plugin Architecture](#plugin-architecture)
+- [Developer Tools & SDKs](#developer-tools--sdks)
+- [Project Status & Roadmap](#project-status--roadmap)
+- [gRPC Implementation Status](#grpc-implementation-status)
+- [Docker](#docker)
+- [How it works (high level)](#how-it-works-high-level)
+- [Project Structure](#project-structure)
+- [Test](#test)
+- [Lint](#lint)
+- [Clean up local data](#clean-up-local-data)
+- [Customize / next steps](#customize--next-steps)
+
+---
 
 Lightweight peer-to-peer file store demo written in Go. Nodes communicate over TCP, replicate files across peers, and encrypt file transfers using AES-GCM with authentication.
 
