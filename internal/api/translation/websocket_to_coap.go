@@ -337,8 +337,8 @@ func (t *WebSocketToCoAPTranslator) createCoAPMessage(message *Message) []byte {
 	msgType := "CON"
 	if message.Metadata != nil {
 		if methodVal, exists := message.Metadata["coap_method"]; exists {
-			if _, ok := methodVal.(string); ok {
-				// method = methodStr // not used in simplified implementation
+			if methodStr, _ := methodVal.(string); methodStr != "" {
+				_ = methodStr // not used in simplified implementation
 			}
 		}
 		if codeVal, exists := message.Metadata["coap_code"]; exists {
