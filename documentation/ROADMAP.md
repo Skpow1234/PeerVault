@@ -588,7 +588,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: MQTT broker running, client connections working, QoS levels supported, topics manageable.
 - Touchpoints: `internal/api/mqtt/`, `cmd/peervault-mqtt/`, `docs/api/mqtt/`.
 
-4 CoAP Support
+4 CoAP Support ✅
 
 - Problem: No constrained application protocol for resource-limited IoT devices.
 - Solution: Implement CoAP support for lightweight IoT device communication.
@@ -596,7 +596,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: CoAP server running, client support working, resources manageable, observations functional.
 - Touchpoints: `internal/api/coap/`, `cmd/peervault-coap/`, `docs/api/coap/`.
 
-5 Protocol Translation
+5 Protocol Translation ✅
 
 - Problem: No cross-protocol communication between different API types.
 - Solution: Implement protocol translation layer for seamless cross-protocol communication.
