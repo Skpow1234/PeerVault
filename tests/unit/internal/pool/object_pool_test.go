@@ -1,24 +1,24 @@
-package pool_test
+package pool
 
 import (
 	"testing"
 
-	"github.com/Skpow1234/Peervault/internal/pool"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewObjectPool(t *testing.T) {
 	// Test creating a new object pool
-	pool := pool.NewObjectPool(func() []byte {
+	pool := NewObjectPool(func() []byte {
 		return make([]byte, 1024)
 	})
 
 	assert.NotNil(t, pool)
+	assert.NotNil(t, pool.pool)
 }
 
 func TestObjectPoolGetPut(t *testing.T) {
 	// Test getting and putting objects in the pool
-	pool := pool.NewObjectPool(func() []byte {
+	pool := NewObjectPool(func() []byte {
 		return make([]byte, 1024)
 	})
 
@@ -38,7 +38,7 @@ func TestObjectPoolGetPut(t *testing.T) {
 
 func TestObjectPoolConcurrentAccess(t *testing.T) {
 	// Test concurrent access to the pool
-	pool := pool.NewObjectPool(func() []byte {
+	pool := NewObjectPool(func() []byte {
 		return make([]byte, 512)
 	})
 
@@ -73,11 +73,13 @@ func TestNewResettableObjectPool(t *testing.T) {
 		}
 	}
 
-	pool := pool.NewResettableObjectPool(func() []byte {
+	pool := NewResettableObjectPool(func() []byte {
 		return make([]byte, 1024)
 	}, resetFunc)
 
 	assert.NotNil(t, pool)
+	assert.NotNil(t, pool.pool)
+	assert.NotNil(t, pool.reset)
 }
 
 func TestResettableObjectPoolGetPut(t *testing.T) {
@@ -88,7 +90,7 @@ func TestResettableObjectPoolGetPut(t *testing.T) {
 		}
 	}
 
-	pool := pool.NewResettableObjectPool(func() []byte {
+	pool := NewResettableObjectPool(func() []byte {
 		return make([]byte, 1024)
 	}, resetFunc)
 
@@ -124,7 +126,7 @@ func TestResettableObjectPoolConcurrentAccess(t *testing.T) {
 		}
 	}
 
-	pool := pool.NewResettableObjectPool(func() []byte {
+	pool := NewResettableObjectPool(func() []byte {
 		return make([]byte, 512)
 	}, resetFunc)
 
@@ -164,7 +166,7 @@ func TestObjectPoolWithStruct(t *testing.T) {
 		Data []byte
 	}
 
-	pool := pool.NewObjectPool(func() TestStruct {
+	pool := NewObjectPool(func() TestStruct {
 		return TestStruct{
 			ID:   0,
 			Name: "",
@@ -210,7 +212,7 @@ func TestResettableObjectPoolWithStruct(t *testing.T) {
 		}
 	}
 
-	pool := pool.NewResettableObjectPool(func() *TestStruct {
+	pool := NewResettableObjectPool(func() *TestStruct {
 		return &TestStruct{
 			ID:   0,
 			Name: "",

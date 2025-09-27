@@ -44,7 +44,7 @@ func TestPluginInterface(t *testing.T) {
 		description: "Test plugin",
 		pluginType:  plugins.PluginTypeStorage,
 	}
-
+	
 	assert.Equal(t, "test-plugin", plugin.Name())
 	assert.Equal(t, "1.0.0", plugin.Version())
 	assert.Equal(t, "Test plugin", plugin.Description())
@@ -59,25 +59,25 @@ func TestMockPlugin(t *testing.T) {
 		description: "Test plugin",
 		pluginType:  plugins.PluginTypeStorage,
 	}
-
+	
 	// Test initialization
 	err := plugin.Initialize(map[string]interface{}{"enabled": true})
 	assert.NoError(t, err)
-
+	
 	// Test start
 	err = plugin.Start()
 	assert.NoError(t, err)
 	assert.True(t, plugin.started)
-
+	
 	// Test stop
 	err = plugin.Stop()
 	assert.NoError(t, err)
 	assert.False(t, plugin.started)
-
+	
 	// Test config validation
 	err = plugin.ValidateConfig(map[string]interface{}{"enabled": true})
 	assert.NoError(t, err)
-
+	
 	err = plugin.ValidateConfig(map[string]interface{}{"enabled": false})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "plugin is disabled")
@@ -203,13 +203,13 @@ func (msp *MockStoragePlugin) Exists(ctx context.Context, key string) (bool, err
 	return exists, nil
 }
 
-func (msp *MockStoragePlugin) GetMetadata(ctx context.Context, key string) (*plugins.FileMetadata, error) {
+func (msp *MockStoragePlugin) GetMetadata(ctx context.Context, key string) (*FileMetadata, error) {
 	data, exists := msp.data[key]
 	if !exists {
 		return nil, fmt.Errorf("key not found: %s", key)
 	}
 
-	return &plugins.FileMetadata{
+	return &FileMetadata{
 		Key:  key,
 		Size: int64(len(data)),
 		// Add other metadata fields as needed
