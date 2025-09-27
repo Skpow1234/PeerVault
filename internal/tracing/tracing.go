@@ -3,6 +3,7 @@ package tracing
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 )
@@ -341,9 +342,9 @@ var GlobalTracer Tracer = NewSimpleTracer()
 
 // Utility functions for generating IDs
 func generateTraceID() TraceID {
-	return TraceID(fmt.Sprintf("%d", time.Now().UnixNano()))
+	return TraceID(fmt.Sprintf("%d-%d", time.Now().UnixNano(), rand.Int63()))
 }
 
 func generateSpanID() SpanID {
-	return SpanID(fmt.Sprintf("%d", time.Now().UnixNano()))
+	return SpanID(fmt.Sprintf("%d-%d", time.Now().UnixNano(), rand.Int63()))
 }

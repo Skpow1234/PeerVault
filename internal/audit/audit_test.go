@@ -94,7 +94,7 @@ func TestNewAuditLogger_InvalidPath(t *testing.T) {
 	} else {
 		// If it succeeds, clean up
 		if logger != nil {
-			logger.Close()
+			_ = logger.Close()
 		}
 	}
 }
@@ -106,7 +106,7 @@ func TestAuditLogger_LogEvent(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
@@ -153,7 +153,7 @@ func TestAuditLogger_LogAuthEvent(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
@@ -191,7 +191,7 @@ func TestAuditLogger_LogAccessEvent(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
@@ -226,7 +226,7 @@ func TestAuditLogger_LogDataEvent(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
@@ -261,7 +261,7 @@ func TestAuditLogger_LogSecurityEvent(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
@@ -292,7 +292,7 @@ func TestAuditLogger_LogSystemEvent(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
@@ -323,7 +323,7 @@ func TestAuditLogger_LogComplianceEvent(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
@@ -353,7 +353,7 @@ func TestAuditLogger_LogAdminEvent(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
@@ -387,15 +387,15 @@ func TestAuditLogger_GetEvents_WithFilter(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
 	// Log multiple events
-	logger.LogAuthEvent(ctx, "user1", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
-	logger.LogAuthEvent(ctx, "user2", "login", "failure", "192.168.1.2", "Chrome/5.0", nil)
-	logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
-	logger.LogSecurityEvent(ctx, AuditLevelWarning, "Security alert", nil)
+	_ = logger.LogAuthEvent(ctx, "user1", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
+	_ = logger.LogAuthEvent(ctx, "user2", "login", "failure", "192.168.1.2", "Chrome/5.0", nil)
+	_ = logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
+	_ = logger.LogSecurityEvent(ctx, AuditLevelWarning, "Security alert", nil)
 
 	// Test filter by user ID
 	filter := &AuditFilter{UserID: "user1"}
@@ -454,13 +454,13 @@ func TestAuditLogger_GetEvents_NoFilter(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
 	// Log some events
-	logger.LogAuthEvent(ctx, "user1", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
-	logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
+	_ = logger.LogAuthEvent(ctx, "user1", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
+	_ = logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
 
 	// Get all events without filter
 	events := logger.GetEvents(nil)
@@ -474,19 +474,19 @@ func TestAuditLogger_GetAuditSummary(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
 	// Log various types of events
-	logger.LogAuthEvent(ctx, "user1", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
-	logger.LogAuthEvent(ctx, "user2", "login", "failure", "192.168.1.2", "Chrome/5.0", nil)
-	logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
-	logger.LogDataEvent(ctx, "user1", "/api/users", "update", "success", nil)
-	logger.LogSecurityEvent(ctx, AuditLevelWarning, "Security alert", nil)
-	logger.LogSystemEvent(ctx, AuditLevelError, "System error", nil)
-	logger.LogComplianceEvent(ctx, "Compliance event", nil)
-	logger.LogAdminEvent(ctx, "admin1", "create_user", "success", nil)
+	_ = logger.LogAuthEvent(ctx, "user1", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
+	_ = logger.LogAuthEvent(ctx, "user2", "login", "failure", "192.168.1.2", "Chrome/5.0", nil)
+	_ = logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
+	_ = logger.LogDataEvent(ctx, "user1", "/api/users", "update", "success", nil)
+	_ = logger.LogSecurityEvent(ctx, AuditLevelWarning, "Security alert", nil)
+	_ = logger.LogSystemEvent(ctx, AuditLevelError, "System error", nil)
+	_ = logger.LogComplianceEvent(ctx, "Compliance event", nil)
+	_ = logger.LogAdminEvent(ctx, "admin1", "create_user", "success", nil)
 
 	// Get summary
 	now := time.Now()
@@ -517,7 +517,7 @@ func TestAuditLogger_ConcurrentAccess(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 
@@ -531,13 +531,13 @@ func TestAuditLogger_ConcurrentAccess(t *testing.T) {
 			// Log different types of events concurrently
 			switch i % 4 {
 			case 0:
-				logger.LogAuthEvent(ctx, "user1", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
+				_ = logger.LogAuthEvent(ctx, "user1", "login", "success", "192.168.1.1", "Mozilla/5.0", nil)
 			case 1:
-				logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
+				_ = logger.LogAccessEvent(ctx, "user1", "/api/files", "read", "success", nil)
 			case 2:
-				logger.LogSecurityEvent(ctx, AuditLevelInfo, "Security event", nil)
+				_ = logger.LogSecurityEvent(ctx, AuditLevelInfo, "Security event", nil)
 			case 3:
-				logger.LogSystemEvent(ctx, AuditLevelInfo, "System event", nil)
+				_ = logger.LogSystemEvent(ctx, AuditLevelInfo, "System event", nil)
 			}
 
 			// Test concurrent access to GetEvents
@@ -580,7 +580,7 @@ func TestConvenienceFunctions(t *testing.T) {
 
 	err := InitializeAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer GlobalAuditLogger.Close()
+	defer func() { _ = GlobalAuditLogger.Close() }()
 
 	ctx := context.Background()
 
@@ -689,7 +689,7 @@ func TestAuditLogger_EdgeCases(t *testing.T) {
 
 	logger, err := NewAuditLogger(logPath)
 	assert.NoError(t, err)
-	defer logger.Close()
+	defer func() { _ = logger.Close() }()
 
 	ctx := context.Background()
 

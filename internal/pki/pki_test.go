@@ -12,7 +12,7 @@ func TestNewPKIManager(t *testing.T) {
 	// Create a temporary directory for testing
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	// Test successful creation
 	manager, err := NewPKIManager(tempDir)
@@ -44,7 +44,7 @@ func TestNewPKIManager_InvalidPath(t *testing.T) {
 func TestPKIManager_CreateCertificateRequest(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -77,7 +77,7 @@ func TestPKIManager_CreateCertificateRequest(t *testing.T) {
 func TestPKIManager_ApproveCertificateRequest(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -119,7 +119,7 @@ func TestPKIManager_ApproveCertificateRequest(t *testing.T) {
 func TestPKIManager_GetCertificate_NotFound(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -133,7 +133,7 @@ func TestPKIManager_GetCertificate_NotFound(t *testing.T) {
 func TestPKIManager_ListCertificates(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -169,7 +169,7 @@ func TestPKIManager_ListCertificates(t *testing.T) {
 func TestPKIManager_RevokeCertificate(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -206,7 +206,7 @@ func TestPKIManager_RevokeCertificate(t *testing.T) {
 func TestPKIManager_RevokeCertificate_NotFound(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -221,7 +221,7 @@ func TestPKIManager_RevokeCertificate_NotFound(t *testing.T) {
 func TestPKIManager_GetCertificateAuthority(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -239,7 +239,7 @@ func TestPKIManager_GetCertificateAuthority(t *testing.T) {
 func TestPKIManager_GetCertificateAuthority_NotFound(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -252,7 +252,7 @@ func TestPKIManager_GetCertificateAuthority_NotFound(t *testing.T) {
 func TestPKIManager_ListCertificateAuthorities(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -266,7 +266,7 @@ func TestPKIManager_ListCertificateAuthorities(t *testing.T) {
 func TestPKIManager_CheckCertificateValidity(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -304,7 +304,7 @@ func TestPKIManager_CheckCertificateValidity(t *testing.T) {
 func TestPKIManager_GetTLSConfig(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -339,7 +339,7 @@ func TestPKIManager_GetTLSConfig(t *testing.T) {
 func TestPKIManager_GetTLSConfig_NotFound(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -354,7 +354,7 @@ func TestPKIManager_GetTLSConfig_NotFound(t *testing.T) {
 func TestPKIManager_RotateCertificate(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -390,7 +390,7 @@ func TestPKIManager_RotateCertificate(t *testing.T) {
 func TestPKIManager_RotateCertificate_NotFound(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
@@ -405,7 +405,7 @@ func TestPKIManager_RotateCertificate_NotFound(t *testing.T) {
 func TestPKIManager_ConcurrentAccess(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	manager, err := NewPKIManager(tempDir)
 	assert.NoError(t, err)
