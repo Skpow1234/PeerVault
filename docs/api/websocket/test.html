@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerVault WebSocket API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .connecting { background-color: #fff3cd; color: #856404; }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>PeerVault WebSocket API Test</h1>
+    
+    <div class="container">
+        <h2>Connection</h2>
+        <div id="status" class="status disconnected">Disconnected</div>
+        <input type="text" id="wsUrl" value="ws://localhost:8083/ws" placeholder="WebSocket URL">
+        <button id="connectBtn" onclick="connect()">Connect</button>
+        <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+    </div>
+
+    <div class="container">
+        <h2>Subscriptions</h2>
+        <select id="topicSelect">
+            <option value="file_operations">File Operations</option>
+            <option value="peer_network">Peer Network</option>
+            <option value="system">System</option>
+            <option value="alerts">Alerts</option>
+        </select>
+        <button onclick="subscribe()">Subscribe</button>
+        <button onclick="unsubscribe()">Unsubscribe</button>
+        <div id="subscriptions"></div>
+    </div>
+
+    <div class="container">
+        <h2>Send Message</h2>
+        <input type="text" id="messageType" value="ping" placeholder="Message Type">
+        <input type="text" id="messageData" value='{"test": "data"}' placeholder="Message Data (JSON)">
+        <button onclick="sendMessage()">Send Message</button>
+    </div>
+
+    <div class="container">
+        <h2>Log</h2>
+        <button onclick="clearLog()">Clear Log</button>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        let subscriptions = new Set();
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(status, className) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = status;
+            statusDiv.className = `status ${className}`;
+        }
+
+        function updateSubscriptions() {
+            const subsDiv = document.getElementById('subscriptions');
+            subsDiv.innerHTML = 'Active subscriptions: ' + Array.from(subscriptions).join(', ');
+        }
+
+        function connect() {
+            const url = document.getElementById('wsUrl').value;
+            log(`Connecting to ${url}...`);
+            updateStatus('Connecting...', 'connecting');
+
+            ws = new WebSocket(url);
+
+            ws.onopen = function(event) {
+                log('Connected to WebSocket server');
+                updateStatus('Connected', 'connected');
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+            };
+
+            ws.onmessage = function(event) {
+                log(`Received: ${event.data}`);
+                try {
+                    const message = JSON.parse(event.data);
+                    if (message.type === 'file_uploaded') {
+                        log(`File uploaded: ${message.data.key}`);
+                    } else if (message.type === 'peer_connected') {
+                        log(`Peer connected: ${message.data.id}`);
+                    } else if (message.type === 'system_metrics') {
+                        log(`System metrics: ${JSON.stringify(message.data)}`);
+                    }
+                } catch (e) {
+                    log(`Non-JSON message: ${event.data}`);
+                }
+            };
+
+            ws.onclose = function(event) {
+                log(`Connection closed: ${event.code} - ${event.reason}`);
+                updateStatus('Disconnected', 'disconnected');
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+                subscriptions.clear();
+                updateSubscriptions();
+            };
+
+            ws.onerror = function(error) {
+                log(`WebSocket error: ${error}`);
+                updateStatus('Error', 'disconnected');
+            };
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function subscribe() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('Not connected to WebSocket server');
+                return;
+            }
+
+            const topic = document.getElementById('topicSelect').value;
+            const message = {
+                type: 'subscribe',
+                topic: topic
+            };
+
+            ws.send(JSON.stringify(message));
+            subscriptions.add(topic);
+            updateSubscriptions();
+            log(`Subscribed to topic: ${topic}`);
+        }
+
+        function unsubscribe() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('Not connected to WebSocket server');
+                return;
+            }
+
+            const topic = document.getElementById('topicSelect').value;
+            const message = {
+                type: 'unsubscribe',
+                topic: topic
+            };
+
+            ws.send(JSON.stringify(message));
+            subscriptions.delete(topic);
+            updateSubscriptions();
+            log(`Unsubscribed from topic: ${topic}`);
+        }
+
+        function sendMessage() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('Not connected to WebSocket server');
+                return;
+            }
+
+            const type = document.getElementById('messageType').value;
+            const dataStr = document.getElementById('messageData').value;
+            
+            let data;
+            try {
+                data = JSON.parse(dataStr);
+            } catch (e) {
+                data = dataStr;
+            }
+
+            const message = {
+                type: type,
+                data: data,
+                timestamp: new Date().toISOString()
+            };
+
+            ws.send(JSON.stringify(message));
+            log(`Sent: ${JSON.stringify(message)}`);
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Test HTTP endpoints
+        function testHealth() {
+            fetch('http://localhost:8083/ws/health')
+                .then(response => response.json())
+                .then(data => log(`Health check: ${JSON.stringify(data)}`))
+                .catch(error => log(`Health check error: ${error}`));
+        }
+
+        function testMetrics() {
+            fetch('http://localhost:8083/ws/metrics')
+                .then(response => response.json())
+                .then(data => log(`Metrics: ${JSON.stringify(data)}`))
+                .catch(error => log(`Metrics error: ${error}`));
+        }
+
+        function testStatus() {
+            fetch('http://localhost:8083/ws/status')
+                .then(response => response.json())
+                .then(data => log(`Status: ${JSON.stringify(data)}`))
+                .catch(error => log(`Status error: ${error}`));
+        }
+
+        // Add HTTP test buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            const httpContainer = document.createElement('div');
+            httpContainer.className = 'container';
+            httpContainer.innerHTML = `
+                <h2>HTTP Endpoints Test</h2>
+                <button onclick="testHealth()">Test Health</button>
+                <button onclick="testMetrics()">Test Metrics</button>
+                <button onclick="testStatus()">Test Status</button>
+            `;
+            document.body.appendChild(httpContainer);
+        });
+    </script>
+</body>
+</html>

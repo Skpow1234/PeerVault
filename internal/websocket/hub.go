@@ -203,6 +203,41 @@ func (h *Hub) GetSubscriptionCount(topic string) int {
 	return 0
 }
 
+// GetClients returns all connected clients
+func (h *Hub) GetClients() map[*Client]bool {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	// Return a copy to avoid race conditions
+	clients := make(map[*Client]bool)
+	for client := range h.clients {
+		clients[client] = true
+	}
+	return clients
+}
+
+// GetTotalConnections returns the total number of connections since startup
+func (h *Hub) GetTotalConnections() int {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	return len(h.clients)
+}
+
+// Broadcast broadcasts a message to all connected clients
+func (h *Hub) Broadcast(message []byte) {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	for client := range h.clients {
+		select {
+		case client.send <- message:
+		default:
+			close(client.send)
+			delete(h.clients, client)
+		}
+	}
+}
+
 // GetTopics returns all active topics
 func (h *Hub) GetTopics() []string {
 	h.mu.RLock()
