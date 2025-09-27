@@ -112,6 +112,7 @@ func (al *AuditLogger) LogEvent(ctx context.Context, event *AuditEvent) error {
 	// Add to buffer
 	al.bufferMu.Lock()
 	al.buffer = append(al.buffer, *event)
+	shouldFlush := len(al.buffer) >= al.batchSize
 	al.bufferMu.Unlock()
 
 	// Add to in-memory events
@@ -120,7 +121,7 @@ func (al *AuditLogger) LogEvent(ctx context.Context, event *AuditEvent) error {
 	al.mu.Unlock()
 
 	// Flush if buffer is full
-	if len(al.buffer) >= al.batchSize {
+	if shouldFlush {
 		go func() {
 			_ = al.flush() // Ignore error in goroutine
 		}()
