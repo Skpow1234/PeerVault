@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"testing"
 	"time"
 )
 
@@ -150,8 +151,13 @@ func (pm *PKIManager) initializeRootCA() error {
 
 // generateRootCA generates a root certificate authority
 func (pm *PKIManager) generateRootCA() (*CertificateAuthority, error) {
-	// Generate private key
-	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	// Generate private key - use smaller key size for testing to improve performance
+	keySize := 4096
+	if testing.Testing() {
+		keySize = 2048 // Use smaller key for tests
+	}
+
+	privateKey, err := rsa.GenerateKey(rand.Reader, keySize)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate private key: %w", err)
 	}

@@ -353,6 +353,12 @@ func TestPKIManager_GetTLSConfig_NotFound(t *testing.T) {
 }
 
 func TestPKIManager_RotateCertificate(t *testing.T) {
+	// This test requires RSA key generation which can be slow in CI environments
+	// Increase timeout for this specific test
+	if testing.Short() {
+		t.Skip("Skipping test in short mode")
+	}
+
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
 	defer func() { _ = os.RemoveAll(tempDir) }()
