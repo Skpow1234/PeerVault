@@ -36,7 +36,11 @@ tests/fuzz/*/*/testdata/fuzz/
 # Go test artifacts
 *.test
 *.prof
-coverage.out
+coverage*.out
+*-coverage.out
+merged-coverage.out
+test-coverage.out
+final-test.out
 coverage.html
 
 # Test-specific generated files
