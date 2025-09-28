@@ -393,8 +393,13 @@ func TestPKIManager_RotateCertificate_NotFound(t *testing.T) {
 	assert.NoError(t, err)
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
-	manager, err := NewPKIManager(tempDir)
-	assert.NoError(t, err)
+	// Create PKI manager manually without calling NewPKIManager to avoid root CA generation
+	manager := &PKIManager{
+		certificates: make(map[string]*Certificate),
+		requests:     make(map[string]*CertificateRequest),
+		cas:          make(map[string]*CertificateAuthority),
+		storagePath:  tempDir,
+	}
 
 	ctx := context.Background()
 
@@ -406,7 +411,7 @@ func TestPKIManager_RotateCertificate_NotFound(t *testing.T) {
 func TestPKIManager_ConcurrentAccess(t *testing.T) {
 	// Test concurrent access without creating a new PKI manager to avoid expensive RSA key generation
 	// This test focuses on testing the thread safety of the PKI manager's internal structures
-	
+
 	// Create a PKI manager without initializing the root CA to avoid RSA key generation
 	tempDir, err := os.MkdirTemp("", "pki-test-*")
 	assert.NoError(t, err)
@@ -435,7 +440,7 @@ func TestPKIManager_ConcurrentAccess(t *testing.T) {
 			// Test concurrent read operations - just verify methods don't panic
 			_ = manager.ListCertificates()
 			_ = manager.ListCertificateAuthorities()
-			
+
 			// Test that the manager is still functional by checking storage path
 			_ = manager.storagePath
 		}(i)
