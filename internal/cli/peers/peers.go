@@ -387,10 +387,9 @@ func (m *Manager) identifyClusters(nodes []*TopologyNode) []*Cluster {
 				continue
 			}
 
-			distance := math.Sqrt(
-				math.Pow(node.Position.X-otherNode.Position.X, 2) +
-					math.Pow(node.Position.Y-otherNode.Position.Y, 2),
-			)
+			dx := node.Position.X - otherNode.Position.X
+			dy := node.Position.Y - otherNode.Position.Y
+			distance := math.Sqrt(dx*dx + dy*dy)
 
 			if distance <= cluster.Radius {
 				cluster.Peers = append(cluster.Peers, otherNode.ID)

@@ -97,7 +97,7 @@ func (f *Formatter) formatCSV(data interface{}) (string, error) {
 		for key := range v[0] {
 			headers = append(headers, key)
 		}
-		writer.Write(headers)
+		_ = writer.Write(headers)
 
 		// Write data rows
 		for _, row := range v {
@@ -106,7 +106,7 @@ func (f *Formatter) formatCSV(data interface{}) (string, error) {
 				value := fmt.Sprintf("%v", row[header])
 				values = append(values, value)
 			}
-			writer.Write(values)
+			_ = writer.Write(values)
 		}
 
 	case map[string]interface{}:
@@ -117,8 +117,8 @@ func (f *Formatter) formatCSV(data interface{}) (string, error) {
 			headers = append(headers, key)
 			values = append(values, fmt.Sprintf("%v", value))
 		}
-		writer.Write(headers)
-		writer.Write(values)
+		_ = writer.Write(headers)
+		_ = writer.Write(values)
 
 	default:
 		return "", fmt.Errorf("unsupported data type for CSV: %T", data)
@@ -274,11 +274,11 @@ func (f *Formatter) formatFileListCSV(files []FileInfo) (string, error) {
 	writer := csv.NewWriter(&result)
 
 	// Header
-	writer.Write([]string{"ID", "Name", "Size", "Hash", "Created", "Owner"})
+	_ = writer.Write([]string{"ID", "Name", "Size", "Hash", "Created", "Owner"})
 
 	// Rows
 	for _, file := range files {
-		writer.Write([]string{
+		_ = writer.Write([]string{
 			file.ID,
 			file.Name,
 			fmt.Sprintf("%d", file.Size),
@@ -350,11 +350,11 @@ func (f *Formatter) formatPeerListCSV(peers []PeerInfo) (string, error) {
 	writer := csv.NewWriter(&result)
 
 	// Header
-	writer.Write([]string{"ID", "Address", "Status", "Latency", "Storage", "Last Seen"})
+	_ = writer.Write([]string{"ID", "Address", "Status", "Latency", "Storage", "Last Seen"})
 
 	// Rows
 	for _, peer := range peers {
-		writer.Write([]string{
+		_ = writer.Write([]string{
 			peer.ID,
 			peer.Address,
 			peer.Status,

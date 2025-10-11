@@ -36,7 +36,7 @@ func New(configDir string) *Manager {
 	}
 
 	mm.initializeDefaultMacros()
-	mm.loadMacros()
+	_ = mm.loadMacros()
 	return mm
 }
 
@@ -174,7 +174,7 @@ func (mm *Manager) ExecuteMacro(name string) ([]string, error) {
 	// Update usage statistics
 	macro.UsageCount++
 	macro.LastUsed = time.Now()
-	mm.saveMacro(macro)
+	_ = mm.saveMacro(macro)
 
 	// Return a copy of the commands
 	commands := make([]string, len(macro.Commands))

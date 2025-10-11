@@ -32,10 +32,9 @@ func (c *Client) Connect(ctx context.Context) error {
 			Timeout:             3 * time.Second,
 			PermitWithoutStream: true,
 		}),
-		grpc.WithBlock(),
 	}
 
-	conn, err := grpc.DialContext(ctx, c.server, opts...)
+	conn, err := grpc.NewClient(c.server, opts...)
 	if err != nil {
 		return fmt.Errorf("failed to connect to gRPC server: %w", err)
 	}

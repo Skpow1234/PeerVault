@@ -125,7 +125,7 @@ func (c *GetCommand) Execute(ctx context.Context, args []string) error {
 		return err
 	}
 
-	c.formatter.PrintSuccess(fmt.Sprintf("File retrieved successfully"))
+	c.formatter.PrintSuccess("File retrieved successfully")
 	c.formatter.PrintFileInfo(file)
 
 	if outputPath != "" {
@@ -1213,7 +1213,7 @@ func (c *BatchCommand) Execute(ctx context.Context, args []string) error {
 // batchUpload performs batch upload
 func (c *BatchCommand) batchUpload(ctx context.Context, args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("usage: batch upload <file1> [file2] [file3] ...")
+		return fmt.Errorf("usage: batch upload <file1> [file2] [file3]")
 	}
 
 	c.formatter.PrintInfo(fmt.Sprintf("Starting batch upload of %d files...", len(args)))
@@ -1239,7 +1239,7 @@ func (c *BatchCommand) batchUpload(ctx context.Context, args []string) error {
 // batchDownload performs batch download
 func (c *BatchCommand) batchDownload(ctx context.Context, args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("usage: batch download <output_dir> <file_id1> [file_id2] [file_id3] ...")
+		return fmt.Errorf("usage: batch download <output_dir> <file_id1> [file_id2] [file_id3]")
 	}
 
 	outputDir := args[0]
