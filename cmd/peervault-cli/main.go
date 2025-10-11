@@ -82,6 +82,11 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 	// Real-time commands
 	cliApp.RegisterCommand("realtime", commands.NewRealtimeCommand(client, formatter))
 
+	// Advanced commands
+	cliApp.RegisterCommand("protocol", commands.NewProtocolCommand(client, formatter))
+	cliApp.RegisterCommand("batch", commands.NewBatchCommand(client, formatter))
+	cliApp.RegisterCommand("monitor", commands.NewMonitorCommand(client, formatter))
+
 	// Utility commands
 	cliApp.RegisterCommand("help", commands.NewHelpCommand(cliApp))
 	cliApp.RegisterCommand("exit", commands.NewExitCommand())

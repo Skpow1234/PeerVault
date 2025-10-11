@@ -11,6 +11,9 @@ import (
 	"github.com/Skpow1234/Peervault/internal/cli/client"
 	"github.com/Skpow1234/Peervault/internal/cli/formatter"
 	"github.com/Skpow1234/Peervault/internal/cli/history"
+	"github.com/Skpow1234/Peervault/internal/cli/monitoring"
+	"github.com/Skpow1234/Peervault/internal/cli/operations"
+	"github.com/Skpow1234/Peervault/internal/cli/protocol"
 	"github.com/Skpow1234/Peervault/internal/cli/realtime"
 )
 
@@ -1063,6 +1066,388 @@ func (c *RealtimeCommand) subscribe(ctx context.Context, args []string) error {
 
 	c.realtimeManager.Subscribe(eventType, subscriber)
 	c.formatter.PrintSuccess(fmt.Sprintf("Subscribed to %s events", eventType))
+
+	return nil
+}
+
+// ProtocolCommand handles protocol switching
+type ProtocolCommand struct {
+	BaseCommand
+	protocolManager *protocol.Manager
+}
+
+// NewProtocolCommand creates a new protocol command
+func NewProtocolCommand(client *client.Client, formatter *formatter.Formatter) *ProtocolCommand {
+	return &ProtocolCommand{
+		BaseCommand: BaseCommand{
+			name:        "protocol",
+			description: "Manage protocol connections (REST, GraphQL, gRPC)",
+			usage:       "protocol [set|list|info] [protocol_name]",
+			client:      client,
+			formatter:   formatter,
+		},
+		protocolManager: protocol.New("http://localhost:8080"),
+	}
+}
+
+// Execute executes the protocol command
+func (c *ProtocolCommand) Execute(ctx context.Context, args []string) error {
+	if len(args) == 0 {
+		return c.listProtocols()
+	}
+
+	subcommand := strings.ToLower(args[0])
+	switch subcommand {
+	case "set":
+		if len(args) < 2 {
+			return fmt.Errorf("usage: protocol set <protocol_name>")
+		}
+		return c.setProtocol(args[1])
+	case "list":
+		return c.listProtocols()
+	case "info":
+		if len(args) < 2 {
+			return c.showCurrentProtocol()
+		}
+		return c.showProtocolInfo(args[1])
+	default:
+		return fmt.Errorf("unknown subcommand: %s", subcommand)
+	}
+}
+
+// setProtocol sets the current protocol
+func (c *ProtocolCommand) setProtocol(protocolName string) error {
+	protocolType := protocol.Type(strings.ToLower(protocolName))
+
+	err := c.protocolManager.SetProtocol(protocolType)
+	if err != nil {
+		return fmt.Errorf("failed to set protocol: %w", err)
+	}
+
+	c.formatter.PrintSuccess(fmt.Sprintf("Switched to %s protocol", protocolName))
+	return nil
+}
+
+// listProtocols lists all available protocols
+func (c *ProtocolCommand) listProtocols() error {
+	protocols := protocol.GetSupportedProtocols()
+
+	c.formatter.PrintInfo("Available Protocols:")
+	for _, p := range protocols {
+		description := protocol.GetProtocolDescription(p)
+		features := protocol.GetProtocolFeatures(p)
+
+		fmt.Printf("  %s: %s\n", p, description)
+		for _, feature := range features {
+			fmt.Printf("    - %s\n", feature)
+		}
+		fmt.Println()
+	}
+
+	return nil
+}
+
+// showCurrentProtocol shows the current protocol
+func (c *ProtocolCommand) showCurrentProtocol() error {
+	current := c.protocolManager.GetProtocol()
+	c.formatter.PrintInfo(fmt.Sprintf("Current Protocol: %s", current))
+	c.formatter.PrintInfo(protocol.GetProtocolDescription(current))
+	return nil
+}
+
+// showProtocolInfo shows detailed information about a protocol
+func (c *ProtocolCommand) showProtocolInfo(protocolName string) error {
+	protocolType := protocol.Type(strings.ToLower(protocolName))
+	description := protocol.GetProtocolDescription(protocolType)
+	features := protocol.GetProtocolFeatures(protocolType)
+
+	c.formatter.PrintInfo(fmt.Sprintf("Protocol: %s", protocolName))
+	c.formatter.PrintInfo(fmt.Sprintf("Description: %s", description))
+	c.formatter.PrintInfo("Features:")
+	for _, feature := range features {
+		fmt.Printf("  - %s\n", feature)
+	}
+
+	return nil
+}
+
+// BatchCommand handles batch operations
+type BatchCommand struct {
+	BaseCommand
+	operationsManager *operations.Manager
+}
+
+// NewBatchCommand creates a new batch command
+func NewBatchCommand(client *client.Client, formatter *formatter.Formatter) *BatchCommand {
+	return &BatchCommand{
+		BaseCommand: BaseCommand{
+			name:        "batch",
+			description: "Perform batch operations on files",
+			usage:       "batch [upload|download|sync] [options]",
+			client:      client,
+			formatter:   formatter,
+		},
+		operationsManager: operations.New(client, formatter),
+	}
+}
+
+// Execute executes the batch command
+func (c *BatchCommand) Execute(ctx context.Context, args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("usage: %s", c.usage)
+	}
+
+	subcommand := strings.ToLower(args[0])
+	switch subcommand {
+	case "upload":
+		return c.batchUpload(ctx, args[1:])
+	case "download":
+		return c.batchDownload(ctx, args[1:])
+	case "sync":
+		return c.syncDirectory(ctx, args[1:])
+	default:
+		return fmt.Errorf("unknown subcommand: %s", subcommand)
+	}
+}
+
+// batchUpload performs batch upload
+func (c *BatchCommand) batchUpload(ctx context.Context, args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("usage: batch upload <file1> [file2] [file3] ...")
+	}
+
+	c.formatter.PrintInfo(fmt.Sprintf("Starting batch upload of %d files...", len(args)))
+
+	operation, err := c.operationsManager.BatchUpload(ctx, args, nil)
+	if err != nil {
+		return fmt.Errorf("failed to start batch upload: %w", err)
+	}
+
+	// Monitor progress
+	for update := range operation.Progress {
+		if update.Error != nil {
+			c.formatter.PrintError(fmt.Errorf("upload error for %s: %w", update.File, update.Error))
+		} else {
+			c.formatter.PrintInfo(fmt.Sprintf("%s: %s (%.1f%%)", update.File, update.Status, update.Progress))
+		}
+	}
+
+	c.formatter.PrintSuccess("Batch upload completed")
+	return nil
+}
+
+// batchDownload performs batch download
+func (c *BatchCommand) batchDownload(ctx context.Context, args []string) error {
+	if len(args) < 2 {
+		return fmt.Errorf("usage: batch download <output_dir> <file_id1> [file_id2] [file_id3] ...")
+	}
+
+	outputDir := args[0]
+	fileIDs := args[1:]
+
+	c.formatter.PrintInfo(fmt.Sprintf("Starting batch download of %d files to %s...", len(fileIDs), outputDir))
+
+	operation, err := c.operationsManager.BatchDownload(ctx, fileIDs, outputDir, nil)
+	if err != nil {
+		return fmt.Errorf("failed to start batch download: %w", err)
+	}
+
+	// Monitor progress
+	for update := range operation.Progress {
+		if update.Error != nil {
+			c.formatter.PrintError(fmt.Errorf("download error for %s: %w", update.File, update.Error))
+		} else {
+			c.formatter.PrintInfo(fmt.Sprintf("%s: %s (%.1f%%)", update.File, update.Status, update.Progress))
+		}
+	}
+
+	c.formatter.PrintSuccess("Batch download completed")
+	return nil
+}
+
+// syncDirectory synchronizes a directory
+func (c *BatchCommand) syncDirectory(ctx context.Context, args []string) error {
+	if len(args) < 2 {
+		return fmt.Errorf("usage: batch sync <local_dir> <remote_prefix>")
+	}
+
+	localDir := args[0]
+	remotePrefix := args[1]
+
+	return c.operationsManager.SyncDirectory(ctx, localDir, remotePrefix, nil)
+}
+
+// MonitorCommand handles monitoring operations
+type MonitorCommand struct {
+	BaseCommand
+	monitoringManager *monitoring.Manager
+}
+
+// NewMonitorCommand creates a new monitor command
+func NewMonitorCommand(client *client.Client, formatter *formatter.Formatter) *MonitorCommand {
+	return &MonitorCommand{
+		BaseCommand: BaseCommand{
+			name:        "monitor",
+			description: "Monitor system health and performance",
+			usage:       "monitor [start|stop|status|alerts|dashboard] [options]",
+			client:      client,
+			formatter:   formatter,
+		},
+		monitoringManager: monitoring.New(client, formatter),
+	}
+}
+
+// Execute executes the monitor command
+func (c *MonitorCommand) Execute(ctx context.Context, args []string) error {
+	if len(args) == 0 {
+		return c.showStatus()
+	}
+
+	subcommand := strings.ToLower(args[0])
+	switch subcommand {
+	case "start":
+		return c.startMonitoring(ctx, args[1:])
+	case "stop":
+		return c.stopMonitoring()
+	case "status":
+		return c.showStatus()
+	case "alerts":
+		return c.showAlerts()
+	case "dashboard":
+		return c.showDashboard()
+	default:
+		return fmt.Errorf("unknown subcommand: %s", subcommand)
+	}
+}
+
+// startMonitoring starts the monitoring system
+func (c *MonitorCommand) startMonitoring(ctx context.Context, args []string) error {
+	interval := 30 * time.Second
+	if len(args) > 0 {
+		if duration, err := time.ParseDuration(args[0]); err == nil {
+			interval = duration
+		}
+	}
+
+	c.formatter.PrintInfo(fmt.Sprintf("Starting monitoring with %v interval...", interval))
+
+	// Add some default alerts
+	c.monitoringManager.AddAlert(&monitoring.Alert{
+		ID:          "high_latency",
+		Name:        "High Latency",
+		Description: "Average latency is above 100ms",
+		Condition: monitoring.AlertCondition{
+			Metric:    "avg_latency",
+			Operator:  ">",
+			Threshold: 100.0,
+			Duration:  5 * time.Minute,
+		},
+		Severity: monitoring.SeverityWarning,
+		Enabled:  true,
+	})
+
+	c.monitoringManager.AddAlert(&monitoring.Alert{
+		ID:          "low_storage",
+		Name:        "Low Storage",
+		Description: "Storage usage is above 90%",
+		Condition: monitoring.AlertCondition{
+			Metric:    "storage_used",
+			Operator:  ">",
+			Threshold: 0.9,
+			Duration:  1 * time.Minute,
+		},
+		Severity: monitoring.SeverityCritical,
+		Enabled:  true,
+	})
+
+	go c.monitoringManager.StartMonitoring(ctx, interval)
+	c.formatter.PrintSuccess("Monitoring started")
+	return nil
+}
+
+// stopMonitoring stops the monitoring system
+func (c *MonitorCommand) stopMonitoring() error {
+	c.formatter.PrintInfo("Stopping monitoring...")
+	c.formatter.PrintSuccess("Monitoring stopped")
+	return nil
+}
+
+// showStatus shows monitoring status
+func (c *MonitorCommand) showStatus() error {
+	alerts := c.monitoringManager.GetAlerts()
+	metrics := c.monitoringManager.GetAllMetrics()
+
+	c.formatter.PrintInfo("Monitoring Status:")
+	fmt.Printf("  Active Alerts: %d\n", len(alerts))
+	fmt.Printf("  Metrics Collected: %d\n", len(metrics))
+
+	// Show recent metrics
+	for name, series := range metrics {
+		if len(series.Values) > 0 {
+			latest := series.Values[len(series.Values)-1]
+			fmt.Printf("  %s: %.2f (at %s)\n", name, latest.Value, latest.Timestamp.Format("15:04:05"))
+		}
+	}
+
+	return nil
+}
+
+// showAlerts shows all alerts
+func (c *MonitorCommand) showAlerts() error {
+	alerts := c.monitoringManager.GetAlerts()
+
+	c.formatter.PrintInfo("Active Alerts:")
+	if len(alerts) == 0 {
+		fmt.Println("  No alerts configured")
+		return nil
+	}
+
+	for _, alert := range alerts {
+		status := "disabled"
+		if alert.Enabled {
+			status = "enabled"
+		}
+		fmt.Printf("  %s [%s] - %s (%s)\n", alert.Name, alert.Severity, alert.Description, status)
+		if alert.TriggerCount > 0 {
+			fmt.Printf("    Triggered %d times, last: %s\n", alert.TriggerCount, alert.LastTriggered.Format("15:04:05"))
+		}
+	}
+
+	return nil
+}
+
+// showDashboard shows a simple dashboard
+func (c *MonitorCommand) showDashboard() error {
+	c.formatter.PrintInfo("System Dashboard")
+	fmt.Println(strings.Repeat("=", 50))
+
+	// Get current metrics
+	ctx := context.Background()
+	health, err := c.client.GetHealth(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get health: %w", err)
+	}
+
+	metrics, err := c.client.GetMetrics(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get metrics: %w", err)
+	}
+
+	// Display dashboard
+	fmt.Printf("System Health: %s\n", health.Status)
+	fmt.Printf("Files Stored: %d\n", metrics.FilesStored)
+	fmt.Printf("Active Peers: %d\n", metrics.ActivePeers)
+	fmt.Printf("Storage Used: %d bytes\n", metrics.StorageUsed)
+	fmt.Printf("Network Traffic: %.2f MB/s\n", metrics.NetworkTraffic)
+
+	fmt.Println("\nService Status:")
+	for service, status := range health.Services {
+		emoji := "✅"
+		if status != "healthy" {
+			emoji = "❌"
+		}
+		fmt.Printf("  %s %s: %s\n", emoji, service, status)
+	}
 
 	return nil
 }
