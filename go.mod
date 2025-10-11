@@ -7,6 +7,7 @@ toolchain go1.24.6
 require (
 	github.com/Skpow1234/Peervault/proto/peervault v0.0.0-20250916093224-252ab05357d8
 	github.com/ethereum/go-ethereum v1.16.3
+	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/multiformats/go-multihash v0.2.3
@@ -28,7 +29,6 @@ require (
 	github.com/ethereum/c-kzg-4844/v2 v2.1.4 // indirect
 	github.com/ethereum/go-verkle v0.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/holiman/uint256 v1.3.2 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect

@@ -1,7 +1,7 @@
 # PeerVault Makefile
 # Cross-platform build and development tasks
 
-.PHONY: help build build-all run test clean fmt lint docker-build docker-run
+.PHONY: help build build-all run test clean fmt lint docker-build docker-run build-cli
 
 # Default target
 help:
@@ -9,15 +9,17 @@ help:
 	@echo ""
 	@echo "Build Commands:"
 	@echo "  build        - Build main application"
-	@echo "  build-all    - Build all binaries (main, node, demo, config)"
+	@echo "  build-all    - Build all binaries (main, node, demo, config, cli)"
 	@echo "  build-node   - Build individual node binary"
 	@echo "  build-demo   - Build demo client binary"
 	@echo "  build-config - Build configuration management tool"
+	@echo "  build-cli    - Build CLI tool"
 	@echo ""
 	@echo "Run Commands:"
 	@echo "  run          - Run main application (all-in-one)"
 	@echo "  run-node     - Run individual node"
 	@echo "  run-demo     - Run demo client"
+	@echo "  run-cli      - Run CLI tool"
 	@echo ""
 	@echo "Test Commands:"
 	@echo "  test         - Run all tests"
@@ -63,7 +65,13 @@ build-config:
 	@go build -o bin/peervault-config ./cmd/peervault-config
 	@echo "✓ Configuration tool built successfully"
 
-build-all: build build-node build-demo build-config
+build-cli:
+	@echo "Building CLI tool..."
+	@mkdir -p bin
+	@go build -o bin/peervault-cli ./cmd/peervault-cli
+	@echo "✓ CLI tool built successfully"
+
+build-all: build build-node build-demo build-config build-cli
 	@echo "✓ All binaries built successfully"
 
 # Run targets
@@ -78,6 +86,10 @@ run-node: build-node
 run-demo: build-demo
 	@echo "Running demo client..."
 	@./bin/peervault-demo --target localhost:5000
+
+run-cli: build-cli
+	@echo "Running CLI tool..."
+	@./bin/peervault-cli
 
 # Test targets
 test:

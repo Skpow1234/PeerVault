@@ -38,9 +38,21 @@ tasks:
     generates:
       - bin/peervault-demo{{if eq OS "windows"}}.exe{{end}}
 
+  build-cli:
+    desc: Build CLI tool
+    cmds:
+      - go build -o bin/peervault-cli{{if eq OS "windows"}}.exe{{end}} ./cmd/peervault-cli
+    sources:
+      - ./cmd/peervault-cli/**/*.go
+      - ./internal/**/*.go
+      - go.mod
+      - go.sum
+    generates:
+      - bin/peervault-cli{{if eq OS "windows"}}.exe{{end}}
+
   build-all:
     desc: Build all binaries
-    deps: [build, build-node, build-demo]
+    deps: [build, build-node, build-demo, build-cli]
 
   # Run tasks
   run:
@@ -61,6 +73,11 @@ tasks:
       - go run ./cmd/peervault-demo {{.CLI_ARGS}}
     vars:
       CLI_ARGS: '{{.CLI_ARGS | default "--target localhost:5000"}}'
+
+  run-cli:
+    desc: Run CLI tool
+    cmds:
+      - go run ./cmd/peervault-cli
 
   # Test tasks
   test:
@@ -173,6 +190,9 @@ tasks:
       - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/peervault-linux-amd64 ./cmd/peervault
       - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/peervault-darwin-amd64 ./cmd/peervault
       - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/peervault-windows-amd64.exe ./cmd/peervault
+      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/peervault-cli-linux-amd64 ./cmd/peervault-cli
+      - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/peervault-cli-darwin-amd64 ./cmd/peervault-cli
+      - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/peervault-cli-windows-amd64.exe ./cmd/peervault-cli
 
   # Help
   help:
