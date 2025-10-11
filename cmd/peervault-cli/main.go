@@ -88,21 +88,24 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 }
 
 func runInteractiveMode(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, prompt *prompt.Prompt, cfg *config.Config, hist *history.History) {
-	fmt.Println("🚀 PeerVault CLI - Interactive Mode")
-	fmt.Println("Type 'help' for available commands or 'exit' to quit")
+	// Clear screen and show welcome
+	formatter.ClearScreen()
+	formatter.PrintHeader("🚀 PeerVault CLI - Interactive Mode")
+	formatter.PrintInfo("Type 'help' for available commands or 'exit' to quit")
+	formatter.PrintInfo("Use Tab for completion, ↑↓ for history, Ctrl+C to exit")
 	fmt.Println()
 
 	ctx := context.Background()
 
 	for {
-		// Get user input with prompt
+		// Get user input with advanced prompt
 		input, err := prompt.ReadLine()
 		if err != nil {
 			if err.Error() == "EOF" {
-				fmt.Println("\nGoodbye!")
+				fmt.Println("\n👋 Goodbye!")
 				break
 			}
-			fmt.Printf("Error reading input: %v\n", err)
+			formatter.PrintError(fmt.Errorf("error reading input: %v", err))
 			continue
 		}
 
@@ -123,8 +126,13 @@ func runInteractiveMode(cliApp *cli.CLI, client *client.Client, formatter *forma
 		command := parts[0]
 		args := parts[1:]
 
+		// Show spinner for long operations
+		spinner := formatter.PrintSpinner("Executing command...")
+
 		// Execute command
 		err = cliApp.Execute(ctx, command, args)
+		spinner.Stop()
+
 		if err != nil {
 			formatter.PrintError(err)
 		}

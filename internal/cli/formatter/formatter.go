@@ -391,6 +391,36 @@ func (f *Formatter) printMetricsYAML(metrics *client.Metrics) {
 	fmt.Printf("storage_used: %d\n", metrics.StorageUsed)
 }
 
+// ClearScreen clears the terminal screen
+func (f *Formatter) ClearScreen() {
+	fmt.Print("\033[H\033[2J")
+}
+
+// PrintHeader prints a styled header
+func (f *Formatter) PrintHeader(title string) {
+	width := 60
+	if len(title) > width-4 {
+		width = len(title) + 4
+	}
+
+	fmt.Println(strings.Repeat("═", width))
+	fmt.Printf("║ %s", title)
+
+	padding := width - len(title) - 3
+	if padding > 0 {
+		fmt.Print(strings.Repeat(" ", padding))
+	}
+	fmt.Println("║")
+	fmt.Println(strings.Repeat("═", width))
+}
+
+// PrintSpinner displays a loading spinner
+func (f *Formatter) PrintSpinner(message string) *Spinner {
+	spinner := NewSpinner(message)
+	spinner.Start()
+	return spinner
+}
+
 // Utility methods
 func (f *Formatter) formatBytes(bytes int64) string {
 	const unit = 1024
