@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Skpow1234/Peervault/internal/cli"
 	"github.com/Skpow1234/Peervault/internal/cli/client"
 	"github.com/Skpow1234/Peervault/internal/cli/formatter"
 	"github.com/Skpow1234/Peervault/internal/cli/history"
+	"github.com/Skpow1234/Peervault/internal/cli/realtime"
 )
 
 // BaseCommand provides common functionality for all commands
@@ -124,7 +126,14 @@ func (c *GetCommand) Execute(ctx context.Context, args []string) error {
 	c.formatter.PrintFileInfo(file)
 
 	if outputPath != "" {
-		c.formatter.PrintInfo(fmt.Sprintf("File would be saved to: %s", outputPath))
+		c.formatter.PrintInfo(fmt.Sprintf("Downloading file to: %s", outputPath))
+
+		err = c.client.DownloadFile(ctx, fileID, outputPath)
+		if err != nil {
+			return fmt.Errorf("failed to download file: %w", err)
+		}
+
+		c.formatter.PrintSuccess(fmt.Sprintf("File downloaded successfully to: %s", outputPath))
 	}
 
 	return nil
@@ -316,7 +325,14 @@ func (c *ConnectCommand) Execute(ctx context.Context, args []string) error {
 	// Set the server URL
 	c.client.SetServerURL("http://" + address)
 
+	// Test the connection
+	err := c.client.Connect(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to connect to %s: %w", address, err)
+	}
+
 	c.formatter.PrintSuccess(fmt.Sprintf("Connected to: %s", address))
+	c.formatter.PrintInfo("Connection verified successfully")
 
 	return nil
 }
@@ -342,6 +358,9 @@ func NewDisconnectCommand(client *client.Client, formatter *formatter.Formatter)
 // Execute executes the disconnect command
 func (c *DisconnectCommand) Execute(ctx context.Context, args []string) error {
 	c.formatter.PrintInfo("Disconnecting...")
+
+	// Disconnect from current server
+	c.client.Disconnect()
 
 	// Reset to default server URL
 	c.client.SetServerURL("http://localhost:8080")
@@ -943,6 +962,107 @@ func (c *HistoryCommand) Execute(ctx context.Context, args []string) error {
 	for i, cmd := range commands {
 		fmt.Printf("%3d  %s\n", i+1, cmd)
 	}
+
+	return nil
+}
+
+// RealtimeCommand handles real-time operations
+type RealtimeCommand struct {
+	BaseCommand
+	realtimeManager *realtime.Manager
+}
+
+// NewRealtimeCommand creates a new realtime command
+func NewRealtimeCommand(client *client.Client, formatter *formatter.Formatter) *RealtimeCommand {
+	return &RealtimeCommand{
+		BaseCommand: BaseCommand{
+			name:        "realtime",
+			description: "Manage real-time updates and WebSocket connections",
+			usage:       "realtime [connect|disconnect|status|subscribe] [options]",
+			client:      client,
+			formatter:   formatter,
+		},
+		realtimeManager: realtime.New("ws://localhost:8080/ws"),
+	}
+}
+
+// Execute executes the realtime command
+func (c *RealtimeCommand) Execute(ctx context.Context, args []string) error {
+	if len(args) == 0 {
+		return c.showStatus(ctx)
+	}
+
+	subcommand := strings.ToLower(args[0])
+	switch subcommand {
+	case "connect":
+		return c.connect(ctx)
+	case "disconnect":
+		return c.disconnect()
+	case "status":
+		return c.showStatus(ctx)
+	case "subscribe":
+		return c.subscribe(ctx, args[1:])
+	default:
+		return fmt.Errorf("unknown subcommand: %s", subcommand)
+	}
+}
+
+// connect connects to the real-time service
+func (c *RealtimeCommand) connect(ctx context.Context) error {
+	c.formatter.PrintInfo("Connecting to real-time service...")
+
+	err := c.realtimeManager.Connect(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to connect to real-time service: %w", err)
+	}
+
+	c.formatter.PrintSuccess("Connected to real-time service")
+	return nil
+}
+
+// disconnect disconnects from the real-time service
+func (c *RealtimeCommand) disconnect() error {
+	c.formatter.PrintInfo("Disconnecting from real-time service...")
+
+	err := c.realtimeManager.Disconnect()
+	if err != nil {
+		return fmt.Errorf("failed to disconnect: %w", err)
+	}
+
+	c.formatter.PrintSuccess("Disconnected from real-time service")
+	return nil
+}
+
+// showStatus shows the real-time service status
+func (c *RealtimeCommand) showStatus(ctx context.Context) error {
+	status := c.realtimeManager.GetConnectionStatus()
+
+	c.formatter.PrintInfo("Real-time Service Status:")
+	fmt.Printf("Connected: %v\n", status["connected"])
+	fmt.Printf("Subscribers: %v\n", status["subscribers"])
+	fmt.Printf("Event Types: %v\n", status["event_types"])
+
+	return nil
+}
+
+// subscribe subscribes to real-time events
+func (c *RealtimeCommand) subscribe(ctx context.Context, args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("usage: realtime subscribe <event_type>")
+	}
+
+	eventType := args[0]
+
+	subscriber := realtime.Subscriber{
+		ID: fmt.Sprintf("cli-%d", time.Now().Unix()),
+		Handler: func(data map[string]interface{}) {
+			c.formatter.PrintInfo(fmt.Sprintf("Real-time event [%s]:", eventType))
+			fmt.Printf("Data: %+v\n", data)
+		},
+	}
+
+	c.realtimeManager.Subscribe(eventType, subscriber)
+	c.formatter.PrintSuccess(fmt.Sprintf("Subscribed to %s events", eventType))
 
 	return nil
 }
