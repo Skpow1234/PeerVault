@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Skpow1234/Peervault/internal/cli"
+	"github.com/Skpow1234/Peervault/internal/cli/aliases"
 	"github.com/Skpow1234/Peervault/internal/cli/client"
 	"github.com/Skpow1234/Peervault/internal/cli/commands"
 	"github.com/Skpow1234/Peervault/internal/cli/config"
@@ -37,14 +38,17 @@ func main() {
 	// Initialize prompt
 	prompt := prompt.New(cfg, hist)
 
+	// Initialize alias manager
+	aliasManager := aliases.New()
+
 	// Register commands
-	registerCommands(cliApp, client, formatter, hist)
+	registerCommands(cliApp, client, formatter, hist, aliasManager)
 
 	// Start interactive mode
-	runInteractiveMode(cliApp, client, formatter, prompt, cfg, hist)
+	runInteractiveMode(cliApp, client, formatter, prompt, cfg, hist, aliasManager)
 }
 
-func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History) {
+func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History, aliasManager *aliases.Manager) {
 	// File operations
 	cliApp.RegisterCommand("store", commands.NewStoreCommand(client, formatter))
 	cliApp.RegisterCommand("get", commands.NewGetCommand(client, formatter))
@@ -87,15 +91,21 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 	cliApp.RegisterCommand("batch", commands.NewBatchCommand(client, formatter))
 	cliApp.RegisterCommand("monitor", commands.NewMonitorCommand(client, formatter))
 
+	// Quick Wins commands
+	cliApp.RegisterCommand("alias", commands.NewAliasCommand(client, formatter))
+	cliApp.RegisterCommand("format", commands.NewFormatCommand(client, formatter))
+	cliApp.RegisterCommand("profile", commands.NewProfileCommand(client, formatter))
+	cliApp.RegisterCommand("macro", commands.NewMacroCommand(client, formatter))
+
 	// Utility commands
-	cliApp.RegisterCommand("help", commands.NewHelpCommand(cliApp))
+	cliApp.RegisterCommand("help", commands.NewEnhancedHelpCommand(cliApp))
 	cliApp.RegisterCommand("exit", commands.NewExitCommand())
 	cliApp.RegisterCommand("quit", commands.NewExitCommand()) // Alias
 	cliApp.RegisterCommand("clear", commands.NewClearCommand())
 	cliApp.RegisterCommand("history", commands.NewHistoryCommand(hist))
 }
 
-func runInteractiveMode(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, prompt *prompt.Prompt, cfg *config.Config, hist *history.History) {
+func runInteractiveMode(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, prompt *prompt.Prompt, cfg *config.Config, hist *history.History, aliasManager *aliases.Manager) {
 	// Clear screen and show welcome
 	formatter.ClearScreen()
 	formatter.PrintHeader("🚀 PeerVault CLI - Interactive Mode")
@@ -122,11 +132,14 @@ func runInteractiveMode(cliApp *cli.CLI, client *client.Client, formatter *forma
 			continue
 		}
 
+		// Expand aliases
+		expandedInput := aliasManager.ExpandAliases(input)
+
 		// Add to history
-		prompt.AddToHistory(input)
+		prompt.AddToHistory(expandedInput)
 
 		// Parse and execute command
-		parts := strings.Fields(input)
+		parts := strings.Fields(expandedInput)
 		if len(parts) == 0 {
 			continue
 		}
