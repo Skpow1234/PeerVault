@@ -35,8 +35,8 @@ type ResetFunc[T any] func(T)
 
 // ResettableObjectPool provides a pool of objects that can be reset
 type ResettableObjectPool[T any] struct {
-	pool   sync.Pool
-	reset  ResetFunc[T]
+	pool  sync.Pool
+	reset ResetFunc[T]
 }
 
 // NewResettableObjectPool creates a new resettable object pool

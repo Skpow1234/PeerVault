@@ -51,7 +51,6 @@ type Client struct {
 	MessageID uint16
 }
 
-
 // Close closes the client connection
 func (c *Client) Close() {
 	// Client cleanup if needed

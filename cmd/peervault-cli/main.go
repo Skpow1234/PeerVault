@@ -10,8 +10,10 @@ import (
 	"github.com/Skpow1234/Peervault/internal/cli/client"
 	"github.com/Skpow1234/Peervault/internal/cli/commands"
 	"github.com/Skpow1234/Peervault/internal/cli/config"
+	"github.com/Skpow1234/Peervault/internal/cli/files"
 	"github.com/Skpow1234/Peervault/internal/cli/formatter"
 	"github.com/Skpow1234/Peervault/internal/cli/history"
+	"github.com/Skpow1234/Peervault/internal/cli/network"
 	"github.com/Skpow1234/Peervault/internal/cli/prompt"
 )
 
@@ -41,14 +43,28 @@ func main() {
 	// Initialize alias manager
 	aliasManager := aliases.New()
 
+	// Initialize file managers
+	configDir := "config" // Default config directory
+	versionManager := files.NewVersionManager(client, configDir)
+	shareManager := files.NewShareManager(client, configDir)
+	compressionManager := files.NewCompressionManager(client, configDir)
+	deduplicationManager := files.NewDeduplicationManager(client, configDir)
+	streamingManager := files.NewStreamingManager(client, configDir)
+
+	// Initialize network managers
+	loadBalancer := network.NewLoadBalancer(client, configDir)
+	cacheManager := network.NewCacheManager(client, configDir)
+	cdnManager := network.NewCDNManager(client, configDir)
+	bandwidthManager := network.NewBandwidthManager(client, configDir)
+
 	// Register commands
-	registerCommands(cliApp, client, formatter, hist, aliasManager)
+	registerCommands(cliApp, client, formatter, hist, aliasManager, versionManager, shareManager, compressionManager, deduplicationManager, streamingManager, loadBalancer, cacheManager, cdnManager, bandwidthManager)
 
 	// Start interactive mode
 	runInteractiveMode(cliApp, client, formatter, prompt, cfg, hist, aliasManager)
 }
 
-func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History, aliasManager *aliases.Manager) {
+func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History, aliasManager *aliases.Manager, versionManager *files.VersionManager, shareManager *files.ShareManager, compressionManager *files.CompressionManager, deduplicationManager *files.DeduplicationManager, streamingManager *files.StreamingManager, loadBalancer *network.LoadBalancer, cacheManager *network.CacheManager, cdnManager *network.CDNManager, bandwidthManager *network.BandwidthManager) {
 	// File operations
 	cliApp.RegisterCommand("store", commands.NewStoreCommand(client, formatter))
 	cliApp.RegisterCommand("get", commands.NewGetCommand(client, formatter))
@@ -104,6 +120,19 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 
 	// Backup commands
 	cliApp.RegisterCommand("backup", commands.NewBackupCommand(client, formatter))
+
+	// Advanced File Operations
+	cliApp.RegisterCommand("version", commands.NewVersionCommand(client, formatter, versionManager))
+	cliApp.RegisterCommand("share", commands.NewShareCommand(client, formatter, shareManager))
+	cliApp.RegisterCommand("compress", commands.NewCompressionCommand(client, formatter, compressionManager))
+	cliApp.RegisterCommand("dedup", commands.NewDeduplicationCommand(client, formatter, deduplicationManager))
+	cliApp.RegisterCommand("stream", commands.NewStreamingCommand(client, formatter, streamingManager))
+
+	// Network Optimization
+	cliApp.RegisterCommand("lb", commands.NewLoadBalancerCommand(client, formatter, loadBalancer))
+	cliApp.RegisterCommand("cache", commands.NewCacheCommand(client, formatter, cacheManager))
+	cliApp.RegisterCommand("cdn", commands.NewCDNCommand(client, formatter, cdnManager))
+	cliApp.RegisterCommand("bandwidth", commands.NewBandwidthCommand(client, formatter, bandwidthManager))
 
 	// Utility commands
 	cliApp.RegisterCommand("help", commands.NewEnhancedHelpCommand(cliApp))

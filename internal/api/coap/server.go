@@ -337,8 +337,6 @@ func (s *Server) addObserver(path string, observer *Observer) {
 	)
 }
 
-
-
 // registerDefaultResources registers default CoAP resources
 func (s *Server) registerDefaultResources() {
 	// Well-known core resource

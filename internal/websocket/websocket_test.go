@@ -287,7 +287,7 @@ func TestClientHandleMessagePing(t *testing.T) {
 			default:
 			}
 		}()
-		
+
 		select {
 		case msgBytes := <-client.send:
 			var msg Message
@@ -587,7 +587,7 @@ func TestHubIntegration(t *testing.T) {
 
 	// Test unregistration
 	hub.unregister <- client1
-	
+
 	// Wait for unregistration with exponential backoff
 	for i := 0; i < 10; i++ {
 		if hub.GetClientCount() == 1 {
@@ -701,7 +701,7 @@ func TestBroadcastGraphQLData(t *testing.T) {
 func TestHubRun(t *testing.T) {
 	hub := createTestHub()
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond) // Increased timeout for CI
-	defer cancel() // Ensure cancel is always called to prevent context leak
+	defer cancel()                                                                 // Ensure cancel is always called to prevent context leak
 
 	// Start hub
 	done := make(chan bool, 1) // Buffered to prevent goroutine leak

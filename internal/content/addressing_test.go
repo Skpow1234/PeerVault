@@ -19,7 +19,7 @@ func TestNewContentAddresser(t *testing.T) {
 
 func TestContentAddresser_GenerateCID(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	tests := []struct {
 		name   string
 		data   []byte
@@ -51,11 +51,11 @@ func TestContentAddresser_GenerateCID(t *testing.T) {
 			hasErr: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cid, err := ca.GenerateCID(tt.data, tt.codec)
-			
+
 			if tt.hasErr {
 				assert.Error(t, err)
 				assert.Nil(t, cid)
@@ -73,7 +73,7 @@ func TestContentAddresser_GenerateCID(t *testing.T) {
 
 func TestContentAddresser_GenerateContentID(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	tests := []struct {
 		name   string
 		data   []byte
@@ -95,11 +95,11 @@ func TestContentAddresser_GenerateContentID(t *testing.T) {
 			hasErr: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			contentID, err := ca.GenerateContentID(tt.data)
-			
+
 			if tt.hasErr {
 				assert.Error(t, err)
 				assert.Nil(t, contentID)
@@ -117,7 +117,7 @@ func TestContentAddresser_GenerateContentID(t *testing.T) {
 
 func TestContentAddresser_GenerateContentIDFromReader(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	tests := []struct {
 		name   string
 		data   []byte
@@ -139,12 +139,12 @@ func TestContentAddresser_GenerateContentIDFromReader(t *testing.T) {
 			hasErr: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			reader := bytes.NewReader(tt.data)
 			contentID, err := ca.GenerateContentIDFromReader(reader)
-			
+
 			if tt.hasErr {
 				assert.Error(t, err)
 				assert.Nil(t, contentID)
@@ -162,10 +162,10 @@ func TestContentAddresser_GenerateContentIDFromReader(t *testing.T) {
 
 func TestContentAddresser_GenerateContentIDFromReader_Error(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	// Create a reader that will return an error
 	errorReader := &errorReader{}
-	
+
 	contentID, err := ca.GenerateContentIDFromReader(errorReader)
 	assert.Error(t, err)
 	assert.Nil(t, contentID)
@@ -174,22 +174,22 @@ func TestContentAddresser_GenerateContentIDFromReader_Error(t *testing.T) {
 
 func TestContentAddresser_ValidateCID(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	tests := []struct {
-		name    string
-		cidStr  string
-		hasErr  bool
+		name     string
+		cidStr   string
+		hasErr   bool
 		contains string
 	}{
 		{
-			name:    "valid CID v0",
-			cidStr:  "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG",
-			hasErr:  false,
+			name:   "valid CID v0",
+			cidStr: "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG",
+			hasErr: false,
 		},
 		{
-			name:    "valid CID v1",
-			cidStr:  "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-			hasErr:  false,
+			name:   "valid CID v1",
+			cidStr: "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+			hasErr: false,
 		},
 		{
 			name:     "empty CID",
@@ -210,11 +210,11 @@ func TestContentAddresser_ValidateCID(t *testing.T) {
 			contains: "invalid CID format",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ca.ValidateCID(tt.cidStr)
-			
+
 			if tt.hasErr {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), tt.contains)
@@ -227,7 +227,7 @@ func TestContentAddresser_ValidateCID(t *testing.T) {
 
 func TestContentAddresser_ParseCID(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	tests := []struct {
 		name   string
 		cidStr string
@@ -249,11 +249,11 @@ func TestContentAddresser_ParseCID(t *testing.T) {
 			hasErr: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cid, err := ca.ParseCID(tt.cidStr)
-			
+
 			if tt.hasErr {
 				assert.Error(t, err)
 				assert.Nil(t, cid)
@@ -271,13 +271,13 @@ func TestContentAddresser_ParseCID(t *testing.T) {
 
 func TestContentAddresser_ContentIDToCID(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	contentID := &ContentID{
 		Hash:      "abcd1234",
 		Algorithm: "sha256",
 		Size:      100,
 	}
-	
+
 	tests := []struct {
 		name  string
 		codec string
@@ -295,11 +295,11 @@ func TestContentAddresser_ContentIDToCID(t *testing.T) {
 			codec: "protobuf",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cid, err := ca.ContentIDToCID(contentID, tt.codec)
-			
+
 			assert.NoError(t, err)
 			assert.NotNil(t, cid)
 			assert.Equal(t, 1, cid.Version)
@@ -312,18 +312,18 @@ func TestContentAddresser_ContentIDToCID(t *testing.T) {
 
 func TestContentAddresser_CIDToContentID(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	cid := &CID{
 		Version:   1,
 		Codec:     "raw",
 		Hash:      "abcd1234",
 		Algorithm: "sha2-256",
 	}
-	
+
 	size := int64(100)
-	
+
 	contentID, err := ca.CIDToContentID(cid, size)
-	
+
 	assert.NoError(t, err)
 	assert.NotNil(t, contentID)
 	assert.Equal(t, cid.Hash, contentID.Hash)
@@ -333,7 +333,7 @@ func TestContentAddresser_CIDToContentID(t *testing.T) {
 
 func TestContentAddresser_GenerateBase32Hash(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	tests := []struct {
 		name string
 		data []byte
@@ -351,15 +351,15 @@ func TestContentAddresser_GenerateBase32Hash(t *testing.T) {
 			data: bytes.Repeat([]byte("a"), 1024*1024), // 1MB
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			hash, err := ca.GenerateBase32Hash(tt.data)
-			
+
 			assert.NoError(t, err)
 			assert.NotEmpty(t, hash)
 			assert.Equal(t, strings.ToLower(hash), hash) // Should be lowercase
-			
+
 			// Base32 encoding should be valid
 			_, err = base32.StdEncoding.DecodeString(strings.ToUpper(hash))
 			assert.NoError(t, err)
@@ -369,11 +369,11 @@ func TestContentAddresser_GenerateBase32Hash(t *testing.T) {
 
 func TestContentAddresser_VerifyContent(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	data := []byte("hello world")
 	expectedID, err := ca.GenerateContentID(data)
 	require.NoError(t, err)
-	
+
 	tests := []struct {
 		name        string
 		data        []byte
@@ -403,11 +403,11 @@ func TestContentAddresser_VerifyContent(t *testing.T) {
 			hasErr:      false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			matches, err := ca.VerifyContent(tt.data, tt.expectedID)
-			
+
 			if tt.hasErr {
 				assert.Error(t, err)
 			} else {
@@ -420,7 +420,7 @@ func TestContentAddresser_VerifyContent(t *testing.T) {
 
 func TestContentAddresser_GetContentPath(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	tests := []struct {
 		name      string
 		contentID *ContentID
@@ -455,7 +455,7 @@ func TestContentAddresser_GetContentPath(t *testing.T) {
 			expected: "",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			path := ca.GetContentPath(tt.contentID)
@@ -466,7 +466,7 @@ func TestContentAddresser_GetContentPath(t *testing.T) {
 
 func TestContentAddresser_GetCIDPath(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	tests := []struct {
 		name     string
 		cid      *CID
@@ -501,7 +501,7 @@ func TestContentAddresser_GetCIDPath(t *testing.T) {
 			expected: "",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			path := ca.GetCIDPath(tt.cid)
@@ -512,28 +512,28 @@ func TestContentAddresser_GetCIDPath(t *testing.T) {
 
 func TestContentAddresser_DeterministicHashing(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	data := []byte("hello world")
-	
+
 	// Generate multiple content IDs for the same data
 	id1, err1 := ca.GenerateContentID(data)
 	id2, err2 := ca.GenerateContentID(data)
-	
+
 	require.NoError(t, err1)
 	require.NoError(t, err2)
-	
+
 	// Should be identical
 	assert.Equal(t, id1.Hash, id2.Hash)
 	assert.Equal(t, id1.Algorithm, id2.Algorithm)
 	assert.Equal(t, id1.Size, id2.Size)
-	
+
 	// Test CID generation
 	cid1, err1 := ca.GenerateCID(data, "raw")
 	cid2, err2 := ca.GenerateCID(data, "raw")
-	
+
 	require.NoError(t, err1)
 	require.NoError(t, err2)
-	
+
 	// Should be identical
 	assert.Equal(t, cid1.Hash, cid2.Hash)
 	assert.Equal(t, cid1.Codec, cid2.Codec)
@@ -542,16 +542,16 @@ func TestContentAddresser_DeterministicHashing(t *testing.T) {
 
 func TestContentAddresser_DifferentDataDifferentHashes(t *testing.T) {
 	ca := NewContentAddresser()
-	
+
 	data1 := []byte("hello world")
 	data2 := []byte("hello universe")
-	
+
 	id1, err1 := ca.GenerateContentID(data1)
 	id2, err2 := ca.GenerateContentID(data2)
-	
+
 	require.NoError(t, err1)
 	require.NoError(t, err2)
-	
+
 	// Should be different
 	assert.NotEqual(t, id1.Hash, id2.Hash)
 	assert.Equal(t, id1.Algorithm, id2.Algorithm) // Same algorithm

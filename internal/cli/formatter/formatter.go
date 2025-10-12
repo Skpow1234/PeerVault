@@ -470,3 +470,54 @@ func (f *Formatter) getStatusEmoji(status string) string {
 		return "⚪"
 	}
 }
+
+// FormatBytes formats bytes into human-readable format (public method)
+func (f *Formatter) FormatBytes(bytes int64) string {
+	return f.formatBytes(bytes)
+}
+
+// PrintTable prints a table with headers and rows
+func (f *Formatter) PrintTable(headers []string, rows [][]string) {
+	if len(headers) == 0 || len(rows) == 0 {
+		return
+	}
+
+	// Calculate column widths
+	widths := make([]int, len(headers))
+	for i, header := range headers {
+		widths[i] = len(header)
+	}
+
+	for _, row := range rows {
+		for i, cell := range row {
+			if i < len(widths) && len(cell) > widths[i] {
+				widths[i] = len(cell)
+			}
+		}
+	}
+
+	// Print header
+	fmt.Print("|")
+	for i, header := range headers {
+		fmt.Printf(" %-*s |", widths[i], header)
+	}
+	fmt.Println()
+
+	// Print separator
+	fmt.Print("|")
+	for _, width := range widths {
+		fmt.Printf("-%s-|", strings.Repeat("-", width))
+	}
+	fmt.Println()
+
+	// Print rows
+	for _, row := range rows {
+		fmt.Print("|")
+		for i, cell := range row {
+			if i < len(widths) {
+				fmt.Printf(" %-*s |", widths[i], cell)
+			}
+		}
+		fmt.Println()
+	}
+}

@@ -14,7 +14,7 @@ import (
 
 func TestDefaultDeduplicationConfig(t *testing.T) {
 	config := DefaultDeduplicationConfig()
-	
+
 	assert.NotNil(t, config)
 	assert.Equal(t, int64(64*1024), config.ChunkSize)
 	assert.Equal(t, "sha256", config.Algorithm)
@@ -22,7 +22,7 @@ func TestDefaultDeduplicationConfig(t *testing.T) {
 
 func TestNewDeduplicator(t *testing.T) {
 	chunkStore := NewMemoryChunkStore()
-	
+
 	tests := []struct {
 		name   string
 		config *DeduplicationConfig
@@ -36,16 +36,16 @@ func TestNewDeduplicator(t *testing.T) {
 			config: nil,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			deduplicator := NewDeduplicator(tt.config, chunkStore)
-			
+
 			assert.NotNil(t, deduplicator)
 			assert.NotNil(t, deduplicator.hasher)
 			assert.Equal(t, chunkStore, deduplicator.chunkStore)
 			assert.NotNil(t, deduplicator.chunkIndex)
-			
+
 			if tt.config != nil {
 				assert.Equal(t, tt.config.ChunkSize, deduplicator.chunkSize)
 			} else {
@@ -82,7 +82,7 @@ func TestDeduplicator_ProcessFile(t *testing.T) {
 			expected: 0,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a fresh deduplicator for each test case
@@ -92,13 +92,13 @@ func TestDeduplicator_ProcessFile(t *testing.T) {
 				Algorithm: "sha256",
 			}
 			deduplicator := NewDeduplicator(config, chunkStore)
-			
+
 			reader := bytes.NewReader(tt.data)
 			chunks, err := deduplicator.ProcessFile(context.Background(), reader)
-			
+
 			assert.NoError(t, err)
 			assert.Len(t, chunks, tt.expected)
-			
+
 			// Verify chunk properties
 			for i, chunk := range chunks {
 				assert.NotEmpty(t, chunk.ID)
@@ -110,7 +110,7 @@ func TestDeduplicator_ProcessFile(t *testing.T) {
 					assert.Equal(t, int64(1), chunk.RefCount)
 				}
 				assert.NotNil(t, chunk.Data)
-				
+
 				// Verify chunk size (except for the last chunk which might be smaller)
 				expectedSize := int64(len(tt.data) - i*10)
 				if expectedSize > 10 {
@@ -129,14 +129,14 @@ func TestDeduplicator_ProcessFile_ContextCancellation(t *testing.T) {
 		Algorithm: "sha256",
 	}
 	deduplicator := NewDeduplicator(config, chunkStore)
-	
+
 	// Create a context that will be cancelled
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel immediately
-	
+
 	reader := bytes.NewReader([]byte("hello world"))
 	chunks, err := deduplicator.ProcessFile(ctx, reader)
-	
+
 	assert.Error(t, err)
 	assert.Equal(t, context.Canceled, err)
 	assert.Nil(t, chunks)
@@ -149,21 +149,21 @@ func TestDeduplicator_ProcessFile_Deduplication(t *testing.T) {
 		Algorithm: "sha256",
 	}
 	deduplicator := NewDeduplicator(config, chunkStore)
-	
+
 	// Process the same data twice
 	data := []byte("hello world")
 	reader1 := bytes.NewReader(data)
 	reader2 := bytes.NewReader(data)
-	
+
 	chunks1, err1 := deduplicator.ProcessFile(context.Background(), reader1)
 	chunks2, err2 := deduplicator.ProcessFile(context.Background(), reader2)
-	
+
 	require.NoError(t, err1)
 	require.NoError(t, err2)
-	
+
 	// Should have the same number of chunks
 	assert.Len(t, chunks1, len(chunks2))
-	
+
 	// Chunks should be identical (same ID and hash)
 	for i := range chunks1 {
 		assert.Equal(t, chunks1[i].ID, chunks2[i].ID)
@@ -180,21 +180,21 @@ func TestDeduplicator_ReconstructFile(t *testing.T) {
 		Algorithm: "sha256",
 	}
 	deduplicator := NewDeduplicator(config, chunkStore)
-	
+
 	// Process a file
 	originalData := []byte("hello world this is a test")
 	reader := bytes.NewReader(originalData)
 	chunks, err := deduplicator.ProcessFile(context.Background(), reader)
 	require.NoError(t, err)
-	
+
 	// Reconstruct the file
 	reconstructedReader, err := deduplicator.ReconstructFile(context.Background(), chunks)
 	require.NoError(t, err)
-	
+
 	// Read the reconstructed data
 	reconstructedData, err := io.ReadAll(reconstructedReader)
 	require.NoError(t, err)
-	
+
 	// Should match the original data
 	assert.Equal(t, originalData, reconstructedData)
 }
@@ -202,15 +202,15 @@ func TestDeduplicator_ReconstructFile(t *testing.T) {
 func TestDeduplicator_ReconstructFile_EmptyChunks(t *testing.T) {
 	chunkStore := NewMemoryChunkStore()
 	deduplicator := NewDeduplicator(nil, chunkStore)
-	
+
 	// Reconstruct with empty chunks
 	reconstructedReader, err := deduplicator.ReconstructFile(context.Background(), []*Chunk{})
 	require.NoError(t, err)
-	
+
 	// Read the reconstructed data
 	reconstructedData, err := io.ReadAll(reconstructedReader)
 	require.NoError(t, err)
-	
+
 	// Should be empty
 	assert.Empty(t, reconstructedData)
 }
@@ -222,23 +222,23 @@ func TestDeduplicator_DeleteFile(t *testing.T) {
 		Algorithm: "sha256",
 	}
 	deduplicator := NewDeduplicator(config, chunkStore)
-	
+
 	// Process a file
 	data := []byte("hello world")
 	reader := bytes.NewReader(data)
 	chunks, err := deduplicator.ProcessFile(context.Background(), reader)
 	require.NoError(t, err)
-	
+
 	// Verify chunks exist
 	for _, chunk := range chunks {
 		_, err := chunkStore.Get(context.Background(), chunk.ID)
 		assert.NoError(t, err)
 	}
-	
+
 	// Delete the file
 	err = deduplicator.DeleteFile(context.Background(), chunks)
 	assert.NoError(t, err)
-	
+
 	// Verify chunks are deleted (ref count should be 0)
 	for _, chunk := range chunks {
 		_, err := chunkStore.Get(context.Background(), chunk.ID)
@@ -253,31 +253,31 @@ func TestDeduplicator_DeleteFile_MultipleReferences(t *testing.T) {
 		Algorithm: "sha256",
 	}
 	deduplicator := NewDeduplicator(config, chunkStore)
-	
+
 	// Process the same data twice (creates multiple references)
 	data := []byte("hello world")
 	reader1 := bytes.NewReader(data)
 	reader2 := bytes.NewReader(data)
-	
+
 	chunks1, err1 := deduplicator.ProcessFile(context.Background(), reader1)
 	chunks2, err2 := deduplicator.ProcessFile(context.Background(), reader2)
 	require.NoError(t, err1)
 	require.NoError(t, err2)
-	
+
 	// Delete first file
 	err := deduplicator.DeleteFile(context.Background(), chunks1)
 	assert.NoError(t, err)
-	
+
 	// Chunks should still exist (ref count should be 1)
 	for _, chunk := range chunks1 {
 		_, err := chunkStore.Get(context.Background(), chunk.ID)
 		assert.NoError(t, err)
 	}
-	
+
 	// Delete second file
 	err = deduplicator.DeleteFile(context.Background(), chunks2)
 	assert.NoError(t, err)
-	
+
 	// Now chunks should be deleted
 	for _, chunk := range chunks2 {
 		_, err := chunkStore.Get(context.Background(), chunk.ID)
@@ -292,19 +292,19 @@ func TestDeduplicator_GetStats(t *testing.T) {
 		Algorithm: "sha256",
 	}
 	deduplicator := NewDeduplicator(config, chunkStore)
-	
+
 	// Initially no chunks
 	stats := deduplicator.GetStats()
 	assert.Equal(t, 0, stats.TotalChunks)
 	assert.Equal(t, int64(10), stats.ChunkSize)
 	assert.Equal(t, "sha256", stats.Algorithm)
-	
+
 	// Process a file
 	data := []byte("hello world")
 	reader := bytes.NewReader(data)
 	_, err := deduplicator.ProcessFile(context.Background(), reader)
 	require.NoError(t, err)
-	
+
 	// Should have chunks now
 	stats = deduplicator.GetStats()
 	assert.Greater(t, stats.TotalChunks, 0)
@@ -312,7 +312,7 @@ func TestDeduplicator_GetStats(t *testing.T) {
 
 func TestMemoryChunkStore_Store(t *testing.T) {
 	store := NewMemoryChunkStore()
-	
+
 	chunk := &Chunk{
 		ID:       "test-chunk",
 		Hash:     "test-hash",
@@ -320,10 +320,10 @@ func TestMemoryChunkStore_Store(t *testing.T) {
 		RefCount: 1,
 		Data:     []byte("test data"),
 	}
-	
+
 	err := store.Store(context.Background(), chunk)
 	assert.NoError(t, err)
-	
+
 	// Verify chunk was stored
 	retrieved, err := store.Get(context.Background(), "test-chunk")
 	assert.NoError(t, err)
@@ -332,7 +332,7 @@ func TestMemoryChunkStore_Store(t *testing.T) {
 
 func TestMemoryChunkStore_Get(t *testing.T) {
 	store := NewMemoryChunkStore()
-	
+
 	chunk := &Chunk{
 		ID:       "test-chunk",
 		Hash:     "test-hash",
@@ -340,16 +340,16 @@ func TestMemoryChunkStore_Get(t *testing.T) {
 		RefCount: 1,
 		Data:     []byte("test data"),
 	}
-	
+
 	// Store chunk
 	err := store.Store(context.Background(), chunk)
 	require.NoError(t, err)
-	
+
 	// Get existing chunk
 	retrieved, err := store.Get(context.Background(), "test-chunk")
 	assert.NoError(t, err)
 	assert.Equal(t, chunk, retrieved)
-	
+
 	// Get non-existing chunk
 	_, err = store.Get(context.Background(), "non-existing")
 	assert.Error(t, err)
@@ -358,7 +358,7 @@ func TestMemoryChunkStore_Get(t *testing.T) {
 
 func TestMemoryChunkStore_Delete(t *testing.T) {
 	store := NewMemoryChunkStore()
-	
+
 	chunk := &Chunk{
 		ID:       "test-chunk",
 		Hash:     "test-hash",
@@ -366,19 +366,19 @@ func TestMemoryChunkStore_Delete(t *testing.T) {
 		RefCount: 1,
 		Data:     []byte("test data"),
 	}
-	
+
 	// Store chunk
 	err := store.Store(context.Background(), chunk)
 	require.NoError(t, err)
-	
+
 	// Verify chunk exists
 	_, err = store.Get(context.Background(), "test-chunk")
 	assert.NoError(t, err)
-	
+
 	// Delete chunk
 	err = store.Delete(context.Background(), "test-chunk")
 	assert.NoError(t, err)
-	
+
 	// Verify chunk is deleted
 	_, err = store.Get(context.Background(), "test-chunk")
 	assert.Error(t, err)
@@ -386,7 +386,7 @@ func TestMemoryChunkStore_Delete(t *testing.T) {
 
 func TestMemoryChunkStore_IncrementRef(t *testing.T) {
 	store := NewMemoryChunkStore()
-	
+
 	chunk := &Chunk{
 		ID:       "test-chunk",
 		Hash:     "test-hash",
@@ -394,20 +394,20 @@ func TestMemoryChunkStore_IncrementRef(t *testing.T) {
 		RefCount: 1,
 		Data:     []byte("test data"),
 	}
-	
+
 	// Store chunk
 	err := store.Store(context.Background(), chunk)
 	require.NoError(t, err)
-	
+
 	// Increment reference count
 	err = store.IncrementRef(context.Background(), "test-chunk")
 	assert.NoError(t, err)
-	
+
 	// Verify reference count increased
 	retrieved, err := store.Get(context.Background(), "test-chunk")
 	assert.NoError(t, err)
 	assert.Equal(t, int64(2), retrieved.RefCount)
-	
+
 	// Try to increment non-existing chunk
 	err = store.IncrementRef(context.Background(), "non-existing")
 	assert.Error(t, err)
@@ -416,7 +416,7 @@ func TestMemoryChunkStore_IncrementRef(t *testing.T) {
 
 func TestMemoryChunkStore_DecrementRef(t *testing.T) {
 	store := NewMemoryChunkStore()
-	
+
 	chunk := &Chunk{
 		ID:       "test-chunk",
 		Hash:     "test-hash",
@@ -424,20 +424,20 @@ func TestMemoryChunkStore_DecrementRef(t *testing.T) {
 		RefCount: 2,
 		Data:     []byte("test data"),
 	}
-	
+
 	// Store chunk
 	err := store.Store(context.Background(), chunk)
 	require.NoError(t, err)
-	
+
 	// Decrement reference count
 	err = store.DecrementRef(context.Background(), "test-chunk")
 	assert.NoError(t, err)
-	
+
 	// Verify reference count decreased
 	retrieved, err := store.Get(context.Background(), "test-chunk")
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), retrieved.RefCount)
-	
+
 	// Try to decrement non-existing chunk
 	err = store.DecrementRef(context.Background(), "non-existing")
 	assert.Error(t, err)
@@ -446,10 +446,10 @@ func TestMemoryChunkStore_DecrementRef(t *testing.T) {
 
 func TestMemoryChunkStore_Concurrency(t *testing.T) {
 	store := NewMemoryChunkStore()
-	
+
 	// Test concurrent access
 	done := make(chan bool, 10)
-	
+
 	for i := 0; i < 10; i++ {
 		go func(id int) {
 			chunk := &Chunk{
@@ -459,32 +459,32 @@ func TestMemoryChunkStore_Concurrency(t *testing.T) {
 				RefCount: 1,
 				Data:     []byte(fmt.Sprintf("data-%d", id)),
 			}
-			
+
 			// Store
 			err := store.Store(context.Background(), chunk)
 			assert.NoError(t, err)
-			
+
 			// Get
 			retrieved, err := store.Get(context.Background(), chunk.ID)
 			assert.NoError(t, err)
 			assert.Equal(t, chunk, retrieved)
-			
+
 			// Increment ref
 			err = store.IncrementRef(context.Background(), chunk.ID)
 			assert.NoError(t, err)
-			
+
 			// Decrement ref
 			err = store.DecrementRef(context.Background(), chunk.ID)
 			assert.NoError(t, err)
-			
+
 			// Delete
 			err = store.Delete(context.Background(), chunk.ID)
 			assert.NoError(t, err)
-			
+
 			done <- true
 		}(i)
 	}
-	
+
 	// Wait for all goroutines to complete
 	for i := 0; i < 10; i++ {
 		select {
@@ -503,12 +503,12 @@ func TestDeduplicator_ProcessChunk_ErrorHandling(t *testing.T) {
 		Algorithm: "sha256",
 	}
 	deduplicator := NewDeduplicator(config, mockStore)
-	
+
 	// Process a file - should handle errors gracefully
 	data := []byte("hello world")
 	reader := bytes.NewReader(data)
 	chunks, err := deduplicator.ProcessFile(context.Background(), reader)
-	
+
 	assert.Error(t, err)
 	assert.Nil(t, chunks)
 }
