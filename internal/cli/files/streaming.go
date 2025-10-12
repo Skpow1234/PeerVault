@@ -82,8 +82,8 @@ func NewStreamingManager(client *client.Client, configDir string) *StreamingMana
 		settings:  getDefaultStreamingSettings(),
 	}
 
-	sm.loadSettings()
-	sm.loadStreams()
+	_ = sm.loadSettings() // Ignore error for initialization
+	_ = sm.loadStreams()  // Ignore error for initialization
 	return sm
 }
 
@@ -113,7 +113,7 @@ func (sm *StreamingManager) StartUploadStream(fileID, userID string, reader io.R
 	}
 
 	sm.streams[streamID] = stream
-	sm.saveStreams()
+	_ = sm.saveStreams() // Ignore error for demo purposes
 
 	// Start streaming in goroutine
 	go sm.uploadStream(stream, reader)
@@ -153,7 +153,7 @@ func (sm *StreamingManager) StartDownloadStream(fileID, userID string, writer io
 	}
 
 	sm.streams[streamID] = stream
-	sm.saveStreams()
+	_ = sm.saveStreams() // Ignore error for demo purposes
 
 	// Start streaming in goroutine
 	go sm.downloadStream(stream, writer)
@@ -230,7 +230,7 @@ func (sm *StreamingManager) PauseStream(streamID string) error {
 
 	stream.Status = "paused"
 	stream.LastUpdate = time.Now()
-	sm.saveStreams()
+	_ = sm.saveStreams() // Ignore error for demo purposes
 
 	return nil
 }
@@ -251,7 +251,7 @@ func (sm *StreamingManager) ResumeStream(streamID string) error {
 
 	stream.Status = "active"
 	stream.LastUpdate = time.Now()
-	sm.saveStreams()
+	_ = sm.saveStreams() // Ignore error for demo purposes
 
 	return nil
 }
@@ -270,7 +270,7 @@ func (sm *StreamingManager) CancelStream(streamID string) error {
 	stream.LastUpdate = time.Now()
 	now := time.Now()
 	stream.EndTime = &now
-	sm.saveStreams()
+	_ = sm.saveStreams() // Ignore error for demo purposes
 
 	return nil
 }
@@ -321,7 +321,7 @@ func (sm *StreamingManager) UpdateStreamingSettings(settings *StreamingSettings)
 	}
 
 	sm.settings = settings
-	sm.saveSettings()
+	_ = sm.saveSettings() // Ignore error for demo purposes
 
 	return nil
 }
@@ -385,7 +385,7 @@ func (sm *StreamingManager) uploadStream(stream *StreamInfo, reader io.Reader) {
 		time.Sleep(time.Millisecond * 10)
 	}
 
-	sm.saveStreams()
+	_ = sm.saveStreams() // Ignore error for demo purposes
 }
 
 func (sm *StreamingManager) downloadStream(stream *StreamInfo, writer io.Writer) {
@@ -449,7 +449,7 @@ func (sm *StreamingManager) downloadStream(stream *StreamInfo, writer io.Writer)
 	}
 	sm.mu.Unlock()
 
-	sm.saveStreams()
+	_ = sm.saveStreams() // Ignore error for demo purposes
 }
 
 // Utility functions

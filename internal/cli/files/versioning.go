@@ -53,7 +53,7 @@ func NewVersionManager(client *client.Client, configDir string) *VersionManager 
 		versions:  make(map[string][]*FileVersion),
 	}
 
-	vm.loadVersions()
+	_ = vm.loadVersions() // Ignore error for initialization
 	return vm
 }
 
@@ -97,7 +97,7 @@ func (vm *VersionManager) CreateVersion(fileID, description, createdBy string, t
 
 	// Add new version
 	vm.versions[fileID] = append(versions, version)
-	vm.saveVersions()
+	_ = vm.saveVersions() // Ignore error for demo purposes
 
 	return version, nil
 }
@@ -169,7 +169,7 @@ func (vm *VersionManager) RestoreVersion(fileID string, versionNumber int) error
 
 	// Mark target version as current
 	targetVersion.IsCurrent = true
-	vm.saveVersions()
+	_ = vm.saveVersions() // Ignore error for demo purposes
 
 	return nil
 }
@@ -197,7 +197,7 @@ func (vm *VersionManager) DeleteVersion(fileID string, versionNumber int) error 
 	}
 
 	vm.versions[fileID] = newVersions
-	vm.saveVersions()
+	_ = vm.saveVersions() // Ignore error for demo purposes
 
 	return nil
 }

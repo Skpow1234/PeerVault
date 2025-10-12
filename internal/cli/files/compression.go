@@ -69,8 +69,8 @@ func NewCompressionManager(client *client.Client, configDir string) *Compression
 		stats:     &CompressionStats{},
 	}
 
-	cm.loadSettings()
-	cm.loadStats()
+	_ = cm.loadSettings() // Ignore error for initialization
+	_ = cm.loadStats()    // Ignore error for initialization
 	return cm
 }
 
@@ -91,13 +91,13 @@ func (cm *CompressionManager) CompressFile(fileID string, algorithm string, leve
 	// Read file data
 	fileData, err := os.ReadFile(tempFile)
 	if err != nil {
-		os.Remove(tempFile) // Clean up
+		_ = os.Remove(tempFile) // Clean up
 		return &CompressionResult{
 			Success: false,
 			Error:   fmt.Sprintf("failed to read file: %v", err),
 		}, err
 	}
-	os.Remove(tempFile) // Clean up
+	_ = os.Remove(tempFile) // Clean up
 
 	originalSize := int64(len(fileData))
 
@@ -154,10 +154,10 @@ func (cm *CompressionManager) DecompressFile(fileID string, algorithm string) ([
 	// Read file data
 	fileData, err := os.ReadFile(tempFile)
 	if err != nil {
-		os.Remove(tempFile) // Clean up
+		_ = os.Remove(tempFile) // Clean up
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	os.Remove(tempFile) // Clean up
+	_ = os.Remove(tempFile) // Clean up
 
 	// Decompress data
 	var decompressedData []byte
@@ -239,7 +239,7 @@ func (cm *CompressionManager) UpdateCompressionSettings(settings *CompressionSet
 	}
 
 	cm.settings = settings
-	cm.saveSettings()
+	_ = cm.saveSettings() // Ignore error for demo purposes
 
 	return nil
 }
@@ -262,7 +262,7 @@ func (cm *CompressionManager) ResetStats() {
 	cm.stats = &CompressionStats{
 		LastUpdated: time.Now(),
 	}
-	cm.saveStats()
+	_ = cm.saveStats() // Ignore error for demo purposes
 }
 
 // Compression algorithms
@@ -275,7 +275,7 @@ func (cm *CompressionManager) compressGzip(data []byte, level int) ([]byte, erro
 
 	_, err = writer.Write(data)
 	if err != nil {
-		writer.Close()
+		_ = writer.Close() // Ignore error for demo purposes
 		return nil, err
 	}
 
@@ -296,7 +296,7 @@ func (cm *CompressionManager) compressZlib(data []byte, level int) ([]byte, erro
 
 	_, err = writer.Write(data)
 	if err != nil {
-		writer.Close()
+		_ = writer.Close() // Ignore error for demo purposes
 		return nil, err
 	}
 
@@ -313,7 +313,7 @@ func (cm *CompressionManager) decompressGzip(data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 
 	return io.ReadAll(reader)
 }
@@ -323,7 +323,7 @@ func (cm *CompressionManager) decompressZlib(data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 
 	return io.ReadAll(reader)
 }
@@ -348,7 +348,7 @@ func (cm *CompressionManager) updateStats(result *CompressionResult) {
 	}
 
 	cm.stats.LastUpdated = time.Now()
-	cm.saveStats()
+	_ = cm.saveStats() // Ignore error for demo purposes
 }
 
 // Configuration management

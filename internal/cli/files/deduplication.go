@@ -77,8 +77,8 @@ func NewDeduplicationManager(client *client.Client, configDir string) *Deduplica
 		stats:     &DeduplicationStats{},
 	}
 
-	dm.loadChunks()
-	dm.loadStats()
+	_ = dm.loadChunks() // Ignore error for initialization
+	_ = dm.loadStats()  // Ignore error for initialization
 	return dm
 }
 
@@ -99,13 +99,13 @@ func (dm *DeduplicationManager) DeduplicateFile(fileID string, chunkSize ChunkSi
 	// Read file data
 	fileData, err := os.ReadFile(tempFile)
 	if err != nil {
-		os.Remove(tempFile) // Clean up
+		_ = os.Remove(tempFile) // Clean up
 		return &DeduplicationResult{
 			Success: false,
 			Error:   fmt.Sprintf("failed to read file: %v", err),
 		}, err
 	}
-	os.Remove(tempFile) // Clean up
+	_ = os.Remove(tempFile) // Clean up
 
 	originalSize := int64(len(fileData))
 
@@ -169,7 +169,7 @@ func (dm *DeduplicationManager) DeduplicateFile(fileID string, chunkSize ChunkSi
 
 	// Update statistics
 	dm.updateStats(result)
-	dm.saveChunks()
+	_ = dm.saveChunks() // Ignore error for demo purposes
 
 	return result, nil
 }
@@ -269,7 +269,7 @@ func (dm *DeduplicationManager) RemoveFileChunks(fileID string) error {
 		}
 	}
 
-	dm.saveChunks()
+	_ = dm.saveChunks() // Ignore error for demo purposes
 	return nil
 }
 
@@ -290,7 +290,7 @@ func (dm *DeduplicationManager) CleanupUnusedChunks() error {
 	}
 
 	if len(toDelete) > 0 {
-		dm.saveChunks()
+		_ = dm.saveChunks() // Ignore error for demo purposes
 	}
 
 	return nil
@@ -304,7 +304,7 @@ func (dm *DeduplicationManager) ResetStats() {
 	dm.stats = &DeduplicationStats{
 		LastUpdated: time.Now(),
 	}
-	dm.saveStats()
+	_ = dm.saveStats() // Ignore error for demo purposes
 }
 
 // Utility functions
@@ -344,7 +344,7 @@ func (dm *DeduplicationManager) updateStats(result *DeduplicationResult) {
 	}
 
 	dm.stats.LastUpdated = time.Now()
-	dm.saveStats()
+	_ = dm.saveStats() // Ignore error for demo purposes
 }
 
 // Data persistence

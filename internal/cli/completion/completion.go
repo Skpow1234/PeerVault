@@ -8,7 +8,7 @@ import (
 
 // Completer provides command and argument completion
 type Completer struct {
-	commands   []string
+	commands []string
 	// filePaths  []string // TODO: implement file path completion
 	addresses  []string
 	configKeys []string
