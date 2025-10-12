@@ -16,6 +16,7 @@ import (
 	"github.com/Skpow1234/Peervault/internal/cli/files"
 	"github.com/Skpow1234/Peervault/internal/cli/formatter"
 	"github.com/Skpow1234/Peervault/internal/cli/history"
+	"github.com/Skpow1234/Peervault/internal/cli/integration"
 	"github.com/Skpow1234/Peervault/internal/cli/iot"
 	"github.com/Skpow1234/Peervault/internal/cli/network"
 	"github.com/Skpow1234/Peervault/internal/cli/prompt"
@@ -73,14 +74,19 @@ func main() {
 	dashboardManager := analytics.NewDashboardManager(client, configDir)
 	visualizationManager := analytics.NewVisualizationManager(client, configDir)
 
+	// Initialize Integration managers
+	webhookManager := integration.NewWebhookManager(client, configDir)
+	workflowManager := integration.NewWorkflowManager(client, configDir)
+	integrationManager := integration.NewIntegrationManager(client, configDir)
+
 	// Register commands
-	registerCommands(cliApp, client, formatter, hist, aliasManager, versionManager, shareManager, compressionManager, deduplicationManager, streamingManager, loadBalancer, cacheManager, cdnManager, bandwidthManager, deviceManager, edgeManager, walletManager, contractManager, dashboardManager, visualizationManager)
+	registerCommands(cliApp, client, formatter, hist, aliasManager, versionManager, shareManager, compressionManager, deduplicationManager, streamingManager, loadBalancer, cacheManager, cdnManager, bandwidthManager, deviceManager, edgeManager, walletManager, contractManager, dashboardManager, visualizationManager, webhookManager, workflowManager, integrationManager)
 
 	// Start interactive mode
 	runInteractiveMode(cliApp, client, formatter, prompt, cfg, hist, aliasManager)
 }
 
-func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History, aliasManager *aliases.Manager, versionManager *files.VersionManager, shareManager *files.ShareManager, compressionManager *files.CompressionManager, deduplicationManager *files.DeduplicationManager, streamingManager *files.StreamingManager, loadBalancer *network.LoadBalancer, cacheManager *network.CacheManager, cdnManager *network.CDNManager, bandwidthManager *network.BandwidthManager, deviceManager *iot.DeviceManager, edgeManager *edge.EdgeManager, walletManager *blockchain.WalletManager, contractManager *blockchain.ContractManager, dashboardManager *analytics.DashboardManager, visualizationManager *analytics.VisualizationManager) {
+func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History, aliasManager *aliases.Manager, versionManager *files.VersionManager, shareManager *files.ShareManager, compressionManager *files.CompressionManager, deduplicationManager *files.DeduplicationManager, streamingManager *files.StreamingManager, loadBalancer *network.LoadBalancer, cacheManager *network.CacheManager, cdnManager *network.CDNManager, bandwidthManager *network.BandwidthManager, deviceManager *iot.DeviceManager, edgeManager *edge.EdgeManager, walletManager *blockchain.WalletManager, contractManager *blockchain.ContractManager, dashboardManager *analytics.DashboardManager, visualizationManager *analytics.VisualizationManager, webhookManager *integration.WebhookManager, workflowManager *integration.WorkflowManager, integrationManager *integration.IntegrationManager) {
 	// File operations
 	cliApp.RegisterCommand("store", commands.NewStoreCommand(client, formatter))
 	cliApp.RegisterCommand("get", commands.NewGetCommand(client, formatter))
@@ -112,6 +118,10 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 	// Analytics operations
 	cliApp.RegisterCommand("analytics", commands.NewAnalyticsCommand(client, formatter, dashboardManager, visualizationManager))
 	cliApp.RegisterCommand("analytics", commands.NewAnalyticsCommand(client, formatter, dashboardManager, visualizationManager)) // Alias
+
+	// Integration operations
+	cliApp.RegisterCommand("integration", commands.NewIntegrationCommand(client, formatter, webhookManager, workflowManager, integrationManager))
+	cliApp.RegisterCommand("integrations", commands.NewIntegrationCommand(client, formatter, webhookManager, workflowManager, integrationManager)) // Alias
 
 	// Backup operations
 	cliApp.RegisterCommand("backup", commands.NewBackupCommand(client, formatter))
