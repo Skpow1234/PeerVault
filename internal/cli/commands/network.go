@@ -235,7 +235,7 @@ func (c *LoadBalancerCommand) getStats() error {
 	return nil
 }
 
-func (c *LoadBalancerCommand) getConfig(args []string) error {
+func (c *LoadBalancerCommand) getConfig(_ []string) error {
 	config := c.loadBalancer.GetConfig()
 
 	c.formatter.PrintInfo("Load Balancer Configuration:")
@@ -490,7 +490,7 @@ func (c *CacheCommand) getStats() error {
 	return nil
 }
 
-func (c *CacheCommand) getConfig(args []string) error {
+func (c *CacheCommand) getConfig(_ []string) error {
 	config := c.cacheManager.GetConfig()
 
 	c.formatter.PrintInfo("Cache Configuration:")

@@ -111,7 +111,7 @@ func (c *CompressionCommand) decompressFile(args []string) error {
 	return nil
 }
 
-func (c *CompressionCommand) getSettings(args []string) error {
+func (c *CompressionCommand) getSettings(_ []string) error {
 	settings := c.compressionManager.GetCompressionSettings()
 
 	c.formatter.PrintInfo("Compression settings:")

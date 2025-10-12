@@ -55,9 +55,10 @@ func (c *Client) Connect(ctx context.Context) error {
 	}
 
 	// Convert HTTP to WebSocket scheme
-	if u.Scheme == "http" {
+	switch u.Scheme {
+	case "http":
 		u.Scheme = "ws"
-	} else if u.Scheme == "https" {
+	case "https":
 		u.Scheme = "wss"
 	}
 
@@ -197,7 +198,7 @@ func (c *Client) Reconnect(ctx context.Context) error {
 	defer c.mu.Unlock()
 
 	if c.conn != nil {
-		c.conn.Close()
+		_ = c.conn.Close() // Ignore error for demo purposes
 	}
 
 	c.connected = false

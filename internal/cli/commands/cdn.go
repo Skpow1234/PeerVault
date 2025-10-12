@@ -337,7 +337,7 @@ func (c *CDNCommand) getStats() error {
 	return nil
 }
 
-func (c *CDNCommand) getConfig(args []string) error {
+func (c *CDNCommand) getConfig(_ []string) error {
 	config := c.cdnManager.GetConfig()
 
 	c.formatter.PrintInfo("CDN Configuration:")
@@ -847,7 +847,7 @@ func (c *BandwidthCommand) getStats() error {
 	return nil
 }
 
-func (c *BandwidthCommand) getConfig(args []string) error {
+func (c *BandwidthCommand) getConfig(_ []string) error {
 	config := c.bandwidthManager.GetConfig()
 
 	c.formatter.PrintInfo("Bandwidth Configuration:")

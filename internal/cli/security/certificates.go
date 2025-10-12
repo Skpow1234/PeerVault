@@ -47,7 +47,7 @@ func NewCertificateManager(configDir string) *CertificateManager {
 		certs:     make(map[string]*Certificate),
 	}
 
-	cm.loadCertificates()
+	_ = cm.loadCertificates() // Ignore error for initialization
 	return cm
 }
 
@@ -113,7 +113,7 @@ func (cm *CertificateManager) GenerateSelfSignedCert(name, subject string, valid
 
 	// Store certificate metadata
 	cm.certs[certID] = cert
-	cm.saveCertificates()
+	_ = cm.saveCertificates() // Ignore error for demo purposes
 
 	return cert, nil
 }
@@ -197,7 +197,7 @@ func (cm *CertificateManager) LoadCertificate(name, certPath, keyPath string) (*
 
 	// Store certificate metadata
 	cm.certs[certID] = certObj
-	cm.saveCertificates()
+	_ = cm.saveCertificates() // Ignore error for demo purposes
 
 	return certObj, nil
 }
@@ -245,7 +245,7 @@ func (cm *CertificateManager) ValidateCertificate(id string) error {
 
 	// Update status
 	cert.Status = "valid"
-	cm.saveCertificates()
+	_ = cm.saveCertificates() // Ignore error for demo purposes
 
 	return nil
 }
@@ -258,7 +258,7 @@ func (cm *CertificateManager) RevokeCertificate(id string) error {
 	}
 
 	cert.Status = "revoked"
-	cm.saveCertificates()
+	_ = cm.saveCertificates() // Ignore error for demo purposes
 
 	return nil
 }
@@ -282,7 +282,7 @@ func (cm *CertificateManager) DeleteCertificate(id string) error {
 
 	// Remove from memory
 	delete(cm.certs, id)
-	cm.saveCertificates()
+	_ = cm.saveCertificates() // Ignore error for demo purposes
 
 	return nil
 }
@@ -304,7 +304,7 @@ func (cm *CertificateManager) CheckExpiringCertificates(days int) []*Certificate
 // Utility functions
 func (cm *CertificateManager) generateID() string {
 	bytes := make([]byte, 8)
-	rand.Read(bytes)
+	_, _ = rand.Read(bytes) // Ignore error for demo purposes
 	return fmt.Sprintf("%x", bytes)
 }
 

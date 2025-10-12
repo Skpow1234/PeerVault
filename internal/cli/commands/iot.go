@@ -129,7 +129,7 @@ func (c *IoTCommand) removeDevice(ctx context.Context, args []string) error {
 }
 
 // listDevices lists all IoT devices
-func (c *IoTCommand) listDevices(ctx context.Context, args []string) error {
+func (c *IoTCommand) listDevices(ctx context.Context, _ []string) error {
 	devices, err := c.deviceManager.ListDevices(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list devices: %v", err)
@@ -467,7 +467,7 @@ func (c *IoTCommand) updateFirmwareProgress(ctx context.Context, args []string) 
 }
 
 // getStatistics gets IoT statistics
-func (c *IoTCommand) getStatistics(ctx context.Context, args []string) error {
+func (c *IoTCommand) getStatistics(ctx context.Context, _ []string) error {
 	stats, err := c.deviceManager.GetDeviceStatistics(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get statistics: %v", err)

@@ -78,7 +78,7 @@ func (c *StreamingCommand) startUploadStream(args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// Get file size
 	fileInfo, err := file.Stat()
@@ -115,7 +115,7 @@ func (c *StreamingCommand) startDownloadStream(args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	stream, err := c.streamingManager.StartDownloadStream(fileID, userID, file)
 	if err != nil {
@@ -284,7 +284,7 @@ func (c *StreamingCommand) listStreams() error {
 	return nil
 }
 
-func (c *StreamingCommand) getSettings(args []string) error {
+func (c *StreamingCommand) getSettings(_ []string) error {
 	settings := c.streamingManager.GetStreamingSettings()
 
 	c.formatter.PrintInfo("Streaming settings:")

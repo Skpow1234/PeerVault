@@ -388,8 +388,8 @@ func (m *Manager) identifyClusters(nodes []*TopologyNode) []*Cluster {
 			}
 
 			distance := math.Sqrt(
-				math.Pow(node.Position.X-otherNode.Position.X, 2) +
-					math.Pow(node.Position.Y-otherNode.Position.Y, 2),
+				(node.Position.X-otherNode.Position.X)*(node.Position.X-otherNode.Position.X) +
+					(node.Position.Y-otherNode.Position.Y)*(node.Position.Y-otherNode.Position.Y),
 			)
 
 			if distance <= cluster.Radius {

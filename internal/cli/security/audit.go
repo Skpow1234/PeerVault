@@ -88,7 +88,7 @@ func (am *AuditManager) LogEvent(event *AuditEvent) error {
 	if err != nil {
 		return fmt.Errorf("failed to open audit log file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	_, err = file.WriteString(string(jsonData) + "\n")
 	if err != nil {

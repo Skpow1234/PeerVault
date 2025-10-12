@@ -131,7 +131,7 @@ func (c *EdgeCommand) removeEdgeNode(ctx context.Context, args []string) error {
 }
 
 // listEdgeNodes lists all edge nodes
-func (c *EdgeCommand) listEdgeNodes(ctx context.Context, args []string) error {
+func (c *EdgeCommand) listEdgeNodes(ctx context.Context, _ []string) error {
 	nodes, err := c.edgeManager.ListEdgeNodes(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list edge nodes: %v", err)
@@ -316,7 +316,7 @@ func (c *EdgeCommand) getEdgeTask(ctx context.Context, args []string) error {
 }
 
 // listEdgeTasks lists all edge tasks
-func (c *EdgeCommand) listEdgeTasks(ctx context.Context, args []string) error {
+func (c *EdgeCommand) listEdgeTasks(ctx context.Context, _ []string) error {
 	tasks, err := c.edgeManager.ListEdgeTasks(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list edge tasks: %v", err)
@@ -471,7 +471,7 @@ func (c *EdgeCommand) getEdgeWorkload(ctx context.Context, args []string) error 
 }
 
 // listEdgeWorkloads lists all edge workloads
-func (c *EdgeCommand) listEdgeWorkloads(ctx context.Context, args []string) error {
+func (c *EdgeCommand) listEdgeWorkloads(ctx context.Context, _ []string) error {
 	workloads, err := c.edgeManager.ListEdgeWorkloads(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list edge workloads: %v", err)
@@ -518,7 +518,7 @@ func (c *EdgeCommand) scheduleWorkload(ctx context.Context, args []string) error
 }
 
 // getStatistics gets edge computing statistics
-func (c *EdgeCommand) getStatistics(ctx context.Context, args []string) error {
+func (c *EdgeCommand) getStatistics(ctx context.Context, _ []string) error {
 	stats, err := c.edgeManager.GetEdgeStatistics(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get statistics: %v", err)

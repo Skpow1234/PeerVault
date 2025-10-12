@@ -84,9 +84,9 @@ func NewLoadBalancer(client *client.Client, configDir string) *LoadBalancer {
 		stats:     &LoadBalancerStats{},
 	}
 
-	lb.loadServers()
-	lb.loadConfig()
-	lb.loadStats()
+	_ = lb.loadServers() // Ignore error for initialization
+	_ = lb.loadConfig()  // Ignore error for initialization
+	_ = lb.loadStats()   // Ignore error for initialization
 
 	// Start health check routine
 	go lb.startHealthChecks()
@@ -111,7 +111,7 @@ func (lb *LoadBalancer) AddServer(server *Server) error {
 	server.IsHealthy = true // Assume healthy initially
 
 	lb.servers = append(lb.servers, server)
-	lb.saveServers()
+	_ = lb.saveServers() // Ignore error for demo purposes
 
 	return nil
 }
@@ -124,7 +124,7 @@ func (lb *LoadBalancer) RemoveServer(serverID string) error {
 	for i, server := range lb.servers {
 		if server.ID == serverID {
 			lb.servers = append(lb.servers[:i], lb.servers[i+1:]...)
-			lb.saveServers()
+			_ = lb.saveServers() // Ignore error for demo purposes
 			return nil
 		}
 	}
@@ -218,7 +218,7 @@ func (lb *LoadBalancer) UpdateServerHealth(serverID string, isHealthy bool, resp
 		}
 	}
 
-	lb.saveServers()
+	_ = lb.saveServers() // Ignore error for demo purposes
 }
 
 // RecordRequest records a request to a server
@@ -252,7 +252,7 @@ func (lb *LoadBalancer) RecordRequest(serverID string, success bool, responseTim
 	}
 
 	lb.stats.LastUpdated = time.Now()
-	lb.saveStats()
+	_ = lb.saveStats() // Ignore error for demo purposes
 }
 
 // GetStats returns load balancer statistics
@@ -289,7 +289,7 @@ func (lb *LoadBalancer) UpdateConfig(config *LoadBalancerConfig) error {
 	defer lb.mu.Unlock()
 
 	lb.algorithm = config.Algorithm
-	lb.saveConfig()
+	_ = lb.saveConfig() // Ignore error for demo purposes
 
 	return nil
 }

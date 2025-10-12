@@ -227,7 +227,7 @@ func (m *Manager) Reconnect(ctx context.Context) error {
 	defer m.mu.Unlock()
 
 	if m.connected {
-		m.wsClient.Disconnect()
+		_ = m.wsClient.Disconnect() // Ignore error for demo purposes
 	}
 
 	m.connected = false

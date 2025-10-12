@@ -959,7 +959,7 @@ func (c *RealtimeCommand) disconnect() error {
 }
 
 // showStatus shows the real-time service status
-func (c *RealtimeCommand) showStatus(ctx context.Context) error {
+func (c *RealtimeCommand) showStatus(_ context.Context) error {
 	status := c.realtimeManager.GetConnectionStatus()
 
 	c.formatter.PrintInfo("Real-time Service Status:")
@@ -971,7 +971,7 @@ func (c *RealtimeCommand) showStatus(ctx context.Context) error {
 }
 
 // subscribe subscribes to real-time events
-func (c *RealtimeCommand) subscribe(ctx context.Context, args []string) error {
+func (c *RealtimeCommand) subscribe(_ context.Context, args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("usage: realtime subscribe <event_type>")
 	}

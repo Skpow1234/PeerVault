@@ -59,7 +59,7 @@ func (c *AuthCommand) Execute(ctx context.Context, args []string) error {
 }
 
 // login handles user login
-func (c *AuthCommand) login(ctx context.Context, args []string) error {
+func (c *AuthCommand) login(_ context.Context, args []string) error {
 	if len(args) < 2 {
 		return fmt.Errorf("usage: auth login <username> <password>")
 	}
