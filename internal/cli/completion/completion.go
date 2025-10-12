@@ -9,6 +9,7 @@ import (
 // Completer provides command and argument completion
 type Completer struct {
 	commands   []string
+	filePaths  []string
 	addresses  []string
 	configKeys []string
 }

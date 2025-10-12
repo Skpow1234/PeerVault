@@ -8,6 +8,8 @@ import (
 
 // Terminal represents terminal utilities
 type Terminal struct {
+	width  int
+	height int
 }
 
 // New creates a new terminal instance

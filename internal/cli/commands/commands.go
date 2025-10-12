@@ -125,7 +125,7 @@ func (c *GetCommand) Execute(ctx context.Context, args []string) error {
 		return err
 	}
 
-	c.formatter.PrintSuccess("File retrieved successfully")
+	c.formatter.PrintSuccess(fmt.Sprintf("File retrieved successfully"))
 	c.formatter.PrintFileInfo(file)
 
 	if outputPath != "" {
@@ -590,45 +590,6 @@ func NewDevicesCommand(client *client.Client, formatter *formatter.Formatter) *D
 // Execute executes the devices command
 func (c *DevicesCommand) Execute(ctx context.Context, args []string) error {
 	c.formatter.PrintInfo("Device management feature not yet implemented")
-	return nil
-}
-
-// BackupCommand handles backup operations
-type BackupCommand struct {
-	BaseCommand
-}
-
-// NewBackupCommand creates a new backup command
-func NewBackupCommand(client *client.Client, formatter *formatter.Formatter) *BackupCommand {
-	return &BackupCommand{
-		BaseCommand: BaseCommand{
-			name:        "backup",
-			description: "Backup operations",
-			usage:       "backup [create|list|restore] [options]",
-			client:      client,
-			formatter:   formatter,
-		},
-	}
-}
-
-// Execute executes the backup command
-func (c *BackupCommand) Execute(ctx context.Context, args []string) error {
-	action := "list"
-	if len(args) > 0 {
-		action = args[0]
-	}
-
-	switch action {
-	case "create":
-		c.formatter.PrintInfo("Backup creation feature not yet implemented")
-	case "list":
-		c.formatter.PrintInfo("Backup listing feature not yet implemented")
-	case "restore":
-		c.formatter.PrintInfo("Backup restore feature not yet implemented")
-	default:
-		return fmt.Errorf("unknown action: %s. Use 'create', 'list', or 'restore'", action)
-	}
-
 	return nil
 }
 
@@ -1213,7 +1174,7 @@ func (c *BatchCommand) Execute(ctx context.Context, args []string) error {
 // batchUpload performs batch upload
 func (c *BatchCommand) batchUpload(ctx context.Context, args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("usage: batch upload <file1> [file2] [file3]")
+		return fmt.Errorf("usage: batch upload <file1> [file2] [file3] ...")
 	}
 
 	c.formatter.PrintInfo(fmt.Sprintf("Starting batch upload of %d files...", len(args)))
@@ -1239,7 +1200,7 @@ func (c *BatchCommand) batchUpload(ctx context.Context, args []string) error {
 // batchDownload performs batch download
 func (c *BatchCommand) batchDownload(ctx context.Context, args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("usage: batch download <output_dir> <file_id1> [file_id2] [file_id3]")
+		return fmt.Errorf("usage: batch download <output_dir> <file_id1> [file_id2] [file_id3] ...")
 	}
 
 	outputDir := args[0]

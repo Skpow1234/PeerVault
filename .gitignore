@@ -106,3 +106,43 @@ documentation/PROJECT_MATURITY_ROADMAP.md
 /build/
 /out/
 /release/
+
+# Security and sensitive data
+config/
+*.crt
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.truststore
+
+# CLI configuration and data
+.cli/
+cli-config/
+users.json
+roles.json
+sessions.json
+certificates.json
+audit.log
+audit-*.log
+
+# Backup files
+backups/
+*.backup
+*.bak
+*.tar.gz
+*.zip
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Private keys and secrets
+*.private
+*.secret
+*.token
+secrets/
+keys/

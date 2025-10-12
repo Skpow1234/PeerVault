@@ -22,7 +22,7 @@ func New(file string) *History {
 	}
 
 	// Load existing history
-	_ = h.Load()
+	h.Load()
 
 	return h
 }
@@ -42,7 +42,7 @@ func (h *History) Add(command string) {
 	}
 
 	// Save to file
-	_ = h.Save()
+	h.Save()
 }
 
 // GetAll returns all commands in history
@@ -81,7 +81,7 @@ func (h *History) Search(text string) []string {
 // Clear clears the history
 func (h *History) Clear() {
 	h.commands = h.commands[:0]
-	_ = h.Save()
+	h.Save()
 }
 
 // Load loads history from file
@@ -97,9 +97,7 @@ func (h *History) Load() error {
 		}
 		return err
 	}
-	defer func() {
-		_ = file.Close()
-	}()
+	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -130,9 +128,7 @@ func (h *History) Save() error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		_ = file.Close()
-	}()
+	defer file.Close()
 
 	writer := bufio.NewWriter(file)
 	for _, cmd := range h.commands {

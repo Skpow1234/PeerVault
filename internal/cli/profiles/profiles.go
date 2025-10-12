@@ -36,7 +36,7 @@ func New(configDir string) *Manager {
 	}
 
 	pm.initializeDefaultProfiles()
-	_ = pm.loadProfiles()
+	pm.loadProfiles()
 	return pm
 }
 

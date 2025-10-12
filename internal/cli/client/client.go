@@ -152,9 +152,7 @@ func (c *Client) Delete(ctx context.Context, endpoint string) (*http.Response, e
 
 // ParseResponse parses an HTTP response into the target interface
 func (c *Client) ParseResponse(resp *http.Response, target interface{}) error {
-	defer func() {
-		_ = resp.Body.Close()
-	}()
+	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
 		body, _ := io.ReadAll(resp.Body)
@@ -195,9 +193,7 @@ func (c *Client) StoreFile(ctx context.Context, filePath string) (*FileInfo, err
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
-	defer func() {
-		_ = file.Close()
-	}()
+	defer file.Close()
 
 	// Get file info
 	_, err = file.Stat()
@@ -244,9 +240,7 @@ func (c *Client) StoreFile(ctx context.Context, filePath string) (*FileInfo, err
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload file: %w", err)
 	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
+	defer resp.Body.Close()
 
 	// Check response
 	if resp.StatusCode >= 400 {
@@ -277,18 +271,14 @@ func (c *Client) DownloadFile(ctx context.Context, fileID, outputPath string) er
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer func() {
-		_ = outFile.Close()
-	}()
+	defer outFile.Close()
 
 	// Download file
 	resp, err := c.Get(ctx, "/api/v1/files/"+fileID+"/download")
 	if err != nil {
 		return fmt.Errorf("failed to download file: %w", err)
 	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
+	defer resp.Body.Close()
 
 	// Check response
 	if resp.StatusCode >= 400 {

@@ -97,6 +97,14 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 	cliApp.RegisterCommand("profile", commands.NewProfileCommand(client, formatter))
 	cliApp.RegisterCommand("macro", commands.NewMacroCommand(client, formatter))
 
+	// Security commands
+	cliApp.RegisterCommand("auth", commands.NewAuthCommand(client, formatter))
+	cliApp.RegisterCommand("cert", commands.NewCertCommand(client, formatter))
+	cliApp.RegisterCommand("audit", commands.NewAuditCommand(client, formatter))
+
+	// Backup commands
+	cliApp.RegisterCommand("backup", commands.NewBackupCommand(client, formatter))
+
 	// Utility commands
 	cliApp.RegisterCommand("help", commands.NewEnhancedHelpCommand(cliApp))
 	cliApp.RegisterCommand("exit", commands.NewExitCommand())
