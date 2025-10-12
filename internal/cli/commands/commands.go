@@ -491,44 +491,9 @@ func (c *StatusCommand) Execute(ctx context.Context, args []string) error {
 	return nil
 }
 
-// BlockchainCommand handles blockchain operations
-type BlockchainCommand struct {
-	BaseCommand
-}
-
-// NewBlockchainCommand creates a new blockchain command
-func NewBlockchainCommand(client *client.Client, formatter *formatter.Formatter) *BlockchainCommand {
-	return &BlockchainCommand{
-		BaseCommand: BaseCommand{
-			name:        "blockchain",
-			description: "Blockchain operations",
-			usage:       "blockchain [networks|deploy|identity] [options]",
-			client:      client,
-			formatter:   formatter,
-		},
-	}
-}
-
-// Execute executes the blockchain command
-func (c *BlockchainCommand) Execute(ctx context.Context, args []string) error {
-	action := "networks"
-	if len(args) > 0 {
-		action = args[0]
-	}
-
-	switch action {
-	case "networks":
-		c.formatter.PrintInfo("Blockchain networks feature not yet implemented")
-	case "deploy":
-		c.formatter.PrintInfo("Smart contract deployment feature not yet implemented")
-	case "identity":
-		c.formatter.PrintInfo("Decentralized identity feature not yet implemented")
-	default:
-		return fmt.Errorf("unknown action: %s. Use 'networks', 'deploy', or 'identity'", action)
-	}
-
-	return nil
-}
+// BlockchainCommand placeholder - implementation moved to blockchain.go
+// Removed the actual implementation to avoid redeclaration errors.
+// The CLI now uses internal/cli/commands/blockchain.go
 
 // DevicesCommand handles device operations
 type DevicesCommand struct {

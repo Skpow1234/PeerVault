@@ -151,7 +151,7 @@ func (c *Completer) CompleteDeviceID(prefix string) []string {
 
 // CompleteBlockchainCommand completes blockchain subcommands
 func (c *Completer) CompleteBlockchainCommand(prefix string) []string {
-	commands := []string{"status", "transactions", "blocks", "peers", "mining"}
+	commands := []string{"wallet", "contract", "tx", "transaction", "stats", "help"}
 	var completions []string
 	for _, cmd := range commands {
 		if strings.HasPrefix(cmd, prefix) {

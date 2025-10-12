@@ -7,6 +7,7 @@ toolchain go1.24.6
 require (
 	github.com/Skpow1234/Peervault/proto/peervault v0.0.0-20250916093224-252ab05357d8
 	github.com/ethereum/go-ethereum v1.16.3
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
 	github.com/improbable-eng/grpc-web v0.15.0
