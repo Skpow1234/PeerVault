@@ -7,6 +7,7 @@ import (
 
 	"github.com/Skpow1234/Peervault/internal/cli"
 	"github.com/Skpow1234/Peervault/internal/cli/aliases"
+	"github.com/Skpow1234/Peervault/internal/cli/analytics"
 	"github.com/Skpow1234/Peervault/internal/cli/blockchain"
 	"github.com/Skpow1234/Peervault/internal/cli/client"
 	"github.com/Skpow1234/Peervault/internal/cli/commands"
@@ -68,14 +69,18 @@ func main() {
 	walletManager := blockchain.NewWalletManager(client, configDir)
 	contractManager := blockchain.NewContractManager(client, configDir)
 
+	// Initialize Analytics managers
+	dashboardManager := analytics.NewDashboardManager(client, configDir)
+	visualizationManager := analytics.NewVisualizationManager(client, configDir)
+
 	// Register commands
-	registerCommands(cliApp, client, formatter, hist, aliasManager, versionManager, shareManager, compressionManager, deduplicationManager, streamingManager, loadBalancer, cacheManager, cdnManager, bandwidthManager, deviceManager, edgeManager, walletManager, contractManager)
+	registerCommands(cliApp, client, formatter, hist, aliasManager, versionManager, shareManager, compressionManager, deduplicationManager, streamingManager, loadBalancer, cacheManager, cdnManager, bandwidthManager, deviceManager, edgeManager, walletManager, contractManager, dashboardManager, visualizationManager)
 
 	// Start interactive mode
 	runInteractiveMode(cliApp, client, formatter, prompt, cfg, hist, aliasManager)
 }
 
-func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History, aliasManager *aliases.Manager, versionManager *files.VersionManager, shareManager *files.ShareManager, compressionManager *files.CompressionManager, deduplicationManager *files.DeduplicationManager, streamingManager *files.StreamingManager, loadBalancer *network.LoadBalancer, cacheManager *network.CacheManager, cdnManager *network.CDNManager, bandwidthManager *network.BandwidthManager, deviceManager *iot.DeviceManager, edgeManager *edge.EdgeManager, walletManager *blockchain.WalletManager, contractManager *blockchain.ContractManager) {
+func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History, aliasManager *aliases.Manager, versionManager *files.VersionManager, shareManager *files.ShareManager, compressionManager *files.CompressionManager, deduplicationManager *files.DeduplicationManager, streamingManager *files.StreamingManager, loadBalancer *network.LoadBalancer, cacheManager *network.CacheManager, cdnManager *network.CDNManager, bandwidthManager *network.BandwidthManager, deviceManager *iot.DeviceManager, edgeManager *edge.EdgeManager, walletManager *blockchain.WalletManager, contractManager *blockchain.ContractManager, dashboardManager *analytics.DashboardManager, visualizationManager *analytics.VisualizationManager) {
 	// File operations
 	cliApp.RegisterCommand("store", commands.NewStoreCommand(client, formatter))
 	cliApp.RegisterCommand("get", commands.NewGetCommand(client, formatter))
@@ -103,6 +108,10 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 	// Blockchain operations
 	cliApp.RegisterCommand("blockchain", commands.NewBlockchainCommand(client, formatter, walletManager, contractManager))
 	cliApp.RegisterCommand("bc", commands.NewBlockchainCommand(client, formatter, walletManager, contractManager)) // Alias
+
+	// Analytics operations
+	cliApp.RegisterCommand("analytics", commands.NewAnalyticsCommand(client, formatter, dashboardManager, visualizationManager))
+	cliApp.RegisterCommand("analytics", commands.NewAnalyticsCommand(client, formatter, dashboardManager, visualizationManager)) // Alias
 
 	// Backup operations
 	cliApp.RegisterCommand("backup", commands.NewBackupCommand(client, formatter))
