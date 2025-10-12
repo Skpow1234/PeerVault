@@ -466,7 +466,7 @@ func (c *MacroCommand) Execute(ctx context.Context, args []string) error {
 // createMacro creates a new macro
 func (c *MacroCommand) createMacro(args []string) error {
 	if len(args) < 3 {
-		return fmt.Errorf("usage: macro create <name> <description> <command1> [command2] ...")
+		return fmt.Errorf("usage: macro create <name> <description> <command1> [command2]")
 	}
 
 	name := args[0]

@@ -543,13 +543,14 @@ func (cdn *CDNManager) loadStats() error {
 	return nil
 }
 
-func (cdn *CDNManager) saveStats() error {
-	statsFile := filepath.Join(cdn.configDir, "cdn_stats.json")
-
-	data, err := json.MarshalIndent(cdn.stats, "", "  ")
-	if err != nil {
-		return fmt.Errorf("failed to marshal stats: %w", err)
-	}
-
-	return os.WriteFile(statsFile, data, 0644)
-}
+// saveStats saves CDN statistics to file
+// func (cdn *CDNManager) saveStats() error {
+// 	statsFile := filepath.Join(cdn.configDir, "cdn_stats.json")
+//
+// 	data, err := json.MarshalIndent(cdn.stats, "", "  ")
+// 	if err != nil {
+// 		return fmt.Errorf("failed to marshal stats: %w", err)
+// 	}
+//
+// 	return os.WriteFile(statsFile, data, 0644)
+// }

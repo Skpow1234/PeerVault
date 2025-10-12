@@ -486,21 +486,22 @@ func (am *AuthManager) loadRoles() error {
 	return nil
 }
 
-func (am *AuthManager) saveRoles() error {
-	rolesFile := filepath.Join(am.configDir, "roles.json")
-
-	var roles []*Role
-	for _, role := range am.roles {
-		roles = append(roles, role)
-	}
-
-	data, err := json.MarshalIndent(roles, "", "  ")
-	if err != nil {
-		return fmt.Errorf("failed to marshal roles: %w", err)
-	}
-
-	return os.WriteFile(rolesFile, data, 0600)
-}
+// saveRoles saves roles to file
+// func (am *AuthManager) saveRoles() error {
+// 	rolesFile := filepath.Join(am.configDir, "roles.json")
+//
+// 	var roles []*Role
+// 	for _, role := range am.roles {
+// 		roles = append(roles, role)
+// 	}
+//
+// 	data, err := json.MarshalIndent(roles, "", "  ")
+// 	if err != nil {
+// 		return fmt.Errorf("failed to marshal roles: %w", err)
+// 	}
+//
+// 	return os.WriteFile(rolesFile, data, 0600)
+// }
 
 func (am *AuthManager) saveSessions() error {
 	sessionsFile := filepath.Join(am.configDir, "sessions.json")
