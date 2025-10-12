@@ -530,45 +530,6 @@ func (c *BlockchainCommand) Execute(ctx context.Context, args []string) error {
 	return nil
 }
 
-// IoTCommand handles IoT operations
-type IoTCommand struct {
-	BaseCommand
-}
-
-// NewIoTCommand creates a new IoT command
-func NewIoTCommand(client *client.Client, formatter *formatter.Formatter) *IoTCommand {
-	return &IoTCommand{
-		BaseCommand: BaseCommand{
-			name:        "iot",
-			description: "IoT device operations",
-			usage:       "iot [devices|sensors|commands] [options]",
-			client:      client,
-			formatter:   formatter,
-		},
-	}
-}
-
-// Execute executes the IoT command
-func (c *IoTCommand) Execute(ctx context.Context, args []string) error {
-	action := "devices"
-	if len(args) > 0 {
-		action = args[0]
-	}
-
-	switch action {
-	case "devices":
-		c.formatter.PrintInfo("IoT devices feature not yet implemented")
-	case "sensors":
-		c.formatter.PrintInfo("IoT sensors feature not yet implemented")
-	case "commands":
-		c.formatter.PrintInfo("IoT commands feature not yet implemented")
-	default:
-		return fmt.Errorf("unknown action: %s. Use 'devices', 'sensors', or 'commands'", action)
-	}
-
-	return nil
-}
-
 // DevicesCommand handles device operations
 type DevicesCommand struct {
 	BaseCommand

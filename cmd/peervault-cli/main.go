@@ -10,9 +10,11 @@ import (
 	"github.com/Skpow1234/Peervault/internal/cli/client"
 	"github.com/Skpow1234/Peervault/internal/cli/commands"
 	"github.com/Skpow1234/Peervault/internal/cli/config"
+	"github.com/Skpow1234/Peervault/internal/cli/edge"
 	"github.com/Skpow1234/Peervault/internal/cli/files"
 	"github.com/Skpow1234/Peervault/internal/cli/formatter"
 	"github.com/Skpow1234/Peervault/internal/cli/history"
+	"github.com/Skpow1234/Peervault/internal/cli/iot"
 	"github.com/Skpow1234/Peervault/internal/cli/network"
 	"github.com/Skpow1234/Peervault/internal/cli/prompt"
 )
@@ -57,14 +59,18 @@ func main() {
 	cdnManager := network.NewCDNManager(client, configDir)
 	bandwidthManager := network.NewBandwidthManager(client, configDir)
 
+	// Initialize IoT and Edge managers
+	deviceManager := iot.NewDeviceManager(client, configDir)
+	edgeManager := edge.NewEdgeManager(client, configDir)
+
 	// Register commands
-	registerCommands(cliApp, client, formatter, hist, aliasManager, versionManager, shareManager, compressionManager, deduplicationManager, streamingManager, loadBalancer, cacheManager, cdnManager, bandwidthManager)
+	registerCommands(cliApp, client, formatter, hist, aliasManager, versionManager, shareManager, compressionManager, deduplicationManager, streamingManager, loadBalancer, cacheManager, cdnManager, bandwidthManager, deviceManager, edgeManager)
 
 	// Start interactive mode
 	runInteractiveMode(cliApp, client, formatter, prompt, cfg, hist, aliasManager)
 }
 
-func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History, aliasManager *aliases.Manager, versionManager *files.VersionManager, shareManager *files.ShareManager, compressionManager *files.CompressionManager, deduplicationManager *files.DeduplicationManager, streamingManager *files.StreamingManager, loadBalancer *network.LoadBalancer, cacheManager *network.CacheManager, cdnManager *network.CDNManager, bandwidthManager *network.BandwidthManager) {
+func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, hist *history.History, aliasManager *aliases.Manager, versionManager *files.VersionManager, shareManager *files.ShareManager, compressionManager *files.CompressionManager, deduplicationManager *files.DeduplicationManager, streamingManager *files.StreamingManager, loadBalancer *network.LoadBalancer, cacheManager *network.CacheManager, cdnManager *network.CDNManager, bandwidthManager *network.BandwidthManager, deviceManager *iot.DeviceManager, edgeManager *edge.EdgeManager) {
 	// File operations
 	cliApp.RegisterCommand("store", commands.NewStoreCommand(client, formatter))
 	cliApp.RegisterCommand("get", commands.NewGetCommand(client, formatter))
@@ -87,8 +93,11 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 	cliApp.RegisterCommand("bc", commands.NewBlockchainCommand(client, formatter)) // Alias
 
 	// IoT operations
-	cliApp.RegisterCommand("iot", commands.NewIoTCommand(client, formatter))
-	cliApp.RegisterCommand("devices", commands.NewDevicesCommand(client, formatter))
+	cliApp.RegisterCommand("iot", commands.NewIoTCommand(client, formatter, deviceManager))
+	cliApp.RegisterCommand("devices", commands.NewIoTCommand(client, formatter, deviceManager)) // Alias
+
+	// Edge Computing operations
+	cliApp.RegisterCommand("edge", commands.NewEdgeCommand(client, formatter, edgeManager))
 
 	// Backup operations
 	cliApp.RegisterCommand("backup", commands.NewBackupCommand(client, formatter))
