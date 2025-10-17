@@ -118,7 +118,7 @@ func (f *Formatter) formatCSV(data interface{}) (string, error) {
 			values = append(values, fmt.Sprintf("%v", value))
 		}
 		_ = writer.Write(headers) // Ignore error for demo purposes
-		writer.Write(values)
+		_ = writer.Write(values)  // Ignore error for demo purposes
 
 	default:
 		return "", fmt.Errorf("unsupported data type for CSV: %T", data)

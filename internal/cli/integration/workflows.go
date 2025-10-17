@@ -380,11 +380,12 @@ func (wm *WorkflowManager) loadExecutions() error {
 
 	for _, execution := range executions {
 		wm.executions[execution.ID] = execution
-		if execution.Status == "running" {
+		switch execution.Status {
+		case "running":
 			wm.stats.RunningExecutions++
-		} else if execution.Status == "completed" {
+		case "completed":
 			wm.stats.SuccessfulExecutions++
-		} else if execution.Status == "failed" {
+		case "failed":
 			wm.stats.FailedExecutions++
 		}
 	}

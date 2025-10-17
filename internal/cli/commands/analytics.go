@@ -208,10 +208,7 @@ func (c *AnalyticsCommand) createDashboard(ctx context.Context, args []string) e
 	name := args[0]
 	description := args[1]
 	createdBy := args[2]
-	isPublic := false
-	if len(args) > 3 && args[3] == "public" {
-		isPublic = true
-	}
+	isPublic := len(args) > 3 && args[3] == "public"
 	tags := []string{}
 	if len(args) > 4 {
 		tags = args[4:]
@@ -330,10 +327,7 @@ func (c *AnalyticsCommand) createVisualization(ctx context.Context, args []strin
 	description := args[1]
 	vizType := args[2]
 	createdBy := args[3]
-	isPublic := false
-	if len(args) > 4 && args[4] == "public" {
-		isPublic = true
-	}
+	isPublic := len(args) > 4 && args[4] == "public"
 	tags := []string{}
 	if len(args) > 5 {
 		tags = args[5:]

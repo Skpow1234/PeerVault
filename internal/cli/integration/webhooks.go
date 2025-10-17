@@ -357,11 +357,12 @@ func (wm *WebhookManager) loadEvents() error {
 
 	for _, event := range events {
 		wm.events[event.ID] = event
-		if event.Status == "pending" {
+		switch event.Status {
+		case "pending":
 			wm.stats.PendingEvents++
-		} else if event.Status == "sent" {
+		case "sent":
 			wm.stats.SuccessfulEvents++
-		} else if event.Status == "failed" {
+		case "failed":
 			wm.stats.FailedEvents++
 		}
 	}

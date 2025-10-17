@@ -215,11 +215,12 @@ func (cm *ContractManager) UpdateContractCallStatus(ctx context.Context, callID,
 
 	call.Status = status
 	call.Result = result
-	if status == "completed" {
+	switch status {
+	case "completed":
 		now := time.Now()
 		call.ExecutedAt = &now
 		cm.stats.SuccessfulCalls++
-	} else if status == "failed" {
+	case "failed":
 		cm.stats.FailedCalls++
 	}
 
