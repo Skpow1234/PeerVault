@@ -168,7 +168,7 @@ jobs:
           }
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: security-reports
           path: security-reports/
@@ -219,7 +219,7 @@ jobs:
           }
 
       - name: Upload compliance reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: compliance-reports
           path: compliance-reports/
@@ -339,7 +339,7 @@ jobs:
           }
 
       - name: Upload container security reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: container-security-reports
           path: container-security-reports/

@@ -557,7 +557,7 @@ jobs:
           rm -f config/test-ci.yaml
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: binaries-${{ matrix.os }}
           path: bin/
@@ -639,7 +639,7 @@ jobs:
           go test -bench=. -benchmem -benchtime=1s ./tests/integration/performance/... > benchmark.out 2>&1 || true
 
       - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: benchmark-results
           path: benchmark.out
@@ -768,7 +768,7 @@ jobs:
           fi
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-report
           path: coverage.html
