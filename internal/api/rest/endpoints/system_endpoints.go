@@ -98,14 +98,15 @@ func (e *SystemEndpoints) HandleRoot(w http.ResponseWriter, r *http.Request) {
 		"message": "PeerVault REST API",
 		"version": "1.0.0",
 		"endpoints": map[string]string{
-			"health":    "/health",
-			"metrics":   "/metrics",
-			"system":    "/system",
-			"files":     "/api/v1/files",
-			"peers":     "/api/v1/peers",
-			"analytics": "/api/v1/analytics",
-			"docs":      "/docs",
-			"swagger":   "/swagger.json",
+			"health":     "/health",
+			"metrics":    "/metrics",
+			"system":     "/system",
+			"files":      "/api/v1/files",
+			"peers":      "/api/v1/peers",
+			"analytics":  "/api/v1/analytics",
+			"monitoring": "/api/v1/monitoring",
+			"docs":       "/docs",
+			"swagger":    "/swagger.json",
 		},
 	}
 

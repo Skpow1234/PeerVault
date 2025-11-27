@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Skpow1234/Peervault/internal/api/analytics"
+	"github.com/Skpow1234/Peervault/internal/api/monitoring"
 	"github.com/Skpow1234/Peervault/internal/api/rest/endpoints"
 	"github.com/Skpow1234/Peervault/internal/api/rest/implementations"
 	"github.com/Skpow1234/Peervault/internal/api/rest/ratelimit"
@@ -20,6 +21,8 @@ type Server struct {
 	rateLimiter        *ratelimit.RateLimiter
 	analyticsService   *analytics.Service
 	analyticsHandler   *analytics.Handler
+	monitoringService  *monitoring.Service
+	monitoringHandler  *monitoring.Handler
 	FileEndpoints      *endpoints.FileEndpoints
 	PeerEndpoints      *endpoints.PeerEndpoints
 	SystemEndpoints    *endpoints.SystemEndpoints
@@ -36,6 +39,7 @@ type Config struct {
 	VersionConfig     *versioning.VersionConfig
 	RateLimitConfig   *ratelimit.RateLimitConfig
 	AnalyticsConfig   *analytics.Config
+	MonitoringConfig  *monitoring.MonitoringConfig
 }
 
 func DefaultConfig() *Config {
@@ -50,6 +54,7 @@ func DefaultConfig() *Config {
 		VersionConfig:   versioning.NewVersionConfig(),
 		RateLimitConfig: ratelimit.DefaultConfig(),
 		AnalyticsConfig: analytics.DefaultConfig(),
+		MonitoringConfig: monitoring.DefaultConfig(),
 	}
 }
 
@@ -67,37 +72,45 @@ func NewServer(config *Config, logger *slog.Logger) *Server {
 	analyticsService := analytics.NewService(analyticsStorage, logger, config.AnalyticsConfig)
 	analyticsHandler := analytics.NewHandler(analyticsService, logger)
 
+	// Initialize monitoring
+	monitoringService := monitoring.NewService(config.MonitoringConfig, logger)
+	monitoringHandler := monitoring.NewHandler(monitoringService, logger)
+
 	// Initialize endpoints
 	fileEndpoints := endpoints.NewFileEndpoints(fileService, logger)
 	peerEndpoints := endpoints.NewPeerEndpoints(peerService, logger)
 	systemEndpoints := endpoints.NewSystemEndpoints(systemService, logger)
 
 	return &Server{
-		config:           config,
-		logger:           logger,
-		rateLimiter:      rateLimiter,
-		analyticsService: analyticsService,
-		analyticsHandler: analyticsHandler,
-		FileEndpoints:    fileEndpoints,
-		PeerEndpoints:    peerEndpoints,
-		SystemEndpoints:  systemEndpoints,
+		config:            config,
+		logger:            logger,
+		rateLimiter:       rateLimiter,
+		analyticsService:  analyticsService,
+		analyticsHandler:  analyticsHandler,
+		monitoringService: monitoringService,
+		monitoringHandler: monitoringHandler,
+		FileEndpoints:     fileEndpoints,
+		PeerEndpoints:     peerEndpoints,
+		SystemEndpoints:   systemEndpoints,
 	}
 }
 
 func (s *Server) Start() error {
 	mux := http.NewServeMux()
 
-	// Apply middleware (analytics should be applied early to capture all requests)
+	// Apply middleware (monitoring and analytics should be applied early to capture all requests)
 	versionMiddleware := versioning.VersionMiddleware(s.config.VersionConfig)
 	rateLimitMiddleware := s.rateLimiter.Middleware()
 	analyticsMiddleware := analytics.Middleware(s.analyticsService, s.logger)
+	monitoringMiddleware := monitoring.Middleware(s.monitoringService, s.logger)
 	
 	handler := s.CORSMiddleware(
-		analyticsMiddleware(
-			versionMiddleware(
-				rateLimitMiddleware(
-					s.authMiddleware(
-						s.loggingMiddleware(mux))))))
+		monitoringMiddleware(
+			analyticsMiddleware(
+				versionMiddleware(
+					rateLimitMiddleware(
+						s.authMiddleware(
+							s.loggingMiddleware(mux)))))))
 
 	// API routes
 	api := http.NewServeMux()
@@ -122,6 +135,22 @@ func (s *Server) Start() error {
 	api.HandleFunc("GET /analytics/calls", s.analyticsHandler.HandleQueryAPICalls)
 	api.HandleFunc("GET /analytics/dashboard", s.analyticsHandler.HandleGetDashboard)
 
+	// Monitoring routes
+	api.HandleFunc("GET /monitoring/snapshot", s.monitoringHandler.HandleGetSnapshot)
+	api.HandleFunc("GET /monitoring/realtime", s.monitoringHandler.HandleGetRealTimeMetrics)
+	api.HandleFunc("GET /monitoring/response-time", s.monitoringHandler.HandleGetResponseTimeStats)
+	api.HandleFunc("GET /monitoring/throughput", s.monitoringHandler.HandleGetThroughputStats)
+	api.HandleFunc("GET /monitoring/endpoint", s.monitoringHandler.HandleGetEndpointPerformance)
+	api.HandleFunc("GET /monitoring/trend", s.monitoringHandler.HandleGetPerformanceTrend)
+	api.HandleFunc("GET /monitoring/report", s.monitoringHandler.HandleGetPerformanceReport)
+	api.HandleFunc("GET /monitoring/alerts", s.monitoringHandler.HandleGetAlerts)
+	api.HandleFunc("POST /monitoring/alerts/silence", s.monitoringHandler.HandleSilenceAlert)
+	api.HandleFunc("POST /monitoring/alerts/resolve", s.monitoringHandler.HandleResolveAlert)
+	api.HandleFunc("GET /monitoring/recommendations", s.monitoringHandler.HandleGetRecommendations)
+	api.HandleFunc("GET /monitoring/dashboard", s.monitoringHandler.HandleGetDashboard)
+	api.HandleFunc("GET /monitoring/health-score", s.monitoringHandler.HandleGetHealthScore)
+	api.HandleFunc("GET /monitoring/summary", s.monitoringHandler.HandleGetMetricsSummary)
+
 	// System routes
 	mux.HandleFunc("GET /health", s.SystemEndpoints.HandleHealth)
 	mux.HandleFunc("GET /metrics", s.SystemEndpoints.HandleMetrics)
@@ -142,7 +171,10 @@ func (s *Server) Start() error {
 		MaxHeaderBytes: s.config.MaxHeaderBytes,
 	}
 
-	s.logger.Info("Starting REST API server", "port", s.config.Port, "analytics_enabled", s.config.AnalyticsConfig.Enabled)
+	s.logger.Info("Starting REST API server",
+		"port", s.config.Port,
+		"analytics_enabled", s.config.AnalyticsConfig.Enabled,
+		"monitoring_enabled", s.config.MonitoringConfig.Enabled)
 	return s.httpServer.ListenAndServe()
 }
 
