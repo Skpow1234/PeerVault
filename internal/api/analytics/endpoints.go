@@ -248,7 +248,8 @@ func (h *Handler) HandleGetDashboard(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) parseTimeRange(r *http.Request) (time.Time, time.Time, error) {
 	// Check for period parameter (e.g., "24h", "7d", "30d")
 	if period := r.URL.Query().Get("period"); period != "" {
-		return GetTimeWindow(period)
+		start, end := GetTimeWindow(period)
+		return start, end, nil
 	}
 	
 	// Parse individual start and end times

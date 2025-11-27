@@ -135,7 +135,7 @@ type AnalyticsQuery struct {
 type AnalyticsSummary struct {
 	OverallMetrics    UsageMetrics          `json:"overall_metrics"`
 	TopEndpoints      []EndpointStats       `json:"top_endpoints"`
-	RecentTrends      []UsageTrend          `json:"recent_trends"`
+	RecentTrends      []*UsageTrend         `json:"recent_trends"`
 	ActiveUsers       int                   `json:"active_users"`
 	NewUsersToday     int                   `json:"new_users_today"`
 	SystemHealth      SystemHealth          `json:"system_health"`
