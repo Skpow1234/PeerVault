@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Skpow1234/Peervault/internal/api/analytics"
 	"github.com/Skpow1234/Peervault/internal/api/rest/endpoints"
 	"github.com/Skpow1234/Peervault/internal/api/rest/implementations"
 	"github.com/Skpow1234/Peervault/internal/api/rest/ratelimit"
@@ -13,25 +14,28 @@ import (
 )
 
 type Server struct {
-	config          *Config
-	logger          *slog.Logger
-	httpServer      *http.Server
-	rateLimiter     *ratelimit.RateLimiter
-	FileEndpoints   *endpoints.FileEndpoints
-	PeerEndpoints   *endpoints.PeerEndpoints
-	SystemEndpoints *endpoints.SystemEndpoints
+	config             *Config
+	logger             *slog.Logger
+	httpServer         *http.Server
+	rateLimiter        *ratelimit.RateLimiter
+	analyticsService   *analytics.Service
+	analyticsHandler   *analytics.Handler
+	FileEndpoints      *endpoints.FileEndpoints
+	PeerEndpoints      *endpoints.PeerEndpoints
+	SystemEndpoints    *endpoints.SystemEndpoints
 }
 
 type Config struct {
-	Port            string
-	ReadTimeout     time.Duration
-	WriteTimeout    time.Duration
-	MaxHeaderBytes  int
-	AllowedOrigins  []string
-	RateLimitPerMin int
-	AuthToken       string
-	VersionConfig   *versioning.VersionConfig
-	RateLimitConfig *ratelimit.RateLimitConfig
+	Port              string
+	ReadTimeout       time.Duration
+	WriteTimeout      time.Duration
+	MaxHeaderBytes    int
+	AllowedOrigins    []string
+	RateLimitPerMin   int
+	AuthToken         string
+	VersionConfig     *versioning.VersionConfig
+	RateLimitConfig   *ratelimit.RateLimitConfig
+	AnalyticsConfig   *analytics.Config
 }
 
 func DefaultConfig() *Config {
@@ -45,6 +49,7 @@ func DefaultConfig() *Config {
 		AuthToken:       "demo-token",
 		VersionConfig:   versioning.NewVersionConfig(),
 		RateLimitConfig: ratelimit.DefaultConfig(),
+		AnalyticsConfig: analytics.DefaultConfig(),
 	}
 }
 
@@ -57,28 +62,42 @@ func NewServer(config *Config, logger *slog.Logger) *Server {
 	// Initialize rate limiter
 	rateLimiter := ratelimit.NewRateLimiter(config.RateLimitConfig)
 
+	// Initialize analytics
+	analyticsStorage := analytics.NewMemoryStorage(config.AnalyticsConfig.MaxEntries, config.AnalyticsConfig.RetentionDays)
+	analyticsService := analytics.NewService(analyticsStorage, logger, config.AnalyticsConfig)
+	analyticsHandler := analytics.NewHandler(analyticsService, logger)
+
 	// Initialize endpoints
 	fileEndpoints := endpoints.NewFileEndpoints(fileService, logger)
 	peerEndpoints := endpoints.NewPeerEndpoints(peerService, logger)
 	systemEndpoints := endpoints.NewSystemEndpoints(systemService, logger)
 
 	return &Server{
-		config:          config,
-		logger:          logger,
-		rateLimiter:     rateLimiter,
-		FileEndpoints:   fileEndpoints,
-		PeerEndpoints:   peerEndpoints,
-		SystemEndpoints: systemEndpoints,
+		config:           config,
+		logger:           logger,
+		rateLimiter:      rateLimiter,
+		analyticsService: analyticsService,
+		analyticsHandler: analyticsHandler,
+		FileEndpoints:    fileEndpoints,
+		PeerEndpoints:    peerEndpoints,
+		SystemEndpoints:  systemEndpoints,
 	}
 }
 
 func (s *Server) Start() error {
 	mux := http.NewServeMux()
 
-	// Apply middleware
+	// Apply middleware (analytics should be applied early to capture all requests)
 	versionMiddleware := versioning.VersionMiddleware(s.config.VersionConfig)
 	rateLimitMiddleware := s.rateLimiter.Middleware()
-	handler := s.CORSMiddleware(versionMiddleware(rateLimitMiddleware(s.authMiddleware(s.loggingMiddleware(mux)))))
+	analyticsMiddleware := analytics.Middleware(s.analyticsService, s.logger)
+	
+	handler := s.CORSMiddleware(
+		analyticsMiddleware(
+			versionMiddleware(
+				rateLimitMiddleware(
+					s.authMiddleware(
+						s.loggingMiddleware(mux))))))
 
 	// API routes
 	api := http.NewServeMux()
@@ -92,6 +111,16 @@ func (s *Server) Start() error {
 	api.HandleFunc("GET /peers/get", s.PeerEndpoints.HandleGetPeer)
 	api.HandleFunc("POST /peers", s.PeerEndpoints.HandleAddPeer)
 	api.HandleFunc("DELETE /peers", s.PeerEndpoints.HandleRemovePeer)
+
+	// Analytics routes
+	api.HandleFunc("GET /analytics/summary", s.analyticsHandler.HandleGetSummary)
+	api.HandleFunc("GET /analytics/usage", s.analyticsHandler.HandleGetUsageMetrics)
+	api.HandleFunc("GET /analytics/endpoint", s.analyticsHandler.HandleGetEndpointStats)
+	api.HandleFunc("GET /analytics/user", s.analyticsHandler.HandleGetUserBehavior)
+	api.HandleFunc("GET /analytics/trends", s.analyticsHandler.HandleGetUsageTrends)
+	api.HandleFunc("GET /analytics/popularity", s.analyticsHandler.HandleGetPopularityMetrics)
+	api.HandleFunc("GET /analytics/calls", s.analyticsHandler.HandleQueryAPICalls)
+	api.HandleFunc("GET /analytics/dashboard", s.analyticsHandler.HandleGetDashboard)
 
 	// System routes
 	mux.HandleFunc("GET /health", s.SystemEndpoints.HandleHealth)
@@ -113,7 +142,7 @@ func (s *Server) Start() error {
 		MaxHeaderBytes: s.config.MaxHeaderBytes,
 	}
 
-	s.logger.Info("Starting REST API server", "port", s.config.Port)
+	s.logger.Info("Starting REST API server", "port", s.config.Port, "analytics_enabled", s.config.AnalyticsConfig.Enabled)
 	return s.httpServer.ListenAndServe()
 }
 
