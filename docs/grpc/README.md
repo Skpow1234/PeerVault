@@ -350,19 +350,19 @@ Protocol buffer generation runs in CI using containerized workflows.
 
 ## Status
 
-**Current Status**: 🚧 **In Development**
+**Current Status**: **In Development**
 
 The gRPC API is currently in development with the following status:
 
-- ✅ **Basic Structure**: Server framework and service definitions
-- ✅ **Type Definitions**: Protobuf message types
-- ✅ **Service Interfaces**: File, peer, and system service interfaces
-- 🚧 **Streaming Implementation**: Streaming operations in progress
-- 🚧 **Authentication**: Basic token-based auth implemented
-- 🚧 **Error Handling**: Standard gRPC error codes
-- 📋 **Documentation**: API documentation and examples
-- 📋 **Testing**: Integration and unit tests
-- 📋 **Client Libraries**: Multi-language client examples
+- **Basic Structure**: Server framework and service definitions
+- **Type Definitions**: Protobuf message types
+- **Service Interfaces**: File, peer, and system service interfaces
+- **Streaming Implementation**: Streaming operations in progress
+- **Authentication**: Basic token-based auth implemented
+- **Error Handling**: Standard gRPC error codes
+- **Documentation**: API documentation and examples
+- **Testing**: Integration and unit tests
+- **Client Libraries**: Multi-language client examples
 
 ## Roadmap
 

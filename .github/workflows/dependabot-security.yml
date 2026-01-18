@@ -48,18 +48,18 @@ jobs:
 
       - name: Run Go vulnerability check
         run: |
-          echo "🔍 Running Go vulnerability analysis..."
+          echo "Running Go vulnerability analysis..."
           go install golang.org/x/vuln/cmd/govulncheck@latest
           govulncheck ./... || true
 
       - name: Run Go security scan
         run: |
-          echo "🔒 Running Go security scan..."
+          echo "Running Go security scan..."
           # Install gosec using the working repository
           if go install github.com/cosmos/gosec/v2/cmd/gosec@latest 2>/dev/null; then
-            echo "✅ gosec installed successfully"
+            echo "gosec installed successfully"
           else
-            echo "⚠️ gosec installation failed, but continuing with other security tools"
+            echo "Warning: gosec installation failed, but continuing with other security tools"
           fi
 
           # Verify gosec installation and run scan
@@ -67,19 +67,19 @@ jobs:
             gosec -fmt json -out gosec-report.json ./... || true
             gosec ./... || true
           else
-            echo "⚠️ gosec not available, skipping Go security scan"
+            echo "Warning: gosec not available, skipping Go security scan"
           fi
 
       - name: Analyze Go dependencies
         run: |
-          echo "📦 Analyzing Go dependencies..."
+          echo "Analyzing Go dependencies..."
           go list -m all > dependencies.txt
           echo "Dependencies found:"
           cat dependencies.txt
 
       - name: Check for outdated dependencies
         run: |
-          echo "🔄 Checking for outdated dependencies..."
+          echo "Checking for outdated dependencies..."
           go list -u -m all 2>/dev/null | grep '\[' || echo "No outdated dependencies found"
 
       - name: Run Trivy vulnerability scanner
@@ -98,7 +98,7 @@ jobs:
 
       - name: Create security summary
         run: |
-          echo "📊 Creating security analysis summary..."
+          echo "Creating security analysis summary..."
           cat > security-summary.md << EOF
           # Security Analysis Summary
           
@@ -138,7 +138,7 @@ jobs:
       - name: Comment on issues (if any vulnerabilities found)
         if: failure()
         run: |
-          echo "⚠️ Security vulnerabilities detected!"
+          echo "Warning: Security vulnerabilities detected!"
           echo "Please review the security analysis results and address any issues found."
 
       - name: Create issue for critical vulnerabilities
@@ -146,7 +146,7 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
-            const title = `🚨 Security Analysis Detected Issues - ${new Date().toISOString().split('T')[0]}`;
+            const title = `Security Analysis Detected Issues - ${new Date().toISOString().split('T')[0]}`;
             const body = `
             ## Security Analysis Results
             
@@ -209,13 +209,13 @@ jobs:
 
       - name: Check Dependabot status
         run: |
-          echo "🤖 Checking Dependabot configuration..."
+          echo "Checking Dependabot configuration..."
           if [ -f ".github/dependabot.yml" ]; then
-            echo "✅ Dependabot configuration found"
+            echo "Dependabot configuration found"
             echo "Configuration:"
             cat .github/dependabot.yml
           else
-            echo "❌ No Dependabot configuration found"
+            echo "No Dependabot configuration found"
           fi
 
       - name: Monitor Dependabot alerts
@@ -240,7 +240,7 @@ jobs:
 
       - name: Create weekly dependency report
         run: |
-          echo "📈 Creating weekly dependency report..."
+          echo "Creating weekly dependency report..."
           cat > dependency-report.md << EOF
           # Weekly Dependency Report
           

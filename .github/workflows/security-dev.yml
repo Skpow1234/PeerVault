@@ -46,26 +46,26 @@ jobs:
           
           # Test compilation of security modules
           go build ./internal/auth/... || {
-            echo "❌ RBAC module compilation failed"
+            echo "Error: RBAC module compilation failed"
             exit 1
           }
           
           go build ./internal/audit/... || {
-            echo "❌ Audit module compilation failed"
+            echo "Error: Audit module compilation failed"
             exit 1
           }
           
           go build ./internal/privacy/... || {
-            echo "❌ Privacy module compilation failed"
+            echo "Error: Privacy module compilation failed"
             exit 1
           }
           
           go build ./internal/pki/... || {
-            echo "❌ PKI module compilation failed"
+            echo "Error: PKI module compilation failed"
             exit 1
           }
           
-          echo "✅ All security modules compile successfully"
+          echo "All security modules compile successfully"
 
       - name: Run security unit tests
         run: |
@@ -73,26 +73,26 @@ jobs:
           
           # Run tests for security modules
           go test -v -timeout=30s ./internal/auth/... || {
-            echo "❌ RBAC tests failed"
+            echo "Error: RBAC tests failed"
             exit 1
           }
           
           go test -v -timeout=30s ./internal/audit/... || {
-            echo "❌ Audit tests failed"
+            echo "Error: Audit tests failed"
             exit 1
           }
           
           go test -v -timeout=30s ./internal/privacy/... || {
-            echo "❌ Privacy tests failed"
+            echo "Error: Privacy tests failed"
             exit 1
           }
           
           go test -v -timeout=30s ./internal/pki/... || {
-            echo "❌ PKI tests failed"
+            echo "Error: PKI tests failed"
             exit 1
           }
           
-          echo "✅ All security unit tests passed"
+          echo "All security unit tests passed"
 
       - name: Test security tools
         run: |
@@ -108,7 +108,7 @@ jobs:
             echo "Compliance auditor test completed"
           }
           
-          echo "✅ Security tools are functional"
+          echo "Security tools are functional"
 
       - name: Validate security policies
         run: |
@@ -116,27 +116,27 @@ jobs:
           
           # Check if security policies exist and are valid YAML
           if [ ! -f "security/policies/access-control.yaml" ]; then
-            echo "❌ Access control policy missing"
+            echo "Error: Access control policy missing"
             exit 1
           fi
           
           if [ ! -f "security/policies/data-classification.yaml" ]; then
-            echo "❌ Data classification policy missing"
+            echo "Error: Data classification policy missing"
             exit 1
           fi
           
           # Validate YAML syntax
           python3 -c "import yaml; yaml.safe_load(open('security/policies/access-control.yaml'))" || {
-            echo "❌ Access control policy has invalid YAML syntax"
+            echo "Error: Access control policy has invalid YAML syntax"
             exit 1
           }
           
           python3 -c "import yaml; yaml.safe_load(open('security/policies/data-classification.yaml'))" || {
-            echo "❌ Data classification policy has invalid YAML syntax"
+            echo "Error: Data classification policy has invalid YAML syntax"
             exit 1
           }
           
-          echo "✅ Security policies are valid"
+          echo "Security policies are valid"
 
       - name: Check security documentation
         run: |
@@ -155,23 +155,23 @@ jobs:
           
           for doc in "${required_docs[@]}"; do
             if [ ! -f "$doc" ]; then
-              echo "❌ Required security documentation missing: $doc"
+              echo "Error: Required security documentation missing: $doc"
               exit 1
             fi
           done
           
-          echo "✅ Security documentation is complete"
+          echo "Security documentation is complete"
 
       - name: Security validation summary
         run: |
-          echo "🔒 Security Validation Summary"
+          echo "Security Validation Summary"
           echo "=============================="
           echo ""
-          echo "✅ Security modules compilation: PASSED"
-          echo "✅ Security unit tests: PASSED"
-          echo "✅ Security tools functionality: PASSED"
-          echo "✅ Security policies validation: PASSED"
-          echo "✅ Security documentation: PASSED"
+          echo "Security modules compilation: PASSED"
+          echo "Security unit tests: PASSED"
+          echo "Security tools functionality: PASSED"
+          echo "Security policies validation: PASSED"
+          echo "Security documentation: PASSED"
           echo ""
-          echo "🎉 All security validation checks passed!"
+          echo "All security validation checks passed!"
           echo "The security features are ready for integration."

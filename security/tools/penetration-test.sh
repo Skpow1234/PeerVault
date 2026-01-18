@@ -20,7 +20,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
-echo -e "${BLUE}🔐 Starting PeerVault Penetration Testing${NC}"
+echo -e "${BLUE}Starting PeerVault Penetration Testing${NC}"
 echo "Project Root: $PROJECT_ROOT"
 echo "Output Directory: $OUTPUT_DIR"
 echo "Timestamp: $TIMESTAMP"
@@ -42,11 +42,11 @@ command_exists() {
 print_section "Network Security Testing"
 
 if command_exists nmap; then
-    echo -e "${GREEN}✓ Running network port scan${NC}"
+    echo -e "${GREEN}Running network port scan${NC}"
     # Scan common ports (this is a demo - in real testing, you'd scan actual targets)
     nmap -sS -O -sV --script vuln -oN "$OUTPUT_DIR/nmap_scan_$TIMESTAMP.txt" 127.0.0.1 || true
 else
-    echo -e "${YELLOW}⚠ nmap not found, skipping network scan${NC}"
+    echo -e "${YELLOW}Warning: nmap not found, skipping network scan${NC}"
     echo "Install with: apt-get install nmap (Ubuntu/Debian) or brew install nmap (macOS)"
 fi
 
@@ -54,27 +54,27 @@ fi
 print_section "Web Application Security Testing"
 
 if command_exists nikto; then
-    echo -e "${GREEN}✓ Running Nikto web vulnerability scanner${NC}"
+    echo -e "${GREEN}Running Nikto web vulnerability scanner${NC}"
     # This would scan actual web endpoints
     echo "Nikto scan would be performed on web endpoints" > "$OUTPUT_DIR/nikto_scan_$TIMESTAMP.txt"
 else
-    echo -e "${YELLOW}⚠ Nikto not found, skipping web vulnerability scan${NC}"
+    echo -e "${YELLOW}Warning: Nikto not found, skipping web vulnerability scan${NC}"
     echo "Install with: apt-get install nikto (Ubuntu/Debian)"
 fi
 
 if command_exists sqlmap; then
-    echo -e "${GREEN}✓ Running SQLMap SQL injection test${NC}"
+    echo -e "${GREEN}Running SQLMap SQL injection test${NC}"
     # This would test for SQL injection vulnerabilities
     echo "SQLMap scan would be performed on database endpoints" > "$OUTPUT_DIR/sqlmap_scan_$TIMESTAMP.txt"
 else
-    echo -e "${YELLOW}⚠ SQLMap not found, skipping SQL injection test${NC}"
+    echo -e "${YELLOW}Warning: SQLMap not found, skipping SQL injection test${NC}"
     echo "Install with: pip install sqlmap"
 fi
 
 # 3. Authentication Testing
 print_section "Authentication Testing"
 
-echo -e "${GREEN}✓ Testing authentication mechanisms${NC}"
+echo -e "${GREEN}Testing authentication mechanisms${NC}"
 cat > "$OUTPUT_DIR/auth_test_$TIMESTAMP.txt" << EOF
 Authentication Security Test Results
 ====================================
@@ -90,11 +90,11 @@ Tests Performed:
 5. Account Lockout Mechanisms
 
 Results:
-- Password Policy: ✅ Implemented
-- Brute Force Protection: ✅ Implemented
-- Session Management: ✅ Secure
-- MFA Support: ✅ Available
-- Account Lockout: ✅ Implemented
+- Password Policy: Implemented
+- Brute Force Protection: Implemented
+- Session Management: Secure
+- MFA Support: Available
+- Account Lockout: Implemented
 
 Recommendations:
 - Regular password policy updates
@@ -106,7 +106,7 @@ EOF
 # 4. Authorization Testing
 print_section "Authorization Testing"
 
-echo -e "${GREEN}✓ Testing authorization mechanisms${NC}"
+echo -e "${GREEN}Testing authorization mechanisms${NC}"
 cat > "$OUTPUT_DIR/authz_test_$TIMESTAMP.txt" << EOF
 Authorization Security Test Results
 ===================================
@@ -122,11 +122,11 @@ Tests Performed:
 5. API Endpoint Protection
 
 Results:
-- RBAC Implementation: ✅ Complete
-- ACL Support: ✅ Implemented
-- Privilege Escalation: ✅ Protected
-- Resource Access: ✅ Validated
-- API Protection: ✅ Secured
+- RBAC Implementation: Complete
+- ACL Support: Implemented
+- Privilege Escalation: Protected
+- Resource Access: Validated
+- API Protection: Secured
 
 Recommendations:
 - Regular access reviews
@@ -138,7 +138,7 @@ EOF
 # 5. Data Protection Testing
 print_section "Data Protection Testing"
 
-echo -e "${GREEN}✓ Testing data protection mechanisms${NC}"
+echo -e "${GREEN}Testing data protection mechanisms${NC}"
 cat > "$OUTPUT_DIR/data_protection_test_$TIMESTAMP.txt" << EOF
 Data Protection Security Test Results
 =====================================
@@ -154,11 +154,11 @@ Tests Performed:
 5. Data Anonymization
 
 Results:
-- Encryption at Rest: ✅ AES-256
-- Encryption in Transit: ✅ TLS 1.3
-- Data Classification: ✅ Implemented
-- Retention Policies: ✅ Configured
-- Data Anonymization: ✅ Available
+- Encryption at Rest: AES-256
+- Encryption in Transit: TLS 1.3
+- Data Classification: Implemented
+- Retention Policies: Configured
+- Data Anonymization: Available
 
 Recommendations:
 - Regular encryption key rotation
@@ -171,15 +171,15 @@ EOF
 print_section "API Security Testing"
 
 if command_exists postman; then
-    echo -e "${GREEN}✓ Running API security tests${NC}"
+    echo -e "${GREEN}Running API security tests${NC}"
     # This would run Postman security tests
     echo "Postman API security tests would be performed" > "$OUTPUT_DIR/postman_api_test_$TIMESTAMP.txt"
 else
-    echo -e "${YELLOW}⚠ Postman not found, skipping API security tests${NC}"
+    echo -e "${YELLOW}Warning: Postman not found, skipping API security tests${NC}"
     echo "Install Postman for comprehensive API testing"
 fi
 
-echo -e "${GREEN}✓ Testing API security manually${NC}"
+echo -e "${GREEN}Testing API security manually${NC}"
 cat > "$OUTPUT_DIR/api_security_test_$TIMESTAMP.txt" << EOF
 API Security Test Results
 =========================
@@ -196,12 +196,12 @@ Tests Performed:
 6. API Versioning Security
 
 Results:
-- Input Validation: ✅ Implemented
-- Authentication: ✅ Required
-- Authorization: ✅ Enforced
-- Rate Limiting: ✅ Configured
-- CORS: ✅ Properly configured
-- Versioning: ✅ Secure
+- Input Validation: Implemented
+- Authentication: Required
+- Authorization: Enforced
+- Rate Limiting: Configured
+- CORS: Properly configured
+- Versioning: Secure
 
 Recommendations:
 - Implement API gateway
@@ -213,7 +213,7 @@ EOF
 # 7. Infrastructure Security Testing
 print_section "Infrastructure Security Testing"
 
-echo -e "${GREEN}✓ Testing infrastructure security${NC}"
+echo -e "${GREEN}Testing infrastructure security${NC}"
 cat > "$OUTPUT_DIR/infrastructure_test_$TIMESTAMP.txt" << EOF
 Infrastructure Security Test Results
 ====================================
@@ -229,11 +229,11 @@ Tests Performed:
 5. Log Monitoring
 
 Results:
-- Container Security: ✅ Hardened
-- Network Segmentation: ✅ Implemented
-- Firewall: ✅ Configured
-- IDS: ✅ Deployed
-- Log Monitoring: ✅ Active
+- Container Security: Hardened
+- Network Segmentation: Implemented
+- Firewall: Configured
+- IDS: Deployed
+- Log Monitoring: Active
 
 Recommendations:
 - Regular container updates
@@ -246,7 +246,7 @@ EOF
 # 8. Social Engineering Testing
 print_section "Social Engineering Testing"
 
-echo -e "${GREEN}✓ Testing social engineering resistance${NC}"
+echo -e "${GREEN}Testing social engineering resistance${NC}"
 cat > "$OUTPUT_DIR/social_engineering_test_$TIMESTAMP.txt" << EOF
 Social Engineering Security Test Results
 ========================================
@@ -262,11 +262,11 @@ Tests Performed:
 5. Information Disclosure
 
 Results:
-- Phishing Resistance: ✅ Good
-- Security Training: ✅ Regular
-- Incident Response: ✅ Documented
-- Employee Practices: ✅ Secure
-- Information Control: ✅ Effective
+- Phishing Resistance: Good
+- Security Training: Regular
+- Incident Response: Documented
+- Employee Practices: Secure
+- Information Control: Effective
 
 Recommendations:
 - Regular phishing simulations
@@ -279,7 +279,7 @@ EOF
 # 9. Compliance Testing
 print_section "Compliance Testing"
 
-echo -e "${GREEN}✓ Testing compliance requirements${NC}"
+echo -e "${GREEN}Testing compliance requirements${NC}"
 cat > "$OUTPUT_DIR/compliance_test_$TIMESTAMP.txt" << EOF
 Compliance Security Test Results
 ================================
@@ -295,11 +295,11 @@ Standards Tested:
 5. PCI DSS
 
 Results:
-- SOC 2: ✅ Compliant
-- ISO 27001: ✅ Compliant
-- GDPR: ✅ Compliant
-- HIPAA: ✅ Compliant
-- PCI DSS: ✅ Compliant
+- SOC 2: Compliant
+- ISO 27001: Compliant
+- GDPR: Compliant
+- HIPAA: Compliant
+- PCI DSS: Compliant
 
 Recommendations:
 - Regular compliance audits
@@ -330,15 +330,15 @@ This report summarizes the results of a comprehensive penetration test conducted
 
 | Security Domain | Status | Risk Level | Notes |
 |----------------|--------|------------|-------|
-| Network Security | ✅ Pass | Low | No critical vulnerabilities found |
-| Web Application Security | ✅ Pass | Low | Security controls properly implemented |
-| Authentication | ✅ Pass | Low | Strong authentication mechanisms |
-| Authorization | ✅ Pass | Low | Proper access controls in place |
-| Data Protection | ✅ Pass | Low | Encryption and protection implemented |
-| API Security | ✅ Pass | Low | APIs properly secured |
-| Infrastructure Security | ✅ Pass | Low | Infrastructure hardened |
-| Social Engineering | ✅ Pass | Medium | Good resistance to social engineering |
-| Compliance | ✅ Pass | Low | Meets all compliance requirements |
+| Network Security | Pass | Low | No critical vulnerabilities found |
+| Web Application Security | Pass | Low | Security controls properly implemented |
+| Authentication | Pass | Low | Strong authentication mechanisms |
+| Authorization | Pass | Low | Proper access controls in place |
+| Data Protection | Pass | Low | Encryption and protection implemented |
+| API Security | Pass | Low | APIs properly secured |
+| Infrastructure Security | Pass | Low | Infrastructure hardened |
+| Social Engineering | Pass | Medium | Good resistance to social engineering |
+| Compliance | Pass | Low | Meets all compliance requirements |
 
 ## Detailed Findings
 
@@ -415,9 +415,9 @@ For questions about this report or security testing, contact the security team.
 *This report contains sensitive security information and should be handled according to your organization's security policies.*
 EOF
 
-echo -e "${GREEN}✅ Penetration testing completed successfully!${NC}"
-echo -e "${BLUE}📊 Penetration test report: $REPORT_FILE${NC}"
-echo -e "${BLUE}📁 All test results saved to: $OUTPUT_DIR${NC}"
+echo -e "${GREEN}Penetration testing completed successfully!${NC}"
+echo -e "${BLUE}Penetration test report: $REPORT_FILE${NC}"
+echo -e "${BLUE}All test results saved to: $OUTPUT_DIR${NC}"
 
 # Display summary
 echo ""
@@ -428,5 +428,5 @@ echo "Total test files generated: $(ls -1 "$OUTPUT_DIR"/*_test_$TIMESTAMP.* 2>/d
 echo "Main report: $(basename "$REPORT_FILE")"
 echo "Output directory: $OUTPUT_DIR"
 echo ""
-echo -e "${GREEN}🎉 Penetration testing completed!${NC}"
-echo -e "${YELLOW}⚠ Note: This is a demonstration script. Real penetration testing requires proper authorization and should be conducted by qualified security professionals.${NC}"
+echo -e "${GREEN}Penetration testing completed!${NC}"
+echo -e "${YELLOW}Warning: This is a demonstration script. Real penetration testing requires proper authorization and should be conducted by qualified security professionals.${NC}"

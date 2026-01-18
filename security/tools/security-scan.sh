@@ -21,7 +21,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
-echo -e "${BLUE}🔍 Starting PeerVault Security Scan${NC}"
+echo -e "${BLUE}Starting PeerVault Security Scan${NC}"
 echo "Project Root: $PROJECT_ROOT"
 echo "Scan Directory: $SCAN_DIR"
 echo "Output Directory: $OUTPUT_DIR"
@@ -44,11 +44,11 @@ command_exists() {
 print_section "Static Code Analysis"
 
 if command_exists semgrep; then
-    echo -e "${GREEN}✓ Running semgrep security scanner${NC}"
+    echo -e "${GREEN}Running semgrep security scanner${NC}"
     semgrep --config auto --json -o "$OUTPUT_DIR/semgrep_$TIMESTAMP.json" "$SCAN_DIR" || true
     semgrep --config auto --sarif -o "$OUTPUT_DIR/semgrep_$TIMESTAMP.sarif" "$SCAN_DIR" || true
 else
-    echo -e "${YELLOW}⚠ semgrep not found, skipping static security scan${NC}"
+    echo -e "${YELLOW}Warning: semgrep not found, skipping static security scan${NC}"
     echo "Install with: pip install semgrep"
 fi
 
@@ -57,30 +57,30 @@ fi
 print_section "Dependency Scanning"
 
 if command_exists govulncheck; then
-    echo -e "${GREEN}✓ Running Go vulnerability check${NC}"
+    echo -e "${GREEN}Running Go vulnerability check${NC}"
     govulncheck -json "$SCAN_DIR" > "$OUTPUT_DIR/govulncheck_$TIMESTAMP.json" 2>&1 || true
 else
-    echo -e "${YELLOW}⚠ govulncheck not found, skipping Go vulnerability check${NC}"
+    echo -e "${YELLOW}Warning: govulncheck not found, skipping Go vulnerability check${NC}"
     echo "Install with: go install golang.org/x/vuln/cmd/govulncheck@latest"
 fi
 
 if command_exists npm; then
-    echo -e "${GREEN}✓ Running npm audit${NC}"
+    echo -e "${GREEN}Running npm audit${NC}"
     cd "$SCAN_DIR" && npm audit --json > "$OUTPUT_DIR/npm_audit_$TIMESTAMP.json" 2>&1 || true
 else
-    echo -e "${YELLOW}⚠ npm not found, skipping npm audit${NC}"
+    echo -e "${YELLOW}Warning: npm not found, skipping npm audit${NC}"
 fi
 
 # 3. Container Security
 print_section "Container Security"
 
 if command_exists trivy; then
-    echo -e "${GREEN}✓ Running Trivy container scan${NC}"
+    echo -e "${GREEN}Running Trivy container scan${NC}"
     if [ -f "$SCAN_DIR/Dockerfile" ]; then
         trivy image --format json --output "$OUTPUT_DIR/trivy_dockerfile_$TIMESTAMP.json" "$SCAN_DIR" || true
     fi
 else
-    echo -e "${YELLOW}⚠ Trivy not found, skipping container security scan${NC}"
+    echo -e "${YELLOW}Warning: Trivy not found, skipping container security scan${NC}"
     echo "Install with: https://aquasecurity.github.io/trivy/"
 fi
 
@@ -88,18 +88,18 @@ fi
 print_section "Secrets Detection"
 
 if command_exists detect-secrets; then
-    echo -e "${GREEN}✓ Running detect-secrets${NC}"
+    echo -e "${GREEN}Running detect-secrets${NC}"
     detect-secrets scan --all-files --baseline "$OUTPUT_DIR/secrets_baseline_$TIMESTAMP.json" "$SCAN_DIR" || true
 else
-    echo -e "${YELLOW}⚠ detect-secrets not found, skipping secrets detection${NC}"
+    echo -e "${YELLOW}Warning: detect-secrets not found, skipping secrets detection${NC}"
     echo "Install with: pip install detect-secrets"
 fi
 
 if command_exists trufflehog; then
-    echo -e "${GREEN}✓ Running TruffleHog${NC}"
+    echo -e "${GREEN}Running TruffleHog${NC}"
     trufflehog filesystem --directory "$SCAN_DIR" --json --output "$OUTPUT_DIR/trufflehog_$TIMESTAMP.json" || true
 else
-    echo -e "${YELLOW}⚠ TruffleHog not found, skipping secrets detection${NC}"
+    echo -e "${YELLOW}Warning: TruffleHog not found, skipping secrets detection${NC}"
     echo "Install with: go install github.com/trufflesecurity/trufflehog/v3@latest"
 fi
 
@@ -107,17 +107,17 @@ fi
 print_section "License Compliance"
 
 if command_exists go-licenses; then
-    echo -e "${GREEN}✓ Running go-licenses check${NC}"
+    echo -e "${GREEN}Running go-licenses check${NC}"
     go-licenses report "$SCAN_DIR" > "$OUTPUT_DIR/go_licenses_$TIMESTAMP.txt" 2>&1 || true
 else
-    echo -e "${YELLOW}⚠ go-licenses not found, skipping license check${NC}"
+    echo -e "${YELLOW}Warning: go-licenses not found, skipping license check${NC}"
     echo "Install with: go install github.com/google/go-licenses@latest"
 fi
 
 # 6. Custom Security Checks
 print_section "Custom Security Checks"
 
-echo -e "${GREEN}✓ Running custom PeerVault security scanner${NC}"
+echo -e "${GREEN}Running custom PeerVault security scanner${NC}"
 cd "$PROJECT_ROOT"
 go run ./security/audit/scanner.go "$SCAN_DIR" > "$OUTPUT_DIR/custom_scan_$TIMESTAMP.json" 2>&1 || true
 
@@ -136,24 +136,24 @@ cat > "$SUMMARY_FILE" << EOF
 ## Scan Results
 
 ### Static Code Analysis
-- **semgrep:** $([ -f "$OUTPUT_DIR/semgrep_$TIMESTAMP.json" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
+- **semgrep:** $([ -f "$OUTPUT_DIR/semgrep_$TIMESTAMP.json" ] && echo "Completed" || echo "Failed/Skipped")
 
 ### Dependency Scanning
-- **govulncheck:** $([ -f "$OUTPUT_DIR/govulncheck_$TIMESTAMP.json" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
-- **npm audit:** $([ -f "$OUTPUT_DIR/npm_audit_$TIMESTAMP.json" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
+- **govulncheck:** $([ -f "$OUTPUT_DIR/govulncheck_$TIMESTAMP.json" ] && echo "Completed" || echo "Failed/Skipped")
+- **npm audit:** $([ -f "$OUTPUT_DIR/npm_audit_$TIMESTAMP.json" ] && echo "Completed" || echo "Failed/Skipped")
 
 ### Container Security
-- **Trivy:** $([ -f "$OUTPUT_DIR/trivy_dockerfile_$TIMESTAMP.json" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
+- **Trivy:** $([ -f "$OUTPUT_DIR/trivy_dockerfile_$TIMESTAMP.json" ] && echo "Completed" || echo "Failed/Skipped")
 
 ### Secrets Detection
-- **detect-secrets:** $([ -f "$OUTPUT_DIR/secrets_baseline_$TIMESTAMP.json" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
-- **TruffleHog:** $([ -f "$OUTPUT_DIR/trufflehog_$TIMESTAMP.json" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
+- **detect-secrets:** $([ -f "$OUTPUT_DIR/secrets_baseline_$TIMESTAMP.json" ] && echo "Completed" || echo "Failed/Skipped")
+- **TruffleHog:** $([ -f "$OUTPUT_DIR/trufflehog_$TIMESTAMP.json" ] && echo "Completed" || echo "Failed/Skipped")
 
 ### License Compliance
-- **go-licenses:** $([ -f "$OUTPUT_DIR/go_licenses_$TIMESTAMP.txt" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
+- **go-licenses:** $([ -f "$OUTPUT_DIR/go_licenses_$TIMESTAMP.txt" ] && echo "Completed" || echo "Failed/Skipped")
 
 ### Custom Security Checks
-- **PeerVault Scanner:** $([ -f "$OUTPUT_DIR/custom_scan_$TIMESTAMP.json" ] && echo "✅ Completed" || echo "❌ Failed/Skipped")
+- **PeerVault Scanner:** $([ -f "$OUTPUT_DIR/custom_scan_$TIMESTAMP.json" ] && echo "Completed" || echo "Failed/Skipped")
 
 ## Files Generated
 
@@ -195,9 +195,9 @@ pip install semgrep detect-secrets
 
 EOF
 
-echo -e "${GREEN}✅ Security scan completed successfully!${NC}"
-echo -e "${BLUE}📊 Summary report: $SUMMARY_FILE${NC}"
-echo -e "${BLUE}📁 All reports saved to: $OUTPUT_DIR${NC}"
+echo -e "${GREEN}Security scan completed successfully!${NC}"
+echo -e "${BLUE}Summary report: $SUMMARY_FILE${NC}"
+echo -e "${BLUE}All reports saved to: $OUTPUT_DIR${NC}"
 
 # Display summary
 echo ""
@@ -208,4 +208,4 @@ echo "Total files generated: $(ls -1 "$OUTPUT_DIR"/*_$TIMESTAMP.* 2>/dev/null | 
 echo "Summary report: $(basename "$SUMMARY_FILE")"
 echo "Output directory: $OUTPUT_DIR"
 echo ""
-echo -e "${GREEN}🎉 Security scan completed!${NC}"
+echo -e "${GREEN}Security scan completed!${NC}"

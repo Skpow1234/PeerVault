@@ -139,12 +139,12 @@ Analytics tests run in CI using containerized workflows.
 
 ## Resources
 
-- 📖 [Full Documentation](./README.md)
-- 💡 [Examples](./examples.md)
-- 🧪 [Testing Guide](./testing.md)
-- 🔧 [Integration Guide](./INTEGRATION.md)
+- [Full Documentation](./README.md)
+- [Examples](./examples.md)
+- [Testing Guide](./testing.md)
+- [Integration Guide](./INTEGRATION.md)
 
 ---
 
-**That's it!** You now have comprehensive API analytics running. Start exploring your API usage patterns! 🎉
+**That's it!** You now have comprehensive API analytics running. Start exploring your API usage patterns!
 

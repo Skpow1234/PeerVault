@@ -2,7 +2,7 @@
 
 Welcome to the PeerVault Developer Portal! This is your comprehensive resource for building applications with PeerVault's distributed file storage system.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Get Started in 5 Minutes
 
@@ -24,7 +24,7 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 - [Python SDK](sdk/python/) - Python client library
 - [Java SDK](sdk/java/) - Java client library
 
-## 📚 Documentation
+## Documentation
 
 ### API Reference
 
@@ -48,7 +48,7 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 - [Error Handling](guides/error-handling.md) - Robust error handling patterns
 - [Monitoring & Observability](guides/monitoring.md) - Monitor your applications
 
-## 🛠️ Tools and Resources
+## Tools and Resources
 
 ### Development Tools
 
@@ -71,7 +71,7 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/peervault) - Q&A and support
 - [Blog](https://blog.peervault.com) - Latest news and tutorials
 
-## 🎯 Use Cases
+## Use Cases
 
 ### File Storage and Sharing
 
@@ -101,7 +101,7 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 - [Event Streaming](use-cases/streaming.md) - Real-time event processing
 - [Compliance](use-cases/compliance.md) - Regulatory compliance and auditing
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Setup
 
@@ -124,7 +124,7 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 - [Resource Limits](config/resources.md) - Resource allocation
 - [Monitoring Setup](config/monitoring.md) - Performance monitoring
 
-## 📊 Monitoring and Observability
+## Monitoring and Observability
 
 ### Metrics and Monitoring
 
@@ -163,7 +163,7 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 - [Roadmap](releases/roadmap.md) - Future plans
 - [Security Advisories](releases/security.md) - Security updates
 
-## 📈 What's New
+## What's New
 
 ### Latest Updates
 
@@ -180,7 +180,7 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 
 ---
 
-## 🎉 Ready to Get Started?
+## Ready to Get Started?
 
 1. **Choose your integration method** - REST, GraphQL, gRPC, or WebSocket
 2. **Install the appropriate SDK** - Go, JavaScript, Python, or Java

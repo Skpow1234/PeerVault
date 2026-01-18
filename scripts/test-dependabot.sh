@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🔍 Testing Dependabot Configuration"
+echo "Testing Dependabot Configuration"
 echo "=================================="
 
 # Colors for output
@@ -20,13 +20,13 @@ print_status() {
     local message=$2
     case $status in
         "success")
-            echo -e "${GREEN}✅ $message${NC}"
+            echo -e "${GREEN}$message${NC}"
             ;;
         "warning")
-            echo -e "${YELLOW}⚠️  $message${NC}"
+            echo -e "${YELLOW}Warning: $message${NC}"
             ;;
         "error")
-            echo -e "${RED}❌ $message${NC}"
+            echo -e "${RED}Error: $message${NC}"
             ;;
         "info")
             echo -e "ℹ️  $message"
@@ -182,7 +182,7 @@ fi
 
 # Summary
 echo ""
-echo "📊 Summary"
+echo "Summary"
 echo "=========="
 echo "Dependabot configuration test completed."
 echo ""

@@ -21,7 +21,7 @@ class MQTTTestClient:
     def on_connect(self, client, userdata, flags, rc):
         """Callback for when the client connects to the broker"""
         if rc == 0:
-            print(f"✅ Connected to MQTT broker at {self.broker_host}:{self.broker_port}")
+            print(f"Connected to MQTT broker at {self.broker_host}:{self.broker_port}")
             self.connected = True
             
             # Subscribe to test topics
@@ -30,11 +30,11 @@ class MQTTTestClient:
             client.subscribe("$SYS/#", qos=0)
             
         else:
-            print(f"❌ Failed to connect to broker. Return code: {rc}")
+            print(f"Failed to connect to broker. Return code: {rc}")
             
     def on_disconnect(self, client, userdata, rc):
         """Callback for when the client disconnects from the broker"""
-        print(f"🔌 Disconnected from broker. Return code: {rc}")
+        print(f"Disconnected from broker. Return code: {rc}")
         self.connected = False
         
     def on_message(self, client, userdata, msg):
@@ -46,20 +46,20 @@ class MQTTTestClient:
             # Try to parse as JSON
             try:
                 data = json.loads(payload)
-                print(f"📨 {topic} -> {json.dumps(data, indent=2)}")
+                print(f"{topic} -> {json.dumps(data, indent=2)}")
             except json.JSONDecodeError:
-                print(f"📨 {topic} -> {payload}")
+                print(f"{topic} -> {payload}")
                 
         except Exception as e:
-            print(f"❌ Error processing message: {e}")
+            print(f"Error processing message: {e}")
             
     def on_publish(self, client, userdata, mid):
         """Callback for when a message is published"""
-        print(f"📤 Message {mid} published successfully")
+        print(f"Message {mid} published successfully")
         
     def on_subscribe(self, client, userdata, mid, granted_qos):
         """Callback for when a subscription is successful"""
-        print(f"📋 Subscribed to topic. QoS: {granted_qos}")
+        print(f"Subscribed to topic. QoS: {granted_qos}")
         
     def connect(self):
         """Connect to the MQTT broker"""
@@ -76,7 +76,7 @@ class MQTTTestClient:
             self.client.on_subscribe = self.on_subscribe
             
             # Connect to broker
-            print(f"🔗 Connecting to MQTT broker at {self.broker_host}:{self.broker_port}...")
+            print(f"Connecting to MQTT broker at {self.broker_host}:{self.broker_port}...")
             self.client.connect(self.broker_host, self.broker_port, 60)
             
             # Start network loop
@@ -92,7 +92,7 @@ class MQTTTestClient:
                 raise Exception("Connection timeout")
                 
         except Exception as e:
-            print(f"❌ Failed to connect: {e}")
+            print(f"Failed to connect: {e}")
             return False
             
         return True
@@ -102,12 +102,12 @@ class MQTTTestClient:
         if self.client:
             self.client.loop_stop()
             self.client.disconnect()
-            print("🔌 Disconnected from broker")
+        print("Disconnected from broker")
             
     def publish_test_message(self, topic, message, qos=1, retain=False):
         """Publish a test message"""
         if not self.connected:
-            print("❌ Not connected to broker")
+            print("Not connected to broker")
             return False
             
         try:
@@ -119,19 +119,19 @@ class MQTTTestClient:
             result = self.client.publish(topic, payload, qos=qos, retain=retain)
             
             if result.rc == mqtt.MQTT_ERR_SUCCESS:
-                print(f"📤 Published to {topic}: {payload}")
+                print(f"Published to {topic}: {payload}")
                 return True
             else:
-                print(f"❌ Failed to publish: {result.rc}")
+                print(f"Failed to publish: {result.rc}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Error publishing message: {e}")
+            print(f"Error publishing message: {e}")
             return False
             
     def run_interactive_test(self):
         """Run interactive test mode"""
-        print("\n🎮 Interactive MQTT Test Mode")
+        print("\nInteractive MQTT Test Mode")
         print("Commands:")
         print("  pub <topic> <message> [qos] [retain] - Publish message")
         print("  sub <topic> [qos] - Subscribe to topic")
@@ -179,12 +179,12 @@ class MQTTTestClient:
                             pass
                             
                     self.client.subscribe(topic, qos)
-                    print(f"📋 Subscribed to {topic} with QoS {qos}")
+                    print(f"Subscribed to {topic} with QoS {qos}")
                     
                 elif command[0] == "unsub" and len(command) >= 2:
                     topic = command[1]
                     self.client.unsubscribe(topic)
-                    print(f"📋 Unsubscribed from {topic}")
+                    print(f"Unsubscribed from {topic}")
                     
                 elif command[0] == "sensor":
                     sensor_data = {
@@ -210,19 +210,19 @@ class MQTTTestClient:
                     self.publish_test_message(topic, status_data, qos=1, retain=True)
                     
                 else:
-                    print("❌ Unknown command. Type 'quit' to exit.")
+                    print("Unknown command. Type 'quit' to exit.")
                     
             except KeyboardInterrupt:
                 break
             except Exception as e:
-                print(f"❌ Error: {e}")
+                print(f"Error: {e}")
                 
     def run_automated_test(self):
         """Run automated test sequence"""
-        print("\n🤖 Running automated MQTT test sequence...")
+        print("\nRunning automated MQTT test sequence...")
         
         # Test 1: Basic publish/subscribe
-        print("\n📋 Test 1: Basic Publish/Subscribe")
+        print("\nTest 1: Basic Publish/Subscribe")
         test_message = {
             "test": "basic_pubsub",
             "message": "Hello MQTT!",
@@ -232,7 +232,7 @@ class MQTTTestClient:
         time.sleep(1)
         
         # Test 2: QoS levels
-        print("\n📋 Test 2: QoS Levels")
+        print("\nTest 2: QoS Levels")
         for qos in [0, 1, 2]:
             qos_message = {
                 "test": "qos_levels",
@@ -244,7 +244,7 @@ class MQTTTestClient:
             time.sleep(0.5)
             
         # Test 3: Retained messages
-        print("\n📋 Test 3: Retained Messages")
+        print("\nTest 3: Retained Messages")
         retained_message = {
             "test": "retained_message",
             "message": "This message will be retained",
@@ -254,7 +254,7 @@ class MQTTTestClient:
         time.sleep(1)
         
         # Test 4: Sensor data simulation
-        print("\n📋 Test 4: Sensor Data Simulation")
+        print("\nTest 4: Sensor Data Simulation")
         for i in range(5):
             sensor_data = {
                 "device_id": f"sensor_{i+1}",
@@ -269,7 +269,7 @@ class MQTTTestClient:
             time.sleep(0.5)
             
         # Test 5: Large message
-        print("\n📋 Test 5: Large Message")
+        print("\nTest 5: Large Message")
         large_data = {
             "test": "large_message",
             "data": "x" * 1000,  # 1KB of data
@@ -278,11 +278,11 @@ class MQTTTestClient:
         self.publish_test_message("test/large/data", large_data, qos=1)
         time.sleep(1)
         
-        print("\n✅ Automated test sequence completed!")
+        print("\nAutomated test sequence completed!")
         
     def signal_handler(self, signum, frame):
         """Handle interrupt signals"""
-        print("\n🛑 Received interrupt signal. Shutting down...")
+        print("\nReceived interrupt signal. Shutting down...")
         self.running = False
         self.disconnect()
         sys.exit(0)
@@ -308,7 +308,7 @@ def main():
     
     # Connect to broker
     if not client.connect():
-        print("❌ Failed to connect to broker. Exiting.")
+        print("Failed to connect to broker. Exiting.")
         sys.exit(1)
         
     client.running = True

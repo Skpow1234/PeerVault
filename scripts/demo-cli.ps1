@@ -1,7 +1,7 @@
 # PeerVault CLI Demo Script
 # This script demonstrates the CLI functionality
 
-Write-Host "🚀 PeerVault CLI Demo" -ForegroundColor Green
+Write-Host "PeerVault CLI Demo" -ForegroundColor Green
 Write-Host "====================" -ForegroundColor Green
 Write-Host ""
 
@@ -9,7 +9,7 @@ Write-Host ""
 if (-not (Test-Path "bin/peervault-cli.exe")) {
     Write-Host "Building CLI..." -ForegroundColor Yellow
     go build -o bin/peervault-cli.exe ./cmd/peervault-cli
-    Write-Host "✓ CLI built successfully" -ForegroundColor Green
+    Write-Host "CLI built successfully" -ForegroundColor Green
 }
 
 Write-Host "Starting PeerVault CLI Demo..." -ForegroundColor Blue

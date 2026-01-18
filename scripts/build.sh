@@ -17,24 +17,24 @@ case $TARGET in
     "main")
         echo "Building main application..."
         go build -o bin/peervault ./cmd/peervault
-        echo "✓ Main application built successfully"
+        echo "Main application built successfully"
         ;;
     "node")
         echo "Building node binary..."
         go build -o bin/peervault-node ./cmd/peervault-node
-        echo "✓ Node binary built successfully"
+        echo "Node binary built successfully"
         ;;
     "demo")
         echo "Building demo client..."
         go build -o bin/peervault-demo ./cmd/peervault-demo
-        echo "✓ Demo client built successfully"
+        echo "Demo client built successfully"
         ;;
     "all")
         echo "Building all binaries..."
         ./scripts/build.sh main
         ./scripts/build.sh node
         ./scripts/build.sh demo
-        echo "✓ All binaries built successfully"
+        echo "All binaries built successfully"
         ;;
     "clean")
         echo "Cleaning build artifacts..."
@@ -44,7 +44,7 @@ case $TARGET in
         rm -rf demo-client-data/
         rm -rf peervault-*_data/
         go clean -cache -testcache
-        echo "✓ Cleaned build artifacts"
+        echo "Cleaned build artifacts"
         ;;
     *)
         echo "Unknown target: $TARGET"

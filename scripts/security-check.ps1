@@ -369,7 +369,7 @@ function Main {
     }
     
     # Print header
-    Write-Host "🔒 PeerVault Security Check Script (PowerShell)"
+    Write-Host "PeerVault Security Check Script (PowerShell)"
     Write-Host "=============================================="
     Write-Host ""
     
@@ -417,7 +417,7 @@ function Main {
     }
     
     # Print summary
-    Write-Host "🔒 Security Check Summary"
+    Write-Host "Security Check Summary"
     Write-Host "========================"
     Write-Host ""
     Write-Success "Security checks completed successfully!"

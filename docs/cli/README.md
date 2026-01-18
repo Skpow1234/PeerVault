@@ -33,23 +33,23 @@ CLI flags are not available in the Docker-only workflow.
 
 ```bash
 peervault> store ./documents/report.pdf
-📁 Storing file: report.pdf
-✅ File stored successfully: QmAbCdEf...
+Storing file: report.pdf
+File stored successfully: QmAbCdEf...
 ```
 
 #### Retrieve a File
 
 ```bash
 peervault> get QmAbCdEf... --output=./downloaded-report.pdf
-📥 Downloading from peer network...
-✅ Downloaded: 2.3MB in 1.2s
+Downloading from peer network...
+Downloaded: 2.3MB in 1.2s
 ```
 
 #### List Files
 
 ```bash
 peervault> list
-📁 Files (15 total)
+Files (15 total)
 ┌─────────────────────────────────────────────────────────────┬─────────────┬─────────────────────────────────────────────────────────────┐
 │ Key                                                         │ Size        │ Created At                                               │
 ├─────────────────────────────────────────────────────────────┼─────────────┼─────────────────────────────────────────────────────────────┤
@@ -62,8 +62,8 @@ peervault> list
 
 ```bash
 peervault> delete QmAbCdEf...
-🗑️ Deleting file: QmAbCdEf...
-✅ File deleted successfully: QmAbCdEf...
+Deleting file: QmAbCdEf...
+File deleted successfully: QmAbCdEf...
 ```
 
 ### Peer Management
@@ -72,13 +72,13 @@ peervault> delete QmAbCdEf...
 
 ```bash
 peervault> peers list
-🌐 Peers (3 total)
+Peers (3 total)
 ┌─────────────────────────────────────────────────────────────┬─────────────┬─────────────┬─────────────┬─────────────────────────────────────────────────────────────┐
 │ Address                                                     │ Status      │ Latency     │ Storage     │ Last Seen                                               │
 ├─────────────────────────────────────────────────────────────┼─────────────┼─────────────┼─────────────┼─────────────────────────────────────────────────────────────┤
-│ node1:3000                                                  │ 🟢 Healthy  │ 12ms        │ 45.2GB/1TB  │ 2s ago                                                  │
-│ node2:7000                                                  │ 🟡 Degraded │ 156ms       │ 892.1GB/1TB │ 45s ago                                                 │
-│ node3:5000                                                  │ 🟢 Healthy  │ 8ms         │ 234.7GB/1TB │ 1s ago                                                  │
+│ node1:3000                                                  │ Healthy     │ 12ms        │ 45.2GB/1TB  │ 2s ago                                                  │
+│ node2:7000                                                  │ Degraded    │ 156ms       │ 892.1GB/1TB │ 45s ago                                                 │
+│ node3:5000                                                  │ Healthy     │ 8ms         │ 234.7GB/1TB │ 1s ago                                                  │
 └─────────────────────────────────────────────────────────────┴─────────────┴─────────────┴─────────────┴─────────────────────────────────────────────────────────────┘
 ```
 
@@ -86,16 +86,16 @@ peervault> peers list
 
 ```bash
 peervault> peers add node4.example.com:3000
-🔍 Adding peer: node4.example.com:3000
-✅ Peer added successfully: peer-123
+Adding peer: node4.example.com:3000
+Peer added successfully: peer-123
 ```
 
 #### Remove a Peer
 
 ```bash
 peervault> peers remove peer-123
-🗑️ Removing peer: peer-123
-✅ Peer removed successfully: peer-123
+Removing peer: peer-123
+Peer removed successfully: peer-123
 ```
 
 ### System Monitoring
@@ -104,21 +104,21 @@ peervault> peers remove peer-123
 
 ```bash
 peervault> health
-🏥 System Health
+System Health
 ┌─────────────────┬─────────────────────────────────────────────────────────────┐
 │ Field           │ Value                                                       │
 ├─────────────────┼─────────────────────────────────────────────────────────────┤
-│ Overall Status  │ 🟢 healthy                                                  │
+│ Overall Status  │ healthy                                                     │
 │ Timestamp       │ 2024-01-15T14:30:25Z                                       │
 └─────────────────┴─────────────────────────────────────────────────────────────┘
 
-🔧 Service Status
+Service Status
 ┌─────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────┐
 │ Service                                                     │ Status                                                       │
 ├─────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────┤
-│ storage                                                     │ 🟢 healthy                                                  │
-│ network                                                     │ 🟢 healthy                                                  │
-│ encryption                                                  │ 🟢 healthy                                                  │
+│ storage                                                     │ healthy                                                     │
+│ network                                                     │ healthy                                                     │
+│ encryption                                                  │ healthy                                                     │
 └─────────────────────────────────────────────────────────────┴─────────────────────────────────────────────────────────────┘
 ```
 
@@ -126,7 +126,7 @@ peervault> health
 
 ```bash
 peervault> metrics
-📊 System Metrics
+System Metrics
 ┌─────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────┐
 │ Metric                                                      │ Value                                                       │
 ├─────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────┤
@@ -141,7 +141,7 @@ peervault> metrics
 
 ```bash
 peervault> metrics --live
-📊 Live System Metrics (refreshing every 5s)
+Live System Metrics (refreshing every 5s)
 ┌─────────────────┬─────────────┬─────────────┬─────────────┐
 │ Metric          │ Current     │ 1h Avg      │ 24h Avg     │
 ├─────────────────┼─────────────┼─────────────┼─────────────┤
@@ -158,8 +158,8 @@ peervault> metrics --live
 
 ```bash
 peervault> connect node1.example.com:3000
-🔗 Connecting to: node1.example.com:3000
-✅ Connected to: node1.example.com:3000
+Connecting to: node1.example.com:3000
+Connected to: node1.example.com:3000
 peervault[node1]> # Prompt changes to show current connection
 ```
 
@@ -167,8 +167,8 @@ peervault[node1]> # Prompt changes to show current connection
 
 ```bash
 peervault[node1]> disconnect
-🔌 Disconnecting...
-✅ Disconnected
+Disconnecting...
+Disconnected
 peervault> # Back to default prompt
 ```
 
@@ -178,25 +178,25 @@ peervault> # Back to default prompt
 
 ```bash
 peervault> help
-🚀 PeerVault CLI - Available Commands
+PeerVault CLI - Available Commands
 
-📁 File Operations:
+File Operations:
   store           - Store a file in the PeerVault network
   get             - Retrieve a file from the PeerVault network
   list            - List files in the PeerVault network
   delete          - Delete a file from the PeerVault network
 
-🌐 Network Operations:
+Network Operations:
   peers           - Manage peer connections
   connect         - Connect to a PeerVault node
   disconnect      - Disconnect from current node
 
-🔧 System Operations:
+System Operations:
   health          - Check system health
   metrics         - Show system metrics
   status          - Show system status
 
-⚙️  Utility Commands:
+Utility Commands:
   help            - Show help information
   exit            - Exit the CLI
   clear           - Clear the screen
@@ -209,7 +209,7 @@ Type 'help <command>' for detailed information about a specific command.
 
 ```bash
 peervault> history
-📜 Command History:
+Command History:
   1  help
   2  peers list
   3  health

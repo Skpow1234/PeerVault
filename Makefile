@@ -45,34 +45,34 @@ build:
 	@echo "Building main application..."
 	@mkdir -p bin
 	@go build -o bin/peervault ./cmd/peervault
-	@echo "✓ Main application built successfully"
+	@echo "Main application built successfully"
 
 build-node:
 	@echo "Building node binary..."
 	@mkdir -p bin
 	@go build -o bin/peervault-node ./cmd/peervault-node
-	@echo "✓ Node binary built successfully"
+	@echo "Node binary built successfully"
 
 build-demo:
 	@echo "Building demo client..."
 	@mkdir -p bin
 	@go build -o bin/peervault-demo ./cmd/peervault-demo
-	@echo "✓ Demo client built successfully"
+	@echo "Demo client built successfully"
 
 build-config:
 	@echo "Building configuration tool..."
 	@mkdir -p bin
 	@go build -o bin/peervault-config ./cmd/peervault-config
-	@echo "✓ Configuration tool built successfully"
+	@echo "Configuration tool built successfully"
 
 build-cli:
 	@echo "Building CLI tool..."
 	@mkdir -p bin
 	@go build -o bin/peervault-cli ./cmd/peervault-cli
-	@echo "✓ CLI tool built successfully"
+	@echo "CLI tool built successfully"
 
 build-all: build build-node build-demo build-config build-cli
-	@echo "✓ All binaries built successfully"
+	@echo "All binaries built successfully"
 
 # Run targets
 run: build
@@ -117,12 +117,12 @@ clean:
 	@rm -rf demo-client-data/
 	@rm -rf peervault-*_data/
 	@go clean -cache -testcache
-	@echo "✓ Cleaned build artifacts"
+	@echo "Cleaned build artifacts"
 
 fmt:
 	@echo "Formatting Go code..."
 	@go fmt ./...
-	@echo "✓ Code formatted"
+	@echo "Code formatted"
 
 lint:
 	@echo "Running linter..."
@@ -136,7 +136,7 @@ mod-tidy:
 	@echo "Tidying Go modules..."
 	@go mod tidy
 	@go mod verify
-	@echo "✓ Modules tidied"
+	@echo "Modules tidied"
 
 # Docker targets
 docker-build:
@@ -144,7 +144,7 @@ docker-build:
 	@docker build -t peervault .
 	@docker build -f Dockerfile.node -t peervault-node .
 	@docker build -f Dockerfile.demo -t peervault-demo .
-	@echo "✓ Docker images built"
+	@echo "Docker images built"
 
 docker-run:
 	@echo "Running multi-container setup..."
@@ -162,8 +162,8 @@ docker-clean:
 	@echo "Cleaning Docker resources..."
 	@docker-compose down -v
 	@docker system prune -f
-	@echo "✓ Docker resources cleaned"
+	@echo "Docker resources cleaned"
 
 # Quick start
 quick-start: mod-tidy build-all test-unit
-	@echo "✓ Quick start completed successfully!"
+	@echo "Quick start completed successfully!"

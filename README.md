@@ -573,18 +573,18 @@ Use the Docker compose stack to start the gRPC API.
 
 ### gRPC API Features
 
-- ✅ **HTTP/JSON API**: Working server with JSON endpoints (temporary solution)
-- ✅ **Health checks**: `/health` endpoint with system status
-- ✅ **System information**: `/system/info` endpoint with version and metrics
-- ✅ **Metrics**: `/system/metrics` endpoint with performance data
-- ✅ **File operations**: `/files` endpoints for file management
-- ✅ **Peer management**: `/peers` endpoints for peer operations
-- 🔄 **Bidirectional Streaming**: Real-time file upload/download with chunked transfer (planned)
-- 🔄 **Service Discovery**: Built-in service discovery and load balancing support (planned)
-- 🔄 **High Throughput**: Optimized for high-performance applications (planned)
-- 🔄 **Type Safety**: Strongly typed with protobuf definitions (planned)
-- 🔄 **Authentication**: Token-based authentication with metadata (planned)
-- 🔄 **Event Streaming**: Real-time events for file operations, peer status, and system metrics (planned)
+- **HTTP/JSON API**: Working server with JSON endpoints (temporary solution)
+- **Health checks**: `/health` endpoint with system status
+- **System information**: `/system/info` endpoint with version and metrics
+- **Metrics**: `/system/metrics` endpoint with performance data
+- **File operations**: `/files` endpoints for file management
+- **Peer management**: `/peers` endpoints for peer operations
+- **Bidirectional Streaming**: Real-time file upload/download with chunked transfer (planned)
+- **Service Discovery**: Built-in service discovery and load balancing support (planned)
+- **High Throughput**: Optimized for high-performance applications (planned)
+- **Type Safety**: Strongly typed with protobuf definitions (planned)
+- **Authentication**: Token-based authentication with metadata (planned)
+- **Event Streaming**: Real-time events for file operations, peer status, and system metrics (planned)
 
 ### gRPC Services
 
@@ -628,48 +628,48 @@ For complete gRPC API documentation, see [docs/grpc/README.md](docs/grpc/README.
 
 PeerVault includes comprehensive API testing capabilities for ensuring reliability, performance, and security across all API interfaces.
 
-### 🧪 **API Testing Features**
+### **API Testing Features**
 
-#### ✅ **Interactive API Testing**
+#### **Interactive API Testing**
 
 - **Postman Collections**: Pre-configured collections for all API endpoints
 - **Environment Management**: Support for multiple environments (dev, staging, prod)
 - **Automated Testing**: Newman CLI integration for CI/CD pipelines
 - **Test Reporting**: Comprehensive test results and coverage reports
 
-#### ✅ **API Mocking**
+#### **API Mocking**
 
 - **Mock Server**: Standalone mock server for development and testing
 - **OpenAPI Integration**: Automatic mock generation from OpenAPI specifications
 - **Scenario Testing**: Customizable response scenarios and conditions
 - **Analytics**: Request/response monitoring and analytics
 
-#### ✅ **Contract Testing**
+#### **Contract Testing**
 
 - **Consumer-Driven Contracts**: Pact-compatible contract testing
 - **Request/Response Validation**: Schema validation and compatibility checks
 - **Contract Evolution**: Track API changes and breaking changes
 - **Provider Verification**: Automated provider contract verification
 
-#### ✅ **Performance Testing**
+#### **Performance Testing**
 
 - **Load Testing**: Configurable concurrency and duration testing
 - **Stress Testing**: System limits and bottleneck identification
 - **Response Time Analysis**: Detailed performance metrics and distributions
 - **k6 Integration**: Advanced performance testing scenarios
 
-#### ✅ **Security Testing**
+#### **Security Testing**
 
 - **OWASP Top 10**: Comprehensive API security vulnerability testing
 - **Injection Testing**: SQL injection, XSS, and command injection tests
 - **Authentication Testing**: Auth bypass and token validation tests
 - **Security Headers**: Security header validation and compliance
 
-### 🚀 **Quick Start**
+### **Quick Start**
 
 API testing is intended to run via the Docker stack and CI pipelines. Local non-Docker commands have been removed to keep the workflow Docker-only.
 
-### 📊 **Test Coverage**
+### **Test Coverage**
 
 The API testing framework provides comprehensive coverage:
 
@@ -678,7 +678,7 @@ The API testing framework provides comprehensive coverage:
 - **Security Tests**: 6 OWASP Top 10 security test categories
 - **Mock Scenarios**: 15+ pre-configured mock response scenarios
 
-### 🔧 **Configuration**
+### **Configuration**
 
 #### Mock Server Configuration
 
@@ -696,11 +696,11 @@ enable_analytics: true
 
 Set environment variables through Docker compose as needed.
 
-### 📈 **CI/CD Integration**
+### **CI/CD Integration**
 
 The API testing framework integrates with CI/CD pipelines; keep runs containerized in CI.
 
-### 📚 **Documentation**
+### **Documentation**
 
 - **API Testing Guide**: [docs/api/testing/README.md](docs/api/testing/README.md)
 - **Implementation Details**: [docs/api/testing/IMPLEMENTATION.md](docs/api/testing/IMPLEMENTATION.md)
@@ -781,17 +781,17 @@ For a comprehensive getting started guide, see [docs/portal/guides/getting-start
 
 ## Project Status & Roadmap
 
-### 🎯 **Current Status: MVP Development**
+### **Current Status: MVP Development**
 
 **PeerVault is currently in MVP development phase** focusing on core P2P file storage functionality:
 
-- **✅ Core P2P**: Basic peer-to-peer file storage with encryption
-- **✅ gRPC API**: Primary API interface with grpc-gateway for REST
-- **✅ Security**: AES-GCM encryption and HMAC-SHA256 authentication
-- **✅ Storage**: Content-addressable storage with SHA-256
-- **🔄 In Progress**: Message framing, peer discovery, basic replication
+- **Core P2P**: Basic peer-to-peer file storage with encryption
+- **gRPC API**: Primary API interface with grpc-gateway for REST
+- **Security**: AES-GCM encryption and HMAC-SHA256 authentication
+- **Storage**: Content-addressable storage with SHA-256
+- **In Progress**: Message framing, peer discovery, basic replication
 
-### 📋 **MVP Goals (Current Focus)**
+### **MVP Goals (Current Focus)**
 
 1. **Stable P2P Core**: Reliable file storage and replication between peers
 2. **Single API Interface**: gRPC with grpc-gateway (no GraphQL/REST complexity)
@@ -799,7 +799,7 @@ For a comprehensive getting started guide, see [docs/portal/guides/getting-start
 4. **Basic Observability**: Health checks and structured logging
 5. **Simple Demo**: Working 3-node example with file exchange
 
-### 🚧 **Post-MVP Roadmap**
+### **Post-MVP Roadmap**
 
 After MVP completion, features will be added incrementally:
 
@@ -830,7 +830,7 @@ After MVP completion, features will be added incrementally:
 - Machine learning features
 - Edge computing and IoT support
 
-### 📊 **Development Approach**
+### **Development Approach**
 
 - **MVP First**: Focus on core functionality before adding complexity
 - **Incremental**: Add features one at a time with proper testing
@@ -841,7 +841,7 @@ For detailed roadmap information, see [documentation/ROADMAP.md](documentation/R
 
 ## gRPC Implementation Status
 
-### ✅ **Completed**
+### **Completed**
 
 - **HTTP/JSON Server**: Working server with JSON endpoints
 - **Health Endpoints**: `/health`, `/system/info`, `/system/metrics`
@@ -850,12 +850,12 @@ For detailed roadmap information, see [documentation/ROADMAP.md](documentation/R
 - **Event Broadcasting**: Background event generation for testing
 - **Service Layer**: Complete service implementations for file, peer, and system operations
 
-### 🔄 **In Progress**
+### **In Progress**
 
 - **Full protobuf generation**: The protobuf Go code generation is currently using a manual implementation. The next step is to properly install and configure `protoc` to generate the complete Go code from the `.proto` files.
 - **True gRPC implementation**: Currently using HTTP/JSON endpoints as a temporary solution. Will be replaced with proper gRPC streaming once protobuf generation is working.
 
-### 📋 **Next Steps**
+### **Next Steps**
 
 1. **Install protoc compiler**: Set up proper protobuf compilation environment
 2. **Generate protobuf code**: Use `protoc` to generate proper Go code from `.proto` files
@@ -863,7 +863,7 @@ For detailed roadmap information, see [documentation/ROADMAP.md](documentation/R
 4. **Add streaming endpoints**: Implement bidirectional streaming for file operations
 5. **Add authentication**: Implement proper gRPC authentication and authorization
 
-### 🚨 **Current Limitations**
+### **Current Limitations**
 
 - The server uses HTTP/JSON instead of true gRPC due to protobuf marshaling issues
 - Streaming functionality is simulated with background event generation

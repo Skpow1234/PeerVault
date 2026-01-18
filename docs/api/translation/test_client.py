@@ -157,12 +157,12 @@ class ProtocolTranslationClient:
 def print_translation_result(result: Optional[Dict[str, Any]], description: str):
     """Print translation result in a formatted way"""
     if result is None:
-        print(f"❌ {description}: Failed")
+        print(f"Error: {description}: Failed")
         return
     
     if result.get('success', False):
         message = result.get('message', {})
-        print(f"✅ {description}: Success")
+        print(f"OK: {description}: Success")
         print(f"   Engine: {result.get('engine', 'unknown')}")
         print(f"   Protocol: {message.get('protocol', 'unknown')}")
         print(f"   Type: {message.get('type', 'unknown')}")
@@ -171,7 +171,7 @@ def print_translation_result(result: Optional[Dict[str, Any]], description: str)
         if message.get('metadata'):
             print(f"   Metadata: {message.get('metadata')}")
     else:
-        print(f"❌ {description}: {result.get('error', 'Unknown error')}")
+        print(f"Error: {description}: {result.get('error', 'Unknown error')}")
     print()
 
 def simulate_sensor_data():
@@ -200,52 +200,52 @@ def simulate_sensor_data():
 
 def main():
     """Main test function"""
-    print("🚀 Protocol Translation API Test Client")
+    print("Protocol Translation API Test Client")
     print("=" * 50)
     
     # Initialize client
     client = ProtocolTranslationClient()
     
     # Health check
-    print("🔍 Checking server health...")
+    print("Checking server health...")
     health = client.health_check()
     if health:
-        print(f"✅ Server is healthy: {health.get('status', 'unknown')}")
+        print(f"Server is healthy: {health.get('status', 'unknown')}")
         print(f"   Uptime: {health.get('uptime', 'unknown')}")
         print(f"   Version: {health.get('version', 'unknown')}")
         print(f"   Engines: {health.get('engines', 'unknown')}")
     else:
-        print("❌ Server health check failed")
+        print("Server health check failed")
         return
     print()
     
     # Test 1: WebSocket to MQTT
-    print("📡 Test 1: WebSocket to MQTT Translation")
+    print("Test 1: WebSocket to MQTT Translation")
     sensor_data = simulate_sensor_data()
     message = f"{sensor_data['value']}{sensor_data['unit']}"
     result = client.translate_websocket_to_mqtt(message, f"sensors/{sensor_data['sensor']}")
     print_translation_result(result, f"WebSocket to MQTT ({sensor_data['sensor']})")
     
     # Test 2: MQTT to SSE
-    print("📡 Test 2: MQTT to SSE Translation")
+    print("Test 2: MQTT to SSE Translation")
     notification = f"Alert: {sensor_data['sensor']} reading is {message}"
     result = client.translate_mqtt_to_sse(notification, "alerts/sensor")
     print_translation_result(result, "MQTT to SSE (alert)")
     
     # Test 3: SSE to CoAP
-    print("📡 Test 3: SSE to CoAP Translation")
+    print("Test 3: SSE to CoAP Translation")
     alert = f"Critical: {sensor_data['sensor']} threshold exceeded"
     result = client.translate_sse_to_coap(alert, "critical/alerts")
     print_translation_result(result, "SSE to CoAP (critical alert)")
     
     # Test 4: CoAP to WebSocket
-    print("📡 Test 4: CoAP to WebSocket Translation")
+    print("Test 4: CoAP to WebSocket Translation")
     status = f"System status: {sensor_data['sensor']} sensor operational"
     result = client.translate_coap_to_websocket(status, "system/status")
     print_translation_result(result, "CoAP to WebSocket (status)")
     
     # Test 5: General translation (WebSocket to CoAP)
-    print("📡 Test 5: General Translation (WebSocket to CoAP)")
+    print("Test 5: General Translation (WebSocket to CoAP)")
     ws_message = {
         "id": f"msg_{int(time.time())}",
         "protocol": "websocket",
@@ -265,16 +265,16 @@ def main():
     print_translation_result(result, "General WebSocket to CoAP")
     
     # Test 6: Error handling (unsupported translation)
-    print("📡 Test 6: Error Handling (Unsupported Translation)")
+    print("Test 6: Error Handling (Unsupported Translation)")
     result = client.translate_message("websocket", "unsupported_protocol", ws_message)
     print_translation_result(result, "Unsupported protocol translation")
     
     # Get analytics
-    print("📊 Getting Translation Analytics...")
+    print("Getting Translation Analytics...")
     analytics = client.get_analytics()
     if analytics:
         summary = analytics.get('summary', {})
-        print(f"✅ Analytics retrieved successfully")
+        print("Analytics retrieved successfully")
         print(f"   Total translations: {summary.get('total_translations', 0)}")
         print(f"   Total errors: {summary.get('total_errors', 0)}")
         print(f"   Success rate: {summary.get('success_rate', 0):.1f}%")
@@ -296,11 +296,11 @@ def main():
             print(f"   Error rate: {error_analysis.get('error_rate', 0):.1f}%")
             print(f"   Most common error: {error_analysis.get('most_common_error', 'none')}")
     else:
-        print("❌ Failed to get analytics")
+        print("Failed to get analytics")
     print()
     
     # Performance test
-    print("⚡ Performance Test: Multiple Translations")
+    print("Performance Test: Multiple Translations")
     start_time = time.time()
     successful_translations = 0
     failed_translations = 0
@@ -327,7 +327,7 @@ def main():
     end_time = time.time()
     total_time = end_time - start_time
     
-    print(f"✅ Performance test completed")
+    print("Performance test completed")
     print(f"   Total translations: 10")
     print(f"   Successful: {successful_translations}")
     print(f"   Failed: {failed_translations}")
@@ -336,7 +336,7 @@ def main():
     print(f"   Throughput: {10/total_time:.1f} translations/s")
     print()
     
-    print("🎉 Protocol Translation API test completed!")
+    print("Protocol Translation API test completed!")
     print("=" * 50)
 
 if __name__ == "__main__":

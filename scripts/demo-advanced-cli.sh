@@ -3,27 +3,27 @@
 # PeerVault CLI Advanced Features Demo
 # This script demonstrates the enhanced interactive features
 
-echo "🚀 PeerVault CLI - Advanced Features Demo"
+echo "PeerVault CLI - Advanced Features Demo"
 echo "=========================================="
 echo
 
 # Build the CLI
-echo "📦 Building CLI with advanced features..."
+echo "Building CLI with advanced features..."
 make build-cli
 if [ $? -ne 0 ]; then
-    echo "❌ Build failed"
+    echo "Build failed"
     exit 1
 fi
-echo "✅ Build successful"
+echo "Build successful"
 echo
 
 # Create demo files
-echo "📁 Creating demo files..."
+echo "Creating demo files..."
 mkdir -p demo-files
 echo "This is a demo document" > demo-files/document.txt
 echo "Demo image data" > demo-files/image.jpg
 echo "Demo JSON data" > demo-files/data.json
-echo "✅ Demo files created"
+echo "Demo files created"
 echo
 
 # Create demo commands file
@@ -93,11 +93,11 @@ metrics
 exit
 EOF
 
-echo "📝 Demo commands file created"
+echo "Demo commands file created"
 echo
 
 # Run the demo
-echo "🎬 Running CLI demo with advanced features..."
+echo "Running CLI demo with advanced features..."
 echo "Features demonstrated:"
 echo "  • Tab completion for commands and arguments"
 echo "  • Arrow key navigation for command history"
@@ -113,7 +113,7 @@ echo
 ./bin/peervault-cli < demo-commands.txt
 
 echo
-echo "🎉 Demo completed!"
+echo "Demo completed!"
 echo
 echo "To try the interactive features manually:"
 echo "  ./bin/peervault-cli"
@@ -127,7 +127,7 @@ echo "  • Try 'peers list' to see rich table formatting"
 echo
 
 # Cleanup
-echo "🧹 Cleaning up demo files..."
+echo "Cleaning up demo files..."
 rm -rf demo-files
 rm -f demo-commands.txt
-echo "✅ Cleanup complete"
+echo "Cleanup complete"

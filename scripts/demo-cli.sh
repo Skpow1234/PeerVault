@@ -3,7 +3,7 @@
 # PeerVault CLI Demo Script
 # This script demonstrates the CLI functionality
 
-echo "🚀 PeerVault CLI Demo"
+echo "PeerVault CLI Demo"
 echo "===================="
 echo ""
 
@@ -11,7 +11,7 @@ echo ""
 if [ ! -f "bin/peervault-cli" ]; then
     echo "Building CLI..."
     go build -o bin/peervault-cli ./cmd/peervault-cli
-    echo "✓ CLI built successfully"
+    echo "CLI built successfully"
 fi
 
 echo "Starting PeerVault CLI Demo..."

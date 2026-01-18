@@ -1,12 +1,12 @@
 ---
-name: 🚨 Dependabot Security Alert
+name: Dependabot Security Alert
 about: Report a security vulnerability found by Dependabot
 title: '[SECURITY] '
 labels: ['security', 'dependencies', 'high-priority', 'dependabot']
 assignees: ['Skpow1234']
 ---
 
-## 🚨 Security Alert Details
+## Security Alert Details
 
 **Dependency:**
 **Vulnerability:**
@@ -14,11 +14,11 @@ assignees: ['Skpow1234']
 **CVSS Score:**
 **Dependabot Alert ID:**
 
-## 📋 Description
+## Description
 
 <!-- Describe the security vulnerability and its impact -->
 
-## 🔍 Affected Files
+## Affected Files
 
 <!-- List the files that use the vulnerable dependency -->
 
@@ -26,7 +26,7 @@ assignees: ['Skpow1234']
 - [ ]
 - [ ]
 
-## 🎯 Impact Assessment
+## Impact Assessment
 
 <!-- Describe the potential impact of this vulnerability -->
 
@@ -35,7 +35,7 @@ assignees: ['Skpow1234']
 - **Availability:**
 - **Business Impact:**
 
-## 🛠️ Recommended Actions
+## Recommended Actions
 
 <!-- List the recommended actions to address this vulnerability -->
 
@@ -45,7 +45,7 @@ assignees: ['Skpow1234']
 - [ ] Deploy fix to production
 - [ ] Monitor for similar issues
 
-## 📊 Priority
+## Priority
 
 <!-- Select the priority level -->
 
@@ -54,7 +54,7 @@ assignees: ['Skpow1234']
 - [ ] **Medium** - Address within 1 week
 - [ ] **Low** - Address within 1 month
 
-## 🔗 References
+## References
 
 <!-- Add links to relevant security advisories, CVEs, or documentation -->
 
@@ -62,7 +62,7 @@ assignees: ['Skpow1234']
 - [CVE Details](https://cve.mitre.org/)
 - [Dependabot Alert](https://github.com/security/advisories)
 
-## ✅ Checklist
+## Checklist
 
 - [ ] Vulnerability confirmed
 - [ ] Impact assessed
@@ -71,7 +71,7 @@ assignees: ['Skpow1234']
 - [ ] Deployment scheduled
 - [ ] Monitoring in place
 
-## 📝 Additional Notes
+## Additional Notes
 
 <!-- Add any additional context or notes -->
 

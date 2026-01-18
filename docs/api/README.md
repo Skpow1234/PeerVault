@@ -2,7 +2,7 @@
 
 This directory contains comprehensive documentation for the PeerVault REST API, including OpenAPI/Swagger specifications and usage examples.
 
-## 📁 File Structure
+## File Structure
 
 ```bash
 docs/api/
@@ -14,7 +14,7 @@ docs/api/
     └── python/                 # Python examples
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Interactive Documentation
 
@@ -38,18 +38,18 @@ For programmatic access, the OpenAPI specification is available at:
 http://localhost:8081/swagger.json
 ```
 
-## 📋 API Overview
+## API Overview
 
 The PeerVault REST API provides a comprehensive interface for managing the distributed file storage system:
 
-### 🔧 Core Features
+### Core Features
 
 - **File Management**: Upload, download, delete, and manage files with metadata
 - **Peer Management**: Discover, monitor, and manage peer nodes in the network
 - **System Monitoring**: Real-time metrics, health checks, and system information
 - **Webhook Support**: Event-driven notifications for system events
 
-### 🏗️ Architecture
+### Architecture
 
 The API follows a clean layered architecture with organized types:
 
@@ -71,21 +71,21 @@ internal/api/rest/
 └── implementations/  # Service implementations
 ```
 
-### 🔐 Authentication
+### Authentication
 
 API endpoints support optional token-based authentication:
 
 Use an API client and include the `Authorization: Bearer <token>` header.
 
-### ⚡ Rate Limiting
+### Rate Limiting
 
 API requests are rate-limited to **100 requests per minute** per client IP address.
 
-### 🌐 CORS Support
+### CORS Support
 
 All endpoints support Cross-Origin Resource Sharing (CORS) for web applications.
 
-## 📚 API Endpoints
+## API Endpoints
 
 ### System Endpoints
 
@@ -123,11 +123,11 @@ All endpoints support Cross-Origin Resource Sharing (CORS) for web applications.
 | `GET` | `/api/v1/system/info` | Get system information |
 | `POST` | `/api/v1/webhook` | Webhook endpoint |
 
-## 🔍 OpenAPI Specification
+## OpenAPI Specification
 
 The complete API specification is available in the `peervault-rest-api.yaml` file, which includes:
 
-### 📖 Detailed Documentation
+### Detailed Documentation
 
 - **Comprehensive descriptions** for all endpoints
 - **Request/response schemas** with examples
@@ -135,7 +135,7 @@ The complete API specification is available in the `peervault-rest-api.yaml` fil
 - **Authentication** and security information
 - **Rate limiting** details
 
-### 🏷️ Schema Definitions
+### Schema Definitions
 
 The specification includes detailed schemas for:
 
@@ -145,7 +145,7 @@ The specification includes detailed schemas for:
 - **HealthResponse**: Health check status
 - **ErrorResponse**: Standardized error format
 
-### 🎯 Operation IDs
+### Operation IDs
 
 Each endpoint has a unique operation ID for easy reference:
 
@@ -164,7 +164,7 @@ Each endpoint has a unique operation ID for easy reference:
 - `getSystemInfo` - Get system information
 - `webhook` - Webhook endpoint
 
-## 🛠️ Usage Examples
+## Usage Examples
 
 ### Health Check
 
@@ -222,7 +222,7 @@ Use `POST /api/v1/files` with multipart form data to upload a file.
 
 Use `POST /api/v1/peers` with JSON to add a peer.
 
-## 🔧 Development
+## Development
 
 ### Running the API Server
 
@@ -236,7 +236,7 @@ Configure the API via Docker compose environment variables.
 
 Integration tests run in CI using containerized workflows.
 
-## 📖 Additional Resources
+## Additional Resources
 
 ### Related Documentation
 
@@ -257,7 +257,7 @@ Integration tests run in CI using containerized workflows.
 - **Health Check**: System health monitoring at `/health`
 - **Metrics**: Performance monitoring at `/metrics`
 
-## 🤝 Contributing
+## Contributing
 
 When contributing to the API:
 
@@ -267,7 +267,7 @@ When contributing to the API:
 4. **Write integration tests** for new endpoints
 5. **Follow the layered architecture** pattern
 
-## 📄 License
+## License
 
 This API documentation is part of the PeerVault project and is licensed under the MIT License.
 

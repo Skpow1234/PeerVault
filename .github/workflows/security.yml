@@ -51,21 +51,21 @@ jobs:
           for repo in "github.com/securecodewarrior/gosec/v2/cmd/gosec" "github.com/gosec/gosec/v2/cmd/gosec" "github.com/cosmos/gosec/v2/cmd/gosec"; do
             echo "Trying $repo..."
             if go install $repo@latest 2>/dev/null; then
-              echo "✅ gosec installed successfully from $repo"
+              echo "gosec installed successfully from $repo"
               GOSEC_INSTALLED=true
               break
             fi
           done
           
           if [ "$GOSEC_INSTALLED" = false ]; then
-            echo "⚠️ gosec installation failed from all sources"
+            echo "Warning: gosec installation failed from all sources"
             echo "Note: gosec scan will be skipped, continuing with other security tools"
           fi
 
           # Install Python tools for additional scanning
           echo "Installing Python security tools..."
           pip install semgrep detect-secrets || {
-            echo "⚠️ Some Python security tools failed to install, but continuing"
+            echo "Warning: Some Python security tools failed to install, but continuing"
           }
 
       - name: Run Go vulnerability check
@@ -83,7 +83,7 @@ jobs:
               exit 0
             fi
           }
-          echo "✅ Go vulnerability check completed"
+          echo "Go vulnerability check completed"
 
       - name: Run gosec security scanner
         run: |
@@ -101,9 +101,9 @@ jobs:
                 exit 0
               fi
             }
-            echo "✅ gosec scan completed successfully"
+            echo "gosec scan completed successfully"
           else
-            echo "⚠️ gosec not available, skipping gosec security scan"
+            echo "Warning: gosec not available, skipping gosec security scan"
             echo "Security scan will continue with other tools"
           fi
 
@@ -126,14 +126,14 @@ jobs:
                   exit 0
                 fi
               else
-                echo "⚠️ Semgrep report file is empty or missing, treating as scan error"
+                echo "Warning: Semgrep report file is empty or missing, treating as scan error"
                 echo "Semgrep scan failed (non-blocking)"
                 exit 0
               fi
             }
-            echo "✅ Semgrep scan completed successfully"
+            echo "Semgrep scan completed successfully"
           else
-            echo "⚠️ semgrep not available, skipping semgrep security scan"
+            echo "Warning: semgrep not available, skipping semgrep security scan"
           fi
 
       - name: Run secrets detection
@@ -153,9 +153,9 @@ jobs:
               echo "Secrets detection completed (review findings)"
               exit 0
             }
-            echo "✅ Secrets detection completed successfully"
+            echo "Secrets detection completed successfully"
           else
-            echo "⚠️ detect-secrets not available, skipping secrets detection"
+            echo "Warning: detect-secrets not available, skipping secrets detection"
           fi
 
       - name: Run custom PeerVault security scanner
@@ -238,27 +238,27 @@ jobs:
           
           # Check if security policies exist
           if [ ! -f "security/policies/access-control.yaml" ]; then
-            echo "❌ Access control policy missing"
+            echo "Error: Access control policy missing"
             exit 1
           fi
           
           if [ ! -f "security/policies/data-classification.yaml" ]; then
-            echo "❌ Data classification policy missing"
+            echo "Error: Data classification policy missing"
             exit 1
           fi
           
           # Validate YAML syntax
           python3 -c "import yaml; yaml.safe_load(open('security/policies/access-control.yaml'))" || {
-            echo "❌ Access control policy has invalid YAML syntax"
+            echo "Error: Access control policy has invalid YAML syntax"
             exit 1
           }
           
           python3 -c "import yaml; yaml.safe_load(open('security/policies/data-classification.yaml'))" || {
-            echo "❌ Data classification policy has invalid YAML syntax"
+            echo "Error: Data classification policy has invalid YAML syntax"
             exit 1
           }
           
-          echo "✅ Security policies validated successfully"
+          echo "Security policies validated successfully"
 
       - name: Check security documentation
         run: |
@@ -277,12 +277,12 @@ jobs:
           
           for doc in "${required_docs[@]}"; do
             if [ ! -f "$doc" ]; then
-              echo "❌ Required security documentation missing: $doc"
+              echo "Error: Required security documentation missing: $doc"
               exit 1
             fi
           done
           
-          echo "✅ Security documentation check passed"
+          echo "Security documentation check passed"
 
   # Container security scanning
   container-security:
@@ -418,7 +418,7 @@ jobs:
 
       - name: Generate security summary
         run: |
-          echo "🔒 PeerVault Security Pipeline Summary"
+          echo "PeerVault Security Pipeline Summary"
           echo "======================================"
           echo ""
           echo "Security Jobs Status:"
@@ -433,46 +433,46 @@ jobs:
           critical_failures=0
           
           if [[ "${{ needs.vulnerability-scan.result }}" == "failure" ]]; then
-            echo "❌ Critical: Vulnerability scan failed"
+            echo "Critical: Vulnerability scan failed"
             critical_failures=$((critical_failures + 1))
           fi
           
           if [[ "${{ needs.security-policy-validation.result }}" == "failure" ]]; then
-            echo "❌ Critical: Security policy validation failed"
+            echo "Critical: Security policy validation failed"
             critical_failures=$((critical_failures + 1))
           fi
           
           if [[ "${{ needs.security-integration-tests.result }}" == "failure" ]]; then
-            echo "❌ Critical: Security integration tests failed"
+            echo "Critical: Security integration tests failed"
             critical_failures=$((critical_failures + 1))
           fi
           
           # Check for warnings
           if [[ "${{ needs.compliance-check.result }}" == "failure" ]]; then
-            echo "⚠️  Warning: Compliance check had issues"
+            echo "Warning: Compliance check had issues"
           fi
           
           if [[ "${{ needs.container-security.result }}" == "failure" ]]; then
-            echo "⚠️  Warning: Container security scan had issues"
+            echo "Warning: Container security scan had issues"
           fi
           
           echo ""
           echo "Security Features Status:"
-          echo "✅ Security vulnerability scanning (gosec, semgrep, govulncheck)"
-          echo "✅ Basic security policy validation"
-          echo "✅ Container security scanning (Trivy)"
-          echo "🚧 Compliance checking (SOC 2, GDPR, ISO 27001) - Guidance only"
-          echo "🚧 RBAC and access control system - Planned"
-          echo "🚧 Audit logging and monitoring - Planned"
-          echo "🚧 Data privacy and protection - Planned"
-          echo "🚧 PKI and certificate management - Planned"
-          echo "🚧 Custom security tools and scripts - Planned"
+          echo "Security vulnerability scanning (gosec, semgrep, govulncheck)"
+          echo "Basic security policy validation"
+          echo "Container security scanning (Trivy)"
+          echo "Compliance checking (SOC 2, GDPR, ISO 27001) - Guidance only"
+          echo "RBAC and access control system - Planned"
+          echo "Audit logging and monitoring - Planned"
+          echo "Data privacy and protection - Planned"
+          echo "PKI and certificate management - Planned"
+          echo "Custom security tools and scripts - Planned"
           echo ""
           
           if [ $critical_failures -gt 0 ]; then
-            echo "❌ Security pipeline failed with $critical_failures critical issues"
+            echo "Security pipeline failed with $critical_failures critical issues"
             exit 1
           else
-            echo "✅ Security pipeline passed successfully!"
-            echo "🔒 PeerVault security features are operational"
+            echo "Security pipeline passed successfully!"
+            echo "PeerVault security features are operational"
           fi

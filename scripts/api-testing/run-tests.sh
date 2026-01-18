@@ -225,19 +225,19 @@ generate_report() {
 ## Test Results
 
 ### Unit Tests
-- Status: $([ $? -eq 0 ] && echo "✅ PASSED" || echo "❌ FAILED")
+- Status: $([ $? -eq 0 ] && echo "PASSED" || echo "FAILED")
 
 ### Contract Tests
-- Status: $([ $? -eq 0 ] && echo "✅ PASSED" || echo "❌ FAILED")
+- Status: $([ $? -eq 0 ] && echo "PASSED" || echo "FAILED")
 
 ### Performance Tests
-- Status: $([ $? -eq 0 ] && echo "✅ PASSED" || echo "❌ FAILED")
+- Status: $([ $? -eq 0 ] && echo "PASSED" || echo "FAILED")
 
 ### Security Tests
-- Status: $([ $? -eq 0 ] && echo "✅ PASSED" || echo "❌ FAILED")
+- Status: $([ $? -eq 0 ] && echo "PASSED" || echo "FAILED")
 
 ### Postman Tests
-- Status: $([ $? -eq 0 ] && echo "✅ PASSED" || echo "❌ FAILED")
+- Status: $([ $? -eq 0 ] && echo "PASSED" || echo "FAILED")
 
 ## Recommendations
 
@@ -299,7 +299,7 @@ main() {
     
     # Summary
     if [ $failed_tests -eq 0 ]; then
-        print_success "All tests completed successfully! 🎉"
+        print_success "All tests completed successfully!"
         exit 0
     else
         print_error "$failed_tests test suite(s) failed"

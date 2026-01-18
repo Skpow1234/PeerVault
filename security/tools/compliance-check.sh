@@ -20,7 +20,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
-echo -e "${BLUE}📋 Starting PeerVault Compliance Check${NC}"
+echo -e "${BLUE}Starting PeerVault Compliance Check${NC}"
 echo "Project Root: $PROJECT_ROOT"
 echo "Output Directory: $OUTPUT_DIR"
 echo "Timestamp: $TIMESTAMP"
@@ -40,11 +40,11 @@ check_requirement() {
     local details="$3"
     
     if [ "$status" = "PASS" ]; then
-        echo -e "  ${GREEN}✅ $requirement${NC}"
+        echo -e "  ${GREEN}$requirement${NC}"
     elif [ "$status" = "FAIL" ]; then
-        echo -e "  ${RED}❌ $requirement${NC}"
+        echo -e "  ${RED}$requirement${NC}"
     else
-        echo -e "  ${YELLOW}⚠️  $requirement${NC}"
+        echo -e "  ${YELLOW}Warning: $requirement${NC}"
     fi
     
     if [ -n "$details" ]; then
@@ -683,11 +683,11 @@ This report provides a comprehensive assessment of PeerVault's compliance with m
 
 | Standard | Status | Score | Notes |
 |----------|--------|-------|-------|
-| SOC 2 Type II | ✅ Compliant | 95/100 | Strong security controls |
-| ISO 27001 | ✅ Compliant | 92/100 | ISMS properly implemented |
-| GDPR | ✅ Compliant | 94/100 | Data protection measures in place |
-| HIPAA | ✅ Compliant | 93/100 | Healthcare data protection compliant |
-| PCI DSS | ✅ Compliant | 96/100 | Payment card data protection compliant |
+| SOC 2 Type II | Compliant | 95/100 | Strong security controls |
+| ISO 27001 | Compliant | 92/100 | ISMS properly implemented |
+| GDPR | Compliant | 94/100 | Data protection measures in place |
+| HIPAA | Compliant | 93/100 | Healthcare data protection compliant |
+| PCI DSS | Compliant | 96/100 | Payment card data protection compliant |
 
 ## Overall Compliance Score: 94/100
 
@@ -758,9 +758,9 @@ For questions about this compliance assessment, contact the compliance team.
 *This report contains sensitive compliance information and should be handled according to your organization's security policies.*
 EOF
 
-echo -e "${GREEN}✅ Compliance checking completed successfully!${NC}"
-echo -e "${BLUE}📊 Overall compliance report: $COMPLIANCE_REPORT${NC}"
-echo -e "${BLUE}📁 All compliance reports saved to: $OUTPUT_DIR${NC}"
+echo -e "${GREEN}Compliance checking completed successfully!${NC}"
+echo -e "${BLUE}Overall compliance report: $COMPLIANCE_REPORT${NC}"
+echo -e "${BLUE}All compliance reports saved to: $OUTPUT_DIR${NC}"
 
 # Display summary
 echo ""
@@ -771,4 +771,4 @@ echo "Total compliance reports generated: $(ls -1 "$OUTPUT_DIR"/*_compliance_$TI
 echo "Overall compliance report: $(basename "$COMPLIANCE_REPORT")"
 echo "Output directory: $OUTPUT_DIR"
 echo ""
-echo -e "${GREEN}🎉 Compliance checking completed!${NC}"
+echo -e "${GREEN}Compliance checking completed!${NC}"

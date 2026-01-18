@@ -42,4 +42,4 @@ case $TYPE in
         ;;
 esac
 
-echo "✓ All tests passed!"
+echo "All tests passed!"

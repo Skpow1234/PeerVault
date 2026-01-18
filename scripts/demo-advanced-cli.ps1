@@ -1,27 +1,27 @@
 # PeerVault CLI Advanced Features Demo
 # This script demonstrates the enhanced interactive features
 
-Write-Host "🚀 PeerVault CLI - Advanced Features Demo" -ForegroundColor Green
+Write-Host "PeerVault CLI - Advanced Features Demo" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host
 
 # Build the CLI
-Write-Host "📦 Building CLI with advanced features..." -ForegroundColor Yellow
+Write-Host "Building CLI with advanced features..." -ForegroundColor Yellow
 & make build-cli
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Build failed" -ForegroundColor Red
+    Write-Host "Build failed" -ForegroundColor Red
     exit 1
 }
-Write-Host "✅ Build successful" -ForegroundColor Green
+Write-Host "Build successful" -ForegroundColor Green
 Write-Host
 
 # Create demo files
-Write-Host "📁 Creating demo files..." -ForegroundColor Yellow
+Write-Host "Creating demo files..." -ForegroundColor Yellow
 New-Item -ItemType Directory -Path "demo-files" -Force | Out-Null
 "This is a demo document" | Out-File -FilePath "demo-files/document.txt" -Encoding UTF8
 "Demo image data" | Out-File -FilePath "demo-files/image.jpg" -Encoding UTF8
 "Demo JSON data" | Out-File -FilePath "demo-files/data.json" -Encoding UTF8
-Write-Host "✅ Demo files created" -ForegroundColor Green
+Write-Host "Demo files created" -ForegroundColor Green
 Write-Host
 
 # Create demo commands file
@@ -93,11 +93,11 @@ exit
 
 $demoCommands | Out-File -FilePath "demo-commands.txt" -Encoding UTF8
 
-Write-Host "📝 Demo commands file created" -ForegroundColor Green
+Write-Host "Demo commands file created" -ForegroundColor Green
 Write-Host
 
 # Run the demo
-Write-Host "🎬 Running CLI demo with advanced features..." -ForegroundColor Yellow
+Write-Host "Running CLI demo with advanced features..." -ForegroundColor Yellow
 Write-Host "Features demonstrated:" -ForegroundColor Cyan
 Write-Host "  • Tab completion for commands and arguments" -ForegroundColor White
 Write-Host "  • Arrow key navigation for command history" -ForegroundColor White
@@ -113,7 +113,7 @@ Write-Host
 Get-Content "demo-commands.txt" | & "./bin/peervault-cli.exe"
 
 Write-Host
-Write-Host "🎉 Demo completed!" -ForegroundColor Green
+Write-Host "Demo completed!" -ForegroundColor Green
 Write-Host
 Write-Host "To try the interactive features manually:" -ForegroundColor Cyan
 Write-Host "  ./bin/peervault-cli.exe" -ForegroundColor White
@@ -127,7 +127,7 @@ Write-Host "  • Try 'peers list' to see rich table formatting" -ForegroundColo
 Write-Host
 
 # Cleanup
-Write-Host "🧹 Cleaning up demo files..." -ForegroundColor Yellow
+Write-Host "Cleaning up demo files..." -ForegroundColor Yellow
 Remove-Item -Path "demo-files" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item -Path "demo-commands.txt" -Force -ErrorAction SilentlyContinue
-Write-Host "✅ Cleanup complete" -ForegroundColor Green
+Write-Host "Cleanup complete" -ForegroundColor Green

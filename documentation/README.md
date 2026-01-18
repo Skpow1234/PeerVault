@@ -2,7 +2,7 @@
 
 This directory contains comprehensive documentation for the PeerVault project.
 
-## 📚 Documentation Index
+## Documentation Index
 
 ### **Core Documentation**
 
@@ -16,7 +16,7 @@ This directory contains comprehensive documentation for the PeerVault project.
 - **[LOGGING.md](LOGGING.md)** - Logging system and configuration
 - **[CONTAINERIZATION.md](CONTAINERIZATION.md)** - Docker setup and deployment
 
-## 🚀 Quick Start
+## Quick Start
 
 For new users, start with:
 
@@ -24,23 +24,23 @@ For new users, start with:
 2. **CONTRIBUTING.md** - How to contribute
 3. **ROADMAP.md** - Current development status
 
-## 🔧 For Developers
+## For Developers
 
 - **CONTRIBUTING.md** - Development setup and guidelines
 - **ENCRYPTION.md** - Understanding the crypto layer
 - **LOGGING.md** - Debugging and monitoring
 
-## 🔒 For Security
+## For Security
 
 - **SECURITY.md** - Security policy and reporting vulnerabilities
 - **ENCRYPTION.md** - Security implementation details
 
-## 🐳 For Deployment
+## For Deployment
 
 - **CONTAINERIZATION.md** - Docker and container deployment
 - **LOGGING.md** - Production logging configuration
 
-## 📝 Documentation Standards
+## Documentation Standards
 
 All documentation follows these principles:
 
@@ -49,7 +49,7 @@ All documentation follows these principles:
 - **Cross-references** - Links between related topics
 - **Regular updates** - Kept current with code changes
 
-## 🤝 Contributing to Documentation
+## Contributing to Documentation
 
 When updating documentation:
 

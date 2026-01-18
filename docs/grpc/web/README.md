@@ -215,11 +215,11 @@ Testing runs in CI using containerized workflows.
 
 | Browser | Version | Support |
 |---------|---------|---------|
-| Chrome | 60+ | ✅ Full |
-| Firefox | 55+ | ✅ Full |
-| Safari | 11+ | ✅ Full |
-| Edge | 79+ | ✅ Full |
-| IE | 11 | ⚠️ Limited |
+| Chrome | 60+ | Full |
+| Firefox | 55+ | Full |
+| Safari | 11+ | Full |
+| Edge | 79+ | Full |
+| IE | 11 | Limited |
 
 ## Troubleshooting
 

@@ -34,7 +34,7 @@ if ! curl -s "$API_BASE/health" > /dev/null 2>&1; then
     echo "Please start the server first: ./bin/peervault-api"
     exit 1
 fi
-echo -e "${GREEN}✓ Server is running${NC}"
+echo -e "${GREEN}Server is running${NC}"
 echo ""
 
 # Demo 1: Generate sample traffic
@@ -50,7 +50,7 @@ for i in {1..30}; do
     printf "."
 done
 echo ""
-echo -e "${GREEN}✓ Sample traffic generated${NC}"
+echo -e "${GREEN}Sample traffic generated${NC}"
 sleep 1
 echo ""
 
@@ -111,13 +111,13 @@ ERROR_RATE=$(curl -s -H "$AUTH" "$API_V1/analytics/usage?period=24h" | jq -r '.e
 echo "Current error rate: ${ERROR_RATE}%"
 
 if (( $(echo "$ERROR_RATE > 5" | bc -l) )); then
-    echo -e "${YELLOW}⚠ Warning: Error rate is above 5%${NC}"
+    echo -e "${YELLOW}Warning: Error rate is above 5%${NC}"
     echo "Recent errors:"
     curl -s -H "$AUTH" "$API_V1/analytics/calls?limit=5" | \
       jq -r '.[] | select(.status_code >= 400) | 
         "  \(.timestamp | split("T")[1] | split(".")[0]) - \(.method) \(.path) - Status: \(.status_code)"'
 else
-    echo -e "${GREEN}✓ Error rate is acceptable (< 5%)${NC}"
+    echo -e "${GREEN}Error rate is acceptable (< 5%)${NC}"
 fi
 echo ""
 
@@ -166,7 +166,7 @@ curl -s -H "$AUTH" "$API_V1/analytics/trends?period=24h&interval=hour" | \
   jq -r '["Timestamp","Requests","Success","Errors","Avg Latency (ms)"],
          (.[] | [.timestamp, .request_count, .success_count, .error_count, .average_duration_ms]) | 
          @csv' > "$EXPORT_FILE"
-echo -e "${GREEN}✓ Data exported to: $EXPORT_FILE${NC}"
+echo -e "${GREEN}Data exported to: $EXPORT_FILE${NC}"
 echo ""
 
 # Demo 10: Health Check Alert Simulation
@@ -175,11 +175,11 @@ HEALTH_STATUS=$(curl -s -H "$AUTH" "$API_V1/analytics/summary" | jq -r '.system_
 echo "System Health: $HEALTH_STATUS"
 
 if [ "$HEALTH_STATUS" = "healthy" ]; then
-    echo -e "${GREEN}✓ All systems operational${NC}"
+    echo -e "${GREEN}All systems operational${NC}"
 elif [ "$HEALTH_STATUS" = "degraded" ]; then
-    echo -e "${YELLOW}⚠ System degraded - review warnings${NC}"
+    echo -e "${YELLOW}System degraded - review warnings${NC}"
 else
-    echo -e "${YELLOW}⚠ System unhealthy - immediate attention required${NC}"
+    echo -e "${YELLOW}System unhealthy - immediate attention required${NC}"
 fi
 echo ""
 

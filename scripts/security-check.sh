@@ -350,7 +350,7 @@ main() {
     done
     
     # Print header
-    echo "🔒 PeerVault Security Check Script"
+    echo "PeerVault Security Check Script"
     echo "=================================="
     echo ""
     
@@ -398,10 +398,10 @@ main() {
     fi
     
     # Print summary
-    echo "🔒 Security Check Summary"
+    echo "Security Check Summary"
     echo "========================"
     echo ""
-    echo "✅ Security checks completed successfully!"
+    echo "Security checks completed successfully!"
     echo ""
     echo "Reports generated:"
     echo "- security-reports/ (vulnerability and security scan reports)"
