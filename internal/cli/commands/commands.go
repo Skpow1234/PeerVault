@@ -698,12 +698,12 @@ func (c *HelpCommand) Execute(ctx context.Context, args []string) error {
 	}
 
 	// Show general help
-	fmt.Println("🚀 PeerVault CLI - Available Commands")
+	fmt.Println("PeerVault CLI - Available Commands")
 	fmt.Println()
 
 	commands := c.cli.ListCommands()
 
-	fmt.Println("📁 File Operations:")
+	fmt.Println("File Operations:")
 	for _, cmd := range commands {
 		if strings.Contains(cmd.Name(), "store") || strings.Contains(cmd.Name(), "get") ||
 			strings.Contains(cmd.Name(), "list") || strings.Contains(cmd.Name(), "delete") {
@@ -711,14 +711,14 @@ func (c *HelpCommand) Execute(ctx context.Context, args []string) error {
 		}
 	}
 
-	fmt.Println("\n🌐 Network Operations:")
+	fmt.Println("\nNetwork Operations:")
 	for _, cmd := range commands {
 		if strings.Contains(cmd.Name(), "peer") || strings.Contains(cmd.Name(), "connect") {
 			fmt.Printf("  %-15s - %s\n", cmd.Name(), cmd.Description())
 		}
 	}
 
-	fmt.Println("\n🔧 System Operations:")
+	fmt.Println("\nSystem Operations:")
 	for _, cmd := range commands {
 		if strings.Contains(cmd.Name(), "health") || strings.Contains(cmd.Name(), "metrics") ||
 			strings.Contains(cmd.Name(), "status") {
@@ -726,7 +726,7 @@ func (c *HelpCommand) Execute(ctx context.Context, args []string) error {
 		}
 	}
 
-	fmt.Println("\n⚙️  Utility Commands:")
+	fmt.Println("\nUtility Commands:")
 	for _, cmd := range commands {
 		if strings.Contains(cmd.Name(), "help") || strings.Contains(cmd.Name(), "exit") ||
 			strings.Contains(cmd.Name(), "clear") || strings.Contains(cmd.Name(), "history") {
@@ -848,7 +848,7 @@ func (c *HistoryCommand) Execute(ctx context.Context, args []string) error {
 		return nil
 	}
 
-	fmt.Println("📜 Command History:")
+	fmt.Println("Command History:")
 	for i, cmd := range commands {
 		fmt.Printf("%3d  %s\n", i+1, cmd)
 	}
@@ -1329,9 +1329,9 @@ func (c *MonitorCommand) showDashboard() error {
 
 	fmt.Println("\nService Status:")
 	for service, status := range health.Services {
-		emoji := "✅"
+		emoji := "OK"
 		if status != "healthy" {
-			emoji = "❌"
+			emoji = "FAIL"
 		}
 		fmt.Printf("  %s %s: %s\n", emoji, service, status)
 	}

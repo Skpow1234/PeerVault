@@ -236,7 +236,7 @@
         <div class="upload-section">
             <h2>Upload Files</h2>
             <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">📁</div>
+                <div class="upload-icon">Upload</div>
                 <h3>Drag & drop files here</h3>
                 <p>or click to select files</p>
                 <input type="file" id="fileInput" class="file-input" multiple>
@@ -454,26 +454,26 @@
         function getFileIcon(filename) {
             const ext = filename.split('.').pop().toLowerCase();
             const icons = {
-                'txt': '📄',
-                'pdf': '📕',
-                'doc': '📘',
-                'docx': '📘',
-                'jpg': '🖼️',
-                'jpeg': '🖼️',
-                'png': '🖼️',
-                'gif': '🖼️',
-                'mp4': '🎥',
-                'avi': '🎥',
-                'mp3': '🎵',
-                'wav': '🎵',
-                'zip': '📦',
-                'rar': '📦',
-                'exe': '⚙️',
-                'js': '📜',
-                'html': '🌐',
-                'css': '🎨'
+                'txt': 'TXT',
+                'pdf': 'PDF',
+                'doc': 'DOC',
+                'docx': 'DOC',
+                'jpg': 'IMG',
+                'jpeg': 'IMG',
+                'png': 'IMG',
+                'gif': 'IMG',
+                'mp4': 'VID',
+                'avi': 'VID',
+                'mp3': 'AUD',
+                'wav': 'AUD',
+                'zip': 'ARC',
+                'rar': 'ARC',
+                'exe': 'EXE',
+                'js': 'JS',
+                'html': 'HTML',
+                'css': 'CSS'
             };
-            return icons[ext] || '📁';
+            return icons[ext] || 'FILE';
         }
         
         function formatFileSize(bytes) {

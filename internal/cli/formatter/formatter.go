@@ -35,12 +35,12 @@ func (f *Formatter) SetVerbose(verbose bool) {
 
 // PrintError prints an error message
 func (f *Formatter) PrintError(err error) {
-	fmt.Fprintf(os.Stderr, "❌ Error: %v\n", err)
+	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 }
 
 // PrintSuccess prints a success message
 func (f *Formatter) PrintSuccess(message string) {
-	fmt.Printf("✅ %s\n", message)
+	fmt.Printf("%s\n", message)
 }
 
 // PrintInfo prints an info message
@@ -50,7 +50,7 @@ func (f *Formatter) PrintInfo(message string) {
 
 // PrintWarning prints a warning message
 func (f *Formatter) PrintWarning(message string) {
-	fmt.Printf("⚠️  %s\n", message)
+	fmt.Printf("Warning: %s\n", message)
 }
 
 // PrintFileInfo prints file information
@@ -127,7 +127,7 @@ func (f *Formatter) PrintMetrics(metrics *client.Metrics) {
 
 // Table formatting methods
 func (f *Formatter) printFileInfoTable(file *client.FileInfo) {
-	fmt.Printf("📁 File Information\n")
+	fmt.Printf("File Information\n")
 	fmt.Printf("┌─────────────────┬─────────────────────────────────────────────────────────────┐\n")
 	fmt.Printf("│ Field           │ Value                                                       │\n")
 	fmt.Printf("├─────────────────┼─────────────────────────────────────────────────────────────┤\n")
@@ -142,11 +142,11 @@ func (f *Formatter) printFileInfoTable(file *client.FileInfo) {
 
 func (f *Formatter) printFileListTable(files *client.FileListResponse) {
 	if len(files.Files) == 0 {
-		fmt.Println("📁 No files found")
+		fmt.Println("No files found")
 		return
 	}
 
-	fmt.Printf("📁 Files (%d total)\n", files.Total)
+	fmt.Printf("Files (%d total)\n", files.Total)
 	fmt.Printf("┌─────────────────────────────────────────────────────────────┬─────────────┬─────────────────────────────────────────────────────────────┐\n")
 	fmt.Printf("│ Key                                                         │ Size        │ Created At                                               │\n")
 	fmt.Printf("├─────────────────────────────────────────────────────────────┼─────────────┼─────────────────────────────────────────────────────────────┤\n")
@@ -163,7 +163,7 @@ func (f *Formatter) printFileListTable(files *client.FileListResponse) {
 }
 
 func (f *Formatter) printPeerInfoTable(peer *client.PeerInfo) {
-	fmt.Printf("🌐 Peer Information\n")
+	fmt.Printf("Peer Information\n")
 	fmt.Printf("┌─────────────────┬─────────────────────────────────────────────────────────────┐\n")
 	fmt.Printf("│ Field           │ Value                                                       │\n")
 	fmt.Printf("├─────────────────┼─────────────────────────────────────────────────────────────┤\n")
@@ -178,11 +178,11 @@ func (f *Formatter) printPeerInfoTable(peer *client.PeerInfo) {
 
 func (f *Formatter) printPeerListTable(peers *client.PeerListResponse) {
 	if len(peers.Peers) == 0 {
-		fmt.Println("🌐 No peers found")
+		fmt.Println("No peers found")
 		return
 	}
 
-	fmt.Printf("🌐 Peers (%d total)\n", peers.Total)
+	fmt.Printf("Peers (%d total)\n", peers.Total)
 	fmt.Printf("┌─────────────────────────────────────────────────────────────┬─────────────┬─────────────┬─────────────┬─────────────────────────────────────────────────────────────┐\n")
 	fmt.Printf("│ Address                                                     │ Status      │ Latency     │ Storage     │ Last Seen                                               │\n")
 	fmt.Printf("├─────────────────────────────────────────────────────────────┼─────────────┼─────────────┼─────────────┼─────────────────────────────────────────────────────────────┤\n")
@@ -201,7 +201,7 @@ func (f *Formatter) printPeerListTable(peers *client.PeerListResponse) {
 }
 
 func (f *Formatter) printHealthTable(health *client.HealthStatus) {
-	fmt.Printf("🏥 System Health\n")
+	fmt.Printf("System Health\n")
 	fmt.Printf("┌─────────────────┬─────────────────────────────────────────────────────────────┐\n")
 	fmt.Printf("│ Field           │ Value                                                       │\n")
 	fmt.Printf("├─────────────────┼─────────────────────────────────────────────────────────────┤\n")
@@ -210,7 +210,7 @@ func (f *Formatter) printHealthTable(health *client.HealthStatus) {
 	fmt.Printf("└─────────────────┴─────────────────────────────────────────────────────────────┘\n")
 
 	if len(health.Services) > 0 {
-		fmt.Printf("\n🔧 Service Status\n")
+		fmt.Printf("\nService Status\n")
 		fmt.Printf("┌─────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────┐\n")
 		fmt.Printf("│ Service                                                     │ Status                                                       │\n")
 		fmt.Printf("├─────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────┤\n")
@@ -224,7 +224,7 @@ func (f *Formatter) printHealthTable(health *client.HealthStatus) {
 }
 
 func (f *Formatter) printMetricsTable(metrics *client.Metrics) {
-	fmt.Printf("📊 System Metrics\n")
+	fmt.Printf("System Metrics\n")
 	fmt.Printf("┌─────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────┐\n")
 	fmt.Printf("│ Metric                                                      │ Value                                                       │\n")
 	fmt.Printf("├─────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────┤\n")
@@ -461,13 +461,13 @@ func (f *Formatter) formatTimeAgo(t time.Time) string {
 func (f *Formatter) getStatusEmoji(status string) string {
 	switch strings.ToLower(status) {
 	case "healthy", "active", "online":
-		return "🟢"
+		return "OK"
 	case "degraded", "warning":
-		return "🟡"
+		return "WARN"
 	case "unhealthy", "inactive", "offline", "error":
-		return "🔴"
+		return "FAIL"
 	default:
-		return "⚪"
+		return "UNKNOWN"
 	}
 }
 

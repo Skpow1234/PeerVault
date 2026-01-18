@@ -176,7 +176,7 @@ func (am *Manager) FormatAliases() string {
 	}
 
 	var result strings.Builder
-	result.WriteString("📝 Command Aliases:\n")
+	result.WriteString("Command Aliases:\n")
 	result.WriteString(strings.Repeat("=", 30) + "\n")
 
 	// Group aliases by category
@@ -222,7 +222,7 @@ func (am *Manager) FormatAliases() string {
 
 // GetAliasHelp returns help text for aliases
 func (am *Manager) GetAliasHelp() string {
-	return `📝 Command Aliases
+return `Command Aliases
 
 Aliases provide shortcuts for commonly used commands. You can use them just like regular commands.
 

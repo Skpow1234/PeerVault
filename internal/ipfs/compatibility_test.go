@@ -568,7 +568,7 @@ func TestIPFSCompatibility_EdgeCases(t *testing.T) {
 	assert.Equal(t, largeData, largeBlock.Data)
 
 	// Test with special characters in data
-	specialData := []byte("Hello, 世界! 🌍")
+	specialData := []byte("Hello, 世界!")
 	specialCID, err := ic.AddBlock(ctx, specialData, "raw")
 	assert.NoError(t, err)
 	assert.NotNil(t, specialCID)

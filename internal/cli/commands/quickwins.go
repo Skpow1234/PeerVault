@@ -56,7 +56,7 @@ func (c *EnhancedHelpCommand) Execute(ctx context.Context, args []string) error 
 
 	if command == "" {
 		// Show general help
-		fmt.Println("🚀 PeerVault CLI - Available Commands")
+		fmt.Println("PeerVault CLI - Available Commands")
 		fmt.Println(strings.Repeat("=", 50))
 
 		commands := c.helpManager.GetAvailableCommands()

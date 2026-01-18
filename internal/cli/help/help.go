@@ -263,7 +263,7 @@ func (hm *HelpManager) FormatCommandHelp(command string, showExamples bool, show
 	var result strings.Builder
 
 	// Title
-	result.WriteString(fmt.Sprintf("📖 %s - %s\n", help.Name, help.Description))
+	result.WriteString(fmt.Sprintf("%s - %s\n", help.Name, help.Description))
 	result.WriteString(strings.Repeat("=", 50) + "\n")
 
 	// Usage
@@ -313,7 +313,7 @@ func (hm *HelpManager) FormatCommandHelp(command string, showExamples bool, show
 
 	// Tips
 	if len(help.Tips) > 0 {
-		result.WriteString("💡 Tips:\n")
+		result.WriteString("Tips:\n")
 		for _, tip := range help.Tips {
 			result.WriteString(fmt.Sprintf("  • %s\n", tip))
 		}
@@ -331,7 +331,7 @@ func (hm *HelpManager) FormatCommandHelp(command string, showExamples bool, show
 	if showTutorial {
 		tutorial := hm.tutorials[command]
 		if tutorial != nil {
-			result.WriteString("🎓 Tutorial: " + tutorial.Title + "\n")
+			result.WriteString("Tutorial: " + tutorial.Title + "\n")
 			result.WriteString(tutorial.Description + "\n\n")
 
 			if len(tutorial.Prerequisites) > 0 {

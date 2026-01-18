@@ -13,9 +13,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 1 — Correctness and Security (P0) ✅
+## Milestone 1 — Correctness and Security (P0)
 
-1 Fix ID scoping mismatch (cross-node fetch/store) ✅
+1 Fix ID scoping mismatch (cross-node fetch/store)
 
 - Problem: files are written/read under `id/key`, but `GetFile`/`StoreFile` use requester/sender `ID`, causing misses.
 - Options:
@@ -24,7 +24,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: A node that does not have a file locally can fetch it from a peer successfully.
 - Touchpoints: `internal/app/fileserver/server.go`, `internal/storage/store.go`.
 
-2 Replace AES-CTR with authenticated encryption (AEAD) ✅
+2 Replace AES-CTR with authenticated encryption (AEAD)
 
 - Problem: AES-CTR without authentication is malleable and offers no integrity.
 - Solution: AES-GCM (preferred) or ChaCha20-Poly1305 with 12-byte nonce and AAD including message type/size.
@@ -32,14 +32,14 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Crypto unit tests pass; tampering is detected; e2e still streams.
 - Touchpoints: `internal/crypto/crypto.go`, `crypto_test.go`, call sites in `fileserver`.
 
-3 Replace MD5/SHA-1 with SHA-256 (or HMAC-SHA-256 for hidden logical keys) ✅
+3 Replace MD5/SHA-1 with SHA-256 (or HMAC-SHA-256 for hidden logical keys)
 
 - `HashKey` → SHA-256 (or HMAC with cluster secret if keys must be concealed).
 - CAS path transform → SHA-256, adapt block size segmentation.
 - Acceptance: Existing tests updated; new expected paths validated.
 - Touchpoints: `internal/crypto/crypto.go`, `internal/storage/store.go`, tests.
 
-4 Key management model ✅
+4 Key management model
 
 - Current: Each node generates a random `EncKey`, but peers need the same key to decrypt replicated streams.
 - Choose:
@@ -49,14 +49,14 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Start with A) for demo simplicity; document B/C as next steps.
 - Touchpoints: `cmd/peervault/main.go`, config, handshake.
 
-5 Add authenticated transport handshake ✅
+5 Add authenticated transport handshake
 
 - Implement handshake exchanging node identities and (for demo) verifying a pre-shared auth token or using Noise IK/XX.
 - Produce a `PeerInfo {NodeID, PubKey}` and store in peer map.
 - Acceptance: Only authenticated peers join; unauthenticated peers are rejected with clear logs.
 - Touchpoints: `internal/transport/p2p/handshake.go`, `tcp_transport.go`, `fileserver.OnPeer`.
 
-6 Message framing with length prefix ✅
+6 Message framing with length prefix
 
 - Replace ad-hoc `DefaultDecoder` with a consistent frame: `[type:u8][len:u32][payload:len]`.
 - For streams, send `[IncomingStream:u8][size:u64]` then raw bytes; for messages, the payload is encoded (JSON/CBOR/protobuf/gob).
@@ -65,44 +65,44 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 2 — Transport, Streaming, and Storage (P1) ✅
+## Milestone 2 — Transport, Streaming, and Storage (P1)
 
-1 Remove `time.Sleep`-based coordination ✅
+1 Remove `time.Sleep`-based coordination
 
 - Problem: Relies on arbitrary delays instead of explicit acknowledgments.
 - Solution: Replace with proper request-response protocol using acknowledgments.
 - Acceptance: No `time.Sleep` calls in protocol logic; explicit acks for all operations.
 - Touchpoints: `internal/app/fileserver/server.go`, `cmd/peervault/main.go`.
 
-2 True streaming replication without buffering to memory ✅
+2 True streaming replication without buffering to memory
 
 - Problem: Entire files are buffered in memory before replication.
 - Solution: Stream directly from disk to network peers without buffering.
 - Acceptance: Large files can be replicated without memory exhaustion.
 - Touchpoints: `internal/app/fileserver/server.go`.
 
-3 Add proper peer discovery and resilient replication ✅
+3 Add proper peer discovery and resilient replication
 
 - Problem: Basic peer discovery and no resilient replication.
 - Solution: Implement retry logic and better peer management.
 - Acceptance: Replication continues even if some peers fail.
 - Touchpoints: `internal/app/fileserver/server.go`.
 
-4 Map concurrency safety ✅
+4 Map concurrency safety
 
 - Problem: Race conditions in peer map access and inconsistent locking.
 - Solution: Upgrade to RWMutex and ensure all peer access is properly synchronized.
 - Acceptance: No race conditions in concurrent peer operations.
 - Touchpoints: `internal/app/fileserver/server.go`.
 
-5 Clarify encryption-at-rest vs in-transit ✅
+5 Clarify encryption-at-rest vs in-transit
 
 - Problem: Inconsistent encryption strategy and unclear documentation.
 - Solution: Implement encryption at rest + in transit with clear documentation.
 - Acceptance: Consistent encryption behavior and documented strategy.
 - Touchpoints: `internal/app/fileserver/server.go`, `ENCRYPTION.md`.
 
-6 Logging and error context ✅
+6 Logging and error context
 
 - Problem: Inconsistent logging with fmt.Printf and basic log.Println.
 - Solution: Implement structured logging with slog and proper error context.
@@ -111,33 +111,33 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 3 — Reliability, Ops, and DX (P2) ✅
+## Milestone 3 — Reliability, Ops, and DX (P2)
 
-1 Peer lifecycle and health ✅
+1 Peer lifecycle and health
 
 - Problem: No peer health monitoring, dead peers remain indefinitely, no automatic reconnection.
 - Solution: Implement health manager with heartbeats, timeouts, and exponential backoff reconnection.
 - Acceptance: Dead peers are detected and removed, automatic reconnection with backoff, only healthy peers used for operations.
 - Touchpoints: `internal/peer/health.go`, `internal/app/fileserver/server.go`.
 
-2 Resource limits and backpressure ✅
+2 Resource limits and backpressure
 
 - Cap per-peer concurrent streams; add throttling; propagate cancellations with `context.Context`.
 - Acceptance: Per-peer concurrent stream limits enforced, rate limiting applied, context cancellation propagated throughout the system.
 - Touchpoints: `internal/peer/resource_manager.go`, `internal/app/fileserver/server.go`, `cmd/peervault/main.go`.
 
-3 Windows portability ✅
+3 Windows portability
 
 - Sanitize `StorageRoot` to avoid `:` in directory names; fix in code (not only README).
 - Touchpoints: `cmd/peervault/main.go`, `internal/storage` defaults.
 
-4 Containerization and multi-node runs ✅
+4 Containerization and multi-node runs
 
 - Provide multi-container examples (one node per container) with a compose file; document ports and bootstrap.
 - Acceptance: Multi-container deployment with Docker Compose, separate node containers, demo client, comprehensive documentation.
 - Touchpoints: `docker-compose.yml`, `Dockerfile.node`, `Dockerfile.demo`, `cmd/peervault-node/`, `cmd/peervault-demo/`, `CONTAINERIZATION.md`.
 
-5 Developer tooling ✅
+5 Developer tooling
 
 - Taskfile; improve `Makefile` targets.
 - Acceptance: Cross-platform development tools with Taskfile, PowerShell scripts, bash scripts, improved Makefile, comprehensive testing structure.
@@ -147,7 +147,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ## Milestone 4 — API Interfaces and External Integration (P3)
 
-1 GraphQL API interface ✅
+1 GraphQL API interface
 
 - Problem: No flexible API for complex queries and real-time data access across the distributed system.
 - Solution: Implement GraphQL API with schema-first design for file operations, peer management, and system monitoring.
@@ -156,7 +156,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/api/graphql/`, `internal/schema/`, `cmd/peervault-graphql/`, `docs/graphql/`.
 - Tests: We want to have integration and unit tests for this
 
-2 REST API interface (Complementary) ✅
+2 REST API interface (Complementary)
 
 - Problem: No simple HTTP API for basic operations and integration with existing systems.
 - Solution: Implement REST API alongside GraphQL for simple CRUD operations and webhook integrations.
@@ -165,7 +165,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/api/rest/`, `cmd/peervault-api/`, `internal/handlers/`, `docs/api/`.
 - Tests: We want to have integration and unit tests for this
 
-3 gRPC API interface (High-performance) ✅
+3 gRPC API interface (High-performance)
 
 - Problem: No programmatic API for high-performance client applications and streaming operations.
 - Solution: Implement gRPC service with protobuf definitions for streaming file operations and peer management.
@@ -174,7 +174,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/api/grpc/`, `proto/`, `cmd/peervault-grpc/`, `docs/grpc/`.
 - Tests: We want to have integration and unit tests for this
 
-4 Configuration management system ✅
+4 Configuration management system
 
 - Problem: Hardcoded configuration values and environment variable dependencies.
 - Solution: Implement hierarchical configuration with file-based config, environment overrides, and validation.
@@ -183,7 +183,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/config/`, `config/`, `cmd/peervault/config.go`.
 - Tests: We want to have integration and unit tests for this
 
-5 Developer documentation and API reference ✅
+5 Developer documentation and API reference
 
 - Problem: No comprehensive developer documentation, API reference, or interactive documentation.
 - Solution: Implement comprehensive documentation with Swagger/OpenAPI, GraphQL Playground, and developer guides here C:\Users\jfhvj\Desktop\peervault\docs
@@ -191,7 +191,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Swagger UI, GraphQL Playground, comprehensive docs, code examples, SDK documentation.
 - Touchpoints: `docs/`, `docs/api/`, `docs/graphql/`, `docs/sdk/`, `docs/examples/`.
 
-6 Plugin architecture ✅
+6 Plugin architecture
 
 - Problem: No extensibility for custom storage backends, authentication methods, or transport protocols.
 - Solution: Design plugin system for storage providers, authentication mechanisms, and transport layers.
@@ -202,9 +202,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 5 — Developer Experience and Documentation (P4) ✅
+## Milestone 5 — Developer Experience and Documentation (P4)
 
-1 Interactive API documentation ✅
+1 Interactive API documentation
 
 - Problem: No interactive documentation for developers to explore and test APIs.
 - Solution: Implement Swagger UI for REST API, GraphQL Playground, and interactive gRPC documentation.
@@ -212,7 +212,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Swagger UI, GraphQL Playground, gRPC reflection, interactive examples.
 - Touchpoints: `docs/swagger/`, `docs/graphql-playground/`, `internal/api/docs/`.
 
-2 SDK and client libraries ✅
+2 SDK and client libraries
 
 - Problem: No official SDKs or client libraries for different programming languages.
 - Solution: Develop official SDKs for Go, JavaScript/TypeScript, Python, and Java with comprehensive examples.
@@ -220,7 +220,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Multi-language SDKs, comprehensive examples, type safety, documentation.
 - Touchpoints: `sdk/go/`, `sdk/javascript/`, `sdk/python/`, `sdk/java/`, `docs/sdk/`.
 
-3 Developer portal and guides ✅
+3 Developer portal and guides
 
 - Problem: No centralized developer portal with tutorials, guides, and best practices.
 - Solution: Create comprehensive developer portal with getting started guides, tutorials, and best practices.
@@ -228,7 +228,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Developer portal, comprehensive guides, tutorials, best practices documentation.
 - Touchpoints: `docs/portal/`, `docs/guides/`, `docs/tutorials/`, `docs/best-practices/`.
 
-4 Code examples and demos ✅
+4 Code examples and demos
 
 - Problem: No practical examples or demos showing real-world usage patterns.
 - Solution: Create comprehensive code examples, demos, and sample applications.
@@ -238,9 +238,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 6 — Performance and Scalability (P5) ✅
+## Milestone 6 — Performance and Scalability (P5)
 
-1 Memory optimization and garbage collection ✅
+1 Memory optimization and garbage collection
 
 - Problem: Potential memory leaks in long-running operations and inefficient memory usage patterns.
 - Solution: Implement memory pools, optimize buffer management, add GC tuning, memory profiling.
@@ -249,7 +249,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/pool/`, `internal/app/fileserver/server.go`, `internal/transport/p2p/`.
 - Tests: We want to have integration and unit tests for this
 
-2 Connection pooling and multiplexing ✅
+2 Connection pooling and multiplexing
 
 - Problem: Single connection per peer limits throughput and efficiency.
 - Solution: Implement connection pooling, connection multiplexing, and connection reuse.
@@ -258,7 +258,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/transport/p2p/`, `internal/pool/`, `internal/app/fileserver/server.go`.
 - Tests: We want to have integration and unit tests for this
 
-3 Caching layer ✅
+3 Caching layer
 
 - Problem: No caching mechanism for frequently accessed files or metadata.
 - Solution: Implement multi-level caching with memory and disk caches, cache invalidation strategies.
@@ -267,7 +267,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Touchpoints: `internal/cache/`, `internal/storage/`, `internal/app/fileserver/server.go`.
 - Tests: We want to have integration and unit tests for this
 
-4 Compression and deduplication ✅
+4 Compression and deduplication
 
 - Problem: No data compression or deduplication capabilities.
 - Solution: Implement transparent compression, content-based deduplication, delta encoding.
@@ -278,9 +278,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 7 — Monitoring, Observability, and Production Readiness (P6) ✅
+## Milestone 7 — Monitoring, Observability, and Production Readiness (P6)
 
-1 Metrics and monitoring system ✅
+1 Metrics and monitoring system
 
 - Problem: No comprehensive metrics collection or monitoring capabilities.
 - Solution: Implement Prometheus metrics, health checks, alerting rules, and monitoring dashboards.
@@ -288,7 +288,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Full observability stack, production-ready monitoring, alerting rules.
 - Touchpoints: `internal/metrics/`, `internal/health/`, `monitoring/`, `cmd/peervault-monitor/`.
 
-2 Distributed tracing ✅
+2 Distributed tracing
 
 - Problem: No visibility into request flows across multiple nodes and services.
 - Solution: Implement OpenTelemetry tracing with Jaeger/Zipkin integration for request tracking.
@@ -296,7 +296,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: End-to-end request tracing, performance analysis, debugging capabilities.
 - Touchpoints: `internal/tracing/`, `internal/telemetry/`, `cmd/peervault-trace/`.
 
-3 Structured logging and log aggregation ✅
+3 Structured logging and log aggregation
 
 - Problem: Basic logging without structured data or log aggregation capabilities.
 - Solution: Enhance logging with structured fields, log levels, log rotation, and aggregation.
@@ -304,7 +304,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Production-ready logging, log aggregation, log analysis capabilities.
 - Touchpoints: `internal/logging/`, `internal/logger/`, `cmd/peervault-logger/`.
 
-4 Backup and disaster recovery ✅
+4 Backup and disaster recovery
 
 - Problem: No backup strategies or disaster recovery procedures.
 - Solution: Implement automated backups, point-in-time recovery, data replication strategies.
@@ -314,9 +314,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 8 — Security Hardening and Compliance (P7) ✅
+## Milestone 8 — Security Hardening and Compliance (P7)
 
-1 Security audit and penetration testing ✅
+1 Security audit and penetration testing
 
 - Problem: No comprehensive security assessment or penetration testing.
 - Solution: Conduct security audits, implement security controls, add penetration testing.
@@ -324,7 +324,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Security audit report, penetration testing results, security controls.
 - Touchpoints: `security/`, `internal/security/`, `.github/workflows/security.yml`.
 
-2 Access control and authorization ✅
+2 Access control and authorization
 
 - Problem: Basic authentication without fine-grained access control.
 - Solution: Implement RBAC, ACLs, and authorization policies for file and system access.
@@ -332,7 +332,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Fine-grained access control, audit trails, compliance reporting.
 - Touchpoints: `internal/auth/`, `internal/rbac/`, `internal/audit/`.
 
-3 Data privacy and compliance ✅
+3 Data privacy and compliance
 
 - Problem: No data privacy controls or compliance features.
 - Solution: Implement data classification, privacy controls, compliance reporting, data retention.
@@ -340,7 +340,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Privacy controls, compliance features, data retention policies.
 - Touchpoints: `internal/privacy/`, `internal/compliance/`, `internal/retention/`.
 
-4 Certificate management and PKI ✅
+4 Certificate management and PKI
 
 - Problem: Basic authentication without proper certificate management.
 - Solution: Implement PKI infrastructure, certificate lifecycle management, certificate rotation.
@@ -350,9 +350,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 9 — Advanced Features and Ecosystem (P8) ✅
+## Milestone 9 — Advanced Features and Ecosystem (P8)
 
-1 Content addressing and IPFS compatibility ✅
+1 Content addressing and IPFS compatibility
 
 - Problem: No content addressing or compatibility with existing distributed systems.
 - Solution: Implement content addressing, IPFS compatibility, CID support, DAG structures.
@@ -360,7 +360,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: IPFS compatibility, content addressing, ecosystem integration.
 - Touchpoints: `internal/content/`, `internal/ipfs/`, `cmd/peervault-ipfs/`.
 
-2 Blockchain integration and smart contracts ✅
+2 Blockchain integration and smart contracts
 
 - Problem: No blockchain integration or smart contract capabilities.
 - Solution: Implement blockchain integration, smart contract support, decentralized identity.
@@ -368,7 +368,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Blockchain integration, smart contract support, decentralized features.
 - Touchpoints: `internal/blockchain/`, `internal/smartcontracts/`, `cmd/peervault-chain/`.
 
-3 Machine learning and AI integration ✅
+3 Machine learning and AI integration
 
 - Problem: No AI/ML capabilities for intelligent file management or optimization.
 - Solution: Implement ML-based file classification, optimization, and intelligent caching.
@@ -376,7 +376,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: ML integration, intelligent features, optimization capabilities.
 - Touchpoints: `internal/ml/`, `internal/ai/`, `cmd/peervault-ml/`.
 
-4 Edge computing and IoT support ✅
+4 Edge computing and IoT support
 
 - Problem: No support for edge computing or IoT device integration.
 - Solution: Implement edge computing support, IoT device integration, lightweight protocols.
@@ -386,9 +386,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 10 — Advanced GraphQL Features (P9) ✅
+## Milestone 10 — Advanced GraphQL Features (P9)
 
-1 Real-time Subscriptions ✅
+1 Real-time Subscriptions
 
 - Problem: No real-time updates for file operations, peer status changes, or system events.
 - Solution: Implement WebSocket-based GraphQL subscriptions with live updates.
@@ -396,7 +396,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: GraphQL subscriptions working, WebSocket connections stable, real-time updates functional.
 - Touchpoints: `internal/api/graphql/subscriptions/`, `internal/websocket/`, `docs/graphql/subscriptions/`.
 
-2 GraphQL Federation ✅
+2 GraphQL Federation
 
 - Problem: Single GraphQL schema limits scalability and team collaboration.
 - Solution: Implement GraphQL federation for multi-service composition.
@@ -404,7 +404,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Multiple services can compose GraphQL schemas, federation gateway working.
 - Touchpoints: `internal/api/graphql/federation/`, `cmd/peervault-federation/`, `docs/graphql/federation/`.
 
-3 Advanced Caching ✅
+3 Advanced Caching
 
 - Problem: No query result caching leads to repeated expensive operations.
 - Solution: Implement intelligent GraphQL query result caching with invalidation strategies.
@@ -412,7 +412,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Improved query performance, cache hit rates >80%, cache invalidation working.
 - Touchpoints: `internal/api/graphql/cache/`, `internal/cache/graphql/`, `docs/graphql/caching/`.
 
-4 Schema Stitching ✅
+4 Schema Stitching
 
 - Problem: Static schemas limit dynamic service composition.
 - Solution: Implement dynamic schema stitching for runtime schema composition.
@@ -420,7 +420,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Schemas can be composed at runtime, versioning working, updates seamless.
 - Touchpoints: `internal/api/graphql/stitching/`, `internal/schema/`, `docs/graphql/stitching/`.
 
-5 GraphQL Analytics ✅
+5 GraphQL Analytics
 
 - Problem: No visibility into GraphQL query performance and usage patterns.
 - Solution: Implement comprehensive GraphQL analytics and performance monitoring.
@@ -430,9 +430,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 11 — REST API Advanced Features (P9) ✅
+## Milestone 11 — REST API Advanced Features (P9)
 
-1 OpenAPI 3.1 Compliance ✅
+1 OpenAPI 3.1 Compliance
 
 - Problem: Current OpenAPI specification is outdated and lacks modern features.
 - Solution: Upgrade to OpenAPI 3.1 with latest features and specifications.
@@ -440,7 +440,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: OpenAPI 3.1 specification complete, validation working, documentation updated.
 - Touchpoints: `docs/api/peervault-rest-api.yaml`, `internal/api/rest/openapi/`, `docs/api/`.
 
-2 API Versioning Strategy ✅
+2 API Versioning Strategy
 
 - Problem: No clear API versioning strategy for backward compatibility.
 - Solution: Implement semantic versioning with backward compatibility guarantees.
@@ -448,7 +448,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Versioned APIs working, backward compatibility maintained, migration smooth.
 - Touchpoints: `internal/api/rest/versioning/`, `docs/api/versioning/`, `internal/version/`.
 
-3 Advanced Rate Limiting ✅
+3 Advanced Rate Limiting
 
 - Problem: Basic rate limiting doesn't handle complex scenarios and abuse patterns.
 - Solution: Implement advanced rate limiting with multiple algorithms and abuse detection.
@@ -456,7 +456,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Rate limiting working across nodes, abuse detection functional, metrics available.
 - Touchpoints: `internal/api/rest/ratelimit/`, `internal/ratelimit/`, `docs/api/ratelimit/`.
 
-4 API Gateway ✅
+4 API Gateway
 
 - Problem: No centralized API management and request routing.
 - Solution: Implement API gateway with routing, transformation, and management features.
@@ -464,7 +464,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: API gateway routing working, transformations functional, management interface available.
 - Touchpoints: `internal/api/gateway/`, `cmd/peervault-gateway/`, `docs/api/gateway/`.
 
-5 Webhook Management ✅
+5 Webhook Management
 
 - Problem: Basic webhook support lacks advanced features and reliability.
 - Solution: Implement comprehensive webhook management with delivery guarantees.
@@ -474,9 +474,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 12 — gRPC Advanced Features (P9) ✅
+## Milestone 12 — gRPC Advanced Features (P9)
 
-1 gRPC-Web Support ✅
+1 gRPC-Web Support
 
 - Problem: gRPC doesn't work in browsers due to HTTP/2 limitations.
 - Solution: Implement gRPC-Web for browser compatibility with HTTP/1.1.
@@ -484,7 +484,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: gRPC-Web working in browsers, TypeScript clients generated, performance acceptable.
 - Touchpoints: `internal/api/grpc/web/`, `docs/grpc/web/`, `sdk/typescript/grpc/`.
 
-2 Advanced Streaming Patterns ✅
+2 Advanced Streaming Patterns
 
 - Problem: Basic streaming doesn't handle complex scenarios and error recovery.
 - Solution: Implement advanced streaming patterns with error recovery and backpressure.
@@ -492,7 +492,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Advanced streaming working, error recovery functional, backpressure handled.
 - Touchpoints: `internal/api/grpc/streaming/`, `internal/streaming/`, `docs/grpc/streaming/`.
 
-3 gRPC Interceptors ✅
+3 gRPC Interceptors
 
 - Problem: No middleware support for cross-cutting concerns in gRPC.
 - Solution: Implement gRPC interceptors for authentication, logging, and monitoring.
@@ -500,7 +500,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Interceptors working, authentication functional, logging comprehensive, monitoring active.
 - Touchpoints: `internal/api/grpc/interceptors/`, `internal/interceptors/`, `docs/grpc/interceptors/`.
 
-4 Client-Side Load Balancing ✅
+4 Client-Side Load Balancing
 
 - Problem: No client-side load balancing for gRPC services.
 - Solution: Implement client-side load balancing with health checking and failover.
@@ -508,7 +508,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Load balancing working, health checks functional, failover automatic, discovery integrated.
 - Touchpoints: `internal/api/grpc/balancing/`, `internal/loadbalancer/`, `docs/grpc/balancing/`.
 
-5 Advanced Health Checking ✅
+5 Advanced Health Checking
 
 - Problem: Basic health checking doesn't provide detailed service status.
 - Solution: Implement comprehensive health checking with detailed status reporting.
@@ -518,9 +518,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 13 — API Documentation & Testing (P9) ✅
+## Milestone 13 — API Documentation & Testing (P9)
 
-1 Interactive API Testing ✅
+1 Interactive API Testing
 
 - Problem: No interactive tools for developers to test APIs during development.
 - Solution: Implement Postman/Insomnia integration with pre-configured collections.
@@ -528,7 +528,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Interactive testing tools integrated, collections available, automated testing working.
 - Touchpoints: `docs/api/testing/`, `tests/api/collections/`, `scripts/api-testing/`.
 
-2 API Mocking ✅
+2 API Mocking
 
 - Problem: No mock server for API development and testing without backend dependencies.
 - Solution: Implement mock server generation from OpenAPI specifications.
@@ -536,7 +536,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Mock servers generated, responses customizable, scenarios testable, analytics available.
 - Touchpoints: `internal/api/mocking/`, `cmd/peervault-mock/`, `docs/api/mocking/`.
 
-3 API Contract Testing ✅
+3 API Contract Testing
 
 - Problem: No contract testing to ensure API compatibility between services.
 - Solution: Implement consumer-driven contract testing with Pact or similar tools.
@@ -544,7 +544,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Contract testing working, consumer contracts defined, provider verification passing.
 - Touchpoints: `tests/contracts/`, `internal/api/contracts/`, `docs/api/contracts/`.
 
-4 API Performance Testing ✅
+4 API Performance Testing
 
 - Problem: No load testing tools to validate API performance under stress.
 - Solution: Implement comprehensive API performance testing with load generation.
@@ -552,7 +552,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: Load testing tools integrated, performance benchmarks established, bottlenecks identified.
 - Touchpoints: `tests/performance/`, `internal/api/performance/`, `docs/api/performance/`.
 
-5 API Security Testing ✅
+5 API Security Testing
 
 - Problem: No security testing to identify API vulnerabilities and security issues.
 - Solution: Implement OWASP API security testing with automated vulnerability scanning.
@@ -562,9 +562,9 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Milestone 14 — Multi-Protocol Support (P9) ✅
+## Milestone 14 — Multi-Protocol Support (P9)
 
-1 WebSocket API ✅
+1 WebSocket API
 
 - Problem: No real-time bidirectional communication for dynamic applications.
 - Solution: Implement WebSocket API for real-time communication and live updates.
@@ -572,7 +572,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: WebSocket API working, real-time communication functional, connection management stable.
 - Touchpoints: `internal/api/websocket/`, `cmd/peervault-websocket/`, `docs/api/websocket/`.
 
-2 Server-Sent Events ✅
+2 Server-Sent Events
 
 - Problem: No efficient server-to-client event streaming for real-time updates.
 - Solution: Implement Server-Sent Events for efficient one-way event streaming.
@@ -580,7 +580,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: SSE working, event streaming functional, reconnection automatic, filtering available.
 - Touchpoints: `internal/api/sse/`, `docs/api/sse/`, `internal/events/`.
 
-3 MQTT Support ✅
+3 MQTT Support
 
 - Problem: No IoT messaging protocol support for lightweight device communication.
 - Solution: Implement MQTT broker and client support for IoT device integration.
@@ -588,7 +588,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: MQTT broker running, client connections working, QoS levels supported, topics manageable.
 - Touchpoints: `internal/api/mqtt/`, `cmd/peervault-mqtt/`, `docs/api/mqtt/`.
 
-4 CoAP Support ✅
+4 CoAP Support
 
 - Problem: No constrained application protocol for resource-limited IoT devices.
 - Solution: Implement CoAP support for lightweight IoT device communication.
@@ -596,7 +596,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Acceptance: CoAP server running, client support working, resources manageable, observations functional.
 - Touchpoints: `internal/api/coap/`, `cmd/peervault-coap/`, `docs/api/coap/`.
 
-5 Protocol Translation ✅
+5 Protocol Translation
 
 - Problem: No cross-protocol communication between different API types.
 - Solution: Implement protocol translation layer for seamless cross-protocol communication.
@@ -1574,7 +1574,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 ---
 
-## Testing Plan ✅
+## Testing Plan
 
 Create a folder named tests, and subfolder with the different type of tests there, also, all the test that are already created, store it there, depending of there's needed
 Unit tests

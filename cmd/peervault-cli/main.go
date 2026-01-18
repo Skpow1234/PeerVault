@@ -178,7 +178,7 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 func runInteractiveMode(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, prompt *prompt.Prompt, cfg *config.Config, hist *history.History, aliasManager *aliases.Manager) {
 	// Clear screen and show welcome
 	formatter.ClearScreen()
-	formatter.PrintHeader("🚀 PeerVault CLI - Interactive Mode")
+	formatter.PrintHeader("PeerVault CLI - Interactive Mode")
 	formatter.PrintInfo("Type 'help' for available commands or 'exit' to quit")
 	formatter.PrintInfo("Use Tab for completion, ↑↓ for history, Ctrl+C to exit")
 	fmt.Println()
@@ -190,7 +190,7 @@ func runInteractiveMode(cliApp *cli.CLI, client *client.Client, formatter *forma
 		input, err := prompt.ReadLine()
 		if err != nil {
 			if err.Error() == "EOF" {
-				fmt.Println("\n👋 Goodbye!")
+				fmt.Println("\nGoodbye!")
 				break
 			}
 			formatter.PrintError(fmt.Errorf("error reading input: %v", err))

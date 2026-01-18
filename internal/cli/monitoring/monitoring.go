@@ -276,18 +276,7 @@ func (m *Manager) triggerAlert(alert *Alert) {
 	alert.LastTriggered = time.Now()
 	alert.TriggerCount++
 
-	// Format alert message based on severity
-	var emoji string
-	switch alert.Severity {
-	case SeverityInfo:
-		emoji = "ℹ️"
-	case SeverityWarning:
-		emoji = "⚠️"
-	case SeverityCritical:
-		emoji = "🚨"
-	}
-
-	message := fmt.Sprintf("%s ALERT [%s]: %s", emoji, alert.Severity, alert.Description)
+	message := fmt.Sprintf("ALERT [%s]: %s", alert.Severity, alert.Description)
 
 	switch alert.Severity {
 	case SeverityInfo:

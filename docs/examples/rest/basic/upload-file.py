@@ -161,9 +161,9 @@ def main():
             downloaded_content = f.read()
         
         if downloaded_content == sample_content:
-            print("✅ Content verification successful!")
+            print("Content verification successful!")
         else:
-            print("❌ Content verification failed!")
+            print("Content verification failed!")
         
         # Delete the file
         print(f"\nDeleting file: my-sample-file")
@@ -180,12 +180,12 @@ def main():
             print("  No files found")
         
     except requests.exceptions.RequestException as e:
-        print(f"❌ API request failed: {e}")
+        print(f"API request failed: {e}")
         if hasattr(e, 'response') and e.response is not None:
             print(f"Response status: {e.response.status_code}")
             print(f"Response body: {e.response.text}")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
     finally:
         # Clean up sample files
         for file in [sample_file, "downloaded-sample.txt"]:

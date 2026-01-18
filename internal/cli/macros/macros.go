@@ -385,11 +385,11 @@ func (mm *Manager) FormatMacroList() string {
 	}
 
 	var result strings.Builder
-	result.WriteString("📝 Command Macros:\n")
+	result.WriteString("Command Macros:\n")
 	result.WriteString(strings.Repeat("=", 50) + "\n")
 
 	for name, macro := range macros {
-		result.WriteString(fmt.Sprintf("📋 %s\n", name))
+		result.WriteString(fmt.Sprintf("%s\n", name))
 		result.WriteString(fmt.Sprintf("   %s\n", macro.Description))
 		result.WriteString(fmt.Sprintf("   Commands: %d | Used: %d times\n", len(macro.Commands), macro.UsageCount))
 		if !macro.LastUsed.IsZero() {
@@ -403,7 +403,7 @@ func (mm *Manager) FormatMacroList() string {
 
 // GetMacroHelp returns help text for macros
 func (mm *Manager) GetMacroHelp() string {
-	return `📝 Command Macros
+return `Command Macros
 
 Macros allow you to save and replay sequences of commands. They're perfect for automating repetitive tasks.
 
