@@ -27,7 +27,9 @@ func TestAnalyticsIntegration(t *testing.T) {
 	// Add a test endpoint
 	mux.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("test response"))
+		if _, err := w.Write([]byte("test response")); err != nil {
+			t.Fatalf("Failed to write response: %v", err)
+		}
 	})
 	
 	// Wrap with analytics middleware
@@ -45,7 +47,9 @@ func TestAnalyticsIntegration(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to make request: %v", err)
 			}
-			resp.Body.Close()
+			if err := resp.Body.Close(); err != nil {
+				t.Fatalf("Failed to close response body: %v", err)
+			}
 		}
 		
 		// Wait for async recording
@@ -148,7 +152,9 @@ func TestAnalyticsEndpoints(t *testing.T) {
 			Endpoint:   "/api/v1/files",
 			UserID:     "test-user",
 		}
-		service.RecordAPICall(call)
+		if err := service.RecordAPICall(call); err != nil {
+			t.Fatalf("Failed to record API call: %v", err)
+		}
 	}
 	
 	t.Run("GET /analytics/summary", func(t *testing.T) {
@@ -306,7 +312,9 @@ func TestAnalyticsMiddleware(t *testing.T) {
 	
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("test"))
+		if _, err := w.Write([]byte("test")); err != nil {
+			t.Fatalf("Failed to write response: %v", err)
+		}
 	})
 	
 	middleware := analytics.Middleware(service, logger)

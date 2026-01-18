@@ -1,6 +1,7 @@
 package monitoring
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -42,7 +43,7 @@ func (a *Alerter) RegisterCallback(callback AlertCallback) {
 
 // CheckPerformance checks performance metrics and triggers alerts if needed
 func (a *Alerter) CheckPerformance() {
-	snapshot := a.collector.GetPerformanceSnapshot(nil)
+	snapshot := a.collector.GetPerformanceSnapshot(context.TODO())
 	
 	// Check overall response time
 	a.checkResponseTime(snapshot.OverallResponseTime, "")

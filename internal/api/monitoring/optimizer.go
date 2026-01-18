@@ -1,6 +1,7 @@
 package monitoring
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -25,7 +26,7 @@ func NewOptimizer(config *MonitoringConfig, collector *Collector) *Optimizer {
 func (o *Optimizer) GenerateRecommendations() []OptimizationRecommendation {
 	var recommendations []OptimizationRecommendation
 	
-	snapshot := o.collector.GetPerformanceSnapshot(nil)
+	snapshot := o.collector.GetPerformanceSnapshot(context.TODO())
 	
 	// Analyze overall performance
 	recommendations = append(recommendations, o.analyzeResponseTimes(snapshot)...)

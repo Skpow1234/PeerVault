@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"time"
 
 	"github.com/Skpow1234/Peervault/internal/api/monitoring"
@@ -20,7 +21,7 @@ func NewMonitoringAPI(service *monitoring.Service) *MonitoringAPI {
 
 // GetHealthStatus returns simplified health status
 func (m *MonitoringAPI) GetHealthStatus() *HealthStatus {
-	snapshot := m.service.GetPerformanceSnapshot(nil)
+	snapshot := m.service.GetPerformanceSnapshot(context.TODO())
 	
 	status := &HealthStatus{
 		Score:     snapshot.HealthScore,
@@ -49,7 +50,7 @@ func (m *MonitoringAPI) GetHealthStatus() *HealthStatus {
 
 // GetPerformanceInsights provides actionable performance insights
 func (m *MonitoringAPI) GetPerformanceInsights() *PerformanceInsights {
-	snapshot := m.service.GetPerformanceSnapshot(nil)
+	snapshot := m.service.GetPerformanceSnapshot(context.TODO())
 	recommendations := m.service.GenerateRecommendations()
 	
 	// Find slowest endpoints
@@ -133,7 +134,7 @@ func (m *MonitoringAPI) GetAlertSummary() *AlertSummary {
 // GetQuickStats returns quick performance statistics
 func (m *MonitoringAPI) GetQuickStats() *QuickStats {
 	realtime := m.service.GetRealTimeMetrics()
-	snapshot := m.service.GetPerformanceSnapshot(nil)
+	snapshot := m.service.GetPerformanceSnapshot(context.TODO())
 	
 	return &QuickStats{
 		CurrentRPS:        realtime.CurrentRPS,
