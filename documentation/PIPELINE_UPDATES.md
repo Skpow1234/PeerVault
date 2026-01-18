@@ -210,7 +210,7 @@ Security checks run in CI using containerized workflows.
 ### Getting Help
 
 1. **Check Pipeline Logs**: Review detailed logs in GitHub Actions
-2. **Run Local Tests**: Use security check scripts locally
+2. **Run Local Tests**: Use CI containerized workflows
 3. **Review Reports**: Examine generated security and compliance reports
 4. **Security Documentation**: Check `security/README.md` for details
 
@@ -218,15 +218,15 @@ Security checks run in CI using containerized workflows.
 
 ### For Existing Developers
 
-1. **Install Security Tools**: Run `./scripts/security-check.sh --install-tools`
-2. **Run Local Security Checks**: Use `./scripts/security-check.sh` before pushing
+1. **Install Security Tools**: Managed in CI
+2. **Run Local Security Checks**: Use CI containerized workflows
 3. **Review Security Reports**: Check generated reports in CI/CD
 4. **Update Development Workflow**: Include security checks in development process
 
 ### For New Developers
 
 1. **Clone Repository**: Standard git clone process
-2. **Install Security Tools**: Run security check script with install option
+2. **Install Security Tools**: Managed in CI
 3. **Run Security Checks**: Use security check scripts for local validation
 4. **Review Documentation**: Check security documentation for details
 

@@ -53,30 +53,7 @@ Fuzz tests use random data to find edge cases and vulnerabilities:
 
 Tests run in CI using containerized workflows.
 
-### Using Make
-
-```bash
-make test
-make test-unit
-make test-race
-make test-fuzz
-```
-
-### Direct Go Commands
-
-```bash
-# Run all tests
-go test -v ./...
-
-# Run specific test package
-go test -v ./tests/unit/crypto
-
-# Run with race detector
-go test -race -v ./...
-
-# Run fuzz tests
-go test -run ^$ -fuzz=Fuzz -fuzztime=30s ./tests/fuzz/transport
-```
+Local test commands are omitted in the Docker-only workflow.
 
 ## Test Guidelines
 

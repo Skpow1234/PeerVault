@@ -471,17 +471,7 @@ Use the Docker compose stack to start the GraphQL API.
 
 ### Example Queries
 
-```bash
-# Health check
-curl -X POST http://localhost:8080/graphql \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ health { status timestamp } }"}'
-
-# Get system metrics
-curl -X POST http://localhost:8080/graphql \
-  -H "Content-Type: application/json" \
-  -d '{"query": "{ systemMetrics { storage { totalSpace usedSpace } } }"}'
-```
+Use the GraphQL endpoint with any API client. Command-line examples are omitted in the Docker-only workflow.
 
 For complete GraphQL API documentation, see [docs/graphql/README.md](docs/graphql/README.md).
 
@@ -534,23 +524,7 @@ Use the Docker compose stack to start the REST API.
 
 ### Example Requests
 
-```bash
-# Health check
-curl http://localhost:8081/health
-
-# List files
-curl http://localhost:8081/api/v1/files
-
-# Upload a file
-curl -X POST http://localhost:8081/api/v1/files \
-  -F "file=@example.txt" \
-  -F "metadata={\"owner\":\"user1\"}"
-
-# Add a peer
-curl -X POST http://localhost:8081/api/v1/peers \
-  -H "Content-Type: application/json" \
-  -d '{"address": "192.168.1.100", "port": 8080}'
-```
+Use the REST endpoints with any API client. Command-line examples are omitted in the Docker-only workflow.
 
 ### Architecture Benefits
 

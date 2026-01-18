@@ -388,16 +388,10 @@ HTTP Request → Analytics Middleware → Record API Call
 Use the `/api/v1/analytics/*` endpoints from any API client. Command-line examples are omitted in the Docker-only workflow.
 
 ### Get Popularity Report
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  "http://localhost:8081/api/v1/analytics/popularity?period=7d"
-```
+Use `/api/v1/analytics/popularity` with your API client.
 
 ### Query Recent Errors
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  "http://localhost:8081/api/v1/analytics/calls?status_code=500&limit=50"
-```
+Use `/api/v1/analytics/calls` with your API client.
 
 ## Best Practices
 
