@@ -3,6 +3,9 @@ version: "2"
 run:
   timeout: 5m
   go: "1.24"
+  exclude-dirs:
+    - vendor
+    - internal/blockchain
 
 # Minimal configuration using only core stable linters
 # These should work in both golangci-lint v1 and v2
@@ -17,5 +20,4 @@ issues:
   max-issues-per-linter: 0
   max-same-issues: 0
 
-# Note: Directory/file exclusions will be handled in CI args rather than config
-# This minimal config focuses on linter compatibility between v1 and v2
+# Note: Directory/file exclusions are set here to avoid deprecated CLI flags.

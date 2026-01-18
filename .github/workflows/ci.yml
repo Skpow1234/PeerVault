@@ -48,7 +48,7 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           version: latest
-          args: --timeout=5m --config=config/.golangci.yml --skip-dirs=vendor --skip-dirs=internal/blockchain
+          args: --timeout=5m --config=config/.golangci.yml
 
       - name: Install goimports
         run: go install golang.org/x/tools/cmd/goimports@latest
@@ -605,8 +605,8 @@ jobs:
 
       - name: Test Docker Compose
         run: |
-          docker compose -f docker/docker-compose.yml config
-          docker compose -f docker/docker-compose.dev.yml config
+          docker compose -f docker-compose.yml config
+          docker compose -f docker-compose.dev.yml config
 
   # Performance benchmarks
   benchmarks:
