@@ -348,14 +348,3 @@ func TestAnalyticsMiddleware(t *testing.T) {
 	})
 }
 
-// Helper method to access analytics service (would need to be added to Server)
-type ServerWithAnalytics interface {
-	GetAnalyticsService() *analytics.Service
-}
-
-// This would need to be added to the rest.Server struct
-func (s *rest.Server) GetAnalyticsService() *analytics.Service {
-	// This is a placeholder - actual implementation would need to be added
-	return nil
-}
-

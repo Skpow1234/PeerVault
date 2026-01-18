@@ -178,6 +178,11 @@ func (s *Server) Start() error {
 	return s.httpServer.ListenAndServe()
 }
 
+// GetAnalyticsService exposes the analytics service for tests and integrations.
+func (s *Server) GetAnalyticsService() *analytics.Service {
+	return s.analyticsService
+}
+
 func (s *Server) Stop(ctx context.Context) error {
 	// Stop rate limiter
 	if s.rateLimiter != nil {
