@@ -70,11 +70,7 @@ The TypeScript client is located in `sdk/typescript/grpc/` and provides:
 
 ### Installation
 
-```bash
-cd sdk/typescript/grpc
-npm install
-npm run build
-```
+Client builds run in CI using containerized workflows.
 
 ### Client Usage
 
@@ -205,31 +201,15 @@ return status.Error(codes.Internal, "internal server error")
 
 ### Building the Server
 
-```bash
-# Build the gRPC-Web server
-go build -o bin/peervault-grpc-web ./cmd/peervault-grpc-web
-```
+Builds run in CI using containerized workflows.
 
 ### Generating TypeScript Client
 
-```bash
-cd sdk/typescript/grpc
-npm install
-npm run generate
-npm run compile
-```
+Client generation runs in CI using containerized workflows.
 
 ### Testing
 
-```bash
-# Start the server
-./bin/peervault-grpc-web
-
-# Test with curl
-curl -X POST http://localhost:8080/peervault.PeerVaultService/HealthCheck \
-  -H "Content-Type: application/grpc-web+proto" \
-  -H "Authorization: Bearer your-secret-token"
-```
+Testing runs in CI using containerized workflows.
 
 ## Browser Compatibility
 

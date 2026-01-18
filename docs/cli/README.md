@@ -13,50 +13,17 @@ A comprehensive command-line interface for PeerVault distributed storage system.
 
 ## Installation
 
-### Build from Source
-
-```bash
-# Build the CLI
-go build -o bin/peervault-cli ./cmd/peervault-cli
-
-# Or use Make
-make build-cli
-
-# Or use Task
-task build-cli
-```
-
-### Cross-Platform Builds
-
-```bash
-# Build for all platforms
-task prod-build
-```
+The CLI is not part of the Docker-only workflow. Use the APIs and web interfaces instead.
 
 ## Usage
 
 ### Interactive Mode
 
-```bash
-# Start the CLI
-./bin/peervault-cli
-
-# Or on Windows
-./bin/peervault-cli.exe
-```
+Interactive CLI execution is not available in the Docker-only workflow.
 
 ### Command Line Arguments
 
-```bash
-# Connect to a specific server
-./bin/peervault-cli --server http://node1.example.com:8080
-
-# Use a specific auth token
-./bin/peervault-cli --token your-auth-token
-
-# Set output format
-./bin/peervault-cli --format json
-```
+CLI flags are not available in the Docker-only workflow.
 
 ## Commands
 
@@ -356,13 +323,7 @@ quit = exit
 
 ### Scripting
 
-```bash
-# Run commands from a file
-./bin/peervault-cli < commands.txt
-
-# Pipe commands
-echo "help" | ./bin/peervault-cli
-```
+CLI scripting is not available in the Docker-only workflow.
 
 ## Integration
 
@@ -402,8 +363,7 @@ peervault> connect localhost:8080
 # Set auth token
 peervault> set auth_token your-token-here
 
-# Or use command line argument
-./bin/peervault-cli --token your-token-here
+Command line arguments are not available in the Docker-only workflow.
 ```
 
 ### Performance Issues
@@ -420,23 +380,11 @@ peervault> metrics --live
 
 ### Building
 
-```bash
-# Development build
-go build -o bin/peervault-cli ./cmd/peervault-cli
-
-# Production build
-CGO_ENABLED=0 go build -ldflags="-s -w" -o bin/peervault-cli ./cmd/peervault-cli
-```
+Build steps are handled in CI using containerized workflows.
 
 ### Testing
 
-```bash
-# Run tests
-go test ./internal/cli/...
-
-# Test CLI commands
-echo "help" | ./bin/peervault-cli
-```
+CLI tests run in CI using containerized workflows.
 
 ### Contributing
 

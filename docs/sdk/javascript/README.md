@@ -4,11 +4,7 @@ Official JavaScript/TypeScript SDK for PeerVault distributed file storage system
 
 ## Installation
 
-```bash
-npm install @peervault/sdk
-# or
-yarn add @peervault/sdk
-```
+Installation instructions are omitted in the Docker-only workflow.
 
 ## Quick Start
 

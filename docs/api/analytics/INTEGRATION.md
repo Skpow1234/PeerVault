@@ -37,11 +37,7 @@ Once the server is running, analytics are available at:
 
 ### 3. Verify Integration
 
-Run the test script to verify everything is working:
-
-```bash
-./scripts/test-analytics.sh
-```
+Verification runs in CI using containerized workflows.
 
 ## Integration Patterns
 

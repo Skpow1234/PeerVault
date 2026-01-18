@@ -385,29 +385,7 @@ HTTP Request → Analytics Middleware → Record API Call
 
 ## Usage Examples
 
-### Get 24-Hour Summary
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  http://localhost:8081/api/v1/analytics/summary
-```
-
-### Analyze Specific Endpoint
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  "http://localhost:8081/api/v1/analytics/endpoint?endpoint=/api/v1/files&period=7d"
-```
-
-### Track User Behavior
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  "http://localhost:8081/api/v1/analytics/user?user_id=user123&period=30d"
-```
-
-### View Weekly Trends
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  "http://localhost:8081/api/v1/analytics/trends?period=7d&interval=day"
-```
+Use the `/api/v1/analytics/*` endpoints from any API client. Command-line examples are omitted in the Docker-only workflow.
 
 ### Get Popularity Report
 ```bash

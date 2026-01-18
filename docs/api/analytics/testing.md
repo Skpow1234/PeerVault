@@ -174,81 +174,11 @@ func TestAnalyticsMiddleware(t *testing.T) {
 
 ### Test Analytics Endpoints
 
-```bash
-#!/bin/bash
-set -e
-
-API_BASE="http://localhost:8081/api/v1"
-AUTH="Authorization: Bearer demo-token"
-
-echo "Testing Analytics Endpoints..."
-
-# Test summary endpoint
-echo "1. Testing /analytics/summary"
-curl -s -H "$AUTH" "$API_BASE/analytics/summary" | jq . > /dev/null
-echo "✓ Summary endpoint working"
-
-# Test usage metrics
-echo "2. Testing /analytics/usage"
-curl -s -H "$AUTH" "$API_BASE/analytics/usage?period=24h" | jq . > /dev/null
-echo "✓ Usage metrics endpoint working"
-
-# Test trends
-echo "3. Testing /analytics/trends"
-curl -s -H "$AUTH" "$API_BASE/analytics/trends?period=24h&interval=hour" | jq . > /dev/null
-echo "✓ Trends endpoint working"
-
-# Test popularity
-echo "4. Testing /analytics/popularity"
-curl -s -H "$AUTH" "$API_BASE/analytics/popularity?period=7d" | jq . > /dev/null
-echo "✓ Popularity endpoint working"
-
-# Test dashboard
-echo "5. Testing /analytics/dashboard"
-curl -s -H "$AUTH" "$API_BASE/analytics/dashboard?period=24h" | jq . > /dev/null
-echo "✓ Dashboard endpoint working"
-
-echo "All tests passed!"
-```
+Integration endpoint checks run in CI using containerized workflows.
 
 ### Load Testing
 
-```bash
-#!/bin/bash
-# Generate test traffic for analytics
-
-API_BASE="http://localhost:8081/api/v1"
-AUTH="Authorization: Bearer demo-token"
-
-echo "Generating test traffic..."
-
-# Generate 100 requests
-for i in {1..100}; do
-  # Mix of different endpoints and methods
-  case $((i % 4)) in
-    0)
-      curl -s -H "$AUTH" "$API_BASE/files" > /dev/null
-      ;;
-    1)
-      curl -s -H "$AUTH" "$API_BASE/peers" > /dev/null
-      ;;
-    2)
-      curl -s -X POST -H "$AUTH" -H "Content-Type: application/json" \
-        -d '{"name":"test"}' "$API_BASE/files" > /dev/null
-      ;;
-    3)
-      curl -s -H "$AUTH" "/health" > /dev/null
-      ;;
-  esac
-
-  # Random delay
-  sleep 0.$((RANDOM % 10))
-done
-
-echo "Traffic generated. Check analytics:"
-curl -s -H "$AUTH" "$API_BASE/analytics/summary" | \
-  jq '{requests: .overall_metrics.total_requests, error_rate: .overall_metrics.error_rate}'
-```
+Load testing runs in CI using containerized workflows.
 
 ## Performance Testing
 
@@ -298,107 +228,17 @@ func BenchmarkGetUsageMetrics(b *testing.B) {
 
 ### Stress Test
 
-```bash
-#!/bin/bash
-# Stress test analytics with concurrent requests
-
-API_BASE="http://localhost:8081/api/v1"
-AUTH="Authorization: Bearer demo-token"
-CONCURRENT=10
-REQUESTS_PER_WORKER=100
-
-echo "Running stress test with $CONCURRENT workers..."
-
-stress_worker() {
-  local worker_id=$1
-  for i in $(seq 1 $REQUESTS_PER_WORKER); do
-    curl -s -H "$AUTH" "$API_BASE/files" > /dev/null
-  done
-  echo "Worker $worker_id completed"
-}
-
-# Start workers
-for i in $(seq 1 $CONCURRENT); do
-  stress_worker $i &
-done
-
-# Wait for all workers
-wait
-
-echo "Stress test completed. Total requests: $((CONCURRENT * REQUESTS_PER_WORKER))"
-echo "Checking analytics..."
-
-curl -s -H "$AUTH" "$API_BASE/analytics/summary" | \
-  jq '{
-    requests: .overall_metrics.total_requests,
-    error_rate: .overall_metrics.error_rate,
-    avg_latency: (.overall_metrics.average_duration / 1000000)
-  }'
-```
+Stress tests run in CI using containerized workflows.
 
 ## Validation Testing
 
 ### Verify Data Accuracy
 
-```bash
-#!/bin/bash
-API_BASE="http://localhost:8081/api/v1"
-AUTH="Authorization: Bearer demo-token"
-
-echo "Validating analytics accuracy..."
-
-# Make known number of requests
-EXPECTED_REQUESTS=50
-echo "Making $EXPECTED_REQUESTS requests..."
-
-for i in $(seq 1 $EXPECTED_REQUESTS); do
-  curl -s -H "$AUTH" "$API_BASE/files" > /dev/null
-done
-
-# Wait for processing
-sleep 2
-
-# Check analytics
-ACTUAL=$(curl -s -H "$AUTH" "$API_BASE/analytics/usage?period=hour" | \
-  jq '.total_requests')
-
-echo "Expected: $EXPECTED_REQUESTS"
-echo "Actual: $ACTUAL"
-
-if [ "$ACTUAL" -ge "$EXPECTED_REQUESTS" ]; then
-  echo "✓ Validation passed"
-else
-  echo "✗ Validation failed: expected >= $EXPECTED_REQUESTS, got $ACTUAL"
-  exit 1
-fi
-```
+Validation checks run in CI using containerized workflows.
 
 ### Test Error Tracking
 
-```bash
-#!/bin/bash
-API_BASE="http://localhost:8081/api/v1"
-AUTH="Authorization: Bearer demo-token"
-
-echo "Testing error tracking..."
-
-# Generate some errors (invalid requests)
-for i in {1..10}; do
-  curl -s -H "$AUTH" "$API_BASE/nonexistent" > /dev/null
-done
-
-# Check error rate
-ERROR_RATE=$(curl -s -H "$AUTH" "$API_BASE/analytics/usage?period=hour" | \
-  jq '.error_rate')
-
-echo "Error rate: $ERROR_RATE%"
-
-if (( $(echo "$ERROR_RATE > 0" | bc -l) )); then
-  echo "✓ Error tracking working"
-else
-  echo "✗ No errors recorded"
-fi
-```
+Error tracking checks run in CI using containerized workflows.
 
 ## Cleanup Testing
 
@@ -460,35 +300,7 @@ func TestDataCleanup(t *testing.T) {
 
 ### Automated Health Check
 
-```bash
-#!/bin/bash
-# Run this with cron for continuous monitoring
-
-API_BASE="http://localhost:8081/api/v1"
-AUTH="Authorization: Bearer demo-token"
-ALERT_THRESHOLD=10.0
-
-check_health() {
-  local summary=$(curl -s -H "$AUTH" "$API_BASE/analytics/summary")
-  
-  local status=$(echo $summary | jq -r '.system_health.status')
-  local error_rate=$(echo $summary | jq -r '.system_health.error_rate')
-  
-  echo "[$(date)] Status: $status, Error Rate: $error_rate%"
-  
-  if [ "$status" != "healthy" ]; then
-    echo "ALERT: System status is $status"
-    # Send alert
-  fi
-  
-  if (( $(echo "$error_rate > $ALERT_THRESHOLD" | bc -l) )); then
-    echo "ALERT: Error rate $error_rate% exceeds threshold $ALERT_THRESHOLD%"
-    # Send alert
-  fi
-}
-
-check_health
-```
+Automated monitoring runs in CI or dedicated containerized jobs.
 
 ## Test Checklist
 
@@ -507,18 +319,5 @@ check_health
 
 ## Running All Tests
 
-```bash
-# Run Go unit tests
-go test ./internal/api/analytics/... -v
-
-# Run integration tests
-./scripts/test-analytics-integration.sh
-
-# Run performance benchmarks
-go test ./internal/api/analytics/... -bench=. -benchmem
-
-# Generate coverage report
-go test ./internal/api/analytics/... -coverprofile=coverage.out
-go tool cover -html=coverage.out -o coverage.html
-```
+Analytics tests run in CI using containerized workflows.
 

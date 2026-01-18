@@ -14,55 +14,7 @@ PeerVault provides multiple approaches to API testing:
 
 ## Quick Start
 
-### Interactive Testing
-
-```bash
-# Import Postman collections
-postman import tests/api/collections/peervault-postman.json
-
-# Run automated tests
-npm run test:api:postman
-```
-
-### API Mocking
-
-```bash
-# Start mock server
-go run cmd/peervault-mock/main.go --config config/mock-server.yaml
-
-# Generate mocks from OpenAPI spec
-go run cmd/peervault-mock/main.go --generate --spec docs/api/peervault-rest-api.yaml
-```
-
-### Contract Testing
-
-```bash
-# Run contract tests
-go test ./tests/contracts/...
-
-# Verify provider contracts
-pact-verifier --provider-base-url=http://localhost:3000 tests/contracts/
-```
-
-### Performance Testing
-
-```bash
-# Run load tests
-go test -bench=. ./tests/performance/...
-
-# Run stress tests
-k6 run tests/performance/stress-test.js
-```
-
-### Security Testing
-
-```bash
-# Run security scans
-go test ./tests/security/...
-
-# Run OWASP ZAP scan
-zap-baseline.py -t http://localhost:3000
-```
+Testing runs in CI using containerized workflows. Local non-Docker commands have been removed.
 
 ## Collections
 

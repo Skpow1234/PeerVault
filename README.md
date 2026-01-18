@@ -29,7 +29,7 @@
 ## Table of Contents
 
 - [MVP Features](#mvp-features)
-- [🚧 Future Features (Post-MVP)](#-future-features-post-mvp)
+- [Future Features (Post-MVP)](#-future-features-post-mvp)
 - [Content Addressing](#content-addressing)
 - [Message Framing](#message-framing)
 - [Encryption & Security](#encryption--security)
@@ -67,7 +67,7 @@ The included entrypoint at `cmd/peervault/main.go` boots 3 nodes locally and run
 
 PeerVault MVP focuses on core P2P file storage with a single, well-implemented API interface.
 
-### ✅ Core P2P Functionality (MVP)
+### Core P2P Functionality (MVP)
 
 - **Encrypted file streaming** over TCP using AES-GCM with authentication
 - **Content-addressable storage** with SHA-256 based path transform
@@ -76,7 +76,7 @@ PeerVault MVP focuses on core P2P file storage with a single, well-implemented A
 - **File replication** across connected peers
 - **Simple demo** that launches 3 local nodes and exchanges files
 
-### ✅ Primary API Interface (MVP)
+### Primary API Interface (MVP)
 
 - **gRPC API** with grpc-gateway for REST compatibility
 - **Protocol Buffers** for type-safe communication
@@ -84,7 +84,7 @@ PeerVault MVP focuses on core P2P file storage with a single, well-implemented A
 - **Health checks** and system status endpoints
 - **Authentication** with HMAC-SHA256 and timestamp validation
 
-### ✅ Essential Security (MVP)
+### Essential Security (MVP)
 
 - **AES-GCM encryption** with secure nonce management
 - **HMAC-SHA256 authentication** for peer connections
@@ -92,13 +92,13 @@ PeerVault MVP focuses on core P2P file storage with a single, well-implemented A
 - **Basic vulnerability scanning** with govulncheck and semgrep
 - **GitHub Actions security** with explicit permissions and least privilege
 
-### ✅ Basic Observability (MVP)
+### Basic Observability (MVP)
 
 - **Structured logging** with configurable levels
 - **Health check endpoints** for monitoring
 - **Basic metrics** for file operations and peer connections
 
-## 🚧 Future Features (Post-MVP)
+## Future Features (Post-MVP)
 
 The following features are planned for future releases and are **not included in the MVP**:
 
@@ -283,13 +283,7 @@ The system now supports advanced key management with the following features:
 
 For production deployments, set a shared cluster key across all nodes:
 
-```bash
-# Set the cluster key (32-byte hex string)
-export PEERVAULT_CLUSTER_KEY="a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
-
-# Run the application
-go run ./cmd/peervault
-```
+Set `PEERVAULT_CLUSTER_KEY` via Docker compose environment variables.
 
 If no cluster key is provided, each node generates its own key (suitable for development/testing).
 
@@ -306,13 +300,7 @@ The system now supports authenticated peer connections with the following featur
 
 For production deployments, set a shared auth token across all nodes:
 
-```bash
-# Set the auth token
-export PEERVAULT_AUTH_TOKEN="your-secure-auth-token-here"
-
-# Run the application
-go run ./cmd/peervault
-```
+Set `PEERVAULT_AUTH_TOKEN` via Docker compose environment variables.
 
 If no auth token is provided, a default demo token is used (suitable for development/testing).
 
@@ -325,7 +313,7 @@ If no auth token is provided, a default demo token is used (suitable for develop
 
 ### Security Features
 
-#### ✅ **Implemented (MVP)**
+#### **Implemented (MVP)**
 
 - **AES-GCM Encryption**: Authenticated encryption with secure nonce management
 - **HMAC-SHA256 Authentication**: Peer connection authentication with timestamp validation
@@ -333,7 +321,7 @@ If no auth token is provided, a default demo token is used (suitable for develop
 - **Basic Vulnerability Scanning**: govulncheck and semgrep integration
 - **Secure Nonce Management**: Cryptographically secure random nonces, never reused
 
-#### 🚧 **Planned (Post-MVP)**
+#### **Planned (Post-MVP)**
 
 - **Advanced Vulnerability Scanning**: semgrep, detect-secrets, Trivy integration
 - **Compliance Guidance**: Example controls for SOC 2, GDPR, ISO 27001 (guidance only, not certification)
@@ -347,35 +335,7 @@ If no auth token is provided, a default demo token is used (suitable for develop
 
 ### Security Tools & Scripts
 
-#### Local Security Validation
-
-```bash
-# Run comprehensive security checks
-./scripts/security-check.sh
-
-# Run specific security checks
-./scripts/security-check.sh --vulnerability
-./scripts/security-check.sh --compliance
-./scripts/security-check.sh --test
-
-# Install security tools
-./scripts/security-check.sh --install-tools
-```
-
-#### Windows PowerShell Support
-
-```powershell
-# Run all security checks
-.\scripts\security-check.ps1
-
-# Run specific checks
-.\scripts\security-check.ps1 -Vulnerability
-.\scripts\security-check.ps1 -Compliance
-.\scripts\security-check.ps1 -Test
-
-# Install security tools
-.\scripts\security-check.ps1 -InstallTools
-```
+Security validation is intended to run in CI using containerized workflows.
 
 ### CI/CD Security Pipeline
 
@@ -402,7 +362,7 @@ This project includes fixes for the following security vulnerabilities:
 
 #### GO-2025-3750: Inconsistent handling of O_CREATE|O_EXCL on Unix and Windows
 
-**Status:** ✅ Fixed  
+**Status:** Fixed  
 **Go Version:** 1.24.4+  
 **Impact:** Race conditions in file creation, potential security bypasses
 
@@ -432,28 +392,13 @@ The CI pipeline includes automated security scanning:
 
 If you're developing on Windows, you may encounter Windows Defender popups when running the application or tests. This is because Go applications that create network connections and access the file system are often flagged as potentially suspicious.
 
-**⚠️ Security Note**: The trust script adds Windows Defender exclusions for the project folder. This is necessary for development but should only be used in trusted environments. Never run this on production systems or with untrusted code.
+**Security Note**: The trust script adds Windows Defender exclusions for the project folder. This is necessary for development but should only be used in trusted environments. Never run this on production systems or with untrusted code.
 
-### Quick Fix (Recommended)
+### Quick Fix / Full Setup
 
-Run the quick trust script as Administrator:
+If you follow a Docker-only workflow, these local trust steps are not required.
 
-```cmd
-# Right-click and "Run as Administrator"
-scripts\quick_trust.bat
-```
-
-### Full Setup (Advanced)
-
-For a complete setup with code signing, run the PowerShell script as Administrator:
-
-```powershell
-# Right-click PowerShell and "Run as Administrator"
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-.\scripts\trust_application.ps1
-```
-
-This will:
+This setup would otherwise:
 
 - Add Windows Defender exclusions for the project folder
 - Create a self-signed certificate for code signing
@@ -482,67 +427,20 @@ Windows Defender flags Go applications because they:
 
 This is normal for development and doesn't indicate any security issues.
 
-## Install
+## Install / Run (Docker-only)
+
+Use Docker to build and run everything.
+
+### Full stack (APIs + P2P)
 
 ```bash
-# Clone your copy of this repository and change into it
-git clone https://github.com/Skpow1234/PeerVault
-cd peervault
-go mod download
+docker compose -f docker-compose.apis.yml up -d --build
 ```
 
-## Build
-
-### Linux/macOS
+### P2P network only
 
 ```bash
-make build
-# binary at ./bin/peervault
-
-# Build GraphQL server
-go build -o bin/peervault-graphql ./cmd/peervault-graphql
-
-# Build REST API server
-go build -o bin/peervault-api ./cmd/peervault-api
-
-# Build Mock server
-go build -o bin/peervault-mock ./cmd/peervault-mock
-```
-
-### Windows (PowerShell)
-
-```powershell
-go build -o bin\peervault.exe .\cmd\peervault
-
-# Build GraphQL server
-go build -o bin\peervault-graphql.exe .\cmd\peervault-graphql
-
-# Build Mock server
-go build -o bin\peervault-mock.exe .\cmd\peervault-mock
-```
-
-## Run
-
-This repository’s `main.go` starts 3 nodes on localhost: `:3000`, `:7000`, `:5000`, then stores and fetches sample files via the third node.
-
-### Easiest: go run
-
-```bash
-go run ./cmd/peervault
-```
-
-### Linux/macOS with Make
-
-```bash
-make run
-```
-
-### Windows
-
-- If you built with `go build -o bin\peervault.exe .\cmd\peervault`:
-
-```powershell
-.\bin\peervault.exe
+docker compose up -d --build
 ```
 
 ### What you should see
@@ -555,22 +453,6 @@ make run
   - `received and written (...) bytes to disk`
   - `my big data file here!`
 
-#### Important note for Windows users
-
-By default, each node’s storage root is set to the listen address plus `_network` (for example `":3000_network"`). The colon `:` is not a valid character in Windows directory names, which can cause errors when creating folders.
-
-Two simple options:
-
-- Recommended: Run via WSL or Git Bash (Unix-like environment), or
-- Update `main.go` to use a Windows-friendly storage root. For example, change the `StorageRoot` in `makeServer` to something like:
-
-```go
-StorageRoot: fmt.Sprintf("node%s_network", strings.TrimPrefix(listenAddr, ":")),
-```
-
-or even hardcode per node (e.g., `"node3000_network"`, `"node7000_network"`, `"node5000_network"`).
-
-File to edit: `cmd/peervault/main.go`, function `makeServer`.
 
 ## GraphQL API
 
@@ -578,14 +460,7 @@ PeerVault includes a comprehensive GraphQL API for interacting with the distribu
 
 ### Running the GraphQL Server
 
-```bash
-# Build and run the GraphQL server
-go build -o peervault-graphql.exe ./cmd/peervault-graphql
-./peervault-graphql.exe
-
-# Or run directly
-go run ./cmd/peervault-graphql
-```
+Use the Docker compose stack to start the GraphQL API.
 
 ### GraphQL Endpoints
 
@@ -648,14 +523,7 @@ internal/api/rest/
 
 ### Running the REST API Server
 
-```bash
-# Build and run the REST API server
-go build -o peervault-api.exe ./cmd/peervault-api
-./peervault-api.exe
-
-# Or run directly
-go run ./cmd/peervault-api
-```
+Use the Docker compose stack to start the REST API.
 
 ### REST API Endpoints
 
@@ -727,17 +595,7 @@ internal/api/grpc/
 
 ### Running the gRPC API Server
 
-```bash
-# Build and run the gRPC API server
-go build -o peervault-grpc.exe ./cmd/peervault-grpc
-./peervault-grpc.exe
-
-# Or run directly
-go run ./cmd/peervault-grpc
-
-# Run with custom configuration
-go run ./cmd/peervault-grpc -port 8082 -auth-token your-secure-token
-```
+Use the Docker compose stack to start the gRPC API.
 
 ### gRPC API Features
 
@@ -835,41 +693,7 @@ PeerVault includes comprehensive API testing capabilities for ensuring reliabili
 
 ### 🚀 **Quick Start**
 
-#### Run All API Tests
-
-```bash
-# Run comprehensive API test suite
-./scripts/api-testing/run-tests.sh
-
-# Run with custom configuration
-./scripts/api-testing/run-tests.sh --base-url http://localhost:8080 --verbose
-```
-
-#### Start Mock Server
-
-```bash
-# Start mock server for development
-go run cmd/peervault-mock/main.go --config config/mock-server.yaml
-
-# Generate scenarios from OpenAPI spec
-go run cmd/peervault-mock/main.go --generate --spec docs/api/peervault-rest-api.yaml
-```
-
-#### Run Individual Test Suites
-
-```bash
-# Contract tests
-go test ./tests/contracts/...
-
-# Performance tests
-go test -bench=. ./tests/performance/...
-
-# Security tests
-go test ./tests/security/...
-
-# Postman tests
-newman run tests/api/collections/peervault-postman.json
-```
+API testing is intended to run via the Docker stack and CI pipelines. Local non-Docker commands have been removed to keep the workflow Docker-only.
 
 ### 📊 **Test Coverage**
 
@@ -896,24 +720,11 @@ enable_analytics: true
 
 #### Test Environment Variables
 
-```bash
-# API Testing Configuration
-export BASE_URL="http://localhost:3000"      # Target API URL
-export MOCK_URL="http://localhost:3001"      # Mock server URL
-export TEST_TIMEOUT="30s"                    # Test timeout duration
-export VERBOSE="true"                        # Enable verbose output
-```
+Set environment variables through Docker compose as needed.
 
 ### 📈 **CI/CD Integration**
 
-The API testing framework integrates seamlessly with CI/CD pipelines:
-
-```yaml
-# GitHub Actions example
-- name: Run API Tests
-  run: |
-    ./scripts/api-testing/run-tests.sh --base-url ${{ env.API_URL }}
-```
+The API testing framework integrates with CI/CD pipelines; keep runs containerized in CI.
 
 ### 📚 **Documentation**
 
@@ -1094,7 +905,7 @@ The Swagger documentation includes:
 
 ## Docker
 
-PeerVault supports multiple containerization approaches:
+PeerVault can be run entirely via Docker using the root-level compose files.
 
 ### All-in-One Container (Development)
 
@@ -1111,16 +922,16 @@ For production-like environments with separate containers:
 
 ```bash
 # Build and run all services
-docker-compose -f docker/docker-compose.yml up --build
+docker compose up --build
 
 # Run in background
-docker-compose -f docker/docker-compose.yml up -d --build
+docker compose up -d --build
 
 # View logs
-docker-compose -f docker/docker-compose.yml logs -f
+docker compose logs -f
 
 # Stop all services
-docker-compose -f docker/docker-compose.yml down
+docker compose down
 ```
 
 ### Development Setup
@@ -1128,7 +939,7 @@ docker-compose -f docker/docker-compose.yml down
 For development and testing:
 
 ```bash
-docker-compose -f docker/docker-compose.dev.yml up --build
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 ### Individual Nodes
@@ -1477,64 +1288,11 @@ peervault/
 
 ## Test
 
-```bash
-go test ./...
-# or
-make test
-
-# Test GraphQL API specifically
-go test ./tests/integration/graphql/ -v
-
-# Test REST API specifically
-go test ./tests/integration/rest/ -v
-
-# Test API testing frameworks
-go test ./internal/api/contracts/... ./internal/api/performance/... ./internal/api/security/...
-
-# Run comprehensive API test suite
-./scripts/api-testing/run-tests.sh
-
-# Run contract tests
-go test ./tests/contracts/...
-
-# Run performance tests
-go test -bench=. ./tests/performance/...
-
-# Run security tests
-go test ./tests/security/...
-```
+Tests are intended to run in CI using containerized workflows.
 
 ## Lint
 
-```bash
-# Run the linter with custom configuration
-golangci-lint run --config config/.golangci.yml
-
-# Run with default configuration
-golangci-lint run
-
-# Run specific linters
-golangci-lint run --disable-all --enable=errcheck,gofmt
-
-# Fix formatting issues
-go fmt ./...
-goimports -w .
-
-# Check for trailing whitespace in code files (CI check)
-grep -r --include="*.go" --include="*.yml" --include="*.yaml" '[[:space:]]$' .
-
-# Fix trailing whitespace (PowerShell)
-Get-ChildItem -Recurse -Include "*.go", "*.yml", "*.yaml" | ForEach-Object { $content = Get-Content $_.FullName -Raw; $cleanContent = $content -replace '\s+$', ''; if ($content -ne $cleanContent) { Set-Content $_.FullName $cleanContent -NoNewline; Write-Host "Fixed trailing whitespace in: $($_.FullName)" } }
-
-# Fix trailing whitespace (Unix/Linux)
-find . -name "*.go" -o  -name "*.yml" -o -name "*.yaml" | xargs sed -i 's/[[:space:]]*$//'
-
-# Check code formatting (CI check)
-gofmt -s -l .
-
-# Fix code formatting
-gofmt -s -w .
-```
+Linting runs in CI using containerized workflows.
 
 ### CI Pipeline Checks
 
@@ -1557,20 +1315,7 @@ The CI pipeline automatically runs these checks on every push and pull request:
 - **Code Quality**: Cyclomatic complexity and import checks
 - **Documentation**: Exported function comments and README checks
 
-**Pro tip**: Run the pre-commit script before pushing to keep code clean!
-
-```bash
-# Unix/Linux/macOS
-./scripts/pre-commit.sh
-
-# Windows PowerShell
-.\scripts\pre-commit.ps1
-
-# Or run individual commands:
-go fmt ./...
-goimports -w .
-golangci-lint run ./...
-```
+**Pro tip**: CI runs formatting and lint checks in containers.
 
 **Note**: Lint and format failures won't block the pipeline, but it's good practice to keep code clean!
 

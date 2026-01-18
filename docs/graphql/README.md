@@ -14,24 +14,11 @@ The PeerVault GraphQL API provides a flexible interface for interacting with the
 
 ### Running the GraphQL Server
 
-```bash
-# Build the GraphQL server
-go build -o peervault-graphql.exe cmd/peervault-graphql/main.go
+Start the GraphQL API via Docker compose.
 
-# Run with default settings
-./peervault-graphql.exe
+### Configuration
 
-# Run with custom settings
-./peervault-graphql.exe -port 8080 -storage ./data -playground=true
-```
-
-### Command Line Options
-
-- `-port`: Port to listen on (default: 8080)
-- `-storage`: Storage root directory (default: ./storage)
-- `-bootstrap`: Comma-separated list of bootstrap nodes
-- `-playground`: Enable GraphQL Playground (default: true)
-- `-log-level`: Log level (debug, info, warn, error)
+Configure the GraphQL service via Docker compose environment variables.
 
 ## API Endpoints
 
@@ -388,21 +375,7 @@ console.log(data.data.health);
 
 ### cURL Example
 
-```bash
-# Health check
-curl -X POST http://localhost:8080/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "{ health { status timestamp } }"
-  }'
-
-# Get files
-curl -X POST http://localhost:8080/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "{ files(limit: 5) { id key size createdAt } }"
-  }'
-```
+Command-line examples are omitted in the Docker-only workflow.
 
 ## Error Handling
 
@@ -454,16 +427,8 @@ The GraphQL API includes CORS support for cross-origin requests. All origins are
 
 ### Logs
 
-The server logs important events and errors. Use the `-log-level` flag to control verbosity:
-
-```bash
-./peervault-graphql.exe -log-level debug
-```
+The server logs important events and errors. Control verbosity via Docker compose environment variables.
 
 ### Health Checks
 
-Monitor the health endpoint to ensure the service is running:
-
-```bash
-curl http://localhost:8080/health
-```
+Monitor the health endpoint at `GET /health` to ensure the service is running.

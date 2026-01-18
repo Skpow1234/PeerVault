@@ -370,11 +370,7 @@ err = os.WriteFile("analytics.csv", data, 0644)
 
 ### API Export
 
-```bash
-# Export via API
-curl -o analytics.json http://localhost:8082/api/export?format=json
-curl -o analytics.csv http://localhost:8082/api/export?format=csv
-```
+Use the export API endpoints from any API client.
 
 ## Monitoring and Alerting
 

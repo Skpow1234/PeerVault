@@ -51,42 +51,7 @@ Fuzz tests use random data to find edge cases and vulnerabilities:
 
 ## Running Tests
 
-### Using Task (Cross-platform)
-
-```bash
-# Run all tests
-task test
-
-# Run unit tests only
-task test-unit
-
-# Run integration tests
-task test-integration
-
-# Run tests with race detector
-task test-race
-
-# Run fuzz tests
-task test-fuzz
-```
-
-### Using Scripts
-
-**Windows (PowerShell):**
-
-```powershell
-.\scripts\test.ps1 all
-.\scripts\test.ps1 unit
-.\scripts\test.ps1 integration
-```
-
-**Unix-like systems:**
-
-```bash
-./scripts/test.sh all
-./scripts/test.sh unit
-./scripts/test.sh integration
-```
+Tests run in CI using containerized workflows.
 
 ### Using Make
 

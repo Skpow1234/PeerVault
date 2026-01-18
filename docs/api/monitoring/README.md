@@ -316,47 +316,7 @@ config := &rest.Config{
 
 ## Usage Examples
 
-### Monitor Current Performance
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  http://localhost:8081/api/v1/monitoring/snapshot | jq '.'
-```
-
-### Check Real-time Metrics
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  http://localhost:8081/api/v1/monitoring/realtime | jq '.'
-```
-
-### Get Health Score
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  http://localhost:8081/api/v1/monitoring/health-score | jq '.'
-```
-
-### Analyze Endpoint Performance
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  "http://localhost:8081/api/v1/monitoring/endpoint?endpoint=/api/v1/files" | jq '.'
-```
-
-### View Active Alerts
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  "http://localhost:8081/api/v1/monitoring/alerts?active_only=true" | jq '.'
-```
-
-### Get Optimization Recommendations
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  "http://localhost:8081/api/v1/monitoring/recommendations?priority=high" | jq '.'
-```
-
-### Generate Performance Report
-```bash
-curl -H "Authorization: Bearer demo-token" \
-  "http://localhost:8081/api/v1/monitoring/report?period=5m" | jq '.'
-```
+Use the `/api/v1/monitoring/*` endpoints from any API client. Command-line examples are omitted in the Docker-only workflow.
 
 ## Alert Types & Severity
 

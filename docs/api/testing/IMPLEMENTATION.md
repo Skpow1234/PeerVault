@@ -65,15 +65,7 @@ scripts/api-testing/      # Testing scripts
 - Automated test assertions
 - Request/response logging
 
-**Usage**:
-
-```bash
-# Import into Postman
-postman import tests/api/collections/peervault-postman.json
-
-# Run with Newman
-newman run tests/api/collections/peervault-postman.json
-```
+**Usage**: Run via containerized CI workflows.
 
 ### 2. API Mocking
 
@@ -87,15 +79,7 @@ newman run tests/api/collections/peervault-postman.json
 - Analytics and monitoring
 - YAML/JSON configuration
 
-**Usage**:
-
-```bash
-# Start mock server
-go run cmd/peervault-mock/main.go --config config/mock-server.yaml
-
-# Generate scenarios from OpenAPI spec
-go run cmd/peervault-mock/main.go --generate --spec docs/api/peervault-rest-api.yaml
-```
+**Usage**: Run via containerized CI workflows.
 
 ### 3. Contract Testing
 
@@ -109,15 +93,7 @@ go run cmd/peervault-mock/main.go --generate --spec docs/api/peervault-rest-api.
 - Pact integration support
 - Contract evolution tracking
 
-**Usage**:
-
-```bash
-# Run contract tests
-go test ./tests/contracts/...
-
-# Verify with Pact
-pact-verifier --provider-base-url=http://localhost:3000 tests/contracts/
-```
+**Usage**: Run via containerized CI workflows.
 
 ### 4. Performance Testing
 
@@ -131,15 +107,7 @@ pact-verifier --provider-base-url=http://localhost:3000 tests/contracts/
 - Throughput measurement
 - k6 integration for advanced scenarios
 
-**Usage**:
-
-```bash
-# Run Go performance tests
-go test -bench=. ./tests/performance/...
-
-# Run k6 load tests
-k6 run tests/performance/load-test.js
-```
+**Usage**: Run via containerized CI workflows.
 
 ### 5. Security Testing
 
@@ -153,15 +121,7 @@ k6 run tests/performance/load-test.js
 - Security header validation
 - Custom security test framework
 
-**Usage**:
-
-```bash
-# Run security tests
-go test ./tests/security/...
-
-# Run OWASP ZAP scan
-zap-baseline.py -t http://localhost:3000
-```
+**Usage**: Run via containerized CI workflows.
 
 ## Configuration
 
@@ -191,45 +151,17 @@ enable_analytics: true
 
 ### Comprehensive Test Suite
 
-```bash
-# Run all tests
-./scripts/api-testing/run-tests.sh
-
-# Run with custom configuration
-./scripts/api-testing/run-tests.sh --base-url http://localhost:8080 --verbose
-```
+Run the suite in CI using containerized workflows.
 
 ### Individual Test Suites
 
-```bash
-# Unit tests
-go test ./tests/contracts/... ./tests/performance/... ./tests/security/...
-
-# Contract tests
-go test ./tests/contracts/...
-
-# Performance tests
-go test -bench=. ./tests/performance/...
-
-# Security tests
-go test ./tests/security/...
-
-# Postman tests
-newman run tests/api/collections/peervault-postman.json
-```
+Individual suites are executed in CI using containerized workflows.
 
 ## Integration
 
 ### CI/CD Integration
 
-The testing framework integrates with CI/CD pipelines:
-
-```yaml
-# GitHub Actions example
-- name: Run API Tests
-  run: |
-    ./scripts/api-testing/run-tests.sh --base-url ${{ env.API_URL }}
-```
+The testing framework integrates with CI/CD pipelines using containerized workflows.
 
 ### Development Workflow
 
@@ -280,13 +212,7 @@ The testing framework integrates with CI/CD pipelines:
 
 ### Debug Mode
 
-```bash
-# Enable verbose output
-VERBOSE=true ./scripts/api-testing/run-tests.sh
-
-# Run individual tests with debug
-go test -v ./tests/contracts/...
-```
+Debug runs are handled in CI using containerized workflows.
 
 ## Future Enhancements
 

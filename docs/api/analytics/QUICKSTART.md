@@ -4,40 +4,24 @@ Get started with API Analytics & Monitoring in under 5 minutes!
 
 ## Step 1: Start the API Server
 
-```bash
-# Build if you haven't already
-go build -o bin/ ./cmd/...
+Start the REST API via Docker:
 
-# Start the REST API server (analytics enabled by default)
-./bin/peervault-api
+```bash
+docker compose -f docker-compose.apis.yml up -d --build
 ```
 
 The server will start on `http://localhost:8081` with analytics automatically enabled.
 
 ## Step 2: Generate Some Traffic
 
-Open a new terminal and make a few API calls:
-
-```bash
-# Set your auth token
-export AUTH="Authorization: Bearer demo-token"
-export API="http://localhost:8081/api/v1"
-
-# Make some test requests
-for i in {1..20}; do
-  curl -s -H "$AUTH" "$API/files" > /dev/null
-  echo "Request $i sent"
-done
-```
+Use any REST client to make a few API calls against `http://localhost:8081/api/v1`.
 
 ## Step 3: View Analytics
 
 Now check out your analytics:
 
 ### Get a Summary
-```bash
-curl -H "$AUTH" "$API/analytics/summary" | jq '.'
-```
+Use `/analytics/summary` to view overall health and metrics.
 
 This shows:
 - Total requests
@@ -47,9 +31,7 @@ This shows:
 - Top endpoints
 
 ### View the Dashboard
-```bash
-curl -H "$AUTH" "$API/analytics/dashboard?period=24h" | jq '.'
-```
+Use `/analytics/dashboard` to view a comprehensive analytics overview.
 
 The dashboard provides a comprehensive overview combining:
 - Summary metrics
@@ -58,24 +40,11 @@ The dashboard provides a comprehensive overview combining:
 - Trends
 
 ### Check Usage Trends
-```bash
-curl -H "$AUTH" "$API/analytics/trends?period=hour&interval=5min" | jq '.'
-```
+Use `/analytics/trends` to view time-series trends.
 
 ## Step 4: Run the Demo
 
-For an interactive demonstration:
-
-```bash
-./examples/analytics-demo.sh
-```
-
-This will:
-1. Generate sample traffic
-2. Display various analytics views
-3. Show trending endpoints
-4. Export data to CSV
-5. Check system health
+Use the analytics endpoints listed below to explore the data.
 
 ## Key Endpoints
 
@@ -120,48 +89,11 @@ config.AnalyticsConfig = &analytics.Config{
 
 ## Real-World Examples
 
-### Monitor Error Rate
-```bash
-# Check if error rate is acceptable
-ERROR_RATE=$(curl -s -H "$AUTH" "$API/analytics/usage?period=hour" | jq -r '.error_rate')
-echo "Current error rate: ${ERROR_RATE}%"
-
-if (( $(echo "$ERROR_RATE > 5" | bc -l) )); then
-  echo "⚠️  High error rate detected!"
-fi
-```
-
-### Find Slow Endpoints
-```bash
-# Get top 5 slowest endpoints
-curl -s -H "$AUTH" "$API/analytics/summary" | \
-  jq -r '.top_endpoints | sort_by(.average_duration) | reverse | .[0:5] | 
-         .[] | "\(.method) \(.path): \(.average_duration / 1000000)ms"'
-```
-
-### Track Daily Growth
-```bash
-# Compare today vs yesterday
-TODAY=$(curl -s -H "$AUTH" "$API/analytics/usage?period=24h" | jq '.total_requests')
-YESTERDAY=$(curl -s -H "$AUTH" "$API/analytics/usage?period=48h" | jq '.total_requests')
-GROWTH=$(echo "scale=2; (($TODAY - ($YESTERDAY - $TODAY)) / ($YESTERDAY - $TODAY)) * 100" | bc)
-echo "Daily growth: ${GROWTH}%"
-```
+Use `/analytics/usage`, `/analytics/summary`, and `/analytics/trends` to monitor error rates, slow endpoints, and growth.
 
 ## Testing
 
-Run the comprehensive test suite:
-
-```bash
-./scripts/test-analytics.sh
-```
-
-This validates:
-- All endpoints are working
-- Data accuracy
-- Performance
-- Time windows
-- Filters
+Analytics tests run in CI using containerized workflows.
 
 ## Next Steps
 
@@ -203,7 +135,6 @@ This validates:
 
 ### Need Help?
 - Check the [main documentation](./README.md)
-- Run `./examples/analytics-demo.sh` for examples
 - Review [integration guide](./INTEGRATION.md)
 
 ## Resources
@@ -212,7 +143,6 @@ This validates:
 - 💡 [Examples](./examples.md)
 - 🧪 [Testing Guide](./testing.md)
 - 🔧 [Integration Guide](./INTEGRATION.md)
-- 🚀 [Demo Script](../../examples/analytics-demo.sh)
 
 ---
 

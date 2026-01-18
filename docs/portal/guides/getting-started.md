@@ -4,59 +4,16 @@ This guide will help you get up and running with PeerVault in just a few minutes
 
 ## Prerequisites
 
-- Go 1.19 or later (for Go SDK)
-- Node.js 16 or later (for JavaScript SDK)
-- Python 3.8 or later (for Python SDK)
-- Java 11 or later (for Java SDK)
-- Docker (optional, for containerized deployment)
+- Docker
 
 ## Installation
 
-### Option 1: Docker (Recommended)
+### Docker (Required)
 
-The easiest way to get started is with Docker:
-
-```bash
-# Pull the latest PeerVault image
-docker pull peervault/peervault:latest
-
-# Run a single node
-docker run -d \
-  --name peervault \
-  -p 8080:8080 \
-  -p 8081:8081 \
-  -p 9090:9090 \
-  -v peervault-data:/data \
-  peervault/peervault:latest
-```
-
-### Option 2: Binary Download
-
-Download the latest binary for your platform:
+The Docker-only workflow uses the repo compose files:
 
 ```bash
-# Linux/macOS
-curl -L https://github.com/peervault/peervault/releases/latest/download/peervault-linux-amd64 -o peervault
-chmod +x peervault
-./peervault
-
-# Windows
-curl -L https://github.com/peervault/peervault/releases/latest/download/peervault-windows-amd64.exe -o peervault.exe
-./peervault.exe
-```
-
-### Option 3: Build from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/peervault/peervault.git
-cd peervault
-
-# Build the binary
-make build
-
-# Run the server
-./bin/peervault
+docker compose -f docker-compose.apis.yml up -d --build
 ```
 
 ## Configuration
@@ -95,24 +52,9 @@ logging:
 
 ## Your First API Call
 
-### Using cURL (REST API)
+### Using a REST Client
 
-```bash
-# Check if the server is running
-curl http://localhost:8080/api/v1/health
-
-# Upload a file
-curl -X POST http://localhost:8080/api/v1/files \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@example.txt" \
-  -F "key=my-first-file"
-
-# List files
-curl http://localhost:8080/api/v1/files
-
-# Download a file
-curl http://localhost:8080/api/v1/files/my-first-file -o downloaded.txt
-```
+Use any REST client to call the API endpoints under `http://localhost:8080/api/v1`.
 
 ### Using Go SDK
 

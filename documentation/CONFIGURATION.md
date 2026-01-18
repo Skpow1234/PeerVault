@@ -388,16 +388,7 @@ func main() {
 
 ### Environment Variable Overrides
 
-```bash
-# Override configuration using environment variables
-export PEERVAULT_LISTEN_ADDR=":8080"
-export PEERVAULT_LOG_LEVEL="debug"
-export PEERVAULT_STORAGE_ROOT="/data/peervault"
-export PEERVAULT_CLUSTER_KEY="your-secure-cluster-key"
-
-# Run the application
-go run main.go
-```
+Set these environment variables via Docker compose.
 
 ### Hot Reloading
 

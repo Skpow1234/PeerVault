@@ -105,26 +105,7 @@ gateway.RegisterService(service)
 
 ### Manual Registration via API
 
-Services can also be registered via the REST API:
-
-```bash
-# Register a new service
-curl -X POST http://localhost:8081/services \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "peervault-analytics",
-    "url": "http://localhost:8082/graphql",
-    "healthCheck": "http://localhost:8082/health",
-    "capabilities": {
-      "analytics": true,
-      "metrics": true
-    },
-    "metadata": {
-      "version": "1.0.0",
-      "region": "us-east-1"
-    }
-  }'
-```
+Services can also be registered via the REST API using any API client.
 
 ## API Endpoints
 

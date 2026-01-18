@@ -479,11 +479,7 @@ websocket:
 
 ### Debug Mode
 
-Enable debug logging for troubleshooting:
-
-```bash
-go run ./cmd/peervault-websocket -verbose
-```
+Enable debug logging via container environment variables for troubleshooting.
 
 This will provide detailed logs for:
 

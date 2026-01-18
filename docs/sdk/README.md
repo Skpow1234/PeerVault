@@ -32,17 +32,7 @@ This directory contains SDK documentation and examples for integrating with Peer
 
 ### REST API
 
-```bash
-# Upload a file
-curl -X POST http://localhost:8080/api/v1/files \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@example.txt" \
-  -F "key=my-file"
-
-# Download a file
-curl -X GET http://localhost:8080/api/v1/files/my-file \
-  -o downloaded-file.txt
-```
+Use the REST API endpoints from any API client. Command-line examples are omitted in the Docker-only workflow.
 
 ### GraphQL API
 
@@ -85,16 +75,7 @@ stream, err := client.UploadFile(context.Background())
 
 All APIs support JWT-based authentication:
 
-```bash
-# Get token
-curl -X POST http://localhost:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username": "user", "password": "pass"}'
-
-# Use token
-curl -X GET http://localhost:8080/api/v1/files \
-  -H "Authorization: Bearer <token>"
-```
+Use the authentication endpoints from any API client. Command-line examples are omitted in the Docker-only workflow.
 
 ## API Endpoints
 

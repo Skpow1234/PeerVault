@@ -88,35 +88,7 @@ The security pipeline implements comprehensive security features:
 
 ## Local Security Testing
 
-### Using Bash Script (Linux/macOS)
-
-```bash
-# Run all security checks
-./scripts/security-check.sh
-
-# Run specific checks
-./scripts/security-check.sh --vulnerability
-./scripts/security-check.sh --compliance
-./scripts/security-check.sh --test
-
-# Install security tools
-./scripts/security-check.sh --install-tools
-```
-
-### Using PowerShell Script (Windows)
-
-```powershell
-# Run all security checks
-.\scripts\security-check.ps1
-
-# Run specific checks
-.\scripts\security-check.ps1 -Vulnerability
-.\scripts\security-check.ps1 -Compliance
-.\scripts\security-check.ps1 -Test
-
-# Install security tools
-.\scripts\security-check.ps1 -InstallTools
-```
+Security testing runs in CI using containerized workflows.
 
 ## Pipeline Status
 

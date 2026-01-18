@@ -24,22 +24,11 @@ The gRPC API is designed for:
 
 ### Prerequisites
 
-- Go 1.24+
-- Protocol Buffers compiler (protoc) - for full implementation
-- gRPC client libraries
+Use the Docker compose stack to run the gRPC API.
 
 ### Running the Server
 
-```bash
-# Build the gRPC server
-go build -o peervault-grpc ./cmd/peervault-grpc
-
-# Run with default settings
-./peervault-grpc
-
-# Run with custom port and auth token
-./peervault-grpc -port 8082 -auth-token your-secure-token
-```
+Start the gRPC service via Docker compose.
 
 ### Server Configuration
 
@@ -353,33 +342,11 @@ The gRPC API can be used with any language that supports gRPC:
 
 ### Building from Source
 
-```bash
-# Clone the repository
-git clone https://github.com/Skpow1234/Peervault.git
-cd Peervault
-
-# Install dependencies
-go mod tidy
-
-# Build the gRPC server
-go build -o peervault-grpc ./cmd/peervault-grpc
-
-# Run tests
-go test ./internal/api/grpc/...
-```
+Build and test steps run in CI using containerized workflows.
 
 ### Protocol Buffer Generation
 
-```bash
-# Install protoc and plugins
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-
-# Generate Go code
-protoc --go_out=. --go_opt=paths=source_relative \
-       --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-       proto/peervault.proto
-```
+Protocol buffer generation runs in CI using containerized workflows.
 
 ## Status
 

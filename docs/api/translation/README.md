@@ -119,58 +119,9 @@ http://localhost:8086
 }
 ```
 
-## Protocol-Specific Translation CURL
+## Protocol-Specific Translation
 
-### WebSocket to MQTT
-
-```bash
-curl -X POST http://localhost:8086/translate/websocket \
-  -H "Content-Type: application/json" \
-  -d '{
-    "to_protocol": "mqtt",
-    "type": "text",
-    "topic": "sensors/temperature",
-    "payload": "25.5",
-    "metadata": {
-      "qos": 1,
-      "retain": false
-    }
-  }'
-```
-
-### SSE to WebSocket
-
-```bash
-curl -X POST http://localhost:8086/translate/sse \
-  -H "Content-Type: application/json" \
-  -d '{
-    "to_protocol": "websocket",
-    "type": "data",
-    "topic": "notifications",
-    "payload": "New message received",
-    "metadata": {
-      "sse_event": "message",
-      "sse_id": "12345"
-    }
-  }'
-```
-
-### MQTT to CoAP
-
-```bash
-curl -X POST http://localhost:8086/translate/mqtt \
-  -H "Content-Type: application/json" \
-  -d '{
-    "to_protocol": "coap",
-    "type": "publish",
-    "topic": "sensors/humidity",
-    "payload": "60.2",
-    "metadata": {
-      "mqtt_qos": 0,
-      "mqtt_retain": true
-    }
-  }'
-```
+Use the `/translate/*` endpoints with JSON payloads to convert between protocols.
 
 ## Message Type Mapping
 
@@ -562,19 +513,11 @@ print(f"Translated to CoAP: {coap_message}")
 
 ### Debug Mode
 
-Enable debug logging for detailed translation information:
-
-```bash
-./bin/peervault-translation.exe -verbose
-```
+Enable debug logging via container environment variables for detailed translation information.
 
 ### Health Check
 
-Monitor server health:
-
-```bash
-curl http://localhost:8086/translate/health
-```
+Monitor server health using the `/translate/health` endpoint.
 
 ## Contributing
 

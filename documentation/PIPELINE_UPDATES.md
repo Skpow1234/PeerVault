@@ -84,31 +84,7 @@ The final status check now includes:
 
 ### Usage Examples
 
-```bash
-# Run all security checks
-./scripts/security-check.sh
-
-# Run specific checks
-./scripts/security-check.sh --vulnerability
-./scripts/security-check.sh --compliance
-./scripts/security-check.sh --test
-
-# Install security tools
-./scripts/security-check.sh --install-tools
-```
-
-```powershell
-# Run all security checks
-.\scripts\security-check.ps1
-
-# Run specific checks
-.\scripts\security-check.ps1 -Vulnerability
-.\scripts\security-check.ps1 -Compliance
-.\scripts\security-check.ps1 -Test
-
-# Install security tools
-.\scripts\security-check.ps1 -InstallTools
-```
+Security checks run in CI using containerized workflows.
 
 ## Security Tools Integration
 

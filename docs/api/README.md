@@ -20,11 +20,7 @@ docs/api/
 
 The easiest way to explore the API is through the interactive Swagger UI:
 
-1. **Start the REST API server:**
-
-   ```bash
-   go run ./cmd/peervault-api
-   ```
+1. **Start the REST API server via Docker compose.**
 
 2. **Open Swagger UI in your browser:**
 
@@ -79,11 +75,7 @@ internal/api/rest/
 
 API endpoints support optional token-based authentication:
 
-```bash
-# Include token in Authorization header
-curl -H "Authorization: Bearer your-token-here" \
-     http://localhost:8081/api/v1/files
-```
+Use an API client and include the `Authorization: Bearer <token>` header.
 
 ### ⚡ Rate Limiting
 
@@ -176,9 +168,7 @@ Each endpoint has a unique operation ID for easy reference:
 
 ### Health Check
 
-```bash
-curl http://localhost:8081/health
-```
+Use `GET /health` to check service status.
 
 **Response:**
 
@@ -192,9 +182,7 @@ curl http://localhost:8081/health
 
 ### List Files
 
-```bash
-curl http://localhost:8081/api/v1/files
-```
+Use `GET /api/v1/files` to list files.
 
 **Response:**
 
@@ -228,63 +216,25 @@ curl http://localhost:8081/api/v1/files
 
 ### Upload File
 
-```bash
-curl -X POST http://localhost:8081/api/v1/files \
-  -F "file=@example.txt" \
-  -F "metadata={\"owner\":\"user1\",\"category\":\"documents\"}"
-```
+Use `POST /api/v1/files` with multipart form data to upload a file.
 
 ### Add Peer
 
-```bash
-curl -X POST http://localhost:8081/api/v1/peers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "address": "192.168.1.100",
-    "port": 8080,
-    "metadata": {
-      "location": "datacenter1",
-      "description": "Production node"
-    }
-  }'
-```
+Use `POST /api/v1/peers` with JSON to add a peer.
 
 ## 🔧 Development
 
 ### Running the API Server
 
-```bash
-# Build and run
-go build -o peervault-api.exe ./cmd/peervault-api
-./peervault-api.exe
-
-# Or run directly
-go run ./cmd/peervault-api
-```
+Start the REST API via Docker compose.
 
 ### Configuration Options
 
-```bash
-./peervault-api.exe \
-  --port 8081 \
-  --storage ./storage \
-  --cors true \
-  --auth false \
-  --rate-limit true \
-  --log-level info
-```
+Configure the API via Docker compose environment variables.
 
 ### Testing the API
 
-```bash
-# Run integration tests
-go test ./tests/integration/rest/ -v
-
-# Test specific endpoints
-curl http://localhost:8081/health
-curl http://localhost:8081/api/v1/files
-curl http://localhost:8081/api/v1/peers
-```
+Integration tests run in CI using containerized workflows.
 
 ## 📖 Additional Resources
 

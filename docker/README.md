@@ -27,13 +27,13 @@ Contains all API services plus the P2P network nodes for a complete setup.
 ### Run P2P Network Only
 
 ```bash
-docker-compose -f docker/docker-compose.yml up -d
+docker compose up -d
 ```
 
 ### Run Complete Setup (APIs + P2P Network)
 
 ```bash
-docker-compose -f docker/docker-compose.apis.yml up -d
+docker compose -f docker-compose.apis.yml up -d
 ```
 
 ### Run Individual Services
