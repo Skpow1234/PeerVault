@@ -29,7 +29,6 @@
 ## Table of Contents
 
 - [MVP Features](#mvp-features)
-- [Future Features (Post-MVP)](#-future-features-post-mvp)
 - [Content Addressing](#content-addressing)
 - [Message Framing](#message-framing)
 - [Encryption & Security](#encryption--security)
@@ -38,9 +37,6 @@
 - [Requirements](#requirements)
 - [Security](#security)
 - [Windows Defender Setup](#windows-defender-setup)
-- [Install](#install)
-- [Build](#build)
-- [Run](#run)
 - [GraphQL API](#graphql-api)
 - [REST API](#rest-api)
 - [gRPC API](#grpc-api)
@@ -452,7 +448,6 @@ docker compose up -d --build
   - `[::]:5000 starting fileserver...`
   - `received and written (...) bytes to disk`
   - `my big data file here!`
-
 
 ## GraphQL API
 
