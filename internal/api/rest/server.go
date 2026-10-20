@@ -63,8 +63,8 @@ func DefaultConfig() *Config {
 // if fsServer is nil, upload/delete fail closed (metadata-only stubs are removed).
 func NewServer(config *Config, logger *slog.Logger, fsServer *fileserver.Server) *Server {
 	fileService := implementations.NewFileService(fsServer)
-	peerService := implementations.NewPeerService()
-	systemService := implementations.NewSystemService()
+	peerService := implementations.NewPeerService(fsServer)
+	systemService := implementations.NewSystemService(fsServer)
 
 	// Initialize rate limiter
 	rateLimiter := ratelimit.NewRateLimiter(config.RateLimitConfig)

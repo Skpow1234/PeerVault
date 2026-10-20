@@ -2,57 +2,79 @@ package implementations
 
 import (
 	"context"
+	"runtime"
 	"time"
 
 	"github.com/Skpow1234/Peervault/internal/api/rest/services"
 	"github.com/Skpow1234/Peervault/internal/api/rest/types"
+	"github.com/Skpow1234/Peervault/internal/app/fileserver"
 )
 
 type SystemServiceImpl struct {
+	server    *fileserver.Server
 	startTime time.Time
-	// TODO: Add system monitoring dependencies
 }
 
-func NewSystemService() services.SystemService {
+func NewSystemService(server *fileserver.Server) services.SystemService {
+	start := time.Now().UTC()
+	if server != nil {
+		start = server.StartTime()
+	}
 	return &SystemServiceImpl{
-		startTime: time.Now(),
+		server:    server,
+		startTime: start,
 	}
 }
 
 func (s *SystemServiceImpl) GetSystemInfo(ctx context.Context) (*types.SystemInfo, error) {
-	// TODO: Implement actual system info collection
-	// return s.systemMonitor.GetSystemInfo()
-
-	// Mock data for now
+	_ = ctx
+	peerCount := 0
+	fileCount := 0
+	var storageUsed int64
+	if s.server != nil {
+		peerCount = s.server.PeerCount()
+		files := s.server.ListFiles()
+		fileCount = len(files)
+		for _, f := range files {
+			storageUsed += f.Size
+		}
+	}
 	return &types.SystemInfo{
-		Version:      "1.0.0",
+		Version:      "0.1.0-mvp",
 		Uptime:       time.Since(s.startTime),
 		StartTime:    s.startTime,
-		StorageUsed:  1024 * 1024 * 100,  // 100MB
-		StorageTotal: 1024 * 1024 * 1024, // 1GB
-		PeerCount:    3,
-		FileCount:    20,
+		StorageUsed:  storageUsed,
+		StorageTotal: storageUsed,
+		PeerCount:    peerCount,
+		FileCount:    fileCount,
 	}, nil
 }
 
 func (s *SystemServiceImpl) GetMetrics(ctx context.Context) (*types.Metrics, error) {
-	// TODO: Implement actual metrics collection
-	// return s.metricsCollector.GetMetrics()
-
-	// Mock data for now
+	_ = ctx
+	var mem runtime.MemStats
+	runtime.ReadMemStats(&mem)
+	usage := float64(mem.Alloc) / float64(mem.Sys) * 100
+	if mem.Sys == 0 {
+		usage = 0
+	}
+	active := 0
+	if s.server != nil {
+		active = s.server.PeerCount()
+	}
 	return &types.Metrics{
-		RequestsTotal:     1000,
-		RequestsPerMinute: 50.5,
-		ActiveConnections: 5,
-		StorageUsage:      9.8, // 9.8%
-		LastUpdated:       time.Now(),
+		RequestsTotal:     0,
+		RequestsPerMinute: 0,
+		ActiveConnections: active,
+		StorageUsage:      usage,
+		LastUpdated:       time.Now().UTC(),
 	}, nil
 }
 
 func (s *SystemServiceImpl) HealthCheck(ctx context.Context) (bool, error) {
-	// TODO: Implement actual health check
-	// return s.healthChecker.Check()
-
-	// Mock implementation - always healthy
+	_ = ctx
+	if s.server == nil {
+		return true, nil // API-only mode
+	}
 	return true, nil
 }

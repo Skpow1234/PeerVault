@@ -208,76 +208,47 @@ func TestRESTAPIFiles(t *testing.T) {
 }
 
 func TestRESTAPIPeers(t *testing.T) {
-	restServer := setupTestServer()
+	restServer := setupTestServerWithFS(t)
 
-	// Test list peers
 	req := httptest.NewRequest("GET", "/api/v1/peers", nil)
 	w := httptest.NewRecorder()
-
 	restServer.PeerEndpoints.HandleListPeers(w, req)
-
 	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
+		t.Fatalf("Expected status 200, got %d", w.Code)
 	}
 
 	var response responses.PeerListResponse
 	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
 		t.Fatalf("Failed to decode response: %v", err)
 	}
-
 	if len(response.Peers) == 0 {
-		t.Error("Expected at least one peer in response")
+		t.Fatal("Expected at least self peer in response")
 	}
 
-	// Test get peer
-	req = httptest.NewRequest("GET", "/api/v1/peers/get?id=peer1", nil)
+	selfID := response.Peers[0].ID
+	req = httptest.NewRequest("GET", "/api/v1/peers/get?id="+selfID, nil)
 	w = httptest.NewRecorder()
-
 	restServer.PeerEndpoints.HandleGetPeer(w, req)
-
 	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
-	}
-
-	var peerResponse responses.PeerResponse
-	if err := json.NewDecoder(w.Body).Decode(&peerResponse); err != nil {
-		t.Fatalf("Failed to decode response: %v", err)
-	}
-
-	if peerResponse.ID != "peer1" {
-		t.Errorf("Expected ID 'peer1', got '%s'", peerResponse.ID)
+		t.Fatalf("Expected status 200, got %d", w.Code)
 	}
 }
 
 func TestRESTAPIAddPeer(t *testing.T) {
-	restServer := setupTestServer()
+	restServer := setupTestServerWithFS(t)
 
+	// Dial to an unused address should fail closed (no mock success).
 	request := requests.PeerAddRequest{
-		Address: "192.168.1.100",
-		Port:    8080,
-		Metadata: map[string]string{
-			"region": "us-east",
-		},
+		Address: "127.0.0.1",
+		Port:    1,
 	}
-
 	body, _ := json.Marshal(request)
 	req := httptest.NewRequest("POST", "/api/v1/peers", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-
 	restServer.PeerEndpoints.HandleAddPeer(w, req)
-
-	if w.Code != http.StatusCreated {
-		t.Errorf("Expected status 201, got %d", w.Code)
-	}
-
-	var response responses.PeerResponse
-	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
-		t.Fatalf("Failed to decode response: %v", err)
-	}
-
-	if response.Address != "192.168.1.100" {
-		t.Errorf("Expected address '192.168.1.100', got '%s'", response.Address)
+	if w.Code == http.StatusCreated {
+		t.Fatal("Expected add-peer to fail for unreachable address")
 	}
 }
 

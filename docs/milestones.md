@@ -4,42 +4,30 @@ Canonical detail: [documentation/ROADMAP.md](../documentation/ROADMAP.md) · Ext
 
 ## Current status
 
-**Core P2P MVP path is largely unblocked.** Completed recently:
+**API surfaces are now backed by the fileserver** (not mock data) for the main file/peer/system paths.
 
-- Cross-peer **stream replication** and **pending Get**
-- **`DialPeer`** for health reconnect
-- **SHA-256** CAS
-- **Chunked AES-GCM** (`PVCH` container; legacy single-blob still decrypts)
-- **REST FileService** wired to fileserver (upload/list/get/delete/metadata)
-- **CI-blocking** `p2p-e2e` job (`TestReplicationStoreAGetB`)
+Completed recently:
+
+- Chunked AES-GCM, replication, DialPeer, SHA-256 CAS, CI `p2p-e2e`
+- Shared **file registry** + peer APIs on `fileserver`
+- **REST** File / Peer / System services wired to fileserver
+- **GraphQL** resolvers + upload/download/health/metrics wired
+- **gRPC HTTP/JSON facade** file service wired (true protobuf gRPC server still pending)
 
 Still open:
 
-- GraphQL resolvers / true gRPC (not HTTP/JSON)
-- Peer/System REST services still stubs
-- Reduce sleep-based waits in older e2e helpers
+- Full GraphQL schema engine (dispatcher is query-name based)
+- True `google.golang.org/grpc` server replacing HTTP/JSON
+- Subscriptions on real events
+- Bootstrap readiness without sleeps
 
-## Core milestones (P0–P8)
+## Suggested next
 
-| # | Theme | Priority | Notes |
-|---|--------|----------|--------|
-| 1 | Correctness & security | P0 | Largely done |
-| 2 | Transport, streaming, storage | P1 | Chunked crypto + replication done |
-| 3 | Reliability, ops, DX | P2 | Critical e2e gated in CI |
-| 4 | API interfaces | P3 | REST files wired; GraphQL/gRPC next |
-| 5–9 | DX / perf / obs / security / ecosystem | P4–P8 | See extended backlog |
-
-## Extended backlog (41+)
-
-See [MILESTONES_EXTENDED.md](../documentation/MILESTONES_EXTENDED.md) (900+ items).
-
-## Suggested next slices
-
-1. Wire GraphQL resolvers to fileserver  
-2. Replace gRPC HTTP/JSON with real protobuf gRPC  
-3. Wire REST PeerService / SystemService  
-4. Handshake duplex + bootstrap readiness (no sleeps)
+1. Stand up real gRPC server from `proto/peervault`  
+2. GraphQL library (gqlgen/graphql-go) over current dispatcher  
+3. Event bus for subscriptions  
+4. Handshake duplex + dial readiness probes  
 
 ## Related
 
-- [deployment.md](deployment.md) · [endpoints.md](endpoints.md) · [architecture.md](architecture.md)
+- [endpoints.md](endpoints.md) · [architecture.md](architecture.md) · [deployment.md](deployment.md)

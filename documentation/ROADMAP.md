@@ -1737,7 +1737,9 @@ Recent implementation progress against early milestones:
 | DialPeer for reconnect | Done (`Transport.DialPeer`) |
 | M2.1 Remove sleep from protocol | Improved (pending channels; tests may still sleep) |
 | M2.2 Streaming AEAD without full buffer | Done (chunked AES-GCM `PVCH` format + legacy decrypt) |
-| Wire REST FileService | Done (backed by fileserver; GraphQL/gRPC still open) |
+| Wire REST File/Peer/System | Done (backed by fileserver) |
+| Wire GraphQL resolvers + upload/download | Done (lightweight query dispatcher) |
+| Wire gRPC file service to fileserver | Done (HTTP/JSON facade; true gRPC server still open) |
 | CI-blocking A→B replication | Done (`p2p-e2e` job / `TestReplicationStoreAGetB`) |
 
 ## Extended milestones (41+)

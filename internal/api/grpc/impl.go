@@ -31,7 +31,7 @@ func NewPeerVaultServiceImpl(logger *slog.Logger) *PeerVaultServiceImpl {
 	}
 
 	return &PeerVaultServiceImpl{
-		fileService:   services.NewFileService(),
+		fileService:   services.NewFileService(nil),
 		peerService:   services.NewPeerService(),
 		systemService: services.NewSystemService(),
 		logger:        logger,

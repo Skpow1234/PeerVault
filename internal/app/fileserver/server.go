@@ -3,11 +3,16 @@ package fileserver
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/binary"
 	"encoding/gob"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -49,6 +54,9 @@ type Server struct {
 
 	pendingMu   sync.Mutex
 	pendingGets map[string]chan streamResult
+
+	registry  *fileRegistry
+	startTime time.Time
 }
 
 // getEncryptionKey returns the current encryption key, preferring KeyManager over the legacy EncKey
@@ -96,6 +104,8 @@ func New(opts Options) *Server {
 		pendingGets:     make(map[string]chan streamResult),
 		fileOpManager:   NewFileOperationManager(20),
 		resourceManager: peer.NewResourceManager(opts.ResourceLimits),
+		registry:        newFileRegistry(),
+		startTime:       time.Now().UTC(),
 	}
 
 	server.initializeHealthManager()
@@ -270,13 +280,42 @@ func (s *Server) Get(ctx context.Context, key string) (io.Reader, error) {
 }
 
 func (s *Server) Store(ctx context.Context, key string, r io.Reader) error {
+	return s.StoreWithMeta(ctx, key, r, "", nil)
+}
+
+// StoreWithMeta stores content and records API metadata (name/content-type/etc).
+func (s *Server) StoreWithMeta(ctx context.Context, key string, r io.Reader, contentType string, metadata map[string]string) error {
 	_ = ctx
 	sk := storageKey(key)
 
-	size, err := s.store.WriteDecrypt(crypto.CopyEncrypt, s.getEncryptionKey(), sk, r)
+	// Tee plaintext so we can hash/size for the registry without a second read.
+	var plainBuf bytes.Buffer
+	tee := io.TeeReader(r, &plainBuf)
+
+	size, err := s.store.WriteDecrypt(crypto.CopyEncrypt, s.getEncryptionKey(), sk, tee)
 	if err != nil {
 		return err
 	}
+
+	plain := plainBuf.Bytes()
+	sum := sha256.Sum256(plain)
+	now := time.Now().UTC()
+	name := key
+	if metadata != nil {
+		if n := metadata["name"]; n != "" {
+			name = n
+		}
+	}
+	s.registry.put(&FileInfo{
+		Key:         key,
+		Name:        name,
+		Size:        int64(len(plain)),
+		ContentType: contentType,
+		Hash:        hex.EncodeToString(sum[:]),
+		CreatedAt:   now,
+		UpdatedAt:   now,
+		Metadata:    metadata,
+	})
 
 	msg := Message{Payload: dto.StoreFile{ID: s.ID, Key: sk, Size: size}}
 	if err := s.broadcast(&msg); err != nil {
@@ -303,12 +342,145 @@ func (s *Server) Delete(ctx context.Context, key string) error {
 	if !s.store.Has(sk) {
 		return fmt.Errorf("file not found: %s", key)
 	}
-	return s.store.Delete(sk)
+	if err := s.store.Delete(sk); err != nil {
+		return err
+	}
+	s.registry.delete(key)
+	return nil
 }
 
-// ID returns this node's identifier.
+// NodeID returns this node's identifier.
 func (s *Server) NodeID() string {
 	return s.ID
+}
+
+// ListFiles returns registered file metadata.
+func (s *Server) ListFiles() []FileInfo {
+	return s.registry.list()
+}
+
+// GetFileInfo returns metadata for a logical key.
+func (s *Server) GetFileInfo(key string) (*FileInfo, bool) {
+	return s.registry.get(key)
+}
+
+// UpdateFileMetadata updates metadata for a registered file.
+func (s *Server) UpdateFileMetadata(key string, metadata map[string]string) (*FileInfo, error) {
+	if !s.Has(key) {
+		return nil, fmt.Errorf("file not found: %s", key)
+	}
+	info, ok := s.registry.updateMetadata(key, metadata)
+	if !ok {
+		// File exists on disk but not in registry — synthesize a record.
+		now := time.Now().UTC()
+		info = &FileInfo{Key: key, Name: key, CreatedAt: now, UpdatedAt: now, Metadata: metadata}
+		s.registry.put(info)
+		return info, nil
+	}
+	return info, nil
+}
+
+// FileCount returns the number of indexed files.
+func (s *Server) FileCount() int {
+	return s.registry.count()
+}
+
+// ListPeers returns connected peer information for APIs.
+func (s *Server) ListPeers() []PeerInfo {
+	now := time.Now().UTC()
+	peers := s.listPeers()
+	out := make([]PeerInfo, 0, len(peers)+1)
+	out = append(out, PeerInfo{
+		ID:       s.ID,
+		Address:  s.Transport.Addr(),
+		Status:   "self",
+		LastSeen: now,
+	})
+	for _, p := range peers {
+		addr := p.RemoteAddr().String()
+		out = append(out, PeerInfo{
+			ID:       addr,
+			Address:  addr,
+			Status:   "active",
+			LastSeen: now,
+		})
+	}
+	return out
+}
+
+// PeerCount returns connected remote peers (excluding self).
+func (s *Server) PeerCount() int {
+	return len(s.listPeers())
+}
+
+// AddPeer dials and registers a peer at host:port or host.
+func (s *Server) AddPeer(ctx context.Context, address string, port int) (*PeerInfo, error) {
+	_ = ctx
+	addr := address
+	if port > 0 && !strings.Contains(address, ":") {
+		addr = net.JoinHostPort(address, strconv.Itoa(port))
+	}
+	if !strings.Contains(addr, ":") {
+		addr = net.JoinHostPort(addr, "3000")
+	}
+	p, err := s.dialPeer(addr)
+	if err != nil {
+		return nil, err
+	}
+	return &PeerInfo{
+		ID:       p.RemoteAddr().String(),
+		Address:  p.RemoteAddr().String(),
+		Status:   "active",
+		LastSeen: time.Now().UTC(),
+	}, nil
+}
+
+// RemovePeer disconnects a peer by address/id.
+func (s *Server) RemovePeer(peerID string) error {
+	s.peerLock.Lock()
+	defer s.peerLock.Unlock()
+	p, ok := s.peers[peerID]
+	if !ok {
+		// Try matching by suffix / alternate form
+		for addr, peer := range s.peers {
+			if addr == peerID || strings.HasSuffix(addr, peerID) {
+				p = peer
+				ok = true
+				peerID = addr
+				break
+			}
+		}
+	}
+	if !ok {
+		return fmt.Errorf("peer not found: %s", peerID)
+	}
+	_ = p.Close()
+	delete(s.peers, peerID)
+	if s.healthManager != nil {
+		s.healthManager.RemovePeer(peerID)
+	}
+	if s.resourceManager != nil {
+		s.resourceManager.RemovePeer(peerID)
+	}
+	return nil
+}
+
+// Uptime returns time since this server was constructed.
+func (s *Server) Uptime() time.Duration {
+	return time.Since(s.startTime)
+}
+
+// StartTime returns when this server instance was created.
+func (s *Server) StartTime() time.Time {
+	return s.startTime
+}
+
+// ListenAddr returns the transport listen address.
+func (s *Server) ListenAddr() string {
+	if s.Transport == nil {
+		return ""
+	}
+	return s.Transport.Addr()
 }
 
 // replicateToPeers streams the ciphertext already on disk to each connected peer.

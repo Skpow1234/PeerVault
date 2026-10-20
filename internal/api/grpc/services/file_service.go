@@ -1,62 +1,76 @@
 package services
 
 import (
-	"crypto/sha256"
+	"bytes"
+	"context"
 	"fmt"
+	"io"
 	"time"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/Skpow1234/Peervault/internal/app/fileserver"
 	"github.com/Skpow1234/Peervault/proto/peervault"
 )
 
-// FileService provides file-related operations
+// FileService provides file-related operations backed by fileserver when set.
 type FileService struct {
-	// Mock storage for demonstration
+	server *fileserver.Server
+	// fallback in-memory store when server is nil (tests / degraded mode)
 	files map[string][]byte
 }
 
-// NewFileService creates a new file service instance
-func NewFileService() *FileService {
+// NewFileService creates a file service. Pass a fileserver for real storage.
+func NewFileService(server *fileserver.Server) *FileService {
 	return &FileService{
-		files: make(map[string][]byte),
+		server: server,
+		files:  make(map[string][]byte),
 	}
 }
 
 // UploadFile uploads a file and returns file metadata
 func (s *FileService) UploadFile(fileKey string, data []byte) (*peervault.FileResponse, error) {
-	// Store the file data
+	if s.server != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		if err := s.server.StoreWithMeta(ctx, fileKey, bytes.NewReader(data), "application/octet-stream", nil); err != nil {
+			return nil, err
+		}
+		info, ok := s.server.GetFileInfo(fileKey)
+		if !ok {
+			return nil, fmt.Errorf("upload missing metadata for %s", fileKey)
+		}
+		return fileInfoToProto(info, s.server.NodeID()), nil
+	}
+
 	s.files[fileKey] = data
-
-	// Calculate hash
-	hash := fmt.Sprintf("%x", sha256.Sum256(data))
-
-	// Create file response
-	response := &peervault.FileResponse{
+	return &peervault.FileResponse{
 		Key:         fileKey,
 		Name:        fileKey,
 		Size:        int64(len(data)),
 		ContentType: "application/octet-stream",
-		Hash:        hash,
+		Hash:        "",
 		CreatedAt:   timestamppb.Now(),
 		UpdatedAt:   timestamppb.Now(),
-		Metadata: map[string]string{
-			"uploaded_at": time.Now().Format(time.RFC3339),
-		},
-		Replicas: []*peervault.FileReplica{
-			{
-				PeerId:    "local",
-				Status:    "active",
-				CreatedAt: timestamppb.Now(),
-			},
-		},
-	}
-
-	return response, nil
+		Metadata:    map[string]string{},
+		Replicas:    []*peervault.FileReplica{},
+	}, nil
 }
 
 // DownloadFile downloads a file by key
 func (s *FileService) DownloadFile(key string) ([]byte, error) {
+	if s.server != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		r, err := s.server.Get(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+		if closer, ok := r.(io.Closer); ok {
+			defer func() { _ = closer.Close() }()
+		}
+		return io.ReadAll(r)
+	}
 	data, exists := s.files[key]
 	if !exists {
 		return nil, fmt.Errorf("file not found: %s", key)
@@ -66,34 +80,43 @@ func (s *FileService) DownloadFile(key string) ([]byte, error) {
 
 // ListFiles lists files with pagination and filtering
 func (s *FileService) ListFiles(page, pageSize int, filter string) (*peervault.ListFilesResponse, error) {
-	// Mock implementation
-	files := []*peervault.FileResponse{
-		{
-			Key:         "file1.txt",
-			Name:        "file1.txt",
-			Size:        1024,
-			ContentType: "text/plain",
-			Hash:        "abc123",
-			CreatedAt:   timestamppb.Now(),
-			UpdatedAt:   timestamppb.Now(),
-			Metadata:    map[string]string{},
-			Replicas:    []*peervault.FileReplica{},
-		},
-		{
-			Key:         "file2.jpg",
-			Name:        "file2.jpg",
-			Size:        2048,
-			ContentType: "image/jpeg",
-			Hash:        "def456",
-			CreatedAt:   timestamppb.Now(),
-			UpdatedAt:   timestamppb.Now(),
-			Metadata:    map[string]string{},
-			Replicas:    []*peervault.FileReplica{},
-		},
+	_ = filter
+	if page < 1 {
+		page = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 50
+	}
+
+	var files []*peervault.FileResponse
+	if s.server != nil {
+		infos := s.server.ListFiles()
+		files = make([]*peervault.FileResponse, 0, len(infos))
+		for i := range infos {
+			files = append(files, fileInfoToProto(&infos[i], s.server.NodeID()))
+		}
+	} else {
+		files = make([]*peervault.FileResponse, 0, len(s.files))
+		for k, data := range s.files {
+			files = append(files, &peervault.FileResponse{
+				Key:  k,
+				Name: k,
+				Size: int64(len(data)),
+			})
+		}
+	}
+
+	start := (page - 1) * pageSize
+	if start > len(files) {
+		start = len(files)
+	}
+	end := start + pageSize
+	if end > len(files) {
+		end = len(files)
 	}
 
 	return &peervault.ListFilesResponse{
-		Files:    files,
+		Files:    files[start:end],
 		Total:    int32(len(files)),
 		Page:     int32(page),
 		PageSize: int32(pageSize),
@@ -102,62 +125,72 @@ func (s *FileService) ListFiles(page, pageSize int, filter string) (*peervault.L
 
 // GetFile retrieves file metadata by key
 func (s *FileService) GetFile(key string) (*peervault.FileResponse, error) {
+	if s.server != nil {
+		info, ok := s.server.GetFileInfo(key)
+		if !ok || !s.server.Has(key) {
+			return nil, fmt.Errorf("file not found: %s", key)
+		}
+		return fileInfoToProto(info, s.server.NodeID()), nil
+	}
 	data, exists := s.files[key]
 	if !exists {
 		return nil, fmt.Errorf("file not found: %s", key)
 	}
-
-	hash := fmt.Sprintf("%x", sha256.Sum256(data))
-
 	return &peervault.FileResponse{
-		Key:         key,
-		Name:        key,
-		Size:        int64(len(data)),
-		ContentType: "application/octet-stream",
-		Hash:        hash,
-		CreatedAt:   timestamppb.Now(),
-		UpdatedAt:   timestamppb.Now(),
-		Metadata:    map[string]string{},
-		Replicas:    []*peervault.FileReplica{},
+		Key:  key,
+		Name: key,
+		Size: int64(len(data)),
 	}, nil
 }
 
 // DeleteFile deletes a file by key
 func (s *FileService) DeleteFile(key string) (bool, error) {
+	if s.server != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+		if err := s.server.Delete(ctx, key); err != nil {
+			return false, err
+		}
+		return true, nil
+	}
 	if _, exists := s.files[key]; !exists {
 		return false, fmt.Errorf("file not found: %s", key)
 	}
-
 	delete(s.files, key)
 	return true, nil
 }
 
 // UpdateFileMetadata updates file metadata
 func (s *FileService) UpdateFileMetadata(key string, metadata map[string]string) (*peervault.FileResponse, error) {
-	data, exists := s.files[key]
-	if !exists {
-		return nil, fmt.Errorf("file not found: %s", key)
+	if s.server != nil {
+		info, err := s.server.UpdateFileMetadata(key, metadata)
+		if err != nil {
+			return nil, err
+		}
+		return fileInfoToProto(info, s.server.NodeID()), nil
 	}
-
-	hash := fmt.Sprintf("%x", sha256.Sum256(data))
-
-	return &peervault.FileResponse{
-		Key:         key,
-		Name:        key,
-		Size:        int64(len(data)),
-		ContentType: "application/octet-stream",
-		Hash:        hash,
-		CreatedAt:   timestamppb.Now(),
-		UpdatedAt:   timestamppb.Now(),
-		Metadata:    metadata,
-		Replicas:    []*peervault.FileReplica{},
-	}, nil
+	return s.GetFile(key)
 }
 
 // StreamFileOperations streams file operation events
 func (s *FileService) StreamFileOperations() (<-chan *peervault.FileOperationEvent, error) {
-	// Mock implementation - return a channel that will be closed
 	ch := make(chan *peervault.FileOperationEvent)
 	close(ch)
 	return ch, nil
+}
+
+func fileInfoToProto(info *fileserver.FileInfo, nodeID string) *peervault.FileResponse {
+	return &peervault.FileResponse{
+		Key:         info.Key,
+		Name:        info.Name,
+		Size:        info.Size,
+		ContentType: info.ContentType,
+		Hash:        info.Hash,
+		CreatedAt:   timestamppb.New(info.CreatedAt),
+		UpdatedAt:   timestamppb.New(info.UpdatedAt),
+		Metadata:    info.Metadata,
+		Replicas: []*peervault.FileReplica{
+			{PeerId: nodeID, Status: "active", CreatedAt: timestamppb.New(info.CreatedAt)},
+		},
+	}
 }

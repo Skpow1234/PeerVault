@@ -15,7 +15,7 @@ func TestGRPCServerCreation(t *testing.T) {
 	config := grpc.DefaultConfig()
 	config.Port = ":0" // Use port 0 for testing
 
-	server := grpc.NewServer(config, nil)
+	server := grpc.NewServer(config, nil, nil)
 	assert.NotNil(t, server)
 	// Note: config field is private, so we can't access it directly
 }
@@ -24,7 +24,7 @@ func TestGRPCHealthCheck(t *testing.T) {
 	config := grpc.DefaultConfig()
 	config.Port = ":0"
 
-	server := grpc.NewServer(config, nil)
+	server := grpc.NewServer(config, nil, nil)
 	require.NotNil(t, server)
 
 	// Test the health check handler directly
@@ -42,7 +42,7 @@ func TestGRPCSystemInfo(t *testing.T) {
 	config := grpc.DefaultConfig()
 	config.Port = ":0"
 
-	server := grpc.NewServer(config, nil)
+	server := grpc.NewServer(config, nil, nil)
 	require.NotNil(t, server)
 
 	// Test the system info handler directly
@@ -60,7 +60,7 @@ func TestGRPCMetrics(t *testing.T) {
 	config := grpc.DefaultConfig()
 	config.Port = ":0"
 
-	server := grpc.NewServer(config, nil)
+	server := grpc.NewServer(config, nil, nil)
 	require.NotNil(t, server)
 
 	// Test the metrics handler directly
@@ -93,7 +93,7 @@ func TestGRPCServerStartStop(t *testing.T) {
 	config := grpc.DefaultConfig()
 	config.Port = ":0" // Use port 0 for testing
 
-	server := grpc.NewServer(config, nil)
+	server := grpc.NewServer(config, nil, nil)
 	require.NotNil(t, server)
 
 	// Test that we can stop the server without panicking

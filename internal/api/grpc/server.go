@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Skpow1234/Peervault/internal/api/grpc/services"
+	"github.com/Skpow1234/Peervault/internal/app/fileserver"
 	"github.com/Skpow1234/Peervault/proto/peervault"
 )
 
@@ -48,8 +49,8 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewServer creates a new server instance
-func NewServer(config *Config, logger *slog.Logger) *Server {
+// NewServer creates a new server instance. Pass fsServer to back file ops with PeerVault storage.
+func NewServer(config *Config, logger *slog.Logger, fsServer *fileserver.Server) *Server {
 	if config == nil {
 		config = DefaultConfig()
 	}
@@ -61,7 +62,7 @@ func NewServer(config *Config, logger *slog.Logger) *Server {
 	server := &Server{
 		config:                 config,
 		logger:                 logger,
-		fileService:            services.NewFileService(),
+		fileService:            services.NewFileService(fsServer),
 		peerService:            services.NewPeerService(),
 		systemService:          services.NewSystemService(),
 		fileEventSubscribers:   make(map[chan *peervault.FileOperationEvent]bool),

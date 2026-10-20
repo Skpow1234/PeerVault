@@ -1,14 +1,17 @@
 package graphql
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/Skpow1234/Peervault/internal/api/graphql/resolvers"
 	"github.com/Skpow1234/Peervault/internal/api/graphql/subscriptions"
 	"github.com/Skpow1234/Peervault/internal/app/fileserver"
 	"github.com/Skpow1234/Peervault/internal/websocket"
@@ -17,11 +20,13 @@ import (
 // Server represents the GraphQL server
 type Server struct {
 	server               *fileserver.Server
+	resolver             resolvers.Resolver
 	config               *Config
 	logger               *slog.Logger
 	hub                  *websocket.Hub
 	subscriptionManager  *websocket.SubscriptionManager
 	subscriptionResolver *subscriptions.SubscriptionResolver
+	startTime            time.Time
 }
 
 // Config holds the configuration for the GraphQL server
@@ -61,11 +66,13 @@ func NewServer(fileserver *fileserver.Server, config *Config) *Server {
 
 	server := &Server{
 		server:               fileserver,
+		resolver:             resolvers.NewResolver(fileserver),
 		config:               config,
 		logger:               logger,
 		hub:                  hub,
 		subscriptionManager:  subscriptionManager,
 		subscriptionResolver: subscriptionResolver,
+		startTime:            time.Now().UTC(),
 	}
 
 	// Start the WebSocket hub
@@ -164,7 +171,8 @@ type ErrorLocation struct {
 	Column int `json:"column"`
 }
 
-// GraphQLHandler handles GraphQL requests
+// GraphQLHandler handles GraphQL requests via the fileserver-backed resolver.
+// This is a lightweight dispatcher (full schema engine still pending).
 func (s *Server) GraphQLHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -177,14 +185,10 @@ func (s *Server) GraphQLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For now, return a simple response
-	response := GraphQLResponse{
-		Data: map[string]interface{}{
-			"health": map[string]interface{}{
-				"status":    "healthy",
-				"timestamp": time.Now().UTC(),
-			},
-		},
+	data, err := s.dispatchGraphQL(r.Context(), req)
+	response := GraphQLResponse{Data: data}
+	if err != nil {
+		response.Errors = []GraphQLError{{Message: err.Error()}}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -192,6 +196,91 @@ func (s *Server) GraphQLHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
 	}
+}
+
+func (s *Server) dispatchGraphQL(ctx context.Context, req GraphQLRequest) (map[string]interface{}, error) {
+	q := req.Query
+	switch {
+	case containsOp(q, "health"):
+		h, err := s.resolver.Health(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]interface{}{"health": h}, nil
+	case containsOp(q, "files"):
+		files, err := s.resolver.Files(ctx, nil, nil, nil)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]interface{}{"files": files}, nil
+	case containsOp(q, "nodes"):
+		nodes, err := s.resolver.Nodes(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]interface{}{"nodes": nodes}, nil
+	case containsOp(q, "peerNetwork"):
+		net, err := s.resolver.PeerNetwork(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]interface{}{"peerNetwork": net}, nil
+	case containsOp(q, "systemMetrics"):
+		m, err := s.resolver.SystemMetrics(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]interface{}{"systemMetrics": m}, nil
+	case containsOp(q, "storageStats"):
+		m, err := s.resolver.StorageStats(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]interface{}{"storageStats": m}, nil
+	default:
+		h, err := s.resolver.Health(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]interface{}{"health": h}, nil
+	}
+}
+
+func containsOp(query, name string) bool {
+	return len(query) > 0 && (containsFold(query, name+"{") || containsFold(query, name+" {") || containsFold(query, name+"("))
+}
+
+func containsFold(s, substr string) bool {
+	return len(s) >= len(substr) && (stringIndexFold(s, substr) >= 0)
+}
+
+func stringIndexFold(s, substr string) int {
+	ls, lsub := len(s), len(substr)
+	for i := 0; i+lsub <= ls; i++ {
+		if equalFoldASCII(s[i:i+lsub], substr) {
+			return i
+		}
+	}
+	return -1
+}
+
+func equalFoldASCII(a, b string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := 0; i < len(a); i++ {
+		ca, cb := a[i], b[i]
+		if ca >= 'A' && ca <= 'Z' {
+			ca += 'a' - 'A'
+		}
+		if cb >= 'A' && cb <= 'Z' {
+			cb += 'a' - 'A'
+		}
+		if ca != cb {
+			return false
+		}
+	}
+	return true
 }
 
 // PlaygroundHandler serves the GraphQL Playground
@@ -226,14 +315,11 @@ func (s *Server) PlaygroundHandler(w http.ResponseWriter, r *http.Request) {
 // HealthHandler handles health check requests
 func (s *Server) HealthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	health := map[string]interface{}{
-		"status":    "healthy",
-		"timestamp": time.Now().UTC(),
-		"service":   "peervault-graphql",
+	h, healthErr := s.resolver.Health(r.Context())
+	if healthErr != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
 	}
-
-	if err := json.NewEncoder(w).Encode(health); err != nil {
+	if encErr := json.NewEncoder(w).Encode(h); encErr != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
 	}
@@ -242,15 +328,17 @@ func (s *Server) HealthHandler(w http.ResponseWriter, r *http.Request) {
 // MetricsHandler handles metrics requests
 func (s *Server) MetricsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	// TODO: Implement actual metrics collection
+	peers, files := 0, 0
+	if s.server != nil {
+		peers = s.server.PeerCount()
+		files = s.server.FileCount()
+	}
 	metrics := map[string]interface{}{
-		"uptime":    time.Since(time.Now()).Seconds(),
-		"requests":  0,
-		"errors":    0,
+		"uptime":    time.Since(s.startTime).Seconds(),
+		"peers":     peers,
+		"files":     files,
 		"timestamp": time.Now().UTC(),
 	}
-
 	if err := json.NewEncoder(w).Encode(metrics); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
@@ -288,19 +376,23 @@ func (s *Server) HandleFileUpload(w http.ResponseWriter, r *http.Request) {
 		key = header.Filename
 	}
 
-	// TODO: Implement actual file upload logic using the fileserver
-	s.logger.Info("File upload request",
-		"filename", header.Filename,
-		"size", header.Size,
-		"key", key,
-	)
+	data, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, "Failed to read file", http.StatusInternalServerError)
+		return
+	}
+	contentType := header.Header.Get("Content-Type")
+	if err := s.server.StoreWithMeta(r.Context(), key, bytes.NewReader(data), contentType, map[string]string{"name": header.Filename}); err != nil {
+		s.logger.Error("upload failed", "error", err)
+		http.Error(w, "Failed to store file", http.StatusInternalServerError)
+		return
+	}
 
-	// For now, just return success
 	w.Header().Set("Content-Type", "application/json")
 	response := map[string]interface{}{
 		"success": true,
 		"key":     key,
-		"size":    header.Size,
+		"size":    len(data),
 	}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
@@ -321,11 +413,19 @@ func (s *Server) HandleFileDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Implement actual file download logic using the fileserver
-	s.logger.Info("File download request", "key", key)
-
-	// For now, return not found
-	http.Error(w, "File not found", http.StatusNotFound)
+	reader, err := s.server.Get(r.Context(), key)
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	if closer, ok := reader.(io.Closer); ok {
+		defer func() { _ = closer.Close() }()
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", key))
+	if _, err := io.Copy(w, reader); err != nil {
+		s.logger.Error("download stream failed", "error", err)
+	}
 }
 
 // Stop gracefully stops the server
