@@ -83,7 +83,7 @@ jobs:
           go list -u -m all 2>/dev/null | grep '\[' || echo "No outdated dependencies found"
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
