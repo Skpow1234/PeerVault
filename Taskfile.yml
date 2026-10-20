@@ -153,7 +153,7 @@ tasks:
   lint:
     desc: Run linter
     cmds:
-      - golangci-lint run
+      - golangci-lint run --config=config/.golangci.yml
 
   mod-tidy:
     desc: Tidy Go modules

@@ -1,0 +1,23 @@
+name: Setup Go
+description: Checkout-ready Go toolchain with module cache
+inputs:
+  go-version:
+    description: Go version
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v6
+      with:
+        go-version: ${{ inputs.go-version }}
+        cache: true
+        cache-dependency-path: |
+          go.sum
+          proto/peervault/go.sum
+
+    - name: Download modules
+      shell: bash
+      run: |
+        go mod download
+        go mod verify

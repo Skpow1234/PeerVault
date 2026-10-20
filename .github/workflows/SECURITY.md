@@ -35,9 +35,10 @@ permissions:
 
 ### CI/CD Pipeline (`ci.yml`)
 
-- **Purpose**: Build, test, and validate code
-- **Permissions**: Standard read permissions + checks write
-- **Security**: No write access to repository contents
+- **Purpose**: Tiered build/test gate — required jobs (lint, unit+race, P2P e2e, REST smoke, govulncheck, multi-OS build, Docker) plus soft warn-only suites
+- **Permissions**: `contents: read`, `checks: write`, `security-events: write`
+- **Security**: No write access to repository contents; merge on **CI Success** only
+- **Concurrency**: Cancels superseded runs on the same PR/branch
 
 ### Security Pipeline (`security.yml`)
 

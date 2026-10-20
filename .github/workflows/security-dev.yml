@@ -12,6 +12,10 @@ on:
       - '.github/workflows/security.yml'
   workflow_dispatch:
 
+concurrency:
+  group: security-dev-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 # Set minimal permissions for security
 permissions:
   contents: read

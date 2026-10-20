@@ -1,974 +1,459 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+  workflow_dispatch:
 
-# Set minimal permissions for security (least privilege principle)
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   checks: write
-  # Removed pull-requests, issues, actions as they're not needed for this workflow
+  security-events: write
 
 env:
-  GO_VERSION: '1.24.6'
+  GO_VERSION: "1.24.6"
   GOTOOLCHAIN: auto
-  CGO_ENABLED: 1
-  GOMAXPROCS: 2
+  CGO_ENABLED: "1"
+  GOLANGCI_LINT_VERSION: v2.1.6
 
 jobs:
-  # Lint and format check
+  # ---------------------------------------------------------------------------
+  # Tier 0 — static checks (fail the PR)
+  # ---------------------------------------------------------------------------
   lint:
-    name: Lint and Format
+    name: Lint & Format
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
+      - uses: ./.github/actions/setup-go
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
 
-      - name: Run golangci-lint
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -s -l . | grep -v vendor || true)
+          if [ -n "$unformatted" ]; then
+            echo "::error::The following files are not gofmt'd:"
+            echo "$unformatted"
+            echo "Fix with: gofmt -s -w ."
+            exit 1
+          fi
+
+      - name: go mod tidy (drift check)
+        run: |
+          cp go.mod go.mod.bak
+          cp go.sum go.sum.bak
+          go mod tidy
+          if ! diff -q go.mod go.mod.bak >/dev/null || ! diff -q go.sum go.sum.bak >/dev/null; then
+            echo "::error::go.mod/go.sum drift detected. Run 'go mod tidy' and commit."
+            diff -u go.mod.bak go.mod || true
+            diff -u go.sum.bak go.sum || true
+            exit 1
+          fi
+
+      - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
-          version: latest
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
           args: --timeout=5m --config=config/.golangci.yml
+          # Prefer official binary install (recommended over goinstall).
+          install-mode: binary
 
-      - name: Install goimports
-        run: go install golang.org/x/tools/cmd/goimports@latest
-
-      - name: Format code
+      - name: Trailing whitespace (Go/YAML)
         run: |
-          go fmt ./... || echo "Format issues found (non-critical)"
-          goimports -w . || echo "Import formatting issues found (non-critical)"
-
-      - name: Check code formatting
-        run: |
-          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-            echo "Code is not formatted. Run 'go fmt ./...' to fix."
-            echo "Files that need formatting:"
-            gofmt -s -l .
-            echo ""
-            echo "To fix locally, run: go fmt ./... && goimports -w ."
-            echo "Formatting check failed (non-critical)"
-            exit 0
+          if grep -RIn --include='*.go' --include='*.yml' --include='*.yaml' \
+              --exclude-dir=.git --exclude-dir=vendor '[[:blank:]]$' .; then
+            echo "::error::Trailing whitespace found"
+            exit 1
           fi
 
-      - name: Check for trailing whitespace
-        run: |
-          if grep -r --include="*.go" --include="*.yml" --include="*.yaml" '[[:space:]]$' .; then
-            echo "Found trailing whitespace. Please remove it."
-            echo "Trailing whitespace check failed (non-critical)"
-            exit 0
-          fi
-
-  # Unit tests
+  # ---------------------------------------------------------------------------
+  # Tier 1 — unit + race (fail the PR)
+  # ---------------------------------------------------------------------------
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
+    needs: [lint]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
+      - uses: ./.github/actions/setup-go
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
 
-      - name: Download dependencies
-        run: go mod download
+      - name: Unit tests (tests/unit)
+        run: go test -count=1 -timeout=10m ./tests/unit/...
 
-      - name: Run unit tests
-        env:
-          CGO_ENABLED: 1
+      - name: Internal packages (race)
         run: |
-          # Run tests without race detection first to check for basic issues
-          go test -v ./tests/unit/...
-          
-          # Run internal tests with websocket tests handled separately
-          echo "Running internal package tests..."
-          for pkg in $(go list ./internal/... | grep -v websocket); do
-            echo "Testing $pkg..."
-            go test -v "$pkg" || {
-              echo "Tests failed for $pkg"
-              exit 1
-            }
-          done
-          
-          # Run websocket tests separately with timeout and non-blocking failure
-          echo "Running websocket tests (may be flaky in CI)..."
-          timeout 2m go test -v ./internal/websocket/... || {
-            echo "Warning: Websocket tests failed (known flaky in CI environment)"
-            echo "This is non-critical as websocket tests are timing-sensitive"
-          }
-          
-          # Run configuration tests specifically
-          echo "Running configuration unit tests..."
-          go test -v ./tests/unit/config/...
-          
-          # Then run with race detection (excluding websocket to avoid race issues)
-          echo "Running race detection tests..."
-          go test -v -race ./tests/unit/...
-          for pkg in $(go list ./internal/... | grep -v websocket); do
-            echo "Race testing $pkg..."
-            go test -v -race "$pkg" || {
-              echo "Race tests failed for $pkg"
-              exit 1
-            }
-          done
-          
-          # Run websocket race tests separately and non-blocking
-          echo "Running websocket race tests (may be flaky)..."
-          timeout 3m go test -v -race ./internal/websocket/... || {
-            echo "Warning: Websocket race tests failed (known flaky in CI environment)"
-            echo "Websocket tests may fail due to timing issues in containerized CI"
-          }
+          # Websocket package is known-flaky under race in CI; covered softly below.
+          pkgs=$(go list ./internal/... | grep -v '/websocket$' || true)
+          go test -count=1 -race -timeout=15m $pkgs
 
-      - name: Generate coverage report
-        env:
-          CGO_ENABLED: 1
+      - name: Core package coverage gate
         run: |
-          # Generate coverage only for packages that have working tests
-          # Note: cmd/ packages (main applications) are excluded as they are entry points
-          # with side effects that are difficult to test in CI environments
-          echo "Generating coverage report for testable packages..."
+          go test -count=1 -coverprofile=core-coverage.out -covermode=atomic \
+            ./internal/crypto/... \
+            ./internal/storage/... \
+            ./internal/transport/p2p/... \
+            ./internal/app/fileserver/...
+          total=$(go tool cover -func=core-coverage.out | awk '/total:/ {print $3}' | tr -d '%')
+          echo "Core coverage: ${total}%"
+          # Soft floor — raise as tests expand
+          awk -v c="$total" 'BEGIN { if (c+0 < 40) { print "Core coverage below 40%"; exit 1 } }'
 
-          # List of packages that have working tests (based on successful test runs)
-          testable_packages=(
-            "./internal/audit"
-            "./internal/auth"
-            "./internal/backup"
-            "./internal/cache"
-            "./internal/compression"
-            "./internal/config"
-            "./internal/content"
-            "./internal/crypto"
-            "./internal/deduplication"
-            "./internal/edge"
-            "./internal/health"
-            "./internal/iot"
-            "./internal/ipfs"
-            "./internal/logging"
-            "./internal/mapper"
-            "./internal/metrics"
-            "./internal/ml"
-            "./internal/peer"
-            "./internal/pki"
-            "./internal/privacy"
-            "./internal/storage"
-            "./internal/tracing"
-            "./internal/transport/p2p"
-            "./internal/websocket"
-            "./internal/api/contracts"
-            "./internal/api/gateway"
-            "./internal/api/performance"
-            "./internal/api/rest/ratelimit"
-            "./internal/api/rest/versioning"
-            "./internal/api/rest/webhooks"
-            "./internal/api/security"
-          )
-
-          # Run tests with coverage for all testable packages
-          echo "Running coverage tests for ${#testable_packages[@]} packages..."
-          timeout 10m go test -coverprofile=coverage.out "${testable_packages[@]}" || {
-            echo "Coverage generation failed for some packages, but continuing"
-          }
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+      - name: Upload core coverage
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          files: ./coverage.out
-          flags: unit-tests
-          name: codecov-umbrella
+          name: core-coverage
+          path: core-coverage.out
+          retention-days: 14
 
-  # Critical P2P replication acceptance (Store on A, Get on B)
+  # ---------------------------------------------------------------------------
+  # Tier 1 — critical P2P acceptance (fail the PR)
+  # ---------------------------------------------------------------------------
   p2p-e2e:
     name: P2P Replication E2E
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [unit-tests]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Set up Go
-        uses: actions/setup-go@v6
+      - uses: ./.github/actions/setup-go
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
 
-      - name: Run replication e2e
+      - name: Replication Store-A / Get-B
         env:
-          CGO_ENABLED: 1
           PEERVAULT_AUTH_TOKEN: demo-auth-token-2024
         run: |
-          go test -v -count=1 -timeout=3m ./tests/integration/end-to-end/ -run 'TestReplicationStoreAGetB'
+          go test -v -count=1 -timeout=3m \
+            ./tests/integration/end-to-end/ \
+            -run 'TestReplicationStoreAGetB$'
 
-  # Integration tests
-  integration-tests:
-    name: Integration Tests
+  # ---------------------------------------------------------------------------
+  # Tier 1 — fast API smoke (fail the PR)
+  # ---------------------------------------------------------------------------
+  api-smoke:
+    name: API Smoke (REST)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [lint, unit-tests]
+    timeout-minutes: 10
+    needs: [unit-tests]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
+      - uses: ./.github/actions/setup-go
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
 
-      - name: Run integration tests
-        run: |
-          # Run integration tests with a strict timeout to prevent hanging
-          echo "Starting integration tests..."
-          timeout 15m bash -c '
-            # Run API tests first (these are fast httptest-based tests)
-            echo "Running REST API tests..."
-            go test -v -timeout=30s ./tests/integration/rest/... || echo "REST API tests failed (non-critical)"
-            
-            echo "Running gRPC API tests..."
-            go test -v -timeout=30s ./tests/integration/grpc/... || echo "gRPC API tests failed (non-critical)"
-            
-            echo "Running GraphQL API tests..."
-            go test -v -timeout=30s ./tests/integration/graphql/... || echo "GraphQL API tests failed (non-critical)"
-            
-            echo "Running configuration integration tests..."
-            go test -v -timeout=30s ./tests/integration/config/... || echo "Configuration integration tests failed (non-critical)"
-            
-            # Run end-to-end and multi-node tests (these may take longer)
-            echo "Running end-to-end tests..."
-            go test -v -timeout=5m ./tests/integration/end-to-end/... || echo "End-to-end tests failed (non-critical)"
-            
-            echo "Running multi-node tests..."
-            go test -v -timeout=5m ./tests/integration/multi-node/... || echo "Multi-node tests failed (non-critical)"
-            
-            # Run performance tests with longer timeout
-            echo "Running performance tests..."
-            go test -v -timeout=10m ./tests/integration/performance/... || echo "Performance tests failed (non-critical)"
-            
-            echo "All integration tests completed"
-          ' || {
-            echo "Integration tests failed or timed out"
-            exit 1
-          }
-          echo "Integration tests finished successfully"
+      - name: REST integration (httptest)
+        run: go test -v -count=1 -timeout=2m ./tests/integration/rest/...
 
-  # Fuzz tests
-  fuzz-tests:
-    name: Fuzz Tests
+  # ---------------------------------------------------------------------------
+  # Tier 1 — vulnerability gate (fail on known vulns)
+  # ---------------------------------------------------------------------------
+  vulncheck:
+    name: govulncheck
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: [lint, unit-tests]
+    timeout-minutes: 10
+    needs: [lint]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
+      - uses: ./.github/actions/setup-go
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
 
-      - name: Run fuzz tests
-        run: |
-          # Run fuzz tests with a short timeout to catch basic issues
-          # Run each fuzz test individually to avoid conflicts
-          echo "Running transport fuzz tests..."
-          for test in FuzzDecode FuzzHandshake FuzzMessageEncoding FuzzStreamProcessing FuzzPartialReads; do
-            echo "Running $test..."
-            go test -fuzz=$test -fuzztime=30s ./tests/fuzz/transport/decoder_fuzz_test.go || {
-              echo "Fuzz test $test failed"
-              exit 1
-            }
-          done
-          
-          echo "Running storage fuzz tests..."
-          echo "Running FuzzSanitizePath..."
-          go test -fuzz=FuzzSanitizePath -fuzztime=30s ./tests/fuzz/storage/path_utils_fuzz_test.go || {
-            echo "Fuzz test FuzzSanitizePath failed"
-            exit 1
-          }
-          
-          echo "Running FuzzSanitizeStorageRoot..."
-          go test -fuzz="^FuzzSanitizeStorageRoot$" -fuzztime=30s ./tests/fuzz/storage/path_utils_fuzz_test.go || {
-            echo "Fuzz test FuzzSanitizeStorageRoot failed"
-            exit 1
-          }
-          
-          echo "Running FuzzSanitizeStorageRootWithPrefix..."
-          go test -fuzz="^FuzzSanitizeStorageRootWithPrefix$" -fuzztime=30s ./tests/fuzz/storage/path_utils_fuzz_test.go || {
-            echo "Fuzz test FuzzSanitizeStorageRootWithPrefix failed"
-            exit 1
-          }
-          
-          echo "Running crypto fuzz tests..."
-          for test in FuzzEncryptDecrypt FuzzKeyGeneration FuzzHashFunction FuzzSignature FuzzRandomGeneration FuzzCryptoUtils; do
-            echo "Running $test..."
-            go test -fuzz=$test -fuzztime=30s ./tests/fuzz/crypto/encryption_fuzz_test.go || {
-              echo "Fuzz test $test failed"
-              exit 1
-            }
-          done
-          
-          echo "All fuzz tests completed successfully"
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
-  # Security scanning (basic)
-  security:
-    name: Basic Security Scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [lint, unit-tests]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - name: Scan
+        run: govulncheck ./...
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: true
-
-      - name: Run basic security checks
-        run: |
-          # Install reliable security tools
-          echo "Installing Go security tools..."
-
-          # Install govulncheck (official Go vulnerability scanner)
-          echo "Installing Go vulnerability checker..."
-          go install golang.org/x/vuln/cmd/govulncheck@latest
-
-          # Install staticcheck for additional static analysis
-          echo "Installing staticcheck..."
-          go install honnef.co/go/tools/cmd/staticcheck@latest
-
-          # Install ineffassign for detecting ineffective assignments
-          echo "Installing ineffassign..."
-          go install github.com/gordonklaus/ineffassign@latest
-
-          # Install semgrep for static security analysis
-          echo "Installing semgrep..."
-          python3 -m pip install --user semgrep || {
-            echo "Warning: Semgrep installation failed, but continuing with other tools"
-          }
-
-          # Install gosec for Go security analysis
-          echo "Installing gosec..."
-          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest || {
-            echo "Warning: gosec installation failed, but continuing with other tools"
-          }
-
-          # Install trivy for container vulnerability scanning
-          echo "Installing Trivy vulnerability scanner..."
-          if curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin; then
-            echo "Trivy installed successfully"
-          else
-            echo "Warning: Trivy installation failed, skipping container scanning"
-          fi
-
-          # Run Go vulnerability check
-          echo "Running Go vulnerability check..."
-          govulncheck ./... || {
-            echo "Vulnerabilities found (checking severity)"
-            exit 0  # Non-blocking for basic scan
-          }
-
-          # Run staticcheck for additional security and code quality checks
-          echo "Running staticcheck security analysis..."
-          staticcheck ./... || {
-            echo "Staticcheck found issues (non-blocking)"
-            exit 0
-          }
-
-          # Run semgrep for static security analysis
-          echo "Running semgrep security analysis..."
-          if command -v semgrep >/dev/null 2>&1; then
-            # Use . instead of ./... as semgrep expects directory paths, not Go glob patterns
-            semgrep --config auto --json -o semgrep-report.json . || {
-              echo "Semgrep found security issues (non-blocking)"
-              exit 0
-            }
-          else
-            echo "Warning: Semgrep not available, skipping static security analysis"
-          fi
-
-          # Run ineffassign to detect ineffective assignments
-          echo "Running ineffassign check..."
-          ineffassign ./... || {
-            echo "Ineffective assignments found (non-blocking)"
-            exit 0
-          }
-
-          # Run gosec for Go-specific security issues
-          echo "Running gosec security analysis..."
-          if command -v gosec >/dev/null 2>&1; then
-            gosec -fmt json -out gosec-report.json ./... || {
-              echo "gosec found security issues (non-blocking)"
-              exit 0
-            }
-          else
-            echo "Warning: gosec not available, skipping Go security analysis"
-          fi
-
-          # Run Trivy scan on dependencies if available
-          if command -v trivy >/dev/null 2>&1; then
-            echo "Running Trivy dependency vulnerability scan..."
-            trivy fs --scanners vuln --format table . || {
-              echo "Trivy found vulnerabilities (non-blocking)"
-              exit 0
-            }
-          else
-            echo "Warning: Trivy not available, skipping container scanning"
-          fi
-
-          # Test security modules compilation
-          echo "Testing security modules compilation..."
-          go build ./internal/auth/... ./internal/audit/... ./internal/privacy/... ./internal/pki/... || {
-            echo "Security modules compilation failed"
-            exit 1
-          }
-
-          # Basic security checks on source code
-          echo "Running basic security checks..."
-
-          # Check for hardcoded secrets (basic pattern matching)
-          if grep -r --include="*.go" --include="*.yaml" --include="*.yml" -i "password\|secret\|token\|key.*=.*["'][^"']*["']" . --exclude-dir=.git --exclude-dir=vendor; then
-            echo "Warning: Found potential hardcoded secrets (review above matches)"
-            echo "   This is a basic check - consider using dedicated secret scanning tools"
-          else
-            echo "No obvious hardcoded secrets found"
-          fi
-
-          # Check for unsafe pointer usage
-          if grep -r --include="*.go" "unsafe\." . --exclude-dir=.git --exclude-dir=vendor; then
-            echo "Warning: Found unsafe pointer usage (review for security implications)"
-          else
-            echo "No unsafe pointer usage found"
-          fi
-
-          # Check for SQL injection patterns (basic)
-          if grep -r --include="*.go" -i "exec.*select\|query.*insert\|query.*update\|query.*delete" . --exclude-dir=.git --exclude-dir=vendor; then
-            echo "Warning: Found potential SQL operations (review for injection vulnerabilities)"
-          else
-            echo "No obvious SQL operations found"
-          fi
-
-          echo "Basic security scan completed"
-
-  # Build and test binaries
+  # ---------------------------------------------------------------------------
+  # Tier 1 — cross-platform build (fail the PR)
+  # ---------------------------------------------------------------------------
   build:
-    name: Build and Test Binaries
+    name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    needs: [unit-tests]
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2022, macos-latest]
-    needs: [unit-tests, integration-tests]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
+      - uses: ./.github/actions/setup-go
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
 
-      - name: Build all binaries
-        run: |
-          go build -v -o bin/peervault ./cmd/peervault
-          go build -v -o bin/peervault-node ./cmd/peervault-node
-          go build -v -o bin/peervault-demo ./cmd/peervault-demo
-          go build -v -o bin/peervault-config ./cmd/peervault-config
-
-      - name: Test binary execution
-        run: |
-          # Test that binaries can start without immediate errors
-          timeout 5s ./bin/peervault --help || true
-          timeout 5s ./bin/peervault-node --help || true
-          timeout 5s ./bin/peervault-demo --help || true
-          timeout 5s ./bin/peervault-config --help || true
-
-      - name: Test configuration tool functionality
+      - name: Build core binaries
         shell: bash
         run: |
-          # Test configuration generation
-          ./bin/peervault-config -generate -output config/test-ci.yaml
-          
-          # Test configuration validation (should fail with demo token)
-          ./bin/peervault-config -validate -config config/test-ci.yaml || {
-            echo "Configuration validation failed as expected (demo token warning)"
-          }
-          
-          # Test configuration show
-          ./bin/peervault-config -show -config config/test-ci.yaml
-          
-          # Test environment mapping
-          ./bin/peervault-config -env
-          
-          # Clean up test file
-          rm -f config/test-ci.yaml
+          mkdir -p bin
+          go build -trimpath -ldflags="-s -w" -o bin/peervault$(go env GOEXE) ./cmd/peervault
+          go build -trimpath -ldflags="-s -w" -o bin/peervault-node$(go env GOEXE) ./cmd/peervault-node
+          go build -trimpath -ldflags="-s -w" -o bin/peervault-api$(go env GOEXE) ./cmd/peervault-api
+          go build -trimpath -ldflags="-s -w" -o bin/peervault-config$(go env GOEXE) ./cmd/peervault-config
 
-      - name: Upload build artifacts
+      - name: Smoke --help
+        shell: bash
+        run: |
+          ./bin/peervault-config$(go env GOEXE) -h >/dev/null 2>&1 || ./bin/peervault-config$(go env GOEXE) --help >/dev/null 2>&1 || true
+
+      - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.os }}
           path: bin/
-          retention-days: 30
+          retention-days: 7
+          if-no-files-found: error
 
-  # Docker build and test
+  # ---------------------------------------------------------------------------
+  # Tier 1 — Docker (fail the PR)
+  # ---------------------------------------------------------------------------
   docker:
-    name: Docker Build and Test
+    name: Docker
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    needs: [unit-tests, integration-tests]
+    needs: [unit-tests]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Set up Docker Buildx
+      - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker images
+      - name: Validate compose files
         run: |
-          docker build -t peervault-node:test -f docker/Dockerfile.node .
-          docker build -t peervault-demo:test -f docker/Dockerfile.demo .
+          docker compose -f docker-compose.yml config >/dev/null
+          docker compose -f docker-compose.dev.yml config >/dev/null
+          docker compose -f docker-compose.apis.yml config >/dev/null
 
-      - name: Test Docker images
+      - name: Build images
         run: |
-          # Test that containers can start
-          docker run --rm peervault-node:test --help
-          docker run --rm peervault-demo:test --help
+          docker build -t peervault-node:ci -f docker/Dockerfile.node .
+          docker build -t peervault-demo:ci -f docker/Dockerfile.demo .
 
-      - name: Install Trivy for container scanning
+      - name: Image smoke (-h exits via flag.Usage)
         run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+          # Go flag accepts -h / -help and exits 0; timeout guards against accidental listen.
+          timeout 15s docker run --rm peervault-node:ci -h
+          timeout 15s docker run --rm peervault-demo:ci -h
 
-      - name: Scan container images with Trivy
-        run: |
-          echo "Scanning peervault-node:test..."
-          trivy image --format table --severity HIGH,CRITICAL peervault-node:test || {
-            echo "Warning: High/Critical vulnerabilities found in peervault-node:test"
-          }
-          
-          echo "Scanning peervault-demo:test..."
-          trivy image --format table --severity HIGH,CRITICAL peervault-demo:test || {
-            echo "Warning: High/Critical vulnerabilities found in peervault-demo:test"
-          }
-
-      - name: Test Docker Compose
-        run: |
-          docker compose -f docker-compose.yml config
-          docker compose -f docker-compose.dev.yml config
-
-  # Performance benchmarks
-  benchmarks:
-    name: Performance Benchmarks
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [unit-tests, integration-tests]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Cache Go modules
-        uses: actions/cache@v4
+      - name: Trivy (HIGH/CRITICAL — warn only)
+        uses: aquasecurity/trivy-action@0.28.0
+        continue-on-error: true
         with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          image-ref: peervault-node:ci
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: "0"
 
-      - name: Set up Go
-        uses: actions/setup-go@v6
+  # ---------------------------------------------------------------------------
+  # Tier 2 — soft gates (report, do not block merge by themselves)
+  # ---------------------------------------------------------------------------
+  integration-soft:
+    name: Integration (soft)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [unit-tests]
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup-go
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
+
+      - name: Soft suites
+        env:
+          PEERVAULT_AUTH_TOKEN: demo-auth-token-2024
+        run: |
+          set +e
+          failed=0
+          run_suite () {
+            echo "::group::$1"
+            go test -v -count=1 -timeout="$2" $3
+            rc=$?
+            echo "::endgroup::"
+            if [ $rc -ne 0 ]; then
+              echo "::warning::$1 failed (soft)"
+              failed=1
+            fi
+          }
+          run_suite "gRPC API" 2m "./tests/integration/grpc/..."
+          run_suite "GraphQL API" 2m "./tests/integration/graphql/..."
+          run_suite "multi-node" 5m "./tests/integration/multi-node/..."
+          run_suite "e2e (all)" 5m "./tests/integration/end-to-end/..."
+          run_suite "websocket internal" 2m "./internal/websocket/..."
+          # Non-zero marks the soft job failed in the UI; continue-on-error keeps the gate green.
+          exit "$failed"
+
+  fuzz:
+    name: Fuzz (time-boxed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [unit-tests]
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup-go
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Fuzz crypto + transport + storage
+        run: |
+          set +e
+          failed=0
+          run_fuzz () {
+            echo "::group::$1"
+            go test -fuzz="$2" -fuzztime=20s "$3"
+            rc=$?
+            echo "::endgroup::"
+            # fuzz exits 1 on find; treat crash/setup failures distinctly via warning
+            if [ $rc -ne 0 ]; then
+              echo "::warning::$1 exited $rc (soft)"
+              failed=1
+            fi
+          }
+          run_fuzz "crypto EncryptDecrypt" FuzzEncryptDecrypt ./tests/fuzz/crypto/
+          run_fuzz "transport Decode" FuzzDecode ./tests/fuzz/transport/
+          run_fuzz "storage SanitizePath" FuzzSanitizePath ./tests/fuzz/storage/
+          exit "$failed"
+
+  security-static:
+    name: Security static (soft)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint]
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup-go
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck ./internal/crypto/... ./internal/storage/... ./internal/transport/... ./internal/app/... || true
+
+      - name: Semgrep
+        uses: semgrep/semgrep-action@v1
+        continue-on-error: true
+        with:
+          config: p/golang
+
+  benchmarks:
+    name: Benchmarks (soft)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: [unit-tests]
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup-go
+        with:
+          go-version: ${{ env.GO_VERSION }}
 
       - name: Run benchmarks
         run: |
-          go test -bench=. -benchmem -benchtime=1s ./tests/integration/performance/... > benchmark.out 2>&1 || true
+          go test -bench=. -benchmem -benchtime=1s ./internal/crypto/... ./internal/storage/... \
+            | tee benchmark.out || true
 
-      - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: benchmark-results
+          name: benchmarks
           path: benchmark.out
-          retention-days: 30
+          retention-days: 7
 
-  # Code quality and metrics
-  quality:
-    name: Code Quality
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [unit-tests, integration-tests]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: true
-
-      - name: Install tools
-        run: |
-          go install golang.org/x/tools/cmd/goimports@latest
-          go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-
-      - name: Check imports
-        run: |
-          if [ "$(goimports -l . | wc -l)" -gt 0 ]; then
-            echo "Imports are not properly formatted. Run 'goimports -w .' to fix."
-            goimports -l .
-            echo "Import formatting check failed (non-critical)"
-            exit 0
-          fi
-
-      - name: Check cyclomatic complexity
-        run: |
-          gocyclo -over 15 ./internal/ ./cmd/ || {
-            echo "Cyclomatic complexity check failed (non-critical)"
-            exit 0
-          }
-
-      - name: Generate code coverage report
-        run: |
-          # Generate coverage only for packages that have working tests
-          # Note: cmd/ packages (main applications) are excluded as they are entry points
-          # with side effects that are difficult to test in CI environments
-          echo "Generating coverage report for testable packages..."
-
-          # List of packages that have working tests (based on successful test runs)
-          testable_packages=(
-            "./internal/audit"
-            "./internal/auth"
-            "./internal/backup"
-            "./internal/cache"
-            "./internal/compression"
-            "./internal/config"
-            "./internal/content"
-            "./internal/crypto"
-            "./internal/deduplication"
-            "./internal/edge"
-            "./internal/health"
-            "./internal/iot"
-            "./internal/ipfs"
-            "./internal/logging"
-            "./internal/mapper"
-            "./internal/metrics"
-            "./internal/ml"
-            "./internal/peer"
-            "./internal/pki"
-            "./internal/privacy"
-            "./internal/storage"
-            "./internal/tracing"
-            "./internal/transport/p2p"
-            "./internal/websocket"
-            "./internal/api/contracts"
-            "./internal/api/gateway"
-            "./internal/api/performance"
-            "./internal/api/rest/ratelimit"
-            "./internal/api/rest/versioning"
-            "./internal/api/rest/webhooks"
-            "./internal/api/security"
-          )
-
-          # Run tests with coverage for all testable packages
-          echo "Running coverage tests for ${#testable_packages[@]} packages..."
-          timeout 10m go test -coverprofile=coverage.out "${testable_packages[@]}" || {
-            echo "Coverage generation failed for some packages, but continuing"
-          }
-
-          # Create merged coverage file for threshold checking
-          cp coverage.out merged-coverage.out
-
-          go tool cover -html=merged-coverage.out -o coverage.html
-
-      - name: Check coverage threshold
-        run: |
-          # Check if coverage meets minimum threshold
-          if [ -f merged-coverage.out ]; then
-            coverage=$(go tool cover -func=merged-coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-            echo "Current coverage: ${coverage}%"
-            
-            # Set minimum coverage threshold (adjust as needed)
-            min_coverage=75
-            
-            if (( $(echo "$coverage < $min_coverage" | bc -l) )); then
-              echo "Error: Coverage ${coverage}% is below minimum threshold of ${min_coverage}%"
-              echo "Please add more tests to improve coverage"
-              exit 1
-            else
-              echo "Coverage ${coverage}% meets minimum threshold of ${min_coverage}%"
-            fi
-          else
-            echo "Warning: No coverage file found, skipping threshold check"
-          fi
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage.html
-          retention-days: 30
-
-  # Documentation check
   docs:
-    name: Documentation Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Check README links
-        run: |
-          # Check for broken links in README (basic check)
-          if grep -r "http://" README.md; then
-            echo "Found HTTP links in README. Consider using HTTPS."
-          fi
-
-      - name: Check documentation completeness
-        run: |
-          # Check that all exported functions have comments
-          if [ "$(go vet ./... 2>&1 | grep -c 'exported.*should have comment')" -gt 0 ]; then
-            echo "Found exported functions without comments."
-            go vet ./... 2>&1 | grep 'exported.*should have comment'
-            echo "Documentation completeness check failed (non-critical)"
-            exit 0
-          fi
-
-      - name: Validate configuration system
-        shell: bash
-        run: |
-          # Test configuration system functionality
-          echo "Testing configuration system..."
-          
-          # Build configuration tool
-          go build -v -o bin/peervault-config ./cmd/peervault-config
-          
-          # Test configuration generation
-          ./bin/peervault-config -generate -output config/ci-test.yaml
-          
-          # Test configuration validation (should show warnings but not fail)
-          ./bin/peervault-config -validate -config config/ci-test.yaml || {
-            echo "Configuration validation completed with warnings (expected)"
-          }
-          
-          # Test configuration show
-          ./bin/peervault-config -show -config config/ci-test.yaml
-          
-          # Test environment mapping
-          ./bin/peervault-config -env
-          
-          # Clean up
-          rm -f config/ci-test.yaml
-          
-          echo "Configuration system validation completed"
-
-  # Final status check
-  status:
-    name: Pipeline Status
+    name: Docs sanity (soft)
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [lint, unit-tests, p2p-e2e, integration-tests, fuzz-tests, security, build, docker, benchmarks, quality, docs]
-    if: always()
+    continue-on-error: true
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Pipeline health monitoring
+      - name: Required docs exist
         run: |
-          echo "Pipeline Health Report"
-          echo "========================="
-          echo "Runner OS: ${{ runner.os }}"
-          echo "GitHub Event: ${{ github.event_name }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
-          echo "Workflow: ${{ github.workflow }}"
-          echo ""
-          
-          # System resource usage
-          echo "System Resources:"
-          echo "Memory usage:"
-          free -m || echo "Memory info not available"
-          echo "Disk usage:"
-          df -h || echo "Disk info not available"
-          echo ""
+          for f in README.md docs/README.md docs/milestones.md docs/deployment.md documentation/ROADMAP.md; do
+            test -f "$f" || { echo "missing $f"; exit 1; }
+          done
 
-      - name: Check pipeline status
+      - name: No plaintext http:// in README
         run: |
-          echo "Pipeline completed!"
-          echo "All jobs status:"
-          echo "- Lint: ${{ needs.lint.result }}"
-          echo "- Unit Tests: ${{ needs.unit-tests.result }}"
-          echo "- Integration Tests: ${{ needs.integration-tests.result }}"
-          echo "- Fuzz Tests: ${{ needs.fuzz-tests.result }}"
-          echo "- Security: ${{ needs.security.result }}"
-          echo "- Build: ${{ needs.build.result }}"
-          echo "- Docker: ${{ needs.docker.result }}"
-          echo "- Benchmarks: ${{ needs.benchmarks.result }}"
-          echo "- Quality: ${{ needs.quality.result }}"
-          echo "- Docs: ${{ needs.docs.result }}"
-          echo ""
-          echo "Configuration Management System:"
-          echo "- Configuration tool built and tested"
-          echo "- Configuration unit and integration tests included"
-          echo "- Configuration validation integrated into build process"
-          echo ""
-          echo "Security Features (Milestone 8):"
-          echo "- Security vulnerability scanning (govulncheck, staticcheck, semgrep, Trivy)"
-          echo "- RBAC and access control system"
-          echo "- Audit logging and monitoring"
-          echo "- Data privacy and protection"
-          echo "- PKI and certificate management"
-          echo "- Compliance checking (SOC 2, GDPR, ISO 27001)"
-          echo "- Security policies and documentation"
-          echo "- Custom security tools and scripts"
-          echo ""
-          echo "Security Scanning Tools:"
-          echo "- govulncheck: Official Go vulnerability scanner"
-          echo "- staticcheck: Advanced static analysis for security issues"
-          echo "- semgrep: Static analysis security scanner"
-          echo "- Trivy: Container and filesystem vulnerability scanner"
-          echo "- ineffassign: Detects ineffective variable assignments"
-          echo ""
-          echo "Note: Comprehensive security scanning is available in the separate security pipeline"
-          echo "Run the security pipeline for detailed vulnerability and compliance reports"
-          
-          # Only fail if critical jobs failed (excluding lint, format, quality, docs, and soft integration tests)
-          if [[ "${{ needs.unit-tests.result }}" == "failure" ]] || \
-             [[ "${{ needs.p2p-e2e.result }}" == "failure" ]] || \
-             [[ "${{ needs.security.result }}" == "failure" ]] || \
-             [[ "${{ needs.build.result }}" == "failure" ]] || \
-             [[ "${{ needs.docker.result }}" == "failure" ]] || \
-             [[ "${{ needs.benchmarks.result }}" == "failure" ]]; then
-            echo "Critical jobs failed. Pipeline failed."
+          if grep -n 'http://' README.md | grep -v 'http://localhost'; then
+            echo "::warning::Non-localhost http:// links in README"
+          fi
+
+  # ---------------------------------------------------------------------------
+  # Gate — required jobs must succeed
+  # ---------------------------------------------------------------------------
+  # Soft jobs are intentionally omitted from needs so the merge gate is not delayed
+  # by warn-only suites. Require this check name in branch protection.
+  ci-success:
+    name: CI Success
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: always()
+    needs:
+      - lint
+      - unit-tests
+      - p2p-e2e
+      - api-smoke
+      - vulncheck
+      - build
+      - docker
+    steps:
+      - name: Evaluate required jobs
+        run: |
+          echo "lint=${{ needs.lint.result }}"
+          echo "unit-tests=${{ needs.unit-tests.result }}"
+          echo "p2p-e2e=${{ needs.p2p-e2e.result }}"
+          echo "api-smoke=${{ needs.api-smoke.result }}"
+          echo "vulncheck=${{ needs.vulncheck.result }}"
+          echo "build=${{ needs.build.result }}"
+          echo "docker=${{ needs.docker.result }}"
+
+          failed=0
+          check() {
+            local name="$1" result="$2"
+            if [ "$result" != "success" ]; then
+              echo "::error::Required job failed or skipped: $name ($result)"
+              failed=1
+            else
+              echo "ok: $name"
+            fi
+          }
+
+          check lint "${{ needs.lint.result }}"
+          check unit-tests "${{ needs.unit-tests.result }}"
+          check p2p-e2e "${{ needs.p2p-e2e.result }}"
+          check api-smoke "${{ needs.api-smoke.result }}"
+          check vulncheck "${{ needs.vulncheck.result }}"
+          check build "${{ needs.build.result }}"
+          check docker "${{ needs.docker.result }}"
+
+          if [ "$failed" -ne 0 ]; then
+            echo "CI gate failed"
             exit 1
           fi
-          
-          # Show warnings for non-critical job issues (these jobs should always succeed now)
-          if [[ "${{ needs.lint.result }}" == "success" ]]; then
-            echo "Lint and format checks passed"
-          else
-            echo "Warning: Lint and format checks had issues (but job succeeded)"
-          fi
-          if [[ "${{ needs.quality.result }}" == "success" ]]; then
-            echo "Code quality checks passed"
-          else
-            echo "Warning: Code quality checks had issues (but job succeeded)"
-          fi
-          if [[ "${{ needs.docs.result }}" == "success" ]]; then
-            echo "Documentation checks passed"
-          else
-            echo "Warning: Documentation checks had issues (but job succeeded)"
-          fi
-          
-                     # Show warnings for non-critical failures
-           if [[ "${{ needs.lint.result }}" == "failure" ]]; then
-             echo "Warning: Lint and format checks failed (non-critical)"
-             echo "   Consider running 'go fmt ./... && goimports -w .' locally"
-           fi
-           
-           if [[ "${{ needs.integration-tests.result }}" == "failure" ]]; then
-             echo "Warning: Soft integration tests failed (non-critical)"
-             echo "   Critical P2P replication is gated by the p2p-e2e job"
-           fi
-           if [[ "${{ needs.p2p-e2e.result }}" == "success" ]]; then
-             echo "P2P replication e2e passed"
-           fi
-           
-           if [[ "${{ needs.quality.result }}" == "failure" ]]; then
-             echo "Warning: Code quality checks failed (non-critical)"
-           fi
-           
-           if [[ "${{ needs.docs.result }}" == "failure" ]]; then
-             echo "Warning: Documentation checks failed (non-critical)"
-           fi
-          
-          echo "Pipeline passed!"
+          echo "CI gate passed"

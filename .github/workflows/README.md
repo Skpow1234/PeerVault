@@ -1,217 +1,63 @@
 # GitHub Actions Workflows
 
-This directory contains the CI/CD pipeline configurations for PeerVault.
+## CI (`ci.yml`)
 
-## Workflows Overview
+Runs on push/PR to `main` and `develop`, plus manual `workflow_dispatch`.
 
-### 1. Main CI Pipeline (`ci.yml`)
+### Concurrency
 
-The primary continuous integration pipeline that runs on every push and pull request.
+Superseded runs on the same PR/branch are **cancelled** so the queue stays lean.
 
-**Features:**
+### Required jobs (merge gate)
 
-- Lint and format checking
-- Unit tests across multiple Go versions
-- Integration tests
-- Fuzz testing
-- Basic security scanning
-- Multi-platform builds (Linux, Windows, macOS)
-- Docker image building and testing
-- Performance benchmarks
-- Code quality metrics
-- Documentation validation
+| Job | Purpose |
+|-----|---------|
+| **Lint & Format** | `gofmt`, `go mod tidy` drift, golangci-lint, trailing whitespace |
+| **Unit Tests** | `tests/unit` + `internal/...` with `-race` (websocket soft-excluded) |
+| **P2P Replication E2E** | `TestReplicationStoreAGetB` — store on A, get on B |
+| **API Smoke (REST)** | Fast httptest REST integration |
+| **govulncheck** | Known dependency vulnerabilities fail the build |
+| **Build** | Linux / Windows / macOS core binaries |
+| **Docker** | Compose validate + node/demo images + smoke |
 
-**Trigger:** Push to `main`/`develop`, Pull requests
+`CI Success` fails unless every required job is `success`.
 
-### 2. Security Pipeline (`security.yml`)
+### Soft jobs (`continue-on-error`)
 
-Comprehensive security scanning and compliance checking pipeline.
+| Job | Purpose |
+|-----|---------|
+| Integration (soft) | gRPC/GraphQL/multi-node/full e2e/websocket — warn only |
+| Fuzz | Short fuzz budgets on crypto/transport/storage |
+| Security static | staticcheck + Semgrep (full scan in `security.yml`) |
+| Benchmarks | Artifact upload only |
+| Docs sanity | Required files present |
 
-**Features:**
+Promote soft suites to required once they are stable. Soft jobs are omitted from the **CI Success** `needs` list so warn-only suites do not delay the merge gate.
 
-- Vulnerability scanning (govulncheck, gosec, semgrep)
-- Secrets detection
-- Compliance checking (SOC 2, GDPR, ISO 27001)
-- Security policy validation
-- Container security scanning (Trivy)
-- Security integration tests
-- Custom PeerVault security tools
+### Shared setup
 
-**Trigger:** Push to `main`/`develop`, Pull requests, Daily schedule (2 AM UTC), Manual dispatch
+[`.github/actions/setup-go`](../actions/setup-go/action.yml) installs Go, enables module cache, runs `go mod download` + `go mod verify`.
 
-### 3. Development Security Checks (`security-dev.yml`)
+### Local equivalents
 
-Quick security validation for development changes.
+```bash
+gofmt -s -l .
+go mod tidy
+golangci-lint run --config=config/.golangci.yml
+go test -race ./tests/unit/... ./internal/...
+go test -count=1 -timeout=3m ./tests/integration/end-to-end/ -run TestReplicationStoreAGetB
+go test ./tests/integration/rest/...
+govulncheck ./...
+```
 
-**Features:**
+## Security (`security.yml`)
 
-- Security module compilation testing
-- Security unit tests
-- Security tools functionality testing
-- Security policy validation
-- Security documentation checks
+Deeper vuln/compliance scans (govulncheck, semgrep, secrets, Trivy, schedule). See [SECURITY.md](SECURITY.md).
 
-**Trigger:** Pull requests affecting security files, Manual dispatch
+## Development security (`security-dev.yml`)
 
-## Security Features (Milestone 8)
+Lighter checks when security-related paths change.
 
-The security pipeline implements comprehensive security features:
+## Branch protection (recommended)
 
-### **Vulnerability Scanning**
-
-- **govulncheck**: Go vulnerability database scanning
-- **gosec**: Static analysis security scanner
-- **semgrep**: Multi-language security scanner
-- **detect-secrets**: Secrets and credentials detection
-
-### **Compliance Checking**
-
-- **SOC 2 Type II**: Service organization controls
-- **GDPR**: General Data Protection Regulation
-- **ISO 27001**: Information security management
-- **HIPAA**: Health Insurance Portability and Accountability Act
-- **PCI DSS**: Payment Card Industry Data Security Standard
-
-### **Security Infrastructure**
-
-- **RBAC**: Role-Based Access Control system
-- **Audit Logging**: Comprehensive security event logging
-- **Data Privacy**: Privacy controls and data protection
-- **PKI**: Public Key Infrastructure and certificate management
-- **Security Policies**: Access control and data classification policies
-
-### **Container Security**
-
-- **Trivy**: Container vulnerability scanning
-- **Docker Security**: Multi-stage build security
-- **Image Scanning**: Base image vulnerability assessment
-
-## Local Security Testing
-
-Security testing runs in CI using containerized workflows.
-
-## Pipeline Status
-
-### Critical Jobs (Must Pass)
-
-- **Unit Tests**: Core functionality testing
-- **Security**: Basic security scanning
-- **Build**: Multi-platform binary building
-- **Docker**: Container building and testing
-- **Benchmarks**: Performance testing
-
-### Non-Critical Jobs (Warnings Only)
-
-- **Lint**: Code formatting and style (warnings only)
-- **Integration Tests**: Application logic testing (warnings only)
-- **Quality**: Code quality metrics (warnings only)
-- **Docs**: Documentation validation (warnings only)
-
-## Security Reports
-
-The security pipeline generates comprehensive reports:
-
-### Vulnerability Reports
-
-- `security-reports/govulncheck-report.json`: Go vulnerability scan results
-- `security-reports/gosec-report.json`: Static analysis security issues
-- `security-reports/semgrep-report.json`: Multi-language security scan
-- `security-reports/secrets-baseline.json`: Secrets detection results
-- `security-reports/custom-security-report.json`: Custom PeerVault security scan
-
-### Compliance Reports
-
-- `compliance-reports/soc2-compliance.json`: SOC 2 compliance assessment
-- `compliance-reports/gdpr-compliance.json`: GDPR compliance assessment
-- `compliance-reports/iso27001-compliance.json`: ISO 27001 compliance assessment
-
-### Container Security Reports
-
-- `container-security-reports/trivy-node-report.json`: Node container vulnerabilities
-- `container-security-reports/trivy-demo-report.json`: Demo container vulnerabilities
-
-## Security Tools Integration
-
-### Custom Security Tools
-
-- **Security Scanner** (`security/audit/scanner.go`): Custom vulnerability scanning
-- **Compliance Auditor** (`security/audit/compliance.go`): Compliance assessment
-- **Security Scripts** (`security/tools/`): Automated security testing
-
-### External Security Tools
-
-- **govulncheck**: Go vulnerability database
-- **gosec**: Go security scanner
-- **semgrep**: Multi-language security scanner
-- **Trivy**: Container security scanner
-- **detect-secrets**: Secrets detection
-
-## Configuration
-
-### Environment Variables
-
-- `GO_VERSION`: Go version for builds (default: 1.24.6)
-- `CGO_ENABLED`: CGO support for tests (default: 1)
-
-### Security Configuration
-
-- Security policies: `security/policies/`
-- Security tools: `security/tools/`
-- Security documentation: `security/README.md`
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Security Scan Failures**
-   - Check for high/critical vulnerabilities
-   - Review security reports for details
-   - Update dependencies if needed
-
-2. **Compliance Check Failures**
-   - Review compliance reports
-   - Ensure security policies are in place
-   - Check security documentation completeness
-
-3. **Container Security Issues**
-   - Update base images
-   - Review container security reports
-   - Check for known vulnerabilities
-
-### Getting Help
-
-1. **Check Pipeline Logs**: Review detailed logs in GitHub Actions
-2. **Run Local Tests**: Use security check scripts locally
-3. **Review Reports**: Examine generated security and compliance reports
-4. **Security Documentation**: Check `security/README.md` for details
-
-## Best Practices
-
-### Development
-
-1. **Run Local Security Checks**: Use security scripts before pushing
-2. **Review Security Reports**: Check generated reports for issues
-3. **Update Dependencies**: Keep dependencies updated for security
-4. **Follow Security Policies**: Adhere to defined security policies
-
-### CI/CD
-
-1. **Monitor Pipeline Status**: Check pipeline status regularly
-2. **Review Security Reports**: Examine security scan results
-3. **Address Critical Issues**: Fix high/critical security issues immediately
-4. **Maintain Compliance**: Ensure compliance requirements are met
-
-## Security Milestone Status
-
-**Milestone 8 — Security Hardening and Compliance (P7)** **COMPLETE**
-
-- Security audit and penetration testing
-- Access control and authorization (RBAC, ACLs)
-- Data privacy and compliance features
-- Certificate management and PKI
-- Security policies and documentation
-- Custom security tools and scripts
-- CI/CD pipeline integration
-- Local development tools
-
-The PeerVault system now has enterprise-grade security, compliance, and CI/CD integration.
+Require status check: **CI Success** (or list each required job). Do not require soft jobs.

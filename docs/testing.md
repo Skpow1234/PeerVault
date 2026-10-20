@@ -4,20 +4,40 @@ Prefer running tests through **CI / containers**. Local non-Docker workflows wer
 
 ## What CI runs
 
-### Critical (fail the pipeline)
+See [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) and [`.github/workflows/README.md`](../.github/workflows/README.md).
 
-- Unit + race: `./tests/unit/...`, `./internal/...`
-- Fuzz (time-boxed) under `./tests/fuzz/...`
-- Security scans (semgrep, govulncheck)
-- Cross-platform builds
-- Docker image builds
+### Required (fail the merge gate — `CI Success`)
 
-### Non-critical (warnings)
+- Lint & format: `gofmt`, `go mod tidy` drift, golangci-lint (`config/.golangci.yml`), trailing whitespace
+- Unit + race: `./tests/unit/...`, `./internal/...` (websocket soft-excluded under race)
+- Core coverage floor (~40%) on crypto / storage / p2p / fileserver
+- P2P replication E2E: `TestReplicationStoreAGetB`
+- REST API smoke: `./tests/integration/rest/...`
+- `govulncheck ./...`
+- Cross-platform build (Linux / Windows / macOS)
+- Docker compose validate + node/demo image build + smoke
 
-- Integration / e2e under `./tests/integration/...`
-- golangci-lint, gofmt, some style/doc checks
+### Soft (`continue-on-error` — warn only)
 
-See `.github/workflows/ci.yml` and [`.github/workflows/README.md`](../.github/workflows/README.md).
+- Broader integration (gRPC, GraphQL, multi-node, full e2e, websocket)
+- Time-boxed fuzz under `./tests/fuzz/...`
+- Extra static security (staticcheck, Semgrep)
+- Benchmarks (artifact)
+- Docs sanity
+
+Promote soft suites to required once they are stable. Deeper security lives in `security.yml`.
+
+## Local equivalents
+
+```bash
+gofmt -s -l .
+go mod tidy
+golangci-lint run --config=config/.golangci.yml
+go test -race ./tests/unit/... ./internal/...
+go test -count=1 -timeout=3m ./tests/integration/end-to-end/ -run TestReplicationStoreAGetB
+go test ./tests/integration/rest/...
+govulncheck ./...
+```
 
 ## API testing
 
@@ -36,4 +56,6 @@ Mock config example: `config/mock-server.yaml`.
 
 ## Lint
 
-Lint runs in CI. Install [golangci-lint](https://golangci-lint.run/) locally if you want the same checks before push (`.golangci.yml`).
+```bash
+golangci-lint run --config=config/.golangci.yml
+```
