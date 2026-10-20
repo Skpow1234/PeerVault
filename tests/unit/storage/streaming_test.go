@@ -6,7 +6,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/Skpow1234/Peervault/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/crypto"
 )
 
 // TestStreamingEncryption verifies that encryption works with streaming data

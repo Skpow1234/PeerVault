@@ -8,12 +8,12 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/Skpow1234/Peervault/internal/api/graphql"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/crypto"
-	"github.com/Skpow1234/Peervault/internal/peer"
-	"github.com/Skpow1234/Peervault/internal/storage"
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	"github.com/Skpow1234/Shugo/internal/api/graphql"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/storage"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 func main() {
@@ -87,7 +87,7 @@ func main() {
 		}
 	}()
 
-	logger.Info("PeerVault GraphQL server started",
+	logger.Info("Shugo GraphQL server started",
 		"port", *port,
 		"storage", *storageRoot,
 		"playground", *enablePlayground,

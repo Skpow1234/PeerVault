@@ -1,6 +1,6 @@
 # GitHub Actions Security Configuration
 
-This document explains the security permissions and best practices implemented in the PeerVault GitHub Actions workflows.
+This document explains the security permissions and best practices implemented in the Shugo GitHub Actions workflows.
 
 ## Security Permissions
 

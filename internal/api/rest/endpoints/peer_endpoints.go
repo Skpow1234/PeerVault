@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/services"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types/requests"
+	"github.com/Skpow1234/Shugo/internal/api/rest/services"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types/requests"
 )
 
 type PeerEndpoints struct {

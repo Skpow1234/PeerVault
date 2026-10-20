@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/services"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types/requests"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types/responses"
+	"github.com/Skpow1234/Shugo/internal/api/rest/services"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types/requests"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types/responses"
 )
 
 type SystemEndpoints struct {
@@ -95,7 +95,7 @@ func (e *SystemEndpoints) HandleWebhook(w http.ResponseWriter, r *http.Request) 
 
 func (e *SystemEndpoints) HandleRoot(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
-		"message": "PeerVault REST API",
+		"message": "Shugo REST API",
 		"version": "1.0.0",
 		"endpoints": map[string]string{
 			"health":     "/health",
@@ -123,8 +123,8 @@ func (e *SystemEndpoints) HandleDocs(w http.ResponseWriter, r *http.Request) {
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="PeerVault REST API Documentation" />
-    <title>PeerVault REST API - Swagger UI</title>
+    <meta name="description" content="Shugo REST API Documentation" />
+    <title>Shugo REST API - Swagger UI</title>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
 </head>
 <body>
@@ -161,8 +161,8 @@ func (e *SystemEndpoints) HandleSwaggerJSON(w http.ResponseWriter, r *http.Reque
 	swaggerSpec := map[string]interface{}{
 		"openapi": "3.0.3",
 		"info": map[string]interface{}{
-			"title":       "PeerVault REST API",
-			"description": "PeerVault is a distributed, encrypted file storage system with peer-to-peer replication.",
+			"title":       "Shugo REST API",
+			"description": "Shugo is a distributed, encrypted file storage system with peer-to-peer replication.",
 			"version":     "1.0.0",
 		},
 		"paths": map[string]interface{}{

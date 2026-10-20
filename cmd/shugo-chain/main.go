@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/blockchain"
+	"github.com/Skpow1234/Shugo/internal/blockchain"
 )
 
 func main() {
@@ -99,7 +99,7 @@ func handleDeployCommand(ctx context.Context, bi *blockchain.BlockchainIntegrati
 		Version:  "1.0.0",
 		Metadata: map[string]interface{}{
 			"description": "A sample smart contract",
-			"author":      "PeerVault",
+			"author":      "Shugo",
 		},
 	}
 
@@ -210,8 +210,8 @@ func handleTransactionCommand(ctx context.Context, bi *blockchain.BlockchainInte
 }
 
 func showHelp() {
-	fmt.Printf("PeerVault Blockchain Integration Tool\n\n")
-	fmt.Printf("Usage: peervault-chain -command <command> [options]\n\n")
+	fmt.Printf("Shugo Blockchain Integration Tool\n\n")
+	fmt.Printf("Usage: shugo-chain -command <command> [options]\n\n")
 	fmt.Printf("Commands:\n")
 	fmt.Printf("  network     List blockchain networks and statistics\n")
 	fmt.Printf("  deploy      Deploy a smart contract\n")
@@ -224,8 +224,8 @@ func showHelp() {
 	fmt.Printf("  -chain-id <id>     Chain ID (default: 1)\n")
 	fmt.Printf("  -help              Show this help message\n\n")
 	fmt.Printf("Examples:\n")
-	fmt.Printf("  peervault-chain -command network\n")
-	fmt.Printf("  peervault-chain -command deploy -network ethereum\n")
-	fmt.Printf("  peervault-chain -command identity -network ethereum\n")
-	fmt.Printf("  peervault-chain -command transaction -network ethereum\n")
+	fmt.Printf("  shugo-chain -command network\n")
+	fmt.Printf("  shugo-chain -command deploy -network ethereum\n")
+	fmt.Printf("  shugo-chain -command identity -network ethereum\n")
+	fmt.Printf("  shugo-chain -command transaction -network ethereum\n")
 }

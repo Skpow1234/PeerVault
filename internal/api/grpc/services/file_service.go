@@ -9,8 +9,8 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/proto/peervault"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/proto/shugo"
 )
 
 // FileService provides file-related operations backed by fileserver when set.
@@ -29,7 +29,7 @@ func NewFileService(server *fileserver.Server) *FileService {
 }
 
 // UploadFile uploads a file and returns file metadata
-func (s *FileService) UploadFile(fileKey string, data []byte) (*peervault.FileResponse, error) {
+func (s *FileService) UploadFile(fileKey string, data []byte) (*shugo.FileResponse, error) {
 	if s.server != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
@@ -44,7 +44,7 @@ func (s *FileService) UploadFile(fileKey string, data []byte) (*peervault.FileRe
 	}
 
 	s.files[fileKey] = data
-	return &peervault.FileResponse{
+	return &shugo.FileResponse{
 		Key:         fileKey,
 		Name:        fileKey,
 		Size:        int64(len(data)),
@@ -53,7 +53,7 @@ func (s *FileService) UploadFile(fileKey string, data []byte) (*peervault.FileRe
 		CreatedAt:   timestamppb.Now(),
 		UpdatedAt:   timestamppb.Now(),
 		Metadata:    map[string]string{},
-		Replicas:    []*peervault.FileReplica{},
+		Replicas:    []*shugo.FileReplica{},
 	}, nil
 }
 
@@ -79,7 +79,7 @@ func (s *FileService) DownloadFile(key string) ([]byte, error) {
 }
 
 // ListFiles lists files with pagination and filtering
-func (s *FileService) ListFiles(page, pageSize int, filter string) (*peervault.ListFilesResponse, error) {
+func (s *FileService) ListFiles(page, pageSize int, filter string) (*shugo.ListFilesResponse, error) {
 	_ = filter
 	if page < 1 {
 		page = 1
@@ -88,17 +88,17 @@ func (s *FileService) ListFiles(page, pageSize int, filter string) (*peervault.L
 		pageSize = 50
 	}
 
-	var files []*peervault.FileResponse
+	var files []*shugo.FileResponse
 	if s.server != nil {
 		infos := s.server.ListFiles()
-		files = make([]*peervault.FileResponse, 0, len(infos))
+		files = make([]*shugo.FileResponse, 0, len(infos))
 		for i := range infos {
 			files = append(files, fileInfoToProto(&infos[i], s.server.NodeID()))
 		}
 	} else {
-		files = make([]*peervault.FileResponse, 0, len(s.files))
+		files = make([]*shugo.FileResponse, 0, len(s.files))
 		for k, data := range s.files {
-			files = append(files, &peervault.FileResponse{
+			files = append(files, &shugo.FileResponse{
 				Key:  k,
 				Name: k,
 				Size: int64(len(data)),
@@ -115,7 +115,7 @@ func (s *FileService) ListFiles(page, pageSize int, filter string) (*peervault.L
 		end = len(files)
 	}
 
-	return &peervault.ListFilesResponse{
+	return &shugo.ListFilesResponse{
 		Files:    files[start:end],
 		Total:    int32(len(files)),
 		Page:     int32(page),
@@ -124,7 +124,7 @@ func (s *FileService) ListFiles(page, pageSize int, filter string) (*peervault.L
 }
 
 // GetFile retrieves file metadata by key
-func (s *FileService) GetFile(key string) (*peervault.FileResponse, error) {
+func (s *FileService) GetFile(key string) (*shugo.FileResponse, error) {
 	if s.server != nil {
 		info, ok := s.server.GetFileInfo(key)
 		if !ok || !s.server.Has(key) {
@@ -136,7 +136,7 @@ func (s *FileService) GetFile(key string) (*peervault.FileResponse, error) {
 	if !exists {
 		return nil, fmt.Errorf("file not found: %s", key)
 	}
-	return &peervault.FileResponse{
+	return &shugo.FileResponse{
 		Key:  key,
 		Name: key,
 		Size: int64(len(data)),
@@ -161,7 +161,7 @@ func (s *FileService) DeleteFile(key string) (bool, error) {
 }
 
 // UpdateFileMetadata updates file metadata
-func (s *FileService) UpdateFileMetadata(key string, metadata map[string]string) (*peervault.FileResponse, error) {
+func (s *FileService) UpdateFileMetadata(key string, metadata map[string]string) (*shugo.FileResponse, error) {
 	if s.server != nil {
 		info, err := s.server.UpdateFileMetadata(key, metadata)
 		if err != nil {
@@ -173,14 +173,14 @@ func (s *FileService) UpdateFileMetadata(key string, metadata map[string]string)
 }
 
 // StreamFileOperations streams file operation events
-func (s *FileService) StreamFileOperations() (<-chan *peervault.FileOperationEvent, error) {
-	ch := make(chan *peervault.FileOperationEvent)
+func (s *FileService) StreamFileOperations() (<-chan *shugo.FileOperationEvent, error) {
+	ch := make(chan *shugo.FileOperationEvent)
 	close(ch)
 	return ch, nil
 }
 
-func fileInfoToProto(info *fileserver.FileInfo, nodeID string) *peervault.FileResponse {
-	return &peervault.FileResponse{
+func fileInfoToProto(info *fileserver.FileInfo, nodeID string) *shugo.FileResponse {
+	return &shugo.FileResponse{
 		Key:         info.Key,
 		Name:        info.Name,
 		Size:        info.Size,
@@ -189,7 +189,7 @@ func fileInfoToProto(info *fileserver.FileInfo, nodeID string) *peervault.FileRe
 		CreatedAt:   timestamppb.New(info.CreatedAt),
 		UpdatedAt:   timestamppb.New(info.UpdatedAt),
 		Metadata:    info.Metadata,
-		Replicas: []*peervault.FileReplica{
+		Replicas: []*shugo.FileReplica{
 			{PeerId: nodeID, Status: "active", CreatedAt: timestamppb.New(info.CreatedAt)},
 		},
 	}

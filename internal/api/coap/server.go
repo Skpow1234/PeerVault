@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
 )
 
 // Server represents the CoAP server
@@ -395,7 +395,7 @@ func (s *Server) getCoreResourceContent() []byte {
 func (s *Server) getServerInfoContent() []byte {
 	stats := s.GetStats()
 	info := map[string]interface{}{
-		"name":            "PeerVault CoAP Server",
+		"name":            "Shugo CoAP Server",
 		"version":         "1.0.0",
 		"uptime":          time.Since(stats.StartTime).String(),
 		"total_requests":  stats.TotalRequests,

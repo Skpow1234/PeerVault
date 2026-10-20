@@ -1,13 +1,13 @@
-# PeerVault REST API Documentation
+# Shugo REST API Documentation
 
-This directory contains comprehensive documentation for the PeerVault REST API, including OpenAPI/Swagger specifications and usage examples.
+This directory contains comprehensive documentation for the Shugo REST API, including OpenAPI/Swagger specifications and usage examples.
 
 ## File Structure
 
 ```bash
 docs/api/
 ├── README.md                    # This file - API documentation overview
-├── peervault-rest-api.yaml     # OpenAPI 3.0 specification (Swagger)
+├── shugo-rest-api.yaml     # OpenAPI 3.0 specification (Swagger)
 └── examples/                   # API usage examples (coming soon)
     ├── curl/                   # cURL examples
     ├── javascript/             # JavaScript/Node.js examples
@@ -40,7 +40,7 @@ http://localhost:8081/swagger.json
 
 ## API Overview
 
-The PeerVault REST API provides a comprehensive interface for managing the distributed file storage system:
+The Shugo REST API provides a comprehensive interface for managing the distributed file storage system:
 
 ### Core Features
 
@@ -125,7 +125,7 @@ All endpoints support Cross-Origin Resource Sharing (CORS) for web applications.
 
 ## OpenAPI Specification
 
-The complete API specification is available in the `peervault-rest-api.yaml` file, which includes:
+The complete API specification is available in the `shugo-rest-api.yaml` file, which includes:
 
 ### Detailed Documentation
 
@@ -261,7 +261,7 @@ Integration tests run in CI using containerized workflows.
 
 When contributing to the API:
 
-1. **Update the OpenAPI specification** in `peervault-rest-api.yaml`
+1. **Update the OpenAPI specification** in `shugo-rest-api.yaml`
 2. **Add comprehensive examples** in the `examples/` directory
 3. **Update this README** with new endpoint documentation
 4. **Write integration tests** for new endpoints
@@ -269,7 +269,7 @@ When contributing to the API:
 
 ## License
 
-This API documentation is part of the PeerVault project and is licensed under the MIT License.
+This API documentation is part of the Shugo project and is licensed under the MIT License.
 
 ---
 

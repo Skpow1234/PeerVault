@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# PeerVault Test Script for Unix-like systems
+# Shugo Test Script for Unix-like systems
 # Usage: ./scripts/test.sh [type]
 
 set -e
 
 TYPE=${1:-"all"}
 
-echo "PeerVault Test Script for Unix-like systems"
+echo "Shugo Test Script for Unix-like systems"
 echo "Test Type: $TYPE"
 
 case $TYPE in

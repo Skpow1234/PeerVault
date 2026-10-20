@@ -1,4 +1,4 @@
-# PeerVault Documentation
+# Shugo Documentation
 
 Index of project documentation. For deeper API guides, see the topic folders linked below.
 
@@ -20,7 +20,7 @@ Index of project documentation. For deeper API guides, see the topic folders lin
 
 | Area | Link |
 |------|------|
-| REST API | [api/README.md](api/README.md) · [OpenAPI](api/peervault-rest-api.yaml) |
+| REST API | [api/README.md](api/README.md) · [OpenAPI](api/shugo-rest-api.yaml) |
 | GraphQL | [graphql/README.md](graphql/README.md) |
 | gRPC | [grpc/README.md](grpc/README.md) |
 | CLI | [cli/README.md](cli/README.md) |

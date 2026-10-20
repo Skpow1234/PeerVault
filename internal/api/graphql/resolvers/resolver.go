@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/graphql/types"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/api/graphql/types"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/crypto"
 )
 
 // Resolver is the main resolver interface for GraphQL operations

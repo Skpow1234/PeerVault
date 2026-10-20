@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/content"
+	"github.com/Skpow1234/Shugo/internal/content"
 	"github.com/stretchr/testify/assert"
 )
 

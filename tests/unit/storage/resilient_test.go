@@ -5,7 +5,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/Skpow1234/Peervault/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/crypto"
 )
 
 // TestResilientReplication verifies that replication works with retry logic

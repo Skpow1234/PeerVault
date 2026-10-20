@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
-	"github.com/Skpow1234/Peervault/internal/cli/integration"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/integration"
 )
 
 // IntegrationCommand handles integration and automation operations
@@ -164,7 +164,7 @@ func (c *IntegrationCommand) createWebhook(ctx context.Context, args []string) e
 
 	headers := map[string]string{
 		"Content-Type": "application/json",
-		"User-Agent":   "PeerVault-Webhook/1.0",
+		"User-Agent":   "Shugo-Webhook/1.0",
 	}
 
 	retryCount := 3
@@ -606,7 +606,7 @@ func (c *IntegrationCommand) processRequest(ctx context.Context, args []string) 
 
 	headers := make(map[string]string)
 	headers["Content-Type"] = "application/json"
-	headers["User-Agent"] = "PeerVault-CLI/1.0"
+	headers["User-Agent"] = "Shugo-CLI/1.0"
 
 	// Parse additional headers
 	for i := 3; i < len(args); i += 2 {
@@ -708,7 +708,7 @@ func (c *IntegrationCommand) showHelp() error {
 	c.formatter.PrintInfo("Examples:")
 	c.formatter.PrintInfo("  integration webhook create 'File Upload' 'Notify on file upload' https://api.example.com/webhook POST user123 file_uploaded")
 	c.formatter.PrintInfo("  integration workflow create 'Data Processing' 'Process uploaded files' user123")
-	c.formatter.PrintInfo("  integration api create 'File API' 'File management API' https://api.peervault.com user123")
+	c.formatter.PrintInfo("  integration api create 'File API' 'File management API' https://api.shugo.com user123")
 	c.formatter.PrintInfo("  integration api request gateway123 /api/v1/files GET")
 	c.formatter.PrintInfo("  integration sync integration123")
 	c.formatter.PrintInfo("  integration stats")

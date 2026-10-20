@@ -1,6 +1,6 @@
 # API Performance Monitoring
 
-Real-time API performance monitoring with alerting and optimization recommendations for the PeerVault REST API.
+Real-time API performance monitoring with alerting and optimization recommendations for the Shugo REST API.
 
 ## Overview
 

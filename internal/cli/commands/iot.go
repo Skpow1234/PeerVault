@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
-	"github.com/Skpow1234/Peervault/internal/cli/iot"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/iot"
 )
 
 // IoTCommand handles IoT device management commands

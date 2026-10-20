@@ -1,12 +1,12 @@
-# PeerVault Documentation
+# Shugo Documentation
 
-This directory contains comprehensive documentation for the PeerVault project.
+This directory contains comprehensive documentation for the Shugo project.
 
 ## Documentation Index
 
 ### **Core Documentation**
 
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing to PeerVault
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing to Shugo
 - **[SECURITY.md](SECURITY.md)** - Security policy and vulnerability reporting
 - **[ROADMAP.md](ROADMAP.md)** - Project roadmap and development milestones (1–40)
 - **[MILESTONES_EXTENDED.md](MILESTONES_EXTENDED.md)** - Extended backlog (41+, 500+ code-derived items)

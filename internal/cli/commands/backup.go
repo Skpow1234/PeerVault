@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Skpow1234/Peervault/internal/cli/backup"
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/backup"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
 )
 
 // BackupCommand manages backup and recovery operations

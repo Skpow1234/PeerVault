@@ -3,7 +3,7 @@ package api
 import (
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/analytics"
+	"github.com/Skpow1234/Shugo/internal/api/analytics"
 )
 
 // APIAnalytics provides high-level analytics API

@@ -42,10 +42,10 @@ func DefaultAuthConfig() *AuthConfig {
 	return &AuthConfig{
 		SecretKey:      "your-secret-key",
 		TokenExpiry:    24 * time.Hour,
-		Issuer:         "peervault",
-		Audience:       "peervault-api",
+		Issuer:         "shugo",
+		Audience:       "shugo-api",
 		RequireAuth:    true,
-		SkipMethods:    []string{"/peervault.PeerVaultService/HealthCheck"},
+		SkipMethods:    []string{"/shugo.ShugoService/HealthCheck"},
 		RateLimitRPS:   100,
 		RateLimitBurst: 200,
 	}
@@ -256,8 +256,8 @@ func parseClaims(payload []byte) (*TokenClaims, error) {
 	claims := &TokenClaims{
 		UserID:    "user123",
 		Roles:     []string{"user"},
-		Issuer:    "peervault",
-		Audience:  "peervault-api",
+		Issuer:    "shugo",
+		Audience:  "shugo-api",
 		IssuedAt:  time.Now().Add(-time.Hour),
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 	}

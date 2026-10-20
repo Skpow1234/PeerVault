@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/services"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/api/rest/services"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
 )
 
 type PeerServiceImpl struct {

@@ -6,26 +6,26 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/Skpow1234/Peervault/proto/peervault"
+	"github.com/Skpow1234/Shugo/proto/shugo"
 )
 
 // PeerService provides peer-related operations
 type PeerService struct {
 	// Mock storage for demonstration
-	peers map[string]*peervault.PeerResponse
+	peers map[string]*shugo.PeerResponse
 }
 
 // NewPeerService creates a new peer service instance
 func NewPeerService() *PeerService {
 	return &PeerService{
-		peers: make(map[string]*peervault.PeerResponse),
+		peers: make(map[string]*shugo.PeerResponse),
 	}
 }
 
 // ListPeers lists all peers
-func (s *PeerService) ListPeers() (*peervault.ListPeersResponse, error) {
+func (s *PeerService) ListPeers() (*shugo.ListPeersResponse, error) {
 	// Mock implementation
-	peers := []*peervault.PeerResponse{
+	peers := []*shugo.PeerResponse{
 		{
 			Id:        "peer1",
 			Address:   "192.168.1.100",
@@ -46,14 +46,14 @@ func (s *PeerService) ListPeers() (*peervault.ListPeersResponse, error) {
 		},
 	}
 
-	return &peervault.ListPeersResponse{
+	return &shugo.ListPeersResponse{
 		Peers: peers,
 		Total: int32(len(peers)),
 	}, nil
 }
 
 // GetPeer retrieves peer information by ID
-func (s *PeerService) GetPeer(id string) (*peervault.PeerResponse, error) {
+func (s *PeerService) GetPeer(id string) (*shugo.PeerResponse, error) {
 	peer, exists := s.peers[id]
 	if !exists {
 		return nil, fmt.Errorf("peer not found: %s", id)
@@ -62,10 +62,10 @@ func (s *PeerService) GetPeer(id string) (*peervault.PeerResponse, error) {
 }
 
 // AddPeer adds a new peer
-func (s *PeerService) AddPeer(address string, port int, metadata map[string]string) (*peervault.PeerResponse, error) {
+func (s *PeerService) AddPeer(address string, port int, metadata map[string]string) (*shugo.PeerResponse, error) {
 	peerID := fmt.Sprintf("peer_%d", time.Now().Unix())
 
-	peer := &peervault.PeerResponse{
+	peer := &shugo.PeerResponse{
 		Id:        peerID,
 		Address:   address,
 		Port:      int32(port),
@@ -90,13 +90,13 @@ func (s *PeerService) RemovePeer(id string) (bool, error) {
 }
 
 // GetPeerHealth retrieves peer health information
-func (s *PeerService) GetPeerHealth(id string) (*peervault.PeerHealthResponse, error) {
+func (s *PeerService) GetPeerHealth(id string) (*shugo.PeerHealthResponse, error) {
 	_, exists := s.peers[id]
 	if !exists {
 		return nil, fmt.Errorf("peer not found: %s", id)
 	}
 
-	return &peervault.PeerHealthResponse{
+	return &shugo.PeerHealthResponse{
 		PeerId:        id,
 		Status:        "healthy",
 		LatencyMs:     15.5,
@@ -110,9 +110,9 @@ func (s *PeerService) GetPeerHealth(id string) (*peervault.PeerHealthResponse, e
 }
 
 // StreamPeerEvents streams peer events
-func (s *PeerService) StreamPeerEvents() (<-chan *peervault.PeerEvent, error) {
+func (s *PeerService) StreamPeerEvents() (<-chan *shugo.PeerEvent, error) {
 	// Mock implementation - return a channel that will be closed
-	ch := make(chan *peervault.PeerEvent)
+	ch := make(chan *shugo.PeerEvent)
 	close(ch)
 	return ch, nil
 }

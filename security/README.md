@@ -1,6 +1,6 @@
 # Security Infrastructure
 
-This directory contains security-related tools, configurations, and documentation for PeerVault.
+This directory contains security-related tools, configurations, and documentation for Shugo.
 
 ## Directory Structure
 
@@ -76,7 +76,7 @@ Security policies are configured in YAML files in the `policies/` directory. The
 
 ## Compliance
 
-PeerVault security features support compliance with:
+Shugo security features support compliance with:
 
 - SOC 2 Type II
 - ISO 27001

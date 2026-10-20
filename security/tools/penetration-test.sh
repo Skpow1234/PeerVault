@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Penetration Testing Script for PeerVault
+# Penetration Testing Script for Shugo
 # This script performs penetration testing and security validation
 
 set -e
@@ -20,7 +20,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
-echo -e "${BLUE}Starting PeerVault Penetration Testing${NC}"
+echo -e "${BLUE}Starting Shugo Penetration Testing${NC}"
 echo "Project Root: $PROJECT_ROOT"
 echo "Output Directory: $OUTPUT_DIR"
 echo "Timestamp: $TIMESTAMP"
@@ -80,7 +80,7 @@ Authentication Security Test Results
 ====================================
 
 Test Date: $(date)
-Target: PeerVault Authentication System
+Target: Shugo Authentication System
 
 Tests Performed:
 1. Password Policy Validation
@@ -112,7 +112,7 @@ Authorization Security Test Results
 ===================================
 
 Test Date: $(date)
-Target: PeerVault Authorization System
+Target: Shugo Authorization System
 
 Tests Performed:
 1. Role-Based Access Control (RBAC)
@@ -144,7 +144,7 @@ Data Protection Security Test Results
 =====================================
 
 Test Date: $(date)
-Target: PeerVault Data Protection System
+Target: Shugo Data Protection System
 
 Tests Performed:
 1. Data Encryption at Rest
@@ -185,7 +185,7 @@ API Security Test Results
 =========================
 
 Test Date: $(date)
-Target: PeerVault API Endpoints
+Target: Shugo API Endpoints
 
 Tests Performed:
 1. Input Validation
@@ -219,7 +219,7 @@ Infrastructure Security Test Results
 ====================================
 
 Test Date: $(date)
-Target: PeerVault Infrastructure
+Target: Shugo Infrastructure
 
 Tests Performed:
 1. Container Security
@@ -252,7 +252,7 @@ Social Engineering Security Test Results
 ========================================
 
 Test Date: $(date)
-Target: PeerVault Organization
+Target: Shugo Organization
 
 Tests Performed:
 1. Phishing Simulation
@@ -285,7 +285,7 @@ Compliance Security Test Results
 ================================
 
 Test Date: $(date)
-Target: PeerVault Compliance Framework
+Target: Shugo Compliance Framework
 
 Standards Tested:
 1. SOC 2 Type II
@@ -315,16 +315,16 @@ print_section "Generating Penetration Test Report"
 REPORT_FILE="$OUTPUT_DIR/penetration_test_report_$TIMESTAMP.md"
 
 cat > "$REPORT_FILE" << EOF
-# PeerVault Penetration Test Report
+# Shugo Penetration Test Report
 
 **Test Date:** $(date)
-**Project:** PeerVault
+**Project:** Shugo
 **Test Type:** Comprehensive Penetration Testing
 **Tester:** Automated Security Testing Suite
 
 ## Executive Summary
 
-This report summarizes the results of a comprehensive penetration test conducted on the PeerVault system. The test covered multiple security domains including network security, web application security, authentication, authorization, data protection, API security, infrastructure security, social engineering resistance, and compliance.
+This report summarizes the results of a comprehensive penetration test conducted on the Shugo system. The test covered multiple security domains including network security, web application security, authentication, authorization, data protection, API security, infrastructure security, social engineering resistance, and compliance.
 
 ## Test Results Summary
 
@@ -404,7 +404,7 @@ cat >> "$REPORT_FILE" << EOF
 - Network scanning: nmap
 - Web vulnerability scanning: Nikto, SQLMap
 - API testing: Postman
-- Custom security tests: PeerVault Security Suite
+- Custom security tests: Shugo Security Suite
 
 ## Contact Information
 

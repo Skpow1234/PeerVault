@@ -1,16 +1,16 @@
-# PeerVault Docker Setup
+# Shugo Docker Setup
 
-This directory contains Docker configurations for running PeerVault services in containers.
+This directory contains Docker configurations for running Shugo services in containers.
 
 ## Available Services
 
 ### Core Services
 
-- **peervault-node**: The main P2P node service
-- **peervault-rest-api**: REST API service (port 8080)
-- **peervault-grpc-api**: gRPC API service (port 8082)
-- **peervault-graphql-api**: GraphQL API service (port 8081)
-- **peervault-demo**: Demo client for testing
+- **shugo-node**: The main P2P node service
+- **shugo-rest-api**: REST API service (port 8080)
+- **shugo-grpc-api**: gRPC API service (port 8082)
+- **shugo-graphql-api**: GraphQL API service (port 8081)
+- **shugo-demo**: Demo client for testing
 
 ## Docker Compose Files
 
@@ -41,29 +41,29 @@ docker compose -f docker-compose.apis.yml up -d
 #### REST API
 
 ```bash
-docker build -f docker/Dockerfile.rest-api -t peervault-rest-api .
-docker run -p 8080:8080 peervault-rest-api
+docker build -f docker/Dockerfile.rest-api -t shugo-rest-api .
+docker run -p 8080:8080 shugo-rest-api
 ```
 
 #### gRPC API
 
 ```bash
-docker build -f docker/Dockerfile.grpc-api -t peervault-grpc-api .
-docker run -p 8082:8082 peervault-grpc-api
+docker build -f docker/Dockerfile.grpc-api -t shugo-grpc-api .
+docker run -p 8082:8082 shugo-grpc-api
 ```
 
 #### GraphQL API
 
 ```bash
-docker build -f docker/Dockerfile.graphql-api -t peervault-graphql-api .
-docker run -p 8081:8081 peervault-graphql-api
+docker build -f docker/Dockerfile.graphql-api -t shugo-graphql-api .
+docker run -p 8081:8081 shugo-graphql-api
 ```
 
 #### P2P Node
 
 ```bash
-docker build -f docker/Dockerfile.node -t peervault-node .
-docker run -p 3000:3000 peervault-node
+docker build -f docker/Dockerfile.node -t shugo-node .
+docker run -p 3000:3000 shugo-node
 ```
 
 ## Service Endpoints
@@ -106,16 +106,16 @@ All services support the following environment variables:
 
 Each service creates persistent volumes for data storage:
 
-- `peervault-rest-data`
-- `peervault-grpc-data`
-- `peervault-graphql-data`
-- `peervault-node1-data`
-- `peervault-node2-data`
-- `peervault-node3-data`
+- `shugo-rest-data`
+- `shugo-grpc-data`
+- `shugo-graphql-data`
+- `shugo-node1-data`
+- `shugo-node2-data`
+- `shugo-node3-data`
 
 ## Networks
 
-Services communicate over the `peervault-api-network` bridge network.
+Services communicate over the `shugo-api-network` bridge network.
 
 ## Development
 

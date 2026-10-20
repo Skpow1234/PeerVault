@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/grpc/services"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/proto/peervault"
+	"github.com/Skpow1234/Shugo/internal/api/grpc/services"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/proto/shugo"
 )
 
 // Server represents the gRPC server (simplified for now)
@@ -25,9 +25,9 @@ type Server struct {
 	systemService *services.SystemService
 
 	// Streaming channels for event broadcasting
-	fileEventSubscribers   map[chan *peervault.FileOperationEvent]bool
-	peerEventSubscribers   map[chan *peervault.PeerEvent]bool
-	systemEventSubscribers map[chan *peervault.SystemEvent]bool
+	fileEventSubscribers   map[chan *shugo.FileOperationEvent]bool
+	peerEventSubscribers   map[chan *shugo.PeerEvent]bool
+	systemEventSubscribers map[chan *shugo.SystemEvent]bool
 	eventMutex             sync.RWMutex
 
 	// Server state
@@ -49,7 +49,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewServer creates a new server instance. Pass fsServer to back file ops with PeerVault storage.
+// NewServer creates a new server instance. Pass fsServer to back file ops with Shugo storage.
 func NewServer(config *Config, logger *slog.Logger, fsServer *fileserver.Server) *Server {
 	if config == nil {
 		config = DefaultConfig()
@@ -65,9 +65,9 @@ func NewServer(config *Config, logger *slog.Logger, fsServer *fileserver.Server)
 		fileService:            services.NewFileService(fsServer),
 		peerService:            services.NewPeerService(),
 		systemService:          services.NewSystemService(),
-		fileEventSubscribers:   make(map[chan *peervault.FileOperationEvent]bool),
-		peerEventSubscribers:   make(map[chan *peervault.PeerEvent]bool),
-		systemEventSubscribers: make(map[chan *peervault.SystemEvent]bool),
+		fileEventSubscribers:   make(map[chan *shugo.FileOperationEvent]bool),
+		peerEventSubscribers:   make(map[chan *shugo.PeerEvent]bool),
+		systemEventSubscribers: make(map[chan *shugo.SystemEvent]bool),
 		startTime:              time.Now(),
 		stopChan:               make(chan struct{}),
 	}
@@ -364,7 +364,7 @@ func (s *Server) handleGetPeerHealth(w http.ResponseWriter, r *http.Request) {
 // Event Broadcasting Methods
 
 // broadcastFileEvent sends a file operation event to all subscribers
-func (s *Server) broadcastFileEvent(event *peervault.FileOperationEvent) {
+func (s *Server) broadcastFileEvent(event *shugo.FileOperationEvent) {
 	s.eventMutex.RLock()
 	defer s.eventMutex.RUnlock()
 
@@ -379,7 +379,7 @@ func (s *Server) broadcastFileEvent(event *peervault.FileOperationEvent) {
 }
 
 // broadcastPeerEvent sends a peer event to all subscribers
-func (s *Server) broadcastPeerEvent(event *peervault.PeerEvent) {
+func (s *Server) broadcastPeerEvent(event *shugo.PeerEvent) {
 	s.eventMutex.RLock()
 	defer s.eventMutex.RUnlock()
 
@@ -394,7 +394,7 @@ func (s *Server) broadcastPeerEvent(event *peervault.PeerEvent) {
 }
 
 // broadcastSystemEvent sends a system event to all subscribers
-func (s *Server) broadcastSystemEvent(event *peervault.SystemEvent) {
+func (s *Server) broadcastSystemEvent(event *shugo.SystemEvent) {
 	s.eventMutex.RLock()
 	defer s.eventMutex.RUnlock()
 
@@ -419,10 +419,10 @@ func (s *Server) broadcastFileEvents() {
 		select {
 		case <-ticker.C:
 			// Send periodic file operation events for demonstration
-			s.broadcastFileEvent(&peervault.FileOperationEvent{
+			s.broadcastFileEvent(&shugo.FileOperationEvent{
 				EventType: "periodic_check",
 				FileKey:   "system",
-				Timestamp: peervault.Now(),
+				Timestamp: shugo.Now(),
 				Metadata: map[string]string{
 					"type": "periodic",
 				},
@@ -442,10 +442,10 @@ func (s *Server) broadcastPeerEvents() {
 		select {
 		case <-ticker.C:
 			// Send periodic peer events for demonstration
-			s.broadcastPeerEvent(&peervault.PeerEvent{
+			s.broadcastPeerEvent(&shugo.PeerEvent{
 				EventType: "health_check",
 				PeerId:    "system",
-				Timestamp: peervault.Now(),
+				Timestamp: shugo.Now(),
 				Metadata: map[string]string{
 					"type": "periodic",
 				},
@@ -465,10 +465,10 @@ func (s *Server) broadcastSystemEvents() {
 		select {
 		case <-ticker.C:
 			// Send periodic system events for demonstration
-			s.broadcastSystemEvent(&peervault.SystemEvent{
+			s.broadcastSystemEvent(&shugo.SystemEvent{
 				EventType: "status_update",
 				Component: "grpc_server",
-				Timestamp: peervault.Now(),
+				Timestamp: shugo.Now(),
 				Message:   "System running normally",
 				Metadata: map[string]string{
 					"uptime": fmt.Sprintf("%v", time.Since(s.startTime)),

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the encryption strategy implemented in the PeerVault distributed storage system.
+This document describes the encryption strategy implemented in the Shugo distributed storage system.
 
 ## Encryption Approach
 
@@ -107,10 +107,10 @@ Encrypted Data from Disk → Network Transmission → Encrypted Data to Disk
 
 ```bash
 # Master cluster key (required for key derivation)
-PEERVAULT_CLUSTER_KEY=your-secure-cluster-key
+SHUGO_CLUSTER_KEY=your-secure-cluster-key
 
 # Authentication token for peer verification
-PEERVAULT_AUTH_TOKEN=your-auth-token
+SHUGO_AUTH_TOKEN=your-auth-token
 ```
 
 ### Key Rotation Settings

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/versioning"
+	"github.com/Skpow1234/Shugo/internal/api/rest/versioning"
 )
 
 func TestTokenBucketAlgorithm(t *testing.T) {

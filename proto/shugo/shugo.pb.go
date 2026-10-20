@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go v1.33.0
 // - protoc             v4.25.3
-// source: peervault.proto
+// source: shugo.proto
 
-package peervault
+package shugo
 
 import (
 	"time"

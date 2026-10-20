@@ -1,6 +1,6 @@
 # Client-Side Load Balancing
 
-This document describes the client-side load balancing implementation for PeerVault's gRPC services, including health checking, failover, and service discovery.
+This document describes the client-side load balancing implementation for Shugo's gRPC services, including health checking, failover, and service discovery.
 
 ## Overview
 
@@ -235,7 +235,7 @@ instances := []*balancing.ServiceInstance{
     },
 }
 
-staticProvider.AddStaticService("peervault", instances)
+staticProvider.AddStaticService("shugo", instances)
 ```
 
 ### Consul Service Discovery
@@ -277,7 +277,7 @@ clientConfig := balancing.DefaultLoadBalancedClientConfig()
 client := balancing.NewLoadBalancedClient(loadBalancer, clientConfig, logger)
 
 // Use client for gRPC calls
-err := client.Invoke(ctx, "/peervault.PeerVaultService/HealthCheck", req, resp)
+err := client.Invoke(ctx, "/shugo.ShugoService/HealthCheck", req, resp)
 ```
 
 ### Advanced Configuration
@@ -312,7 +312,7 @@ clientConfig := &balancing.LoadBalancedClientConfig{
     KeepAliveTimeout:   5 * time.Second,
     MaxReceiveSize:     8 * 1024 * 1024, // 8MB
     MaxSendSize:        8 * 1024 * 1024, // 8MB
-    UserAgent:          "peervault-grpc-client/1.0",
+    UserAgent:          "shugo-grpc-client/1.0",
 }
 
 client := balancing.NewLoadBalancedClient(loadBalancer, clientConfig, logger)
@@ -339,7 +339,7 @@ serviceDiscovery.SetConfig(config)
 serviceDiscovery.Start()
 
 // Get service instances
-instances, err := serviceDiscovery.GetHealthyServiceInstances("peervault")
+instances, err := serviceDiscovery.GetHealthyServiceInstances("shugo")
 if err != nil {
     log.Fatal(err)
 }
@@ -364,7 +364,7 @@ loadBalancer := balancing.NewLoadBalancer(config, logger)
 
 // Use session ID in context
 ctx := context.WithValue(context.Background(), "session_id", "user123")
-err := client.Invoke(ctx, "/peervault.PeerVaultService/GetUserData", req, resp)
+err := client.Invoke(ctx, "/shugo.ShugoService/GetUserData", req, resp)
 ```
 
 ## Monitoring and Statistics

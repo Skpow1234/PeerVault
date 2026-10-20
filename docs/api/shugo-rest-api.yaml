@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: PeerVault REST API
+  title: Shugo REST API
   description: |
-    PeerVault is a distributed, encrypted file storage system with peer-to-peer replication.
+    Shugo is a distributed, encrypted file storage system with peer-to-peer replication.
     
     This REST API provides endpoints for file operations, peer management, and system monitoring.
     
@@ -33,7 +33,7 @@ info:
     
     ## Base URL
     - **Development**: `http://localhost:8081`
-    - **Production**: `https://api.peervault.dev`
+    - **Production**: `https://api.shugo.dev`
     
     ## API Versioning
     This API follows semantic versioning (SemVer) with URL-based versioning:
@@ -50,9 +50,9 @@ info:
     - **v2.0.x**: GraphQL federation, breaking API changes (planned)
   version: 1.1.0
   contact:
-    name: PeerVault Support
-    url: https://github.com/Skpow1234/Peervault
-    email: support@peervault.dev
+    name: Shugo Support
+    url: https://github.com/Skpow1234/Shugo
+    email: support@shugo.dev
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -60,7 +60,7 @@ info:
 servers:
   - url: http://localhost:8081
     description: Local development server
-  - url: https://api.peervault.dev
+  - url: https://api.shugo.dev
     description: Production API server
 
 security:
@@ -70,7 +70,7 @@ paths:
   /:
     get:
       summary: Get API information
-      description: Returns basic information about the PeerVault REST API
+      description: Returns basic information about the Shugo REST API
       operationId: getApiInfo
       tags:
         - System
@@ -84,7 +84,7 @@ paths:
                 properties:
                   name:
                     type: string
-                    example: "PeerVault REST API"
+                    example: "Shugo REST API"
                   version:
                     type: string
                     example: "1.0.0"
@@ -122,7 +122,7 @@ paths:
   /health:
     get:
       summary: Health check
-      description: Check the health status of the PeerVault system
+      description: Check the health status of the Shugo system
       operationId: healthCheck
       tags:
         - System
@@ -958,7 +958,7 @@ components:
       properties:
         version:
           type: string
-          description: PeerVault version
+          description: Shugo version
           example: "1.0.0"
         uptime:
           type: string
@@ -1027,7 +1027,7 @@ components:
           example: "2024-01-15T10:30:00Z"
         version:
           type: string
-          description: PeerVault version
+          description: Shugo version
           example: "1.0.0"
 
     WebhookRequest:

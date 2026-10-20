@@ -1,6 +1,6 @@
 # Deployment
 
-PeerVault is intended to run via **Docker Compose**. There is no Helm chart or Kubernetes manifests in the repo today (the README badge is aspirational). Production-like setups use multi-container Compose; Kubernetes is only mentioned as a future orchestration option in [CONTAINERIZATION.md](../documentation/CONTAINERIZATION.md).
+Shugo is intended to run via **Docker Compose**. There is no Helm chart or Kubernetes manifests in the repo today (the README badge is aspirational). Production-like setups use multi-container Compose; Kubernetes is only mentioned as a future orchestration option in [CONTAINERIZATION.md](../documentation/CONTAINERIZATION.md).
 
 ## Prerequisites
 
@@ -39,18 +39,18 @@ docker compose -f docker-compose.dev.yml up --build
 Or a single image:
 
 ```bash
-docker build -t peervault .
-docker run --rm -p 3000:3000 -p 5000:5000 -p 7000:7000 peervault
+docker build -t shugo .
+docker run --rm -p 3000:3000 -p 5000:5000 -p 7000:7000 shugo
 ```
 
 ## Option D — Individual nodes
 
 ```bash
-docker build -f docker/Dockerfile.node -t peervault-node .
+docker build -f docker/Dockerfile.node -t shugo-node .
 
-docker run -d --name node1 -p 3000:3000 peervault-node --listen :3000
+docker run -d --name node1 -p 3000:3000 shugo-node --listen :3000
 
-docker run -d --name node2 -p 5000:5000 peervault-node \
+docker run -d --name node2 -p 5000:5000 shugo-node \
   --listen :5000 --bootstrap node1:3000
 ```
 
@@ -71,13 +71,13 @@ Set via Compose `environment:` (preferred for shared cluster settings):
 
 | Variable | Purpose |
 |----------|---------|
-| `PEERVAULT_CLUSTER_KEY` | Shared encryption key material for nodes |
-| `PEERVAULT_AUTH_TOKEN` | Shared peer auth token |
+| `SHUGO_CLUSTER_KEY` | Shared encryption key material for nodes |
+| `SHUGO_AUTH_TOKEN` | Shared peer auth token |
 | `LOG_LEVEL` | `debug`, `info`, `warn`, `error` |
 
 If unset, demo/default tokens and per-node keys are used (dev only).
 
-### Node flags (`peervault-node`)
+### Node flags (`shugo-node`)
 
 ```text
 --listen string          Listen address (default ":3000")
@@ -86,7 +86,7 @@ If unset, demo/default tokens and per-node keys are used (dev only).
 --storage-prefix string  Storage directory prefix
 ```
 
-### Demo flags (`peervault-demo`)
+### Demo flags (`shugo-demo`)
 
 ```text
 --target string     Target node (default "localhost:5000")

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Security Scanning Script for PeerVault
+# Security Scanning Script for Shugo
 # This script performs comprehensive security scans of the codebase
 
 set -e
@@ -21,7 +21,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
-echo -e "${BLUE}Starting PeerVault Security Scan${NC}"
+echo -e "${BLUE}Starting Shugo Security Scan${NC}"
 echo "Project Root: $PROJECT_ROOT"
 echo "Scan Directory: $SCAN_DIR"
 echo "Output Directory: $OUTPUT_DIR"
@@ -117,7 +117,7 @@ fi
 # 6. Custom Security Checks
 print_section "Custom Security Checks"
 
-echo -e "${GREEN}Running custom PeerVault security scanner${NC}"
+echo -e "${GREEN}Running custom Shugo security scanner${NC}"
 cd "$PROJECT_ROOT"
 go run ./security/audit/scanner.go "$SCAN_DIR" > "$OUTPUT_DIR/custom_scan_$TIMESTAMP.json" 2>&1 || true
 
@@ -130,7 +130,7 @@ cat > "$SUMMARY_FILE" << EOF
 # Security Scan Summary
 
 **Scan Date:** $(date)
-**Project:** PeerVault
+**Project:** Shugo
 **Scan Directory:** $SCAN_DIR
 
 ## Scan Results
@@ -153,7 +153,7 @@ cat > "$SUMMARY_FILE" << EOF
 - **go-licenses:** $([ -f "$OUTPUT_DIR/go_licenses_$TIMESTAMP.txt" ] && echo "Completed" || echo "Failed/Skipped")
 
 ### Custom Security Checks
-- **PeerVault Scanner:** $([ -f "$OUTPUT_DIR/custom_scan_$TIMESTAMP.json" ] && echo "Completed" || echo "Failed/Skipped")
+- **Shugo Scanner:** $([ -f "$OUTPUT_DIR/custom_scan_$TIMESTAMP.json" ] && echo "Completed" || echo "Failed/Skipped")
 
 ## Files Generated
 

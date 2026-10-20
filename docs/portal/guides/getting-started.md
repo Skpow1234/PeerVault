@@ -1,6 +1,6 @@
-# Getting Started with PeerVault
+# Getting Started with Shugo
 
-This guide will help you get up and running with PeerVault in just a few minutes. We'll cover installation, basic configuration, and your first API call.
+This guide will help you get up and running with Shugo in just a few minutes. We'll cover installation, basic configuration, and your first API call.
 
 ## Prerequisites
 
@@ -67,12 +67,12 @@ import (
     "log"
     "os"
     
-    "github.com/peervault/peervault-sdk-go"
+    "github.com/Skpow1234/Shugo"
 )
 
 func main() {
     // Create client
-    client, err := peervault.NewClient("http://localhost:8080")
+    client, err := shugo.NewClient("http://localhost:8080")
     if err != nil {
         log.Fatal(err)
     }
@@ -96,16 +96,16 @@ func main() {
 ### Using JavaScript SDK
 
 ```javascript
-import { PeerVaultClient } from '@peervault/sdk';
+import { ShugoClient } from '@shugo/sdk';
 
 async function main() {
     // Create client
-    const client = new PeerVaultClient({
+    const client = new ShugoClient({
         baseURL: 'http://localhost:8080'
     });
     
     // Upload a file
-    const file = new File(['Hello, PeerVault!'], 'example.txt');
+    const file = new File(['Hello, Shugo!'], 'example.txt');
     const result = await client.files.upload('my-first-file', file);
     
     console.log(`Uploaded file: ${result.key} (size: ${result.size})`);
@@ -117,11 +117,11 @@ main().catch(console.error);
 ### Using Python SDK
 
 ```python
-from peervault import PeerVaultClient
+from shugo import ShugoClient
 
 def main():
     # Create client
-    client = PeerVaultClient('http://localhost:8080')
+    client = ShugoClient('http://localhost:8080')
     
     # Upload a file
     with open('example.txt', 'rb') as file:
@@ -181,7 +181,7 @@ import (
     "log"
     
     "google.golang.org/grpc"
-    pb "github.com/peervault/peervault/proto"
+    pb "github.com/Skpow1234/Shugo/proto"
 )
 
 func main() {
@@ -219,10 +219,10 @@ func main() {
 
 ## Next Steps
 
-Now that you have PeerVault running and have made your first API call, here's what you can do next:
+Now that you have Shugo running and have made your first API call, here's what you can do next:
 
 1. **Explore the APIs**:
-   - [REST API Documentation](../api/peervault-rest-api.yaml)
+   - [REST API Documentation](../api/shugo-rest-api.yaml)
    - [GraphQL Playground](../graphql-playground/)
    - [Swagger UI](../swagger/)
 
@@ -237,9 +237,9 @@ Now that you have PeerVault running and have made your first API call, here's wh
    - [Backend Service Examples](../../examples/backend/)
 
 4. **Join the community**:
-   - [GitHub Repository](https://github.com/peervault/peervault)
-   - [Discord Community](https://discord.gg/peervault)
-   - [Stack Overflow](https://stackoverflow.com/questions/tagged/peervault)
+   - [GitHub Repository](https://github.com/Skpow1234/Shugo)
+   - [Discord Community](https://discord.gg/shugo)
+   - [Stack Overflow](https://stackoverflow.com/questions/tagged/shugo)
 
 ## Troubleshooting
 
@@ -267,9 +267,9 @@ Now that you have PeerVault running and have made your first API call, here's wh
 
 - Check the [FAQ](../support/faq.md)
 - Review the [Troubleshooting Guide](../support/troubleshooting.md)
-- Join our [Discord Community](https://discord.gg/peervault)
-- Open an issue on [GitHub](https://github.com/peervault/peervault/issues)
+- Join our [Discord Community](https://discord.gg/shugo)
+- Open an issue on [GitHub](https://github.com/Skpow1234/Shugo/issues)
 
 ---
 
-Congratulations! You've successfully set up PeerVault and made your first API call. You're now ready to build amazing applications with distributed file storage!
+Congratulations! You've successfully set up Shugo and made your first API call. You're now ready to build amazing applications with distributed file storage!

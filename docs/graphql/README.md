@@ -1,6 +1,6 @@
-# PeerVault GraphQL API
+# Shugo GraphQL API
 
-The PeerVault GraphQL API provides a flexible interface for interacting with the distributed storage system. It offers real-time queries, mutations, and subscriptions for file operations, peer management, and system monitoring.
+The Shugo GraphQL API provides a flexible interface for interacting with the distributed storage system. It offers real-time queries, mutations, and subscriptions for file operations, peer management, and system monitoring.
 
 ## Features
 

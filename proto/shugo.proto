@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-package peervault;
+package shugo;
 
-option go_package = "github.com/Skpow1234/Peervault/proto/peervault";
+option go_package = "github.com/Skpow1234/Shugo/proto/shugo";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
-// PeerVault gRPC API service definitions
-service PeerVaultService {
+// Shugo gRPC API service definitions
+service ShugoService {
   // File operations
   rpc UploadFile(stream FileChunk) returns (FileResponse);
   rpc DownloadFile(FileRequest) returns (stream FileChunk);

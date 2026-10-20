@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/content"
+	"github.com/Skpow1234/Shugo/internal/content"
 )
 
 // IPFSNode represents an IPFS-compatible node

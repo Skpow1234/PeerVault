@@ -1,11 +1,11 @@
-module github.com/Skpow1234/Peervault
+module github.com/Skpow1234/Shugo
 
 go 1.24.0
 
 toolchain go1.24.6
 
 require (
-	github.com/Skpow1234/Peervault/proto/peervault v0.0.0-20250916093224-252ab05357d8
+	github.com/Skpow1234/Shugo/proto/shugo v0.0.0-20250916093224-252ab05357d8
 	github.com/ethereum/go-ethereum v1.16.8
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
@@ -62,4 +62,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-replace github.com/Skpow1234/Peervault/proto/peervault => ./proto/peervault
+replace github.com/Skpow1234/Shugo/proto/shugo => ./proto/shugo

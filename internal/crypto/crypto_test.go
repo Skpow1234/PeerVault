@@ -26,18 +26,18 @@ func TestNewKeyManager_WithEnvVar(t *testing.T) {
 	testKey := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 
 	// Clean up any existing environment variable
-	_ = os.Unsetenv("PEERVAULT_CLUSTER_KEY")
+	_ = os.Unsetenv("SHUGO_CLUSTER_KEY")
 
 	// Set the environment variable
-	err := os.Setenv("PEERVAULT_CLUSTER_KEY", testKey)
+	err := os.Setenv("SHUGO_CLUSTER_KEY", testKey)
 	require.NoError(t, err, "Setting environment variable should not fail")
 	defer func() {
-		err := os.Unsetenv("PEERVAULT_CLUSTER_KEY")
+		err := os.Unsetenv("SHUGO_CLUSTER_KEY")
 		require.NoError(t, err, "Unsetting environment variable should not fail")
 	}()
 
 	// Immediately verify the environment variable is accessible
-	envValue := os.Getenv("PEERVAULT_CLUSTER_KEY")
+	envValue := os.Getenv("SHUGO_CLUSTER_KEY")
 	if envValue != testKey {
 		t.Skipf("Environment variable handling not working in test environment. Expected %q, got %q", testKey, envValue)
 	}
@@ -284,6 +284,6 @@ func TestNewEncryptionKey_Deprecated(t *testing.T) {
 func TestConstants(t *testing.T) {
 	assert.Equal(t, 12, GCMNonceSize)
 	assert.Equal(t, 16, GCMTagSize)
-	assert.Equal(t, "peervault-cluster-salt-v1", KeyDerivationSalt)
+	assert.Equal(t, "shugo-cluster-salt-v1", KeyDerivationSalt)
 	assert.Equal(t, 24*time.Hour, KeyRotationPeriod)
 }

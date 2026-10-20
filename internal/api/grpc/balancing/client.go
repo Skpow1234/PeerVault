@@ -45,7 +45,7 @@ func DefaultLoadBalancedClientConfig() *LoadBalancedClientConfig {
 		KeepAliveTimeout:  5 * time.Second,
 		MaxReceiveSize:    4 * 1024 * 1024, // 4MB
 		MaxSendSize:       4 * 1024 * 1024, // 4MB
-		UserAgent:         "peervault-grpc-client/1.0",
+		UserAgent:         "shugo-grpc-client/1.0",
 	}
 }
 

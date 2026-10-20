@@ -23,7 +23,7 @@ Still open:
 
 ## Suggested next
 
-1. Stand up real gRPC server from `proto/peervault`  
+1. Stand up real gRPC server from `proto/shugo`  
 2. GraphQL library (gqlgen/graphql-go) over current dispatcher  
 3. Event bus for subscriptions  
 4. Handshake duplex + dial readiness probes  

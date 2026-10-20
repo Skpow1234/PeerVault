@@ -1,6 +1,6 @@
 # WebSocket API Documentation
 
-The PeerVault WebSocket API provides real-time bidirectional communication for dynamic applications, enabling live updates, real-time messaging, and connection management.
+The Shugo WebSocket API provides real-time bidirectional communication for dynamic applications, enabling live updates, real-time messaging, and connection management.
 
 ## Overview
 
@@ -9,7 +9,7 @@ The WebSocket API is designed for applications that need:
 - Real-time file operations notifications
 - Live peer network status updates
 - Instant system metrics and alerts
-- Bidirectional communication with the PeerVault network
+- Bidirectional communication with the Shugo network
 
 ## Endpoints
 
@@ -33,7 +33,7 @@ The WebSocket API is designed for applications that need:
 const ws = new WebSocket('ws://localhost:8083/ws');
 
 ws.onopen = function(event) {
-    console.log('Connected to PeerVault WebSocket API');
+    console.log('Connected to Shugo WebSocket API');
     
     // Subscribe to file operations
     ws.send(JSON.stringify({
@@ -424,13 +424,13 @@ ws.onmessage = function(event) {
 
 ```bash
 # WebSocket server configuration
-PEERVAULT_WS_PORT=8083
-PEERVAULT_WS_HOST=localhost
-PEERVAULT_WS_CORS_ORIGINS=*
-PEERVAULT_WS_READ_TIMEOUT=30s
-PEERVAULT_WS_WRITE_TIMEOUT=30s
-PEERVAULT_WS_PING_PERIOD=54s
-PEERVAULT_WS_PONG_WAIT=60s
+SHUGO_WS_PORT=8083
+SHUGO_WS_HOST=localhost
+SHUGO_WS_CORS_ORIGINS=*
+SHUGO_WS_READ_TIMEOUT=30s
+SHUGO_WS_WRITE_TIMEOUT=30s
+SHUGO_WS_PING_PERIOD=54s
+SHUGO_WS_PONG_WAIT=60s
 ```
 
 ### Configuration File

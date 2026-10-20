@@ -1,4 +1,4 @@
-module github.com/Skpow1234/Peervault/proto/peervault
+module github.com/Skpow1234/Shugo/proto/shugo
 
 go 1.24.0
 

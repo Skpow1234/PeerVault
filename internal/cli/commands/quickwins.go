@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Skpow1234/Peervault/internal/cli"
-	"github.com/Skpow1234/Peervault/internal/cli/aliases"
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/config"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
-	"github.com/Skpow1234/Peervault/internal/cli/help"
-	"github.com/Skpow1234/Peervault/internal/cli/macros"
-	"github.com/Skpow1234/Peervault/internal/cli/output"
-	"github.com/Skpow1234/Peervault/internal/cli/profiles"
+	"github.com/Skpow1234/Shugo/internal/cli"
+	"github.com/Skpow1234/Shugo/internal/cli/aliases"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/config"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/help"
+	"github.com/Skpow1234/Shugo/internal/cli/macros"
+	"github.com/Skpow1234/Shugo/internal/cli/output"
+	"github.com/Skpow1234/Shugo/internal/cli/profiles"
 )
 
 // EnhancedHelpCommand provides enhanced help with examples and tutorials
@@ -56,7 +56,7 @@ func (c *EnhancedHelpCommand) Execute(ctx context.Context, args []string) error 
 
 	if command == "" {
 		// Show general help
-		fmt.Println("PeerVault CLI - Available Commands")
+		fmt.Println("Shugo CLI - Available Commands")
 		fmt.Println(strings.Repeat("=", 50))
 
 		commands := c.helpManager.GetAvailableCommands()

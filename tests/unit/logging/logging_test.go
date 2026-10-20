@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/Skpow1234/Peervault/internal/logging"
+	"github.com/Skpow1234/Shugo/internal/logging"
 )
 
 // TestLoggingConfiguration verifies that logging can be configured properly

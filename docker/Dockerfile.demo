@@ -6,15 +6,15 @@ COPY go.mod go.sum ./
 COPY proto/ ./proto/
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /peervault-demo ./cmd/peervault-demo
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /shugo-demo ./cmd/shugo-demo
 
 FROM alpine:3.20
 WORKDIR /app
 RUN apk add --no-cache ca-certificates tzdata
-COPY --from=build /peervault-demo /usr/local/bin/peervault-demo
+COPY --from=build /shugo-demo /usr/local/bin/shugo-demo
 
 # Create data directory
 RUN mkdir -p /app/data
 
 # Set the entrypoint
-ENTRYPOINT ["/usr/local/bin/peervault-demo"]
+ENTRYPOINT ["/usr/local/bin/shugo-demo"]

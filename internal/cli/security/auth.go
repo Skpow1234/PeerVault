@@ -198,7 +198,7 @@ func (am *AuthManager) EnableMFA(userID string) (string, error) {
 	_ = am.saveUsers() // Ignore error for demo purposes
 
 	// Return a placeholder URL - in real implementation, this would be a proper QR code URL
-	qrURL := fmt.Sprintf("otpauth://totp/PeerVault:%s?secret=%s&issuer=PeerVault", user.Username, secret)
+	qrURL := fmt.Sprintf("otpauth://totp/Shugo:%s?secret=%s&issuer=Shugo", user.Username, secret)
 
 	return qrURL, nil
 }
@@ -397,7 +397,7 @@ func (am *AuthManager) DeactivateUser(userID string) error {
 
 // Utility functions
 func (am *AuthManager) hashPassword(password string) (string, error) {
-	hash := sha256.Sum256([]byte(password + "peervault_salt"))
+	hash := sha256.Sum256([]byte(password + "shugo_salt"))
 	return base64.StdEncoding.EncodeToString(hash[:]), nil
 }
 

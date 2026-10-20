@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	fs "github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/crypto"
-	"github.com/Skpow1234/Peervault/internal/logging"
-	"github.com/Skpow1234/Peervault/internal/peer"
-	"github.com/Skpow1234/Peervault/internal/storage"
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	fs "github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/logging"
+	"github.com/Skpow1234/Shugo/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/storage"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 // freePort asks the OS for an available TCP port.
@@ -60,7 +60,7 @@ func startNode(t *testing.T, listen string, bootstrap []string, km *crypto.KeyMa
 func TestReplicationStoreAGetB(t *testing.T) {
 	logging.ConfigureLogger("error")
 
-	km, err := crypto.NewKeyManagerFromClusterKey([]byte("peervault-test-cluster-key-32byt"))
+	km, err := crypto.NewKeyManagerFromClusterKey([]byte("shugo-test-cluster-key-32byt"))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -11,12 +11,12 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/Skpow1234/Peervault/proto/peervault"
+	"github.com/Skpow1234/Shugo/proto/shugo"
 )
 
 // HealthService implements the gRPC health service
 type HealthService struct {
-	peervault.UnimplementedPeerVaultServiceServer
+	shugo.UnimplementedShugoServiceServer
 	healthChecker *AdvancedHealthChecker
 	logger        *slog.Logger
 }
@@ -34,7 +34,7 @@ func NewHealthService(healthChecker *AdvancedHealthChecker, logger *slog.Logger)
 }
 
 // HealthCheck implements the basic health check endpoint
-func (hs *HealthService) HealthCheck(ctx context.Context, req *emptypb.Empty) (*peervault.HealthResponse, error) {
+func (hs *HealthService) HealthCheck(ctx context.Context, req *emptypb.Empty) (*shugo.HealthResponse, error) {
 	hs.logger.Debug("Health check requested")
 
 	response := hs.healthChecker.GetHealthStatus()
@@ -44,13 +44,13 @@ func (hs *HealthService) HealthCheck(ctx context.Context, req *emptypb.Empty) (*
 }
 
 // GetDetailedHealth returns detailed health information
-func (hs *HealthService) GetDetailedHealth(ctx context.Context, req *emptypb.Empty) (*peervault.HealthResponse, error) {
+func (hs *HealthService) GetDetailedHealth(ctx context.Context, req *emptypb.Empty) (*shugo.HealthResponse, error) {
 	hs.logger.Debug("Detailed health check requested")
 
 	detailedStatus := hs.healthChecker.GetDetailedHealthStatus()
 
 	// Convert detailed status to HealthResponse
-	response := &peervault.HealthResponse{
+	response := &shugo.HealthResponse{
 		Status:    detailedStatus["overall_status"].(string),
 		Timestamp: timestamppb.Now(),
 		Version:   "1.0.0",
@@ -61,7 +61,7 @@ func (hs *HealthService) GetDetailedHealth(ctx context.Context, req *emptypb.Emp
 }
 
 // GetComponentHealth returns health information for a specific component
-func (hs *HealthService) GetComponentHealth(ctx context.Context, req *peervault.ComponentHealthRequest) (*peervault.ComponentHealthResponse, error) {
+func (hs *HealthService) GetComponentHealth(ctx context.Context, req *shugo.ComponentHealthRequest) (*shugo.ComponentHealthResponse, error) {
 	hs.logger.Debug("Component health check requested", "component", req.Component)
 
 	result, err := hs.healthChecker.GetComponentHealth(req.Component)
@@ -70,7 +70,7 @@ func (hs *HealthService) GetComponentHealth(ctx context.Context, req *peervault.
 		return nil, status.Error(codes.NotFound, "component not found")
 	}
 
-	response := &peervault.ComponentHealthResponse{
+	response := &shugo.ComponentHealthResponse{
 		Component: result.Component,
 		Status:    string(result.Status),
 		Message:   result.Message,
@@ -95,7 +95,7 @@ func (hs *HealthService) GetComponentHealth(ctx context.Context, req *peervault.
 }
 
 // ForceHealthCheck forces a health check for a specific component
-func (hs *HealthService) ForceHealthCheck(ctx context.Context, req *peervault.ForceHealthCheckRequest) (*peervault.ForceHealthCheckResponse, error) {
+func (hs *HealthService) ForceHealthCheck(ctx context.Context, req *shugo.ForceHealthCheckRequest) (*shugo.ForceHealthCheckResponse, error) {
 	hs.logger.Info("Force health check requested", "component", req.Component)
 
 	var err error
@@ -112,7 +112,7 @@ func (hs *HealthService) ForceHealthCheck(ctx context.Context, req *peervault.Fo
 		return nil, status.Error(codes.Internal, "failed to force health check")
 	}
 
-	response := &peervault.ForceHealthCheckResponse{
+	response := &shugo.ForceHealthCheckResponse{
 		Success: true,
 		Message: "Health check completed successfully",
 	}
@@ -122,12 +122,12 @@ func (hs *HealthService) ForceHealthCheck(ctx context.Context, req *peervault.Fo
 }
 
 // GetHealthMetrics returns health metrics
-func (hs *HealthService) GetHealthMetrics(ctx context.Context, req *emptypb.Empty) (*peervault.HealthMetricsResponse, error) {
+func (hs *HealthService) GetHealthMetrics(ctx context.Context, req *emptypb.Empty) (*shugo.HealthMetricsResponse, error) {
 	hs.logger.Debug("Health metrics requested")
 
 	metrics := hs.healthChecker.GetHealthMetrics()
 
-	response := &peervault.HealthMetricsResponse{
+	response := &shugo.HealthMetricsResponse{
 		Metrics: make(map[string]interface{}),
 	}
 
@@ -141,18 +141,18 @@ func (hs *HealthService) GetHealthMetrics(ctx context.Context, req *emptypb.Empt
 }
 
 // GetHealthTraces returns health traces
-func (hs *HealthService) GetHealthTraces(ctx context.Context, req *emptypb.Empty) (*peervault.HealthTracesResponse, error) {
+func (hs *HealthService) GetHealthTraces(ctx context.Context, req *emptypb.Empty) (*shugo.HealthTracesResponse, error) {
 	hs.logger.Debug("Health traces requested")
 
 	traces := hs.healthChecker.GetHealthTraces()
 
-	response := &peervault.HealthTracesResponse{
-		Traces: make([]*peervault.HealthTrace, 0, len(traces)),
+	response := &shugo.HealthTracesResponse{
+		Traces: make([]*shugo.HealthTrace, 0, len(traces)),
 	}
 
 	// Convert traces to protobuf format
 	for _, trace := range traces {
-		pbTrace := &peervault.HealthTrace{
+		pbTrace := &shugo.HealthTrace{
 			Id:        trace.ID,
 			Component: trace.Component,
 			StartTime: timestamppb.New(trace.StartTime),
@@ -175,18 +175,18 @@ func (hs *HealthService) GetHealthTraces(ctx context.Context, req *emptypb.Empty
 }
 
 // GetHealthProfiles returns health profiles
-func (hs *HealthService) GetHealthProfiles(ctx context.Context, req *emptypb.Empty) (*peervault.HealthProfilesResponse, error) {
+func (hs *HealthService) GetHealthProfiles(ctx context.Context, req *emptypb.Empty) (*shugo.HealthProfilesResponse, error) {
 	hs.logger.Debug("Health profiles requested")
 
 	profiles := hs.healthChecker.GetHealthProfiles()
 
-	response := &peervault.HealthProfilesResponse{
-		Profiles: make([]*peervault.HealthProfile, 0, len(profiles)),
+	response := &shugo.HealthProfilesResponse{
+		Profiles: make([]*shugo.HealthProfile, 0, len(profiles)),
 	}
 
 	// Convert profiles to protobuf format
 	for _, profile := range profiles {
-		pbProfile := &peervault.HealthProfile{
+		pbProfile := &shugo.HealthProfile{
 			Id:          fmt.Sprintf("profile_%s", profile.Component),
 			Name:        fmt.Sprintf("Health Profile for %s", profile.Component),
 			Description: fmt.Sprintf("Performance profile for %s component", profile.Component),
@@ -209,11 +209,11 @@ func (hs *HealthService) GetHealthProfiles(ctx context.Context, req *emptypb.Emp
 }
 
 // StreamHealthEvents streams health events
-func (hs *HealthService) StreamHealthEvents(req *emptypb.Empty, stream peervault.PeerVaultService_StreamHealthEventsServer) error {
+func (hs *HealthService) StreamHealthEvents(req *emptypb.Empty, stream shugo.ShugoService_StreamHealthEventsServer) error {
 	hs.logger.Info("Health events stream started")
 
 	// Create a channel for health events
-	eventChan := make(chan *peervault.HealthEvent, 100)
+	eventChan := make(chan *shugo.HealthEvent, 100)
 	defer close(eventChan)
 
 	// Start a goroutine to generate health events
@@ -235,7 +235,7 @@ func (hs *HealthService) StreamHealthEvents(req *emptypb.Empty, stream peervault
 }
 
 // generateHealthEvents generates health events
-func (hs *HealthService) generateHealthEvents(eventChan chan<- *peervault.HealthEvent, ctx context.Context) {
+func (hs *HealthService) generateHealthEvents(eventChan chan<- *shugo.HealthEvent, ctx context.Context) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
@@ -245,7 +245,7 @@ func (hs *HealthService) generateHealthEvents(eventChan chan<- *peervault.Health
 			// Get current health status
 			status := hs.healthChecker.GetHealthStatus()
 
-			event := &peervault.HealthEvent{
+			event := &shugo.HealthEvent{
 				EventType: "health_check",
 				Component: "system",
 				Timestamp: timestamppb.Now(),

@@ -13,7 +13,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Config represents the main configuration structure for PeerVault
+// Config represents the main configuration structure for Shugo
 type Config struct {
 	// Server configuration
 	Server ServerConfig `yaml:"server" json:"server"`
@@ -43,109 +43,109 @@ type Config struct {
 // ServerConfig contains server-specific configuration
 type ServerConfig struct {
 	// Node ID (auto-generated if not provided)
-	NodeID string `yaml:"node_id" json:"node_id" env:"PEERVAULT_NODE_ID"`
+	NodeID string `yaml:"node_id" json:"node_id" env:"SHUGO_NODE_ID"`
 
 	// Listen address for the server
-	ListenAddr string `yaml:"listen_addr" json:"listen_addr" env:"PEERVAULT_LISTEN_ADDR" default:":3000"`
+	ListenAddr string `yaml:"listen_addr" json:"listen_addr" env:"SHUGO_LISTEN_ADDR" default:":3000"`
 
 	// Enable debug mode
-	Debug bool `yaml:"debug" json:"debug" env:"PEERVAULT_DEBUG" default:"false"`
+	Debug bool `yaml:"debug" json:"debug" env:"SHUGO_DEBUG" default:"false"`
 
 	// Graceful shutdown timeout
-	ShutdownTimeout time.Duration `yaml:"shutdown_timeout" json:"shutdown_timeout" env:"PEERVAULT_SHUTDOWN_TIMEOUT" default:"30s"`
+	ShutdownTimeout time.Duration `yaml:"shutdown_timeout" json:"shutdown_timeout" env:"SHUGO_SHUTDOWN_TIMEOUT" default:"30s"`
 }
 
 // StorageConfig contains storage-specific configuration
 type StorageConfig struct {
 	// Storage root directory
-	Root string `yaml:"root" json:"root" env:"PEERVAULT_STORAGE_ROOT" default:"./storage"`
+	Root string `yaml:"root" json:"root" env:"SHUGO_STORAGE_ROOT" default:"./storage"`
 
 	// Maximum file size in bytes
-	MaxFileSize int64 `yaml:"max_file_size" json:"max_file_size" env:"PEERVAULT_MAX_FILE_SIZE" default:"1073741824"` // 1GB
+	MaxFileSize int64 `yaml:"max_file_size" json:"max_file_size" env:"SHUGO_MAX_FILE_SIZE" default:"1073741824"` // 1GB
 
 	// Enable compression
-	Compression bool `yaml:"compression" json:"compression" env:"PEERVAULT_COMPRESSION" default:"false"`
+	Compression bool `yaml:"compression" json:"compression" env:"SHUGO_COMPRESSION" default:"false"`
 
 	// Compression level (1-9)
-	CompressionLevel int `yaml:"compression_level" json:"compression_level" env:"PEERVAULT_COMPRESSION_LEVEL" default:"6"`
+	CompressionLevel int `yaml:"compression_level" json:"compression_level" env:"SHUGO_COMPRESSION_LEVEL" default:"6"`
 
 	// Enable deduplication
-	Deduplication bool `yaml:"deduplication" json:"deduplication" env:"PEERVAULT_DEDUPLICATION" default:"false"`
+	Deduplication bool `yaml:"deduplication" json:"deduplication" env:"SHUGO_DEDUPLICATION" default:"false"`
 
 	// Storage cleanup interval
-	CleanupInterval time.Duration `yaml:"cleanup_interval" json:"cleanup_interval" env:"PEERVAULT_CLEANUP_INTERVAL" default:"1h"`
+	CleanupInterval time.Duration `yaml:"cleanup_interval" json:"cleanup_interval" env:"SHUGO_CLEANUP_INTERVAL" default:"1h"`
 
 	// Retention period for deleted files
-	RetentionPeriod time.Duration `yaml:"retention_period" json:"retention_period" env:"PEERVAULT_RETENTION_PERIOD" default:"24h"`
+	RetentionPeriod time.Duration `yaml:"retention_period" json:"retention_period" env:"SHUGO_RETENTION_PERIOD" default:"24h"`
 }
 
 // NetworkConfig contains network-specific configuration
 type NetworkConfig struct {
 	// Bootstrap nodes (comma-separated)
-	BootstrapNodes []string `yaml:"bootstrap_nodes" json:"bootstrap_nodes" env:"PEERVAULT_BOOTSTRAP_NODES"`
+	BootstrapNodes []string `yaml:"bootstrap_nodes" json:"bootstrap_nodes" env:"SHUGO_BOOTSTRAP_NODES"`
 
 	// Connection timeout
-	ConnectionTimeout time.Duration `yaml:"connection_timeout" json:"connection_timeout" env:"PEERVAULT_CONNECTION_TIMEOUT" default:"30s"`
+	ConnectionTimeout time.Duration `yaml:"connection_timeout" json:"connection_timeout" env:"SHUGO_CONNECTION_TIMEOUT" default:"30s"`
 
 	// Read timeout
-	ReadTimeout time.Duration `yaml:"read_timeout" json:"read_timeout" env:"PEERVAULT_READ_TIMEOUT" default:"60s"`
+	ReadTimeout time.Duration `yaml:"read_timeout" json:"read_timeout" env:"SHUGO_READ_TIMEOUT" default:"60s"`
 
 	// Write timeout
-	WriteTimeout time.Duration `yaml:"write_timeout" json:"write_timeout" env:"PEERVAULT_WRITE_TIMEOUT" default:"60s"`
+	WriteTimeout time.Duration `yaml:"write_timeout" json:"write_timeout" env:"SHUGO_WRITE_TIMEOUT" default:"60s"`
 
 	// Keep-alive interval
-	KeepAliveInterval time.Duration `yaml:"keep_alive_interval" json:"keep_alive_interval" env:"PEERVAULT_KEEP_ALIVE_INTERVAL" default:"30s"`
+	KeepAliveInterval time.Duration `yaml:"keep_alive_interval" json:"keep_alive_interval" env:"SHUGO_KEEP_ALIVE_INTERVAL" default:"30s"`
 
 	// Maximum message size
-	MaxMessageSize int64 `yaml:"max_message_size" json:"max_message_size" env:"PEERVAULT_MAX_MESSAGE_SIZE" default:"1048576"` // 1MB
+	MaxMessageSize int64 `yaml:"max_message_size" json:"max_message_size" env:"SHUGO_MAX_MESSAGE_SIZE" default:"1048576"` // 1MB
 }
 
 // SecurityConfig contains security-specific configuration
 type SecurityConfig struct {
 	// Cluster key for encryption
-	ClusterKey string `yaml:"cluster_key" json:"cluster_key" env:"PEERVAULT_CLUSTER_KEY"`
+	ClusterKey string `yaml:"cluster_key" json:"cluster_key" env:"SHUGO_CLUSTER_KEY"`
 
 	// Authentication token
-	AuthToken string `yaml:"auth_token" json:"auth_token" env:"PEERVAULT_AUTH_TOKEN" default:"demo-token"`
+	AuthToken string `yaml:"auth_token" json:"auth_token" env:"SHUGO_AUTH_TOKEN" default:"demo-token"`
 
 	// Enable TLS
-	TLS bool `yaml:"tls" json:"tls" env:"PEERVAULT_TLS" default:"false"`
+	TLS bool `yaml:"tls" json:"tls" env:"SHUGO_TLS" default:"false"`
 
 	// TLS certificate file
-	TLSCertFile string `yaml:"tls_cert_file" json:"tls_cert_file" env:"PEERVAULT_TLS_CERT_FILE"`
+	TLSCertFile string `yaml:"tls_cert_file" json:"tls_cert_file" env:"SHUGO_TLS_CERT_FILE"`
 
 	// TLS key file
-	TLSKeyFile string `yaml:"tls_key_file" json:"tls_key_file" env:"PEERVAULT_TLS_KEY_FILE"`
+	TLSKeyFile string `yaml:"tls_key_file" json:"tls_key_file" env:"SHUGO_TLS_KEY_FILE"`
 
 	// Key rotation interval
-	KeyRotationInterval time.Duration `yaml:"key_rotation_interval" json:"key_rotation_interval" env:"PEERVAULT_KEY_ROTATION_INTERVAL" default:"24h"`
+	KeyRotationInterval time.Duration `yaml:"key_rotation_interval" json:"key_rotation_interval" env:"SHUGO_KEY_ROTATION_INTERVAL" default:"24h"`
 
 	// Enable encryption at rest
-	EncryptionAtRest bool `yaml:"encryption_at_rest" json:"encryption_at_rest" env:"PEERVAULT_ENCRYPTION_AT_REST" default:"true"`
+	EncryptionAtRest bool `yaml:"encryption_at_rest" json:"encryption_at_rest" env:"SHUGO_ENCRYPTION_AT_REST" default:"true"`
 
 	// Enable encryption in transit
-	EncryptionInTransit bool `yaml:"encryption_in_transit" json:"encryption_in_transit" env:"PEERVAULT_ENCRYPTION_IN_TRANSIT" default:"true"`
+	EncryptionInTransit bool `yaml:"encryption_in_transit" json:"encryption_in_transit" env:"SHUGO_ENCRYPTION_IN_TRANSIT" default:"true"`
 
 	// Allow demo tokens in production
-	AllowDemoToken bool `yaml:"allow_demo_token" json:"allow_demo_token" env:"PEERVAULT_ALLOW_DEMO_TOKEN" default:"true"`
+	AllowDemoToken bool `yaml:"allow_demo_token" json:"allow_demo_token" env:"SHUGO_ALLOW_DEMO_TOKEN" default:"true"`
 }
 
 // LoggingConfig contains logging-specific configuration
 type LoggingConfig struct {
 	// Log level (debug, info, warn, error)
-	Level string `yaml:"level" json:"level" env:"PEERVAULT_LOG_LEVEL" default:"info"`
+	Level string `yaml:"level" json:"level" env:"SHUGO_LOG_LEVEL" default:"info"`
 
 	// Log format (json, text)
-	Format string `yaml:"format" json:"format" env:"PEERVAULT_LOG_FORMAT" default:"json"`
+	Format string `yaml:"format" json:"format" env:"SHUGO_LOG_FORMAT" default:"json"`
 
 	// Log file path (optional)
-	File string `yaml:"file" json:"file" env:"PEERVAULT_LOG_FILE"`
+	File string `yaml:"file" json:"file" env:"SHUGO_LOG_FILE"`
 
 	// Enable structured logging
-	Structured bool `yaml:"structured" json:"structured" env:"PEERVAULT_LOG_STRUCTURED" default:"true"`
+	Structured bool `yaml:"structured" json:"structured" env:"SHUGO_LOG_STRUCTURED" default:"true"`
 
 	// Include source location in logs
-	IncludeSource bool `yaml:"include_source" json:"include_source" env:"PEERVAULT_LOG_INCLUDE_SOURCE" default:"false"`
+	IncludeSource bool `yaml:"include_source" json:"include_source" env:"SHUGO_LOG_INCLUDE_SOURCE" default:"false"`
 
 	// Log rotation settings
 	Rotation LogRotationConfig `yaml:"rotation" json:"rotation"`
@@ -154,16 +154,16 @@ type LoggingConfig struct {
 // LogRotationConfig contains log rotation settings
 type LogRotationConfig struct {
 	// Maximum log file size in MB
-	MaxSize int `yaml:"max_size" json:"max_size" env:"PEERVAULT_LOG_MAX_SIZE" default:"100"`
+	MaxSize int `yaml:"max_size" json:"max_size" env:"SHUGO_LOG_MAX_SIZE" default:"100"`
 
 	// Maximum number of log files to keep
-	MaxFiles int `yaml:"max_files" json:"max_files" env:"PEERVAULT_LOG_MAX_FILES" default:"10"`
+	MaxFiles int `yaml:"max_files" json:"max_files" env:"SHUGO_LOG_MAX_FILES" default:"10"`
 
 	// Maximum age of log files
-	MaxAge time.Duration `yaml:"max_age" json:"max_age" env:"PEERVAULT_LOG_MAX_AGE" default:"168h"` // 7 days
+	MaxAge time.Duration `yaml:"max_age" json:"max_age" env:"SHUGO_LOG_MAX_AGE" default:"168h"` // 7 days
 
 	// Compress rotated log files
-	Compress bool `yaml:"compress" json:"compress" env:"PEERVAULT_LOG_COMPRESS" default:"true"`
+	Compress bool `yaml:"compress" json:"compress" env:"SHUGO_LOG_COMPRESS" default:"true"`
 }
 
 // APIConfig contains API-specific configuration
@@ -181,97 +181,97 @@ type APIConfig struct {
 // RESTConfig contains REST API configuration
 type RESTConfig struct {
 	// Enable REST API
-	Enabled bool `yaml:"enabled" json:"enabled" env:"PEERVAULT_REST_ENABLED" default:"true"`
+	Enabled bool `yaml:"enabled" json:"enabled" env:"SHUGO_REST_ENABLED" default:"true"`
 
 	// REST API port
-	Port int `yaml:"port" json:"port" env:"PEERVAULT_REST_PORT" default:"8080"`
+	Port int `yaml:"port" json:"port" env:"SHUGO_REST_PORT" default:"8080"`
 
 	// Allowed origins for CORS
-	AllowedOrigins []string `yaml:"allowed_origins" json:"allowed_origins" env:"PEERVAULT_REST_ALLOWED_ORIGINS" default:"*"`
+	AllowedOrigins []string `yaml:"allowed_origins" json:"allowed_origins" env:"SHUGO_REST_ALLOWED_ORIGINS" default:"*"`
 
 	// Rate limit per minute
-	RateLimitPerMin int `yaml:"rate_limit_per_min" json:"rate_limit_per_min" env:"PEERVAULT_REST_RATE_LIMIT" default:"100"`
+	RateLimitPerMin int `yaml:"rate_limit_per_min" json:"rate_limit_per_min" env:"SHUGO_REST_RATE_LIMIT" default:"100"`
 
 	// Authentication token
-	AuthToken string `yaml:"auth_token" json:"auth_token" env:"PEERVAULT_REST_AUTH_TOKEN" default:"demo-token"`
+	AuthToken string `yaml:"auth_token" json:"auth_token" env:"SHUGO_REST_AUTH_TOKEN" default:"demo-token"`
 }
 
 // GraphQLConfig contains GraphQL API configuration
 type GraphQLConfig struct {
 	// Enable GraphQL API
-	Enabled bool `yaml:"enabled" json:"enabled" env:"PEERVAULT_GRAPHQL_ENABLED" default:"true"`
+	Enabled bool `yaml:"enabled" json:"enabled" env:"SHUGO_GRAPHQL_ENABLED" default:"true"`
 
 	// GraphQL API port
-	Port int `yaml:"port" json:"port" env:"PEERVAULT_GRAPHQL_PORT" default:"8081"`
+	Port int `yaml:"port" json:"port" env:"SHUGO_GRAPHQL_PORT" default:"8081"`
 
 	// Enable GraphQL Playground
-	EnablePlayground bool `yaml:"enable_playground" json:"enable_playground" env:"PEERVAULT_GRAPHQL_PLAYGROUND" default:"true"`
+	EnablePlayground bool `yaml:"enable_playground" json:"enable_playground" env:"SHUGO_GRAPHQL_PLAYGROUND" default:"true"`
 
 	// GraphQL endpoint path
-	GraphQLPath string `yaml:"graphql_path" json:"graphql_path" env:"PEERVAULT_GRAPHQL_PATH" default:"/graphql"`
+	GraphQLPath string `yaml:"graphql_path" json:"graphql_path" env:"SHUGO_GRAPHQL_PATH" default:"/graphql"`
 
 	// Playground path
-	PlaygroundPath string `yaml:"playground_path" json:"playground_path" env:"PEERVAULT_GRAPHQL_PLAYGROUND_PATH" default:"/playground"`
+	PlaygroundPath string `yaml:"playground_path" json:"playground_path" env:"SHUGO_GRAPHQL_PLAYGROUND_PATH" default:"/playground"`
 
 	// Allowed origins for CORS
-	AllowedOrigins []string `yaml:"allowed_origins" json:"allowed_origins" env:"PEERVAULT_GRAPHQL_ALLOWED_ORIGINS" default:"*"`
+	AllowedOrigins []string `yaml:"allowed_origins" json:"allowed_origins" env:"SHUGO_GRAPHQL_ALLOWED_ORIGINS" default:"*"`
 }
 
 // GRPCConfig contains gRPC API configuration
 type GRPCConfig struct {
 	// Enable gRPC API
-	Enabled bool `yaml:"enabled" json:"enabled" env:"PEERVAULT_GRPC_ENABLED" default:"true"`
+	Enabled bool `yaml:"enabled" json:"enabled" env:"SHUGO_GRPC_ENABLED" default:"true"`
 
 	// gRPC API port
-	Port int `yaml:"port" json:"port" env:"PEERVAULT_GRPC_PORT" default:"8082"`
+	Port int `yaml:"port" json:"port" env:"SHUGO_GRPC_PORT" default:"8082"`
 
 	// Authentication token
-	AuthToken string `yaml:"auth_token" json:"auth_token" env:"PEERVAULT_GRPC_AUTH_TOKEN" default:"demo-token"`
+	AuthToken string `yaml:"auth_token" json:"auth_token" env:"SHUGO_GRPC_AUTH_TOKEN" default:"demo-token"`
 
 	// Enable reflection
-	EnableReflection bool `yaml:"enable_reflection" json:"enable_reflection" env:"PEERVAULT_GRPC_REFLECTION" default:"true"`
+	EnableReflection bool `yaml:"enable_reflection" json:"enable_reflection" env:"SHUGO_GRPC_REFLECTION" default:"true"`
 
 	// Maximum concurrent streams
-	MaxConcurrentStreams int `yaml:"max_concurrent_streams" json:"max_concurrent_streams" env:"PEERVAULT_GRPC_MAX_STREAMS" default:"100"`
+	MaxConcurrentStreams int `yaml:"max_concurrent_streams" json:"max_concurrent_streams" env:"SHUGO_GRPC_MAX_STREAMS" default:"100"`
 }
 
 // PeerConfig contains peer-specific configuration
 type PeerConfig struct {
 	// Maximum number of peers
-	MaxPeers int `yaml:"max_peers" json:"max_peers" env:"PEERVAULT_MAX_PEERS" default:"100"`
+	MaxPeers int `yaml:"max_peers" json:"max_peers" env:"SHUGO_MAX_PEERS" default:"100"`
 
 	// Heartbeat interval
-	HeartbeatInterval time.Duration `yaml:"heartbeat_interval" json:"heartbeat_interval" env:"PEERVAULT_HEARTBEAT_INTERVAL" default:"30s"`
+	HeartbeatInterval time.Duration `yaml:"heartbeat_interval" json:"heartbeat_interval" env:"SHUGO_HEARTBEAT_INTERVAL" default:"30s"`
 
 	// Health timeout
-	HealthTimeout time.Duration `yaml:"health_timeout" json:"health_timeout" env:"PEERVAULT_HEALTH_TIMEOUT" default:"90s"`
+	HealthTimeout time.Duration `yaml:"health_timeout" json:"health_timeout" env:"SHUGO_HEALTH_TIMEOUT" default:"90s"`
 
 	// Reconnection backoff
-	ReconnectBackoff time.Duration `yaml:"reconnect_backoff" json:"reconnect_backoff" env:"PEERVAULT_RECONNECT_BACKOFF" default:"5s"`
+	ReconnectBackoff time.Duration `yaml:"reconnect_backoff" json:"reconnect_backoff" env:"SHUGO_RECONNECT_BACKOFF" default:"5s"`
 
 	// Maximum reconnection attempts
-	MaxReconnectAttempts int `yaml:"max_reconnect_attempts" json:"max_reconnect_attempts" env:"PEERVAULT_MAX_RECONNECT_ATTEMPTS" default:"10"`
+	MaxReconnectAttempts int `yaml:"max_reconnect_attempts" json:"max_reconnect_attempts" env:"SHUGO_MAX_RECONNECT_ATTEMPTS" default:"10"`
 }
 
 // PerformanceConfig contains performance-specific configuration
 type PerformanceConfig struct {
 	// Maximum concurrent streams per peer
-	MaxConcurrentStreamsPerPeer int `yaml:"max_concurrent_streams_per_peer" json:"max_concurrent_streams_per_peer" env:"PEERVAULT_MAX_STREAMS_PER_PEER" default:"10"`
+	MaxConcurrentStreamsPerPeer int `yaml:"max_concurrent_streams_per_peer" json:"max_concurrent_streams_per_peer" env:"SHUGO_MAX_STREAMS_PER_PEER" default:"10"`
 
 	// Buffer size for streaming
-	StreamBufferSize int `yaml:"stream_buffer_size" json:"stream_buffer_size" env:"PEERVAULT_STREAM_BUFFER_SIZE" default:"65536"` // 64KB
+	StreamBufferSize int `yaml:"stream_buffer_size" json:"stream_buffer_size" env:"SHUGO_STREAM_BUFFER_SIZE" default:"65536"` // 64KB
 
 	// Connection pool size
-	ConnectionPoolSize int `yaml:"connection_pool_size" json:"connection_pool_size" env:"PEERVAULT_CONNECTION_POOL_SIZE" default:"10"`
+	ConnectionPoolSize int `yaml:"connection_pool_size" json:"connection_pool_size" env:"SHUGO_CONNECTION_POOL_SIZE" default:"10"`
 
 	// Enable connection multiplexing
-	EnableMultiplexing bool `yaml:"enable_multiplexing" json:"enable_multiplexing" env:"PEERVAULT_ENABLE_MULTIPLEXING" default:"true"`
+	EnableMultiplexing bool `yaml:"enable_multiplexing" json:"enable_multiplexing" env:"SHUGO_ENABLE_MULTIPLEXING" default:"true"`
 
 	// Cache size in MB
-	CacheSize int `yaml:"cache_size" json:"cache_size" env:"PEERVAULT_CACHE_SIZE" default:"100"`
+	CacheSize int `yaml:"cache_size" json:"cache_size" env:"SHUGO_CACHE_SIZE" default:"100"`
 
 	// Cache TTL
-	CacheTTL time.Duration `yaml:"cache_ttl" json:"cache_ttl" env:"PEERVAULT_CACHE_TTL" default:"1h"`
+	CacheTTL time.Duration `yaml:"cache_ttl" json:"cache_ttl" env:"SHUGO_CACHE_TTL" default:"1h"`
 }
 
 // Manager handles configuration loading, validation, and hot reloading

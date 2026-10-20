@@ -23,7 +23,7 @@ Paths are derived from a SHA-256 hash of the storage key (`CASPathTransformFunc`
 ## Project layout (overview)
 
 ```text
-cmd/                 # peervault, node, demo, api, graphql, grpc, …
+cmd/                 # shugo, node, demo, api, graphql, grpc, …
 internal/
   app/fileserver/    # Core P2P file server
   transport/p2p/     # TCP, framing, handshake
@@ -40,7 +40,7 @@ config/              # YAML configs
 scripts/             # Build / test / security helpers
 ```
 
-Key binaries: `peervault`, `peervault-node`, `peervault-demo`, `peervault-api`, `peervault-graphql`, `peervault-grpc`.
+Key binaries: `shugo`, `shugo-node`, `shugo-demo`, `shugo-api`, `shugo-graphql`, `shugo-grpc`.
 
 ## Related docs
 

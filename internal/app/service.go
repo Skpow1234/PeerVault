@@ -1,6 +1,6 @@
 package app
 
-import "github.com/Skpow1234/Peervault/internal/domain"
+import "github.com/Skpow1234/Shugo/internal/domain"
 
 // FileService defines the high-level application operations.
 type FileService interface {

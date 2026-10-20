@@ -3,8 +3,8 @@ package types
 import (
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/types/requests"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types/responses"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types/requests"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types/responses"
 )
 
 // FileToResponse converts a File entity to FileResponse

@@ -1,4 +1,4 @@
-# PeerVault Build Script for Windows
+# Shugo Build Script for Windows
 # Usage: .\scripts\build.ps1 [target]
 
 param(
@@ -7,7 +7,7 @@ param(
     [string]$Target = "all"
 )
 
-Write-Host "PeerVault Build Script for Windows" -ForegroundColor Green
+Write-Host "Shugo Build Script for Windows" -ForegroundColor Green
 Write-Host "Target: $Target" -ForegroundColor Yellow
 
 # Create bin directory if it doesn't exist
@@ -19,7 +19,7 @@ if (!(Test-Path "bin")) {
 switch ($Target) {
     "main" {
         Write-Host "Building main application..." -ForegroundColor Blue
-        go build -o bin\peervault.exe .\cmd\peervault
+        go build -o bin\shugo.exe .\cmd\shugo
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Main application built successfully" -ForegroundColor Green
         } else {
@@ -29,7 +29,7 @@ switch ($Target) {
     }
     "node" {
         Write-Host "Building node binary..." -ForegroundColor Blue
-        go build -o bin\peervault-node.exe .\cmd\peervault-node
+        go build -o bin\shugo-node.exe .\cmd\shugo-node
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Node binary built successfully" -ForegroundColor Green
         } else {
@@ -39,7 +39,7 @@ switch ($Target) {
     }
     "demo" {
         Write-Host "Building demo client..." -ForegroundColor Blue
-        go build -o bin\peervault-demo.exe .\cmd\peervault-demo
+        go build -o bin\shugo-demo.exe .\cmd\shugo-demo
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Demo client built successfully" -ForegroundColor Green
         } else {

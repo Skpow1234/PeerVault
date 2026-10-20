@@ -1,10 +1,10 @@
 # GraphQL Subscriptions
 
-This document describes the real-time GraphQL subscription features implemented in PeerVault.
+This document describes the real-time GraphQL subscription features implemented in Shugo.
 
 ## Overview
 
-GraphQL subscriptions provide real-time updates for various events in the PeerVault system. They use WebSocket connections to deliver live updates to clients.
+GraphQL subscriptions provide real-time updates for various events in the Shugo system. They use WebSocket connections to deliver live updates to clients.
 
 ## WebSocket Endpoint
 

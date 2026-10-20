@@ -19,7 +19,7 @@ const (
 	// GCM tag size is 16 bytes (128 bits)
 	GCMTagSize = 16
 	// Key derivation constants
-	KeyDerivationSalt = "peervault-cluster-salt-v1"
+	KeyDerivationSalt = "shugo-cluster-salt-v1"
 	KeyRotationPeriod = 24 * time.Hour // Rotate keys every 24 hours
 )
 
@@ -34,7 +34,7 @@ type KeyManager struct {
 // NewKeyManager creates a new key manager with proper key derivation
 func NewKeyManager() (*KeyManager, error) {
 	// Try to load cluster key from environment first
-	clusterKey := os.Getenv("PEERVAULT_CLUSTER_KEY")
+	clusterKey := os.Getenv("SHUGO_CLUSTER_KEY")
 	if clusterKey == "" {
 		// Generate a new cluster key if not provided
 		clusterKeyBytes := make([]byte, 32)

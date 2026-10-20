@@ -17,7 +17,7 @@ function Add-M {
     $lines.Add('')
 }
 
-$lines.Add('# PeerVault Extended Milestones (41+)')
+$lines.Add('# Shugo Extended Milestones (41+)')
 $lines.Add('')
 $lines.Add('Generated from codebase review after Milestone 1-2 core P2P fixes (replication, DialPeer, SHA-256 CAS, pending Get).')
 $lines.Add('Each item is an actionable improvement derived from TODOs, stubs, ops gaps, and hardening needs.')
@@ -148,7 +148,7 @@ $themes = @{
         'Load balancing config examples','Server-side keepalive','Max message size config','Compression gzip',
         'Richer gRPC status details','Interceptor chain metrics','Method-level authz','Real grpc client integration test',
         'Benchmark streaming throughput','Remove temporary HTTP/JSON server','Gateway OpenAPI from proto',
-        'Versioned package peervault.v1'
+        'Versioned package shugo.v1'
     )
     'CLI' = @(
         'CLI store/get wired','CLI config file support','CLI progress bars','CLI JSON output','CLI path completion',

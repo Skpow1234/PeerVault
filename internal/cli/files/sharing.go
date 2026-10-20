@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
 )
 
 // ShareManager manages file sharing
@@ -406,7 +406,7 @@ func (sm *ShareManager) generateShareID() string {
 }
 
 func (sm *ShareManager) generatePublicURL() string {
-	return fmt.Sprintf("https://peervault.com/share/%s", sm.generateShareID())
+	return fmt.Sprintf("https://shugo.com/share/%s", sm.generateShareID())
 }
 
 func (sm *ShareManager) loadShares() error {

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/Skpow1234/Peervault/internal/cli/config"
+	"github.com/Skpow1234/Shugo/internal/cli/config"
 )
 
 // Manager manages configuration profiles
@@ -70,7 +70,7 @@ func (pm *Manager) initializeDefaultProfiles() {
 		Name:        "production",
 		Description: "Production environment with secure settings",
 		Config: &config.Config{
-			ServerURL:    "https://api.peervault.com",
+			ServerURL:    "https://api.shugo.com",
 			AuthToken:    "",
 			OutputFormat: "json",
 			Theme:        "minimal",

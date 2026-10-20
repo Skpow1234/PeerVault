@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/ratelimit"
+	"github.com/Skpow1234/Shugo/internal/api/rest/ratelimit"
 )
 
 // createTestLogger creates a test logger

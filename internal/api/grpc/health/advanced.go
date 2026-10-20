@@ -9,7 +9,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/Skpow1234/Peervault/proto/peervault"
+	"github.com/Skpow1234/Shugo/proto/shugo"
 )
 
 // HealthConfig represents health check configuration
@@ -387,7 +387,7 @@ func (ahc *AdvancedHealthChecker) checkDependencies(component string) bool {
 }
 
 // GetHealthStatus returns the overall health status
-func (ahc *AdvancedHealthChecker) GetHealthStatus() *peervault.HealthResponse {
+func (ahc *AdvancedHealthChecker) GetHealthStatus() *shugo.HealthResponse {
 	ahc.checkersMux.RLock()
 	defer ahc.checkersMux.RUnlock()
 
@@ -412,7 +412,7 @@ func (ahc *AdvancedHealthChecker) GetHealthStatus() *peervault.HealthResponse {
 	// Calculate health percentage
 	_ = float64(healthyCount) / float64(totalCount) * 100 // healthPercentage
 
-	return &peervault.HealthResponse{
+	return &shugo.HealthResponse{
 		Status:    string(overallStatus),
 		Timestamp: timestamppb.Now(),
 		Version:   "1.0.0",

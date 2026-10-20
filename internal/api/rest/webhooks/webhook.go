@@ -271,7 +271,7 @@ func (wm *WebhookManager) attemptDelivery(deliveryID, webhookID string, webhook 
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "PeerVault-Webhook/1.0")
+	req.Header.Set("User-Agent", "Shugo-Webhook/1.0")
 
 	// Add custom headers
 	for key, value := range webhook.Headers {

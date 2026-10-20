@@ -1,5 +1,5 @@
 import { grpc } from '@improbable-eng/grpc-web';
-import { PeerVaultServiceClient } from './generated/peervault_grpc_web_pb';
+import { ShugoServiceClient } from './generated/shugo_grpc_web_pb';
 import {
   FileRequest,
   FileResponse,
@@ -20,27 +20,27 @@ import {
   PeerEvent,
   SystemEvent,
   FileChunk,
-} from './generated/peervault_pb';
+} from './generated/shugo_pb';
 
-export interface PeerVaultConfig {
+export interface ShugoConfig {
   endpoint: string;
   authToken: string;
   timeout?: number;
   retryAttempts?: number;
 }
 
-export class PeerVaultClient {
-  private client: PeerVaultServiceClient;
-  private config: PeerVaultConfig;
+export class ShugoClient {
+  private client: ShugoServiceClient;
+  private config: ShugoConfig;
 
-  constructor(config: PeerVaultConfig) {
+  constructor(config: ShugoConfig) {
     this.config = {
       timeout: 30000,
       retryAttempts: 3,
       ...config,
     };
 
-    this.client = new PeerVaultServiceClient(this.config.endpoint, {
+    this.client = new ShugoServiceClient(this.config.endpoint, {
       transport: grpc.WebsocketTransport(),
       debug: false,
     });

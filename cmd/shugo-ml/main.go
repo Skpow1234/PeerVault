@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/ml"
+	"github.com/Skpow1234/Shugo/internal/ml"
 )
 
 func main() {
@@ -237,8 +237,8 @@ func handleTrainCommand(ctx context.Context, mlEngine *ml.MLClassificationEngine
 }
 
 func showHelp() {
-	fmt.Printf("PeerVault Machine Learning Tool\n\n")
-	fmt.Printf("Usage: peervault-ml -command <command> [options]\n\n")
+	fmt.Printf("Shugo Machine Learning Tool\n\n")
+	fmt.Printf("Usage: shugo-ml -command <command> [options]\n\n")
 	fmt.Printf("Commands:\n")
 	fmt.Printf("  classify   Classify a file using ML algorithms\n")
 	fmt.Printf("  optimize   Optimize a file using ML-based algorithms\n")
@@ -250,8 +250,8 @@ func showHelp() {
 	fmt.Printf("  -model <id>       Model ID (for train command)\n")
 	fmt.Printf("  -help             Show this help message\n\n")
 	fmt.Printf("Examples:\n")
-	fmt.Printf("  peervault-ml -command classify -file example.txt\n")
-	fmt.Printf("  peervault-ml -command optimize -file example.jpg\n")
-	fmt.Printf("  peervault-ml -command predict -file example.pdf\n")
-	fmt.Printf("  peervault-ml -command train -model my_model\n")
+	fmt.Printf("  shugo-ml -command classify -file example.txt\n")
+	fmt.Printf("  shugo-ml -command optimize -file example.jpg\n")
+	fmt.Printf("  shugo-ml -command predict -file example.pdf\n")
+	fmt.Printf("  shugo-ml -command train -model my_model\n")
 }

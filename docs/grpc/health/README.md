@@ -1,6 +1,6 @@
 # Advanced Health Checking
 
-This document describes the comprehensive health checking implementation for PeerVault's gRPC services, including detailed status reporting, dependency management, and monitoring.
+This document describes the comprehensive health checking implementation for Shugo's gRPC services, including detailed status reporting, dependency management, and monitoring.
 
 ## Overview
 
@@ -281,7 +281,7 @@ healthService := health.NewHealthService(healthChecker, logger)
 
 // Register with gRPC server
 grpcServer := grpc.NewServer()
-peervault.RegisterPeerVaultServiceServer(grpcServer, healthService)
+shugo.RegisterShugoServiceServer(grpcServer, healthService)
 ```
 
 ### Advanced Configuration
@@ -422,7 +422,7 @@ for key, value := range response.Metadata {
 
 ```go
 // Component-specific health check
-req := &peervault.ComponentHealthRequest{
+req := &shugo.ComponentHealthRequest{
     Component: "database",
 }
 
@@ -441,7 +441,7 @@ log.Printf("Duration: %d ns", response.Duration)
 
 ```go
 // Force health check for specific component
-req := &peervault.ForceHealthCheckRequest{
+req := &shugo.ForceHealthCheckRequest{
     Component: "database",
 }
 

@@ -1,6 +1,6 @@
 # Analytics Integration Guide
 
-This guide explains how to integrate the API Analytics & Monitoring system into your PeerVault deployment.
+This guide explains how to integrate the API Analytics & Monitoring system into your Shugo deployment.
 
 ## Quick Start
 
@@ -10,8 +10,8 @@ Analytics is enabled by default. To configure it, modify your server configurati
 
 ```go
 import (
-    "github.com/Skpow1234/Peervault/internal/api/analytics"
-    "github.com/Skpow1234/Peervault/internal/api/rest"
+    "github.com/Skpow1234/Shugo/internal/api/analytics"
+    "github.com/Skpow1234/Shugo/internal/api/rest"
 )
 
 config := rest.DefaultConfig()
@@ -105,7 +105,7 @@ package monitoring
 
 import (
     "time"
-    "github.com/Skpow1234/Peervault/internal/api/analytics"
+    "github.com/Skpow1234/Shugo/internal/api/analytics"
 )
 
 type AlertConfig struct {
@@ -172,7 +172,7 @@ package exporters
 import (
     "fmt"
     "time"
-    "github.com/Skpow1234/Peervault/internal/api/analytics"
+    "github.com/Skpow1234/Shugo/internal/api/analytics"
     "github.com/prometheus/client_golang/prometheus"
 )
 
@@ -244,7 +244,7 @@ package custom
 
 import (
     "time"
-    "github.com/Skpow1234/Peervault/internal/api/analytics"
+    "github.com/Skpow1234/Shugo/internal/api/analytics"
 )
 
 type CustomAnalytics struct {

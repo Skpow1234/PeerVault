@@ -166,7 +166,7 @@ func (pm *PKIManager) generateRootCA() (*CertificateAuthority, error) {
 	template := x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
-			Organization:  []string{"PeerVault Root CA"},
+			Organization:  []string{"Shugo Root CA"},
 			Country:       []string{"US"},
 			Province:      []string{""},
 			Locality:      []string{"San Francisco"},
@@ -227,8 +227,8 @@ func (pm *PKIManager) generateRootCA() (*CertificateAuthority, error) {
 	// Create CA object
 	ca := &CertificateAuthority{
 		ID:          "root",
-		Name:        "PeerVault Root CA",
-		Description: "Root Certificate Authority for PeerVault",
+		Name:        "Shugo Root CA",
+		Description: "Root Certificate Authority for Shugo",
 		Certificate: certificate,
 		PrivateKey:  string(privateKeyPEM),
 		CreatedAt:   time.Now(),
@@ -303,8 +303,8 @@ func (pm *PKIManager) loadRootCA() error {
 	// Create CA object
 	ca := &CertificateAuthority{
 		ID:          "root",
-		Name:        "PeerVault Root CA",
-		Description: "Root Certificate Authority for PeerVault",
+		Name:        "Shugo Root CA",
+		Description: "Root Certificate Authority for Shugo",
 		Certificate: certificate,
 		PrivateKey:  string(keyPEM),
 		CreatedAt:   time.Now(),

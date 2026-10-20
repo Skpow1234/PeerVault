@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/ratelimit"
+	"github.com/Skpow1234/Shugo/internal/api/rest/ratelimit"
 )
 
 // Gateway represents an API gateway

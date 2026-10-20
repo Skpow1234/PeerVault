@@ -1,4 +1,4 @@
-# Data Classification Policy for PeerVault
+# Data Classification Policy for Shugo
 # This policy defines data classification levels and handling requirements
 
 terms:
@@ -18,7 +18,7 @@ policy:
 
 overview:
   purpose: "To establish a framework for classifying and protecting data based on its sensitivity and value"
-  scope: "All data collected, processed, stored, or transmitted by PeerVault"
+  scope: "All data collected, processed, stored, or transmitted by Shugo"
   compliance: ["GDPR", "HIPAA", "SOC 2", "ISO 27001", "PCI DSS"]
 
 data_classification_levels:

@@ -1,4 +1,4 @@
-# PeerVault Test Script for Windows
+# Shugo Test Script for Windows
 # Usage: .\scripts\test.ps1 [type]
 
 param(
@@ -7,7 +7,7 @@ param(
     [string]$Type = "all"
 )
 
-Write-Host "PeerVault Test Script for Windows" -ForegroundColor Green
+Write-Host "Shugo Test Script for Windows" -ForegroundColor Green
 Write-Host "Test Type: $Type" -ForegroundColor Yellow
 
 switch ($Type) {

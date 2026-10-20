@@ -1,7 +1,7 @@
-# PeerVault CLI Advanced Features Demo
+# Shugo CLI Advanced Features Demo
 # This script demonstrates the enhanced interactive features
 
-Write-Host "PeerVault CLI - Advanced Features Demo" -ForegroundColor Green
+Write-Host "Shugo CLI - Advanced Features Demo" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host
 
@@ -26,7 +26,7 @@ Write-Host
 
 # Create demo commands file
 $demoCommands = @"
-# PeerVault CLI Advanced Features Demo
+# Shugo CLI Advanced Features Demo
 # This demonstrates the enhanced interactive features
 
 # Show welcome message
@@ -110,13 +110,13 @@ Write-Host "  • Cross-platform terminal support" -ForegroundColor White
 Write-Host
 
 # Run the CLI with demo commands
-Get-Content "demo-commands.txt" | & "./bin/peervault-cli.exe"
+Get-Content "demo-commands.txt" | & "./bin/shugo-cli.exe"
 
 Write-Host
 Write-Host "Demo completed!" -ForegroundColor Green
 Write-Host
 Write-Host "To try the interactive features manually:" -ForegroundColor Cyan
-Write-Host "  ./bin/peervault-cli.exe" -ForegroundColor White
+Write-Host "  ./bin/shugo-cli.exe" -ForegroundColor White
 Write-Host
 Write-Host "Interactive features to try:" -ForegroundColor Cyan
 Write-Host "  • Type 'st' and press Tab for completion" -ForegroundColor White

@@ -8,15 +8,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/graphql"
-	"github.com/Skpow1234/Peervault/internal/api/grpc"
-	"github.com/Skpow1234/Peervault/internal/api/rest"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/config"
-	"github.com/Skpow1234/Peervault/internal/crypto"
-	"github.com/Skpow1234/Peervault/internal/peer"
-	"github.com/Skpow1234/Peervault/internal/storage"
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	"github.com/Skpow1234/Shugo/internal/api/graphql"
+	"github.com/Skpow1234/Shugo/internal/api/grpc"
+	"github.com/Skpow1234/Shugo/internal/api/rest"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/config"
+	"github.com/Skpow1234/Shugo/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/storage"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -518,19 +518,19 @@ api:
 	require.NoError(t, err)
 
 	// Set environment variables to override file values
-	require.NoError(t, os.Setenv("PEERVAULT_SERVER_DEBUG", "true"))
-	require.NoError(t, os.Setenv("PEERVAULT_LOGGING_LEVEL", "debug"))
-	require.NoError(t, os.Setenv("PEERVAULT_STORAGE_ROOT", "/env/storage"))
-	require.NoError(t, os.Setenv("PEERVAULT_API_REST_PORT", "8093"))
-	require.NoError(t, os.Setenv("PEERVAULT_API_GRAPHQL_PORT", "8094"))
-	require.NoError(t, os.Setenv("PEERVAULT_API_GRPC_PORT", "8095"))
+	require.NoError(t, os.Setenv("SHUGO_SERVER_DEBUG", "true"))
+	require.NoError(t, os.Setenv("SHUGO_LOGGING_LEVEL", "debug"))
+	require.NoError(t, os.Setenv("SHUGO_STORAGE_ROOT", "/env/storage"))
+	require.NoError(t, os.Setenv("SHUGO_API_REST_PORT", "8093"))
+	require.NoError(t, os.Setenv("SHUGO_API_GRAPHQL_PORT", "8094"))
+	require.NoError(t, os.Setenv("SHUGO_API_GRPC_PORT", "8095"))
 	defer func() {
-		require.NoError(t, os.Unsetenv("PEERVAULT_SERVER_DEBUG"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_LOGGING_LEVEL"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_STORAGE_ROOT"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_API_REST_PORT"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_API_GRAPHQL_PORT"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_API_GRPC_PORT"))
+		require.NoError(t, os.Unsetenv("SHUGO_SERVER_DEBUG"))
+		require.NoError(t, os.Unsetenv("SHUGO_LOGGING_LEVEL"))
+		require.NoError(t, os.Unsetenv("SHUGO_STORAGE_ROOT"))
+		require.NoError(t, os.Unsetenv("SHUGO_API_REST_PORT"))
+		require.NoError(t, os.Unsetenv("SHUGO_API_GRAPHQL_PORT"))
+		require.NoError(t, os.Unsetenv("SHUGO_API_GRPC_PORT"))
 	}()
 
 	// Create configuration manager

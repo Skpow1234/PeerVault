@@ -1,12 +1,12 @@
-# PeerVault Developer Portal
+# Shugo Developer Portal
 
-Welcome to the PeerVault Developer Portal! This is your comprehensive resource for building applications with PeerVault's distributed file storage system.
+Welcome to the Shugo Developer Portal! This is your comprehensive resource for building applications with Shugo's distributed file storage system.
 
 ## Quick Start
 
 ### 1. Get Started in 5 Minutes
 
-- [Installation Guide](guides/installation.md) - Set up PeerVault in minutes
+- [Installation Guide](guides/installation.md) - Set up Shugo in minutes
 - [First API Call](guides/first-api-call.md) - Make your first request
 - [Authentication](guides/authentication.md) - Secure your applications
 
@@ -28,7 +28,7 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 
 ### API Reference
 
-- [REST API Documentation](../api/peervault-rest-api.yaml) - Complete OpenAPI specification
+- [REST API Documentation](../api/shugo-rest-api.yaml) - Complete OpenAPI specification
 - [GraphQL Schema](../graphql/schema.graphql) - GraphQL schema definition
 - [gRPC Proto Definitions](../grpc/) - Protocol buffer definitions
 
@@ -40,7 +40,7 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 
 ### Guides and Tutorials
 
-- [Getting Started](guides/getting-started.md) - Your first PeerVault application
+- [Getting Started](guides/getting-started.md) - Your first Shugo application
 - [File Operations](guides/file-operations.md) - Upload, download, and manage files
 - [Peer Management](guides/peer-management.md) - Work with distributed peers
 - [Authentication & Security](guides/security.md) - Secure your applications
@@ -66,10 +66,10 @@ Welcome to the PeerVault Developer Portal! This is your comprehensive resource f
 
 ### Community Resources
 
-- [GitHub Repository](https://github.com/peervault/peervault) - Source code and issues
-- [Discord Community](https://discord.gg/peervault) - Chat with developers
-- [Stack Overflow](https://stackoverflow.com/questions/tagged/peervault) - Q&A and support
-- [Blog](https://blog.peervault.com) - Latest news and tutorials
+- [GitHub Repository](https://github.com/Skpow1234/Shugo) - Source code and issues
+- [Discord Community](https://discord.gg/shugo) - Chat with developers
+- [Stack Overflow](https://stackoverflow.com/questions/tagged/shugo) - Q&A and support
+- [Blog](https://blog.shugo.com) - Latest news and tutorials
 
 ## Use Cases
 

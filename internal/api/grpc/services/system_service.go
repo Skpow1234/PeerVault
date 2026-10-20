@@ -5,7 +5,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/Skpow1234/Peervault/proto/peervault"
+	"github.com/Skpow1234/Shugo/proto/shugo"
 )
 
 // SystemService provides system-related operations
@@ -21,8 +21,8 @@ func NewSystemService() *SystemService {
 }
 
 // GetSystemInfo retrieves system information
-func (s *SystemService) GetSystemInfo() (*peervault.SystemInfoResponse, error) {
-	return &peervault.SystemInfoResponse{
+func (s *SystemService) GetSystemInfo() (*shugo.SystemInfoResponse, error) {
+	return &shugo.SystemInfoResponse{
 		Version:       "1.0.0",
 		UptimeSeconds: int64(time.Since(s.startTime).Seconds()),
 		StartTime:     timestamppb.New(s.startTime),
@@ -34,8 +34,8 @@ func (s *SystemService) GetSystemInfo() (*peervault.SystemInfoResponse, error) {
 }
 
 // GetMetrics retrieves system metrics
-func (s *SystemService) GetMetrics() (*peervault.MetricsResponse, error) {
-	return &peervault.MetricsResponse{
+func (s *SystemService) GetMetrics() (*shugo.MetricsResponse, error) {
+	return &shugo.MetricsResponse{
 		RequestsTotal:       1250,
 		RequestsPerMinute:   12.5,
 		ActiveConnections:   8,
@@ -45,8 +45,8 @@ func (s *SystemService) GetMetrics() (*peervault.MetricsResponse, error) {
 }
 
 // HealthCheck performs a health check
-func (s *SystemService) HealthCheck() (*peervault.HealthResponse, error) {
-	return &peervault.HealthResponse{
+func (s *SystemService) HealthCheck() (*shugo.HealthResponse, error) {
+	return &shugo.HealthResponse{
 		Status:    "healthy",
 		Timestamp: timestamppb.Now(),
 		Version:   "1.0.0",
@@ -54,9 +54,9 @@ func (s *SystemService) HealthCheck() (*peervault.HealthResponse, error) {
 }
 
 // StreamSystemEvents streams system events
-func (s *SystemService) StreamSystemEvents() (<-chan *peervault.SystemEvent, error) {
+func (s *SystemService) StreamSystemEvents() (<-chan *shugo.SystemEvent, error) {
 	// Mock implementation - return a channel that will be closed
-	ch := make(chan *peervault.SystemEvent)
+	ch := make(chan *shugo.SystemEvent)
 	close(ch)
 	return ch, nil
 }

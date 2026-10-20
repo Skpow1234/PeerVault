@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/monitoring"
+	"github.com/Skpow1234/Shugo/internal/api/monitoring"
 )
 
 // MonitoringAPI provides high-level monitoring functionality

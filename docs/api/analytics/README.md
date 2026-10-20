@@ -1,6 +1,6 @@
 # API Analytics & Monitoring
 
-Comprehensive API usage analytics with detailed metrics and insights for the PeerVault REST API.
+Comprehensive API usage analytics with detailed metrics and insights for the Shugo REST API.
 
 ## Overview
 

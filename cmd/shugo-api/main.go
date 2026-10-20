@@ -9,19 +9,19 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/crypto"
-	"github.com/Skpow1234/Peervault/internal/peer"
-	"github.com/Skpow1234/Peervault/internal/storage"
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	"github.com/Skpow1234/Shugo/internal/api/rest"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/storage"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 func main() {
 	port := flag.Int("port", 8081, "Port to listen on")
 	listen := flag.String("listen", ":3010", "P2P listen address for the embedded fileserver")
 	bootstrap := flag.String("bootstrap", "", "Comma-separated bootstrap peer addresses")
-	storageRoot := flag.String("storage", "peervault-api-storage", "Storage root directory")
+	storageRoot := flag.String("storage", "shugo-api-storage", "Storage root directory")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{

@@ -5,19 +5,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/blockchain"
-	"github.com/Skpow1234/Peervault/internal/content"
-	"github.com/Skpow1234/Peervault/internal/edge"
-	"github.com/Skpow1234/Peervault/internal/iot"
-	"github.com/Skpow1234/Peervault/internal/ipfs"
-	"github.com/Skpow1234/Peervault/internal/ml"
+	"github.com/Skpow1234/Shugo/internal/blockchain"
+	"github.com/Skpow1234/Shugo/internal/content"
+	"github.com/Skpow1234/Shugo/internal/edge"
+	"github.com/Skpow1234/Shugo/internal/iot"
+	"github.com/Skpow1234/Shugo/internal/ipfs"
+	"github.com/Skpow1234/Shugo/internal/ml"
 )
 
 func TestContentAddressing(t *testing.T) {
 	contentAddresser := content.NewContentAddresser()
 
 	// Test data
-	testData := []byte("Hello, PeerVault! This is a test file for content addressing.")
+	testData := []byte("Hello, Shugo! This is a test file for content addressing.")
 
 	// Test content ID generation
 	contentID, err := contentAddresser.GenerateContentID(testData)

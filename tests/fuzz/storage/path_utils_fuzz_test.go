@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Skpow1234/Peervault/internal/storage"
+	"github.com/Skpow1234/Shugo/internal/storage"
 )
 
 // FuzzSanitizePath tests path sanitization with fuzz-generated data

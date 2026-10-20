@@ -136,7 +136,7 @@ jobs:
 
       - name: Replication Store-A / Get-B
         env:
-          PEERVAULT_AUTH_TOKEN: demo-auth-token-2024
+          SHUGO_AUTH_TOKEN: demo-auth-token-2024
         run: |
           go test -v -count=1 -timeout=3m \
             ./tests/integration/end-to-end/ \
@@ -204,15 +204,15 @@ jobs:
         shell: bash
         run: |
           mkdir -p bin
-          go build -trimpath -ldflags="-s -w" -o bin/peervault$(go env GOEXE) ./cmd/peervault
-          go build -trimpath -ldflags="-s -w" -o bin/peervault-node$(go env GOEXE) ./cmd/peervault-node
-          go build -trimpath -ldflags="-s -w" -o bin/peervault-api$(go env GOEXE) ./cmd/peervault-api
-          go build -trimpath -ldflags="-s -w" -o bin/peervault-config$(go env GOEXE) ./cmd/peervault-config
+          go build -trimpath -ldflags="-s -w" -o bin/shugo$(go env GOEXE) ./cmd/shugo
+          go build -trimpath -ldflags="-s -w" -o bin/shugo-node$(go env GOEXE) ./cmd/shugo-node
+          go build -trimpath -ldflags="-s -w" -o bin/shugo-api$(go env GOEXE) ./cmd/shugo-api
+          go build -trimpath -ldflags="-s -w" -o bin/shugo-config$(go env GOEXE) ./cmd/shugo-config
 
       - name: Smoke --help
         shell: bash
         run: |
-          ./bin/peervault-config$(go env GOEXE) -h >/dev/null 2>&1 || ./bin/peervault-config$(go env GOEXE) --help >/dev/null 2>&1 || true
+          ./bin/shugo-config$(go env GOEXE) -h >/dev/null 2>&1 || ./bin/shugo-config$(go env GOEXE) --help >/dev/null 2>&1 || true
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
@@ -244,20 +244,20 @@ jobs:
 
       - name: Build images
         run: |
-          docker build -t peervault-node:ci -f docker/Dockerfile.node .
-          docker build -t peervault-demo:ci -f docker/Dockerfile.demo .
+          docker build -t shugo-node:ci -f docker/Dockerfile.node .
+          docker build -t shugo-demo:ci -f docker/Dockerfile.demo .
 
       - name: Image smoke (-h exits via flag.Usage)
         run: |
           # Go flag accepts -h / -help and exits 0; timeout guards against accidental listen.
-          timeout 15s docker run --rm peervault-node:ci -h
-          timeout 15s docker run --rm peervault-demo:ci -h
+          timeout 15s docker run --rm shugo-node:ci -h
+          timeout 15s docker run --rm shugo-demo:ci -h
 
       - name: Trivy (HIGH/CRITICAL — warn only)
         uses: aquasecurity/trivy-action@0.28.0
         continue-on-error: true
         with:
-          image-ref: peervault-node:ci
+          image-ref: shugo-node:ci
           format: table
           severity: HIGH,CRITICAL
           exit-code: "0"
@@ -280,7 +280,7 @@ jobs:
 
       - name: Soft suites
         env:
-          PEERVAULT_AUTH_TOKEN: demo-auth-token-2024
+          SHUGO_AUTH_TOKEN: demo-auth-token-2024
         run: |
           set +e
           failed=0

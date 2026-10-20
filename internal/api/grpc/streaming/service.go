@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/Skpow1234/Peervault/proto/peervault"
+	"github.com/Skpow1234/Shugo/proto/shugo"
 )
 
 // StreamingService provides advanced streaming operations
@@ -26,7 +26,7 @@ type StreamingService struct {
 
 // EventBroadcaster manages event broadcasting to multiple streams
 type EventBroadcaster struct {
-	subscribers map[string]chan *peervault.FileOperationEvent
+	subscribers map[string]chan *shugo.FileOperationEvent
 	mutex       sync.RWMutex
 	logger      *slog.Logger
 }
@@ -41,7 +41,7 @@ func NewStreamingService(logger *slog.Logger) *StreamingService {
 	streamManager := NewStreamManager(config, logger)
 	multiplexer := NewStreamMultiplexer(logger)
 	eventBroadcaster := &EventBroadcaster{
-		subscribers: make(map[string]chan *peervault.FileOperationEvent),
+		subscribers: make(map[string]chan *shugo.FileOperationEvent),
 		logger:      logger,
 	}
 
@@ -95,13 +95,13 @@ func (s *StreamingService) CloseBidirectionalStream(streamID string) error {
 }
 
 // StreamFileOperationsWithRecovery streams file operations with error recovery
-func (s *StreamingService) StreamFileOperationsWithRecovery(ctx context.Context, streamID string) (<-chan *peervault.FileOperationEvent, error) {
+func (s *StreamingService) StreamFileOperationsWithRecovery(ctx context.Context, streamID string) (<-chan *shugo.FileOperationEvent, error) {
 	stream, err := s.CreateBidirectionalStream(ctx, streamID)
 	if err != nil {
 		return nil, err
 	}
 
-	eventChan := make(chan *peervault.FileOperationEvent, 100)
+	eventChan := make(chan *shugo.FileOperationEvent, 100)
 
 	// Start event generation goroutine
 	go s.generateFileOperationEvents(stream, eventChan)
@@ -110,13 +110,13 @@ func (s *StreamingService) StreamFileOperationsWithRecovery(ctx context.Context,
 }
 
 // StreamPeerEventsWithRecovery streams peer events with error recovery
-func (s *StreamingService) StreamPeerEventsWithRecovery(ctx context.Context, streamID string) (<-chan *peervault.PeerEvent, error) {
+func (s *StreamingService) StreamPeerEventsWithRecovery(ctx context.Context, streamID string) (<-chan *shugo.PeerEvent, error) {
 	stream, err := s.CreateBidirectionalStream(ctx, streamID)
 	if err != nil {
 		return nil, err
 	}
 
-	eventChan := make(chan *peervault.PeerEvent, 100)
+	eventChan := make(chan *shugo.PeerEvent, 100)
 
 	// Start event generation goroutine
 	go s.generatePeerEvents(stream, eventChan)
@@ -125,13 +125,13 @@ func (s *StreamingService) StreamPeerEventsWithRecovery(ctx context.Context, str
 }
 
 // StreamSystemEventsWithRecovery streams system events with error recovery
-func (s *StreamingService) StreamSystemEventsWithRecovery(ctx context.Context, streamID string) (<-chan *peervault.SystemEvent, error) {
+func (s *StreamingService) StreamSystemEventsWithRecovery(ctx context.Context, streamID string) (<-chan *shugo.SystemEvent, error) {
 	stream, err := s.CreateBidirectionalStream(ctx, streamID)
 	if err != nil {
 		return nil, err
 	}
 
-	eventChan := make(chan *peervault.SystemEvent, 100)
+	eventChan := make(chan *shugo.SystemEvent, 100)
 
 	// Start event generation goroutine
 	go s.generateSystemEvents(stream, eventChan)
@@ -140,7 +140,7 @@ func (s *StreamingService) StreamSystemEventsWithRecovery(ctx context.Context, s
 }
 
 // generateFileOperationEvents generates file operation events with error recovery
-func (s *StreamingService) generateFileOperationEvents(stream *BidirectionalStream, eventChan chan<- *peervault.FileOperationEvent) {
+func (s *StreamingService) generateFileOperationEvents(stream *BidirectionalStream, eventChan chan<- *shugo.FileOperationEvent) {
 	defer close(eventChan)
 	defer func() {
 		if err := s.CloseBidirectionalStream(stream.ID); err != nil {
@@ -157,7 +157,7 @@ func (s *StreamingService) generateFileOperationEvents(stream *BidirectionalStre
 	for {
 		select {
 		case <-ticker.C:
-			event := &peervault.FileOperationEvent{
+			event := &shugo.FileOperationEvent{
 				EventType: "periodic_check",
 				FileKey:   fmt.Sprintf("file_%d", time.Now().Unix()),
 				PeerId:    "local",
@@ -205,7 +205,7 @@ func (s *StreamingService) generateFileOperationEvents(stream *BidirectionalStre
 }
 
 // generatePeerEvents generates peer events with error recovery
-func (s *StreamingService) generatePeerEvents(stream *BidirectionalStream, eventChan chan<- *peervault.PeerEvent) {
+func (s *StreamingService) generatePeerEvents(stream *BidirectionalStream, eventChan chan<- *shugo.PeerEvent) {
 	defer close(eventChan)
 	defer func() {
 		if err := s.CloseBidirectionalStream(stream.ID); err != nil {
@@ -222,7 +222,7 @@ func (s *StreamingService) generatePeerEvents(stream *BidirectionalStream, event
 	for {
 		select {
 		case <-ticker.C:
-			event := &peervault.PeerEvent{
+			event := &shugo.PeerEvent{
 				EventType: "health_check",
 				PeerId:    fmt.Sprintf("peer_%d", time.Now().Unix()),
 				Timestamp: timestamppb.Now(),
@@ -269,7 +269,7 @@ func (s *StreamingService) generatePeerEvents(stream *BidirectionalStream, event
 }
 
 // generateSystemEvents generates system events with error recovery
-func (s *StreamingService) generateSystemEvents(stream *BidirectionalStream, eventChan chan<- *peervault.SystemEvent) {
+func (s *StreamingService) generateSystemEvents(stream *BidirectionalStream, eventChan chan<- *shugo.SystemEvent) {
 	defer close(eventChan)
 	defer func() {
 		if err := s.CloseBidirectionalStream(stream.ID); err != nil {
@@ -286,7 +286,7 @@ func (s *StreamingService) generateSystemEvents(stream *BidirectionalStream, eve
 	for {
 		select {
 		case <-ticker.C:
-			event := &peervault.SystemEvent{
+			event := &shugo.SystemEvent{
 				EventType: "status_update",
 				Component: "streaming_service",
 				Timestamp: timestamppb.Now(),
@@ -334,7 +334,7 @@ func (s *StreamingService) generateSystemEvents(stream *BidirectionalStream, eve
 }
 
 // BroadcastFileOperationEvent broadcasts a file operation event to all subscribers
-func (s *StreamingService) BroadcastFileOperationEvent(event *peervault.FileOperationEvent) {
+func (s *StreamingService) BroadcastFileOperationEvent(event *shugo.FileOperationEvent) {
 	s.eventBroadcaster.mutex.RLock()
 	defer s.eventBroadcaster.mutex.RUnlock()
 
@@ -349,7 +349,7 @@ func (s *StreamingService) BroadcastFileOperationEvent(event *peervault.FileOper
 }
 
 // SubscribeToFileOperationEvents subscribes to file operation events
-func (s *StreamingService) SubscribeToFileOperationEvents(subscriberID string) (<-chan *peervault.FileOperationEvent, error) {
+func (s *StreamingService) SubscribeToFileOperationEvents(subscriberID string) (<-chan *shugo.FileOperationEvent, error) {
 	s.eventBroadcaster.mutex.Lock()
 	defer s.eventBroadcaster.mutex.Unlock()
 
@@ -357,7 +357,7 @@ func (s *StreamingService) SubscribeToFileOperationEvents(subscriberID string) (
 		return nil, status.Error(codes.AlreadyExists, "subscriber already exists")
 	}
 
-	eventChan := make(chan *peervault.FileOperationEvent, 100)
+	eventChan := make(chan *shugo.FileOperationEvent, 100)
 	s.eventBroadcaster.subscribers[subscriberID] = eventChan
 
 	s.logger.Info("Subscribed to file operation events", "subscriber_id", subscriberID)
@@ -439,7 +439,7 @@ func (s *StreamingService) Close() error {
 		close(eventChan)
 		s.logger.Info("Closed subscriber", "subscriber_id", subscriberID)
 	}
-	s.eventBroadcaster.subscribers = make(map[string]chan *peervault.FileOperationEvent)
+	s.eventBroadcaster.subscribers = make(map[string]chan *shugo.FileOperationEvent)
 	s.eventBroadcaster.mutex.Unlock()
 
 	s.logger.Info("Streaming service closed")

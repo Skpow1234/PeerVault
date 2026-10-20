@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/graphql/types"
-	"github.com/Skpow1234/Peervault/internal/websocket"
+	"github.com/Skpow1234/Shugo/internal/api/graphql/types"
+	"github.com/Skpow1234/Shugo/internal/websocket"
 )
 
 // SubscriptionResolver handles GraphQL subscriptions with WebSocket support

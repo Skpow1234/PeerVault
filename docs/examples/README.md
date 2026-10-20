@@ -1,6 +1,6 @@
-# PeerVault Examples
+# Shugo Examples
 
-This directory contains comprehensive examples demonstrating how to use PeerVault's APIs and SDKs.
+This directory contains comprehensive examples demonstrating how to use Shugo's APIs and SDKs.
 
 ## Quick Start Examples
 
@@ -141,13 +141,13 @@ This directory contains comprehensive examples demonstrating how to use PeerVaul
 
 ## Prerequisites
 
-- PeerVault server running (see [installation guide](../../README.md))
+- Shugo server running (see [installation guide](../../README.md))
 - Appropriate SDK installed for your language
 - Basic knowledge of the chosen programming language
 
 ## Support
 
 - **Documentation**: [Full API documentation](../api/)
-- **Issues**: [GitHub Issues](https://github.com/peervault/peervault/issues)
-- **Community**: [Discord Server](https://discord.gg/peervault)
-- **Email**: <support@peervault.com>
+- **Issues**: [GitHub Issues](https://github.com/Skpow1234/Shugo/issues)
+- **Community**: [Discord Server](https://discord.gg/shugo)
+- **Email**: <support@shugo.com>

@@ -1,11 +1,11 @@
-# PeerVault Mock Server Configuration
+# Shugo Mock Server Configuration
 
 # Server configuration
 port: 3001
 host: "localhost"
 
 # OpenAPI specification file
-openapi_spec: "docs/api/peervault-rest-api.yaml"
+openapi_spec: "docs/api/shugo-rest-api.yaml"
 
 # Mock data directory
 mock_data_dir: "tests/api/mock-data"
@@ -19,7 +19,7 @@ enable_analytics: true
 # Default headers
 headers:
   Content-Type: "application/json"
-  X-Mock-Server: "peervault-mock"
+  X-Mock-Server: "shugo-mock"
 
 # Scenarios configuration
 scenarios:

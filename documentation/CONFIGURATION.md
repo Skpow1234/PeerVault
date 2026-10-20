@@ -1,8 +1,8 @@
-# PeerVault Configuration Management
+# Shugo Configuration Management
 
 ## Overview
 
-PeerVault provides a comprehensive configuration management system that supports hierarchical configuration loading, environment variable overrides, validation, and hot reloading. The system is designed to be flexible, secure, and easy to use across different deployment environments.
+Shugo provides a comprehensive configuration management system that supports hierarchical configuration loading, environment variable overrides, validation, and hot reloading. The system is designed to be flexible, secure, and easy to use across different deployment environments.
 
 ## Features
 
@@ -15,7 +15,7 @@ PeerVault provides a comprehensive configuration management system that supports
 
 ## Configuration Structure
 
-The PeerVault configuration is organized into logical sections:
+The Shugo configuration is organized into logical sections:
 
 ### Server Configuration
 
@@ -89,7 +89,7 @@ network:
 
 ```yaml
 security:
-  # Cluster key for encryption (set via environment variable PEERVAULT_CLUSTER_KEY)
+  # Cluster key for encryption (set via environment variable SHUGO_CLUSTER_KEY)
   cluster_key: ""
   
   # Authentication token
@@ -254,100 +254,100 @@ performance:
 
 ## Environment Variables
 
-All configuration values can be overridden using environment variables. The environment variable names follow the pattern `PEERVAULT_<SECTION>_<FIELD>`.
+All configuration values can be overridden using environment variables. The environment variable names follow the pattern `SHUGO_<SECTION>_<FIELD>`.
 
 ### Server Environment Variables
 
-- `PEERVAULT_NODE_ID` - Node ID
-- `PEERVAULT_LISTEN_ADDR` - Listen address
-- `PEERVAULT_DEBUG` - Enable debug mode
-- `PEERVAULT_SHUTDOWN_TIMEOUT` - Shutdown timeout
+- `SHUGO_NODE_ID` - Node ID
+- `SHUGO_LISTEN_ADDR` - Listen address
+- `SHUGO_DEBUG` - Enable debug mode
+- `SHUGO_SHUTDOWN_TIMEOUT` - Shutdown timeout
 
 ### Storage Environment Variables
 
-- `PEERVAULT_STORAGE_ROOT` - Storage root directory
-- `PEERVAULT_MAX_FILE_SIZE` - Maximum file size
-- `PEERVAULT_COMPRESSION` - Enable compression
-- `PEERVAULT_COMPRESSION_LEVEL` - Compression level
-- `PEERVAULT_DEDUPLICATION` - Enable deduplication
-- `PEERVAULT_CLEANUP_INTERVAL` - Cleanup interval
-- `PEERVAULT_RETENTION_PERIOD` - Retention period
+- `SHUGO_STORAGE_ROOT` - Storage root directory
+- `SHUGO_MAX_FILE_SIZE` - Maximum file size
+- `SHUGO_COMPRESSION` - Enable compression
+- `SHUGO_COMPRESSION_LEVEL` - Compression level
+- `SHUGO_DEDUPLICATION` - Enable deduplication
+- `SHUGO_CLEANUP_INTERVAL` - Cleanup interval
+- `SHUGO_RETENTION_PERIOD` - Retention period
 
 ### Network Environment Variables
 
-- `PEERVAULT_BOOTSTRAP_NODES` - Bootstrap nodes (comma-separated)
-- `PEERVAULT_CONNECTION_TIMEOUT` - Connection timeout
-- `PEERVAULT_READ_TIMEOUT` - Read timeout
-- `PEERVAULT_WRITE_TIMEOUT` - Write timeout
-- `PEERVAULT_KEEP_ALIVE_INTERVAL` - Keep-alive interval
-- `PEERVAULT_MAX_MESSAGE_SIZE` - Maximum message size
+- `SHUGO_BOOTSTRAP_NODES` - Bootstrap nodes (comma-separated)
+- `SHUGO_CONNECTION_TIMEOUT` - Connection timeout
+- `SHUGO_READ_TIMEOUT` - Read timeout
+- `SHUGO_WRITE_TIMEOUT` - Write timeout
+- `SHUGO_KEEP_ALIVE_INTERVAL` - Keep-alive interval
+- `SHUGO_MAX_MESSAGE_SIZE` - Maximum message size
 
 ### Security Environment Variables
 
-- `PEERVAULT_CLUSTER_KEY` - Cluster key for encryption
-- `PEERVAULT_AUTH_TOKEN` - Authentication token
-- `PEERVAULT_TLS` - Enable TLS
-- `PEERVAULT_TLS_CERT_FILE` - TLS certificate file
-- `PEERVAULT_TLS_KEY_FILE` - TLS key file
-- `PEERVAULT_KEY_ROTATION_INTERVAL` - Key rotation interval
-- `PEERVAULT_ENCRYPTION_AT_REST` - Enable encryption at rest
-- `PEERVAULT_ENCRYPTION_IN_TRANSIT` - Enable encryption in transit
+- `SHUGO_CLUSTER_KEY` - Cluster key for encryption
+- `SHUGO_AUTH_TOKEN` - Authentication token
+- `SHUGO_TLS` - Enable TLS
+- `SHUGO_TLS_CERT_FILE` - TLS certificate file
+- `SHUGO_TLS_KEY_FILE` - TLS key file
+- `SHUGO_KEY_ROTATION_INTERVAL` - Key rotation interval
+- `SHUGO_ENCRYPTION_AT_REST` - Enable encryption at rest
+- `SHUGO_ENCRYPTION_IN_TRANSIT` - Enable encryption in transit
 
 ### Logging Environment Variables
 
-- `PEERVAULT_LOG_LEVEL` - Log level (debug, info, warn, error)
-- `PEERVAULT_LOG_FORMAT` - Log format (json, text)
-- `PEERVAULT_LOG_FILE` - Log file path
-- `PEERVAULT_LOG_STRUCTURED` - Enable structured logging
-- `PEERVAULT_LOG_INCLUDE_SOURCE` - Include source location
-- `PEERVAULT_LOG_MAX_SIZE` - Max log file size (MB)
-- `PEERVAULT_LOG_MAX_FILES` - Max log files to keep
-- `PEERVAULT_LOG_MAX_AGE` - Max log file age
-- `PEERVAULT_LOG_COMPRESS` - Compress rotated logs
+- `SHUGO_LOG_LEVEL` - Log level (debug, info, warn, error)
+- `SHUGO_LOG_FORMAT` - Log format (json, text)
+- `SHUGO_LOG_FILE` - Log file path
+- `SHUGO_LOG_STRUCTURED` - Enable structured logging
+- `SHUGO_LOG_INCLUDE_SOURCE` - Include source location
+- `SHUGO_LOG_MAX_SIZE` - Max log file size (MB)
+- `SHUGO_LOG_MAX_FILES` - Max log files to keep
+- `SHUGO_LOG_MAX_AGE` - Max log file age
+- `SHUGO_LOG_COMPRESS` - Compress rotated logs
 
 ### API Environment Variables
 
 #### REST API
 
-- `PEERVAULT_REST_ENABLED` - Enable REST API
-- `PEERVAULT_REST_PORT` - REST API port
-- `PEERVAULT_REST_ALLOWED_ORIGINS` - Allowed origins (comma-separated)
-- `PEERVAULT_REST_RATE_LIMIT` - Rate limit per minute
-- `PEERVAULT_REST_AUTH_TOKEN` - REST auth token
+- `SHUGO_REST_ENABLED` - Enable REST API
+- `SHUGO_REST_PORT` - REST API port
+- `SHUGO_REST_ALLOWED_ORIGINS` - Allowed origins (comma-separated)
+- `SHUGO_REST_RATE_LIMIT` - Rate limit per minute
+- `SHUGO_REST_AUTH_TOKEN` - REST auth token
 
 #### GraphQL API
 
-- `PEERVAULT_GRAPHQL_ENABLED` - Enable GraphQL API
-- `PEERVAULT_GRAPHQL_PORT` - GraphQL API port
-- `PEERVAULT_GRAPHQL_PLAYGROUND` - Enable GraphQL Playground
-- `PEERVAULT_GRAPHQL_PATH` - GraphQL endpoint path
-- `PEERVAULT_GRAPHQL_PLAYGROUND_PATH` - Playground path
-- `PEERVAULT_GRAPHQL_ALLOWED_ORIGINS` - Allowed origins (comma-separated)
+- `SHUGO_GRAPHQL_ENABLED` - Enable GraphQL API
+- `SHUGO_GRAPHQL_PORT` - GraphQL API port
+- `SHUGO_GRAPHQL_PLAYGROUND` - Enable GraphQL Playground
+- `SHUGO_GRAPHQL_PATH` - GraphQL endpoint path
+- `SHUGO_GRAPHQL_PLAYGROUND_PATH` - Playground path
+- `SHUGO_GRAPHQL_ALLOWED_ORIGINS` - Allowed origins (comma-separated)
 
 #### gRPC API
 
-- `PEERVAULT_GRPC_ENABLED` - Enable gRPC API
-- `PEERVAULT_GRPC_PORT` - gRPC API port
-- `PEERVAULT_GRPC_AUTH_TOKEN` - gRPC auth token
-- `PEERVAULT_GRPC_REFLECTION` - Enable reflection
-- `PEERVAULT_GRPC_MAX_STREAMS` - Max concurrent streams
+- `SHUGO_GRPC_ENABLED` - Enable gRPC API
+- `SHUGO_GRPC_PORT` - gRPC API port
+- `SHUGO_GRPC_AUTH_TOKEN` - gRPC auth token
+- `SHUGO_GRPC_REFLECTION` - Enable reflection
+- `SHUGO_GRPC_MAX_STREAMS` - Max concurrent streams
 
 ### Peer Environment Variables
 
-- `PEERVAULT_MAX_PEERS` - Maximum number of peers
-- `PEERVAULT_HEARTBEAT_INTERVAL` - Heartbeat interval
-- `PEERVAULT_HEALTH_TIMEOUT` - Health timeout
-- `PEERVAULT_RECONNECT_BACKOFF` - Reconnection backoff
-- `PEERVAULT_MAX_RECONNECT_ATTEMPTS` - Max reconnection attempts
+- `SHUGO_MAX_PEERS` - Maximum number of peers
+- `SHUGO_HEARTBEAT_INTERVAL` - Heartbeat interval
+- `SHUGO_HEALTH_TIMEOUT` - Health timeout
+- `SHUGO_RECONNECT_BACKOFF` - Reconnection backoff
+- `SHUGO_MAX_RECONNECT_ATTEMPTS` - Max reconnection attempts
 
 ### Performance Environment Variables
 
-- `PEERVAULT_MAX_STREAMS_PER_PEER` - Max concurrent streams per peer
-- `PEERVAULT_STREAM_BUFFER_SIZE` - Stream buffer size
-- `PEERVAULT_CONNECTION_POOL_SIZE` - Connection pool size
-- `PEERVAULT_ENABLE_MULTIPLEXING` - Enable connection multiplexing
-- `PEERVAULT_CACHE_SIZE` - Cache size (MB)
-- `PEERVAULT_CACHE_TTL` - Cache TTL
+- `SHUGO_MAX_STREAMS_PER_PEER` - Max concurrent streams per peer
+- `SHUGO_STREAM_BUFFER_SIZE` - Stream buffer size
+- `SHUGO_CONNECTION_POOL_SIZE` - Connection pool size
+- `SHUGO_ENABLE_MULTIPLEXING` - Enable connection multiplexing
+- `SHUGO_CACHE_SIZE` - Cache size (MB)
+- `SHUGO_CACHE_TTL` - Cache TTL
 
 ## Usage
 
@@ -358,12 +358,12 @@ package main
 
 import (
     "log"
-    "github.com/Skpow1234/Peervault/internal/config"
+    "github.com/Skpow1234/Shugo/internal/config"
 )
 
 func main() {
     // Create configuration manager
-    manager := config.NewManager("config/peervault.yaml")
+    manager := config.NewManager("config/shugo.yaml")
     
     // Add validators
     manager.AddValidator(&config.DefaultValidator{})
@@ -426,47 +426,47 @@ manager.AddValidator(&CustomValidator{})
 
 ## Configuration Management Tool
 
-PeerVault includes a command-line tool for configuration management:
+Shugo includes a command-line tool for configuration management:
 
 ### Generate Default Configuration
 
 ```bash
 # Generate default YAML configuration
-./peervault-config -generate -format yaml -output config/peervault.yaml
+./shugo-config -generate -format yaml -output config/shugo.yaml
 
 # Generate JSON configuration
-./peervault-config -generate -format json -output config/peervault.json
+./shugo-config -generate -format json -output config/shugo.json
 ```
 
 ### Validate Configuration
 
 ```bash
 # Validate configuration file
-./peervault-config -validate -config config/peervault.yaml
+./shugo-config -validate -config config/shugo.yaml
 ```
 
 ### Show Configuration
 
 ```bash
 # Show current configuration in YAML format
-./peervault-config -show -format yaml
+./shugo-config -show -format yaml
 
 # Show current configuration in JSON format
-./peervault-config -show -format json
+./shugo-config -show -format json
 ```
 
 ### Show Environment Mappings
 
 ```bash
 # Show all environment variable mappings
-./peervault-config -env
+./shugo-config -env
 ```
 
 ### Watch Configuration
 
 ```bash
 # Watch configuration file for changes
-./peervault-config -watch -config config/peervault.yaml
+./shugo-config -watch -config config/shugo.yaml
 ```
 
 ## Validation Rules
@@ -566,7 +566,7 @@ server:
   shutdown_timeout: "60s"
 
 storage:
-  root: "/data/peervault"
+  root: "/data/shugo"
   max_file_size: 1073741824
   compression: true
   compression_level: 6
@@ -574,7 +574,7 @@ storage:
 logging:
   level: "info"
   format: "json"
-  file: "/var/log/peervault/app.log"
+  file: "/var/log/shugo/app.log"
   structured: true
   rotation:
     max_size: 100
@@ -599,8 +599,8 @@ api:
 
 security:
   tls: true
-  tls_cert_file: "/etc/ssl/certs/peervault.crt"
-  tls_key_file: "/etc/ssl/private/peervault.key"
+  tls_cert_file: "/etc/ssl/certs/shugo.crt"
+  tls_key_file: "/etc/ssl/private/shugo.key"
   encryption_at_rest: true
   encryption_in_transit: true
 
@@ -639,11 +639,11 @@ api:
     port: 8082
 
 security:
-  auth_token: "${PEERVAULT_AUTH_TOKEN}"
-  cluster_key: "${PEERVAULT_CLUSTER_KEY}"
+  auth_token: "${SHUGO_AUTH_TOKEN}"
+  cluster_key: "${SHUGO_CLUSTER_KEY}"
 
 network:
-  bootstrap_nodes: "${PEERVAULT_BOOTSTRAP_NODES}"
+  bootstrap_nodes: "${SHUGO_BOOTSTRAP_NODES}"
 ```
 
 ## Troubleshooting
@@ -659,10 +659,10 @@ network:
 
 ```bash
 # Enable debug logging
-export PEERVAULT_LOG_LEVEL=debug
+export SHUGO_LOG_LEVEL=debug
 
 # Show configuration with debug info
-./peervault-config -show -config config/peervault.yaml
+./shugo-config -show -config config/shugo.yaml
 ```
 
 ### Validation Errors

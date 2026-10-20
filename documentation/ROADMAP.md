@@ -1,6 +1,6 @@
-# PeerVault Roadmap
+# Shugo Roadmap
 
-This roadmap organizes improvements by priority and theme. It reflects issues and opportunities identified across the codebase (`internal/app/fileserver`, `internal/transport/p2p`, `internal/storage`, `internal/crypto`, `cmd/peervault`).
+This roadmap organizes improvements by priority and theme. It reflects issues and opportunities identified across the codebase (`internal/app/fileserver`, `internal/transport/p2p`, `internal/storage`, `internal/crypto`, `cmd/shugo`).
 
 ## Guiding goals
 
@@ -47,7 +47,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
   - B) Per-file keys derived from a KDF and exchanged via handshake.
   - C) Per-connection session keys (handshake), encrypt-in-transit only, plaintext at rest (or vice versa).
 - Start with A) for demo simplicity; document B/C as next steps.
-- Touchpoints: `cmd/peervault/main.go`, config, handshake.
+- Touchpoints: `cmd/shugo/main.go`, config, handshake.
 
 5 Add authenticated transport handshake
 
@@ -72,7 +72,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Problem: Relies on arbitrary delays instead of explicit acknowledgments.
 - Solution: Replace with proper request-response protocol using acknowledgments.
 - Acceptance: No `time.Sleep` calls in protocol logic; explicit acks for all operations.
-- Touchpoints: `internal/app/fileserver/server.go`, `cmd/peervault/main.go`.
+- Touchpoints: `internal/app/fileserver/server.go`, `cmd/shugo/main.go`.
 
 2 True streaming replication without buffering to memory
 
@@ -124,18 +124,18 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 
 - Cap per-peer concurrent streams; add throttling; propagate cancellations with `context.Context`.
 - Acceptance: Per-peer concurrent stream limits enforced, rate limiting applied, context cancellation propagated throughout the system.
-- Touchpoints: `internal/peer/resource_manager.go`, `internal/app/fileserver/server.go`, `cmd/peervault/main.go`.
+- Touchpoints: `internal/peer/resource_manager.go`, `internal/app/fileserver/server.go`, `cmd/shugo/main.go`.
 
 3 Windows portability
 
 - Sanitize `StorageRoot` to avoid `:` in directory names; fix in code (not only README).
-- Touchpoints: `cmd/peervault/main.go`, `internal/storage` defaults.
+- Touchpoints: `cmd/shugo/main.go`, `internal/storage` defaults.
 
 4 Containerization and multi-node runs
 
 - Provide multi-container examples (one node per container) with a compose file; document ports and bootstrap.
 - Acceptance: Multi-container deployment with Docker Compose, separate node containers, demo client, comprehensive documentation.
-- Touchpoints: `docker-compose.yml`, `Dockerfile.node`, `Dockerfile.demo`, `cmd/peervault-node/`, `cmd/peervault-demo/`, `CONTAINERIZATION.md`.
+- Touchpoints: `docker-compose.yml`, `Dockerfile.node`, `Dockerfile.demo`, `cmd/shugo-node/`, `cmd/shugo-demo/`, `CONTAINERIZATION.md`.
 
 5 Developer tooling
 
@@ -153,7 +153,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement GraphQL API with schema-first design for file operations, peer management, and system monitoring.
 - Features: Flexible queries, real-time subscriptions, file metadata queries, peer network graph, performance metrics.
 - Acceptance: GraphQL schema, query/mutation/subscription support, introspection, GraphQL Playground, authentication.
-- Touchpoints: `internal/api/graphql/`, `internal/schema/`, `cmd/peervault-graphql/`, `docs/graphql/`.
+- Touchpoints: `internal/api/graphql/`, `internal/schema/`, `cmd/shugo-graphql/`, `docs/graphql/`.
 - Tests: We want to have integration and unit tests for this
 
 2 REST API interface (Complementary)
@@ -162,7 +162,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement REST API alongside GraphQL for simple CRUD operations and webhook integrations.
 - Features: File upload/download, basic peer operations, health checks, webhook endpoints.
 - Acceptance: RESTful endpoints, OpenAPI/Swagger documentation, authentication, rate limiting.
-- Touchpoints: `internal/api/rest/`, `cmd/peervault-api/`, `internal/handlers/`, `docs/api/`.
+- Touchpoints: `internal/api/rest/`, `cmd/shugo-api/`, `internal/handlers/`, `docs/api/`.
 - Tests: We want to have integration and unit tests for this
 
 3 gRPC API interface (High-performance)
@@ -171,7 +171,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement gRPC service with protobuf definitions for streaming file operations and peer management.
 - Features: Bidirectional streaming, service discovery, load balancing support, high-throughput operations.
 - Acceptance: gRPC client libraries, streaming file transfer, service health checks, protobuf definitions.
-- Touchpoints: `internal/api/grpc/`, `proto/`, `cmd/peervault-grpc/`, `docs/grpc/`.
+- Touchpoints: `internal/api/grpc/`, `proto/`, `cmd/shugo-grpc/`, `docs/grpc/`.
 - Tests: We want to have integration and unit tests for this
 
 4 Configuration management system
@@ -180,13 +180,13 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement hierarchical configuration with file-based config, environment overrides, and validation.
 - Features: YAML/JSON config files, environment variable support, configuration validation, hot reloading.
 - Acceptance: Centralized configuration, validation rules, documentation, examples.
-- Touchpoints: `internal/config/`, `config/`, `cmd/peervault/config.go`.
+- Touchpoints: `internal/config/`, `config/`, `cmd/shugo/config.go`.
 - Tests: We want to have integration and unit tests for this
 
 5 Developer documentation and API reference
 
 - Problem: No comprehensive developer documentation, API reference, or interactive documentation.
-- Solution: Implement comprehensive documentation with Swagger/OpenAPI, GraphQL Playground, and developer guides here C:\Users\jfhvj\Desktop\peervault\docs
+- Solution: Implement comprehensive documentation with Swagger/OpenAPI, GraphQL Playground, and developer guides here C:\Users\jfhvj\Desktop\shugo\docs
 - Features: Interactive API documentation, code examples, SDK documentation, integration guides, tutorials.
 - Acceptance: Swagger UI, GraphQL Playground, comprehensive docs, code examples, SDK documentation.
 - Touchpoints: `docs/`, `docs/api/`, `docs/graphql/`, `docs/sdk/`, `docs/examples/`.
@@ -197,7 +197,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Design plugin system for storage providers, authentication mechanisms, and transport layers.
 - Features: Plugin discovery, lifecycle management, configuration injection, error handling.
 - Acceptance: Plugin SDK, example plugins, documentation, testing framework.
-- Touchpoints: `internal/plugins/`, `plugins/`, `cmd/peervault-plugin/`.
+- Touchpoints: `internal/plugins/`, `plugins/`, `cmd/shugo-plugin/`.
 - Tests: We want to have integration and unit tests for this
 
 ---
@@ -286,7 +286,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement Prometheus metrics, health checks, alerting rules, and monitoring dashboards.
 - Features: Custom metrics, histograms, counters, gauges, alerting, Grafana dashboards.
 - Acceptance: Full observability stack, production-ready monitoring, alerting rules.
-- Touchpoints: `internal/metrics/`, `internal/health/`, `monitoring/`, `cmd/peervault-monitor/`.
+- Touchpoints: `internal/metrics/`, `internal/health/`, `monitoring/`, `cmd/shugo-monitor/`.
 
 2 Distributed tracing
 
@@ -294,7 +294,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement OpenTelemetry tracing with Jaeger/Zipkin integration for request tracking.
 - Features: Trace propagation, span correlation, sampling, trace visualization.
 - Acceptance: End-to-end request tracing, performance analysis, debugging capabilities.
-- Touchpoints: `internal/tracing/`, `internal/telemetry/`, `cmd/peervault-trace/`.
+- Touchpoints: `internal/tracing/`, `internal/telemetry/`, `cmd/shugo-trace/`.
 
 3 Structured logging and log aggregation
 
@@ -302,7 +302,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Enhance logging with structured fields, log levels, log rotation, and aggregation.
 - Features: JSON logging, log correlation IDs, log shipping, log analysis tools.
 - Acceptance: Production-ready logging, log aggregation, log analysis capabilities.
-- Touchpoints: `internal/logging/`, `internal/logger/`, `cmd/peervault-logger/`.
+- Touchpoints: `internal/logging/`, `internal/logger/`, `cmd/shugo-logger/`.
 
 4 Backup and disaster recovery
 
@@ -310,7 +310,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement automated backups, point-in-time recovery, data replication strategies.
 - Features: Incremental backups, backup verification, recovery procedures, backup scheduling.
 - Acceptance: Automated backup system, recovery procedures, backup monitoring.
-- Touchpoints: `internal/backup/`, `internal/recovery/`, `cmd/peervault-backup/`.
+- Touchpoints: `internal/backup/`, `internal/recovery/`, `cmd/shugo-backup/`.
 
 ---
 
@@ -346,7 +346,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement PKI infrastructure, certificate lifecycle management, certificate rotation.
 - Features: Certificate generation, validation, rotation, PKI management.
 - Acceptance: PKI infrastructure, certificate management, security compliance.
-- Touchpoints: `internal/pki/`, `internal/certs/`, `cmd/peervault-pki/`.
+- Touchpoints: `internal/pki/`, `internal/certs/`, `cmd/shugo-pki/`.
 
 ---
 
@@ -358,7 +358,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement content addressing, IPFS compatibility, CID support, DAG structures.
 - Features: Content addressing, IPFS compatibility, CID support, DAG structures.
 - Acceptance: IPFS compatibility, content addressing, ecosystem integration.
-- Touchpoints: `internal/content/`, `internal/ipfs/`, `cmd/peervault-ipfs/`.
+- Touchpoints: `internal/content/`, `internal/ipfs/`, `cmd/shugo-ipfs/`.
 
 2 Blockchain integration and smart contracts
 
@@ -366,7 +366,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement blockchain integration, smart contract support, decentralized identity.
 - Features: Blockchain integration, smart contracts, decentralized identity, token economics.
 - Acceptance: Blockchain integration, smart contract support, decentralized features.
-- Touchpoints: `internal/blockchain/`, `internal/smartcontracts/`, `cmd/peervault-chain/`.
+- Touchpoints: `internal/blockchain/`, `internal/smartcontracts/`, `cmd/shugo-chain/`.
 
 3 Machine learning and AI integration
 
@@ -374,7 +374,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement ML-based file classification, optimization, and intelligent caching.
 - Features: File classification, optimization algorithms, intelligent caching, ML models.
 - Acceptance: ML integration, intelligent features, optimization capabilities.
-- Touchpoints: `internal/ml/`, `internal/ai/`, `cmd/peervault-ml/`.
+- Touchpoints: `internal/ml/`, `internal/ai/`, `cmd/shugo-ml/`.
 
 4 Edge computing and IoT support
 
@@ -382,7 +382,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement edge computing support, IoT device integration, lightweight protocols.
 - Features: Edge computing, IoT support, lightweight protocols, resource optimization.
 - Acceptance: Edge computing support, IoT integration, resource optimization.
-- Touchpoints: `internal/edge/`, `internal/iot/`, `cmd/peervault-edge/`.
+- Touchpoints: `internal/edge/`, `internal/iot/`, `cmd/shugo-edge/`.
 
 ---
 
@@ -402,7 +402,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement GraphQL federation for multi-service composition.
 - Features: Schema federation, service composition, distributed GraphQL, schema stitching.
 - Acceptance: Multiple services can compose GraphQL schemas, federation gateway working.
-- Touchpoints: `internal/api/graphql/federation/`, `cmd/peervault-federation/`, `docs/graphql/federation/`.
+- Touchpoints: `internal/api/graphql/federation/`, `cmd/shugo-federation/`, `docs/graphql/federation/`.
 
 3 Advanced Caching
 
@@ -438,7 +438,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Upgrade to OpenAPI 3.1 with latest features and specifications.
 - Features: OpenAPI 3.1 schema, webhooks support, JSON Schema 2020-12, enhanced validation.
 - Acceptance: OpenAPI 3.1 specification complete, validation working, documentation updated.
-- Touchpoints: `docs/api/peervault-rest-api.yaml`, `internal/api/rest/openapi/`, `docs/api/`.
+- Touchpoints: `docs/api/shugo-rest-api.yaml`, `internal/api/rest/openapi/`, `docs/api/`.
 
 2 API Versioning Strategy
 
@@ -462,7 +462,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement API gateway with routing, transformation, and management features.
 - Features: Request routing, response transformation, API composition, traffic management.
 - Acceptance: API gateway routing working, transformations functional, management interface available.
-- Touchpoints: `internal/api/gateway/`, `cmd/peervault-gateway/`, `docs/api/gateway/`.
+- Touchpoints: `internal/api/gateway/`, `cmd/shugo-gateway/`, `docs/api/gateway/`.
 
 5 Webhook Management
 
@@ -534,7 +534,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement mock server generation from OpenAPI specifications.
 - Features: Mock server generation, response customization, scenario testing, mock analytics.
 - Acceptance: Mock servers generated, responses customizable, scenarios testable, analytics available.
-- Touchpoints: `internal/api/mocking/`, `cmd/peervault-mock/`, `docs/api/mocking/`.
+- Touchpoints: `internal/api/mocking/`, `cmd/shugo-mock/`, `docs/api/mocking/`.
 
 3 API Contract Testing
 
@@ -570,7 +570,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement WebSocket API for real-time communication and live updates.
 - Features: WebSocket connections, real-time messaging, connection management, message queuing.
 - Acceptance: WebSocket API working, real-time communication functional, connection management stable.
-- Touchpoints: `internal/api/websocket/`, `cmd/peervault-websocket/`, `docs/api/websocket/`.
+- Touchpoints: `internal/api/websocket/`, `cmd/shugo-websocket/`, `docs/api/websocket/`.
 
 2 Server-Sent Events
 
@@ -586,7 +586,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement MQTT broker and client support for IoT device integration.
 - Features: MQTT broker, client support, QoS levels, topic management, message persistence.
 - Acceptance: MQTT broker running, client connections working, QoS levels supported, topics manageable.
-- Touchpoints: `internal/api/mqtt/`, `cmd/peervault-mqtt/`, `docs/api/mqtt/`.
+- Touchpoints: `internal/api/mqtt/`, `cmd/shugo-mqtt/`, `docs/api/mqtt/`.
 
 4 CoAP Support
 
@@ -594,7 +594,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement CoAP support for lightweight IoT device communication.
 - Features: CoAP server, client support, resource management, observation patterns.
 - Acceptance: CoAP server running, client support working, resources manageable, observations functional.
-- Touchpoints: `internal/api/coap/`, `cmd/peervault-coap/`, `docs/api/coap/`.
+- Touchpoints: `internal/api/coap/`, `cmd/shugo-coap/`, `docs/api/coap/`.
 
 5 Protocol Translation
 
@@ -858,7 +858,7 @@ This roadmap organizes improvements by priority and theme. It reflects issues an
 - Solution: Implement full-featured blockchain explorer with search and analysis capabilities.
 - Features: Block explorer, transaction search, address analysis, block analysis, explorer APIs.
 - Acceptance: Explorer functional, search working, addresses analyzed, blocks examined, APIs available.
-- Touchpoints: `internal/blockchain/explorer/`, `cmd/peervault-explorer/`, `docs/blockchain/explorer/`.
+- Touchpoints: `internal/blockchain/explorer/`, `cmd/shugo-explorer/`, `docs/blockchain/explorer/`.
 
 5 Compliance Reporting
 
@@ -1646,7 +1646,7 @@ Crypto (`internal/crypto`)
 - Implement AEAD helpers with nonce management, AAD, and constant-time checks.
 - Replace MD5 with SHA-256/HMAC-SHA-256; provide `HashKey()` and `HashKeyHMAC(secret, key)`.
 
-Entrypoint (`cmd/peervault/main.go`)
+Entrypoint (`cmd/shugo/main.go`)
 
 - Provide config/env for a cluster key (demo); sanitize `StorageRoot` for Windows.
 - Optionally split nodes into separate processes for more realistic demos.
@@ -1671,7 +1671,7 @@ Entrypoint (`cmd/peervault/main.go`)
 
 ### Multi-API Approach
 
-PeerVault implements a comprehensive multi-API strategy to serve different use cases and developer preferences:
+Shugo implements a comprehensive multi-API strategy to serve different use cases and developer preferences:
 
 #### **GraphQL API (Primary)**
 

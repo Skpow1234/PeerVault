@@ -1,18 +1,18 @@
-# PeerVault CLI Demo Script
+# Shugo CLI Demo Script
 # This script demonstrates the CLI functionality
 
-Write-Host "PeerVault CLI Demo" -ForegroundColor Green
+Write-Host "Shugo CLI Demo" -ForegroundColor Green
 Write-Host "====================" -ForegroundColor Green
 Write-Host ""
 
 # Build the CLI if it doesn't exist
-if (-not (Test-Path "bin/peervault-cli.exe")) {
+if (-not (Test-Path "bin/shugo-cli.exe")) {
     Write-Host "Building CLI..." -ForegroundColor Yellow
-    go build -o bin/peervault-cli.exe ./cmd/peervault-cli
+    go build -o bin/shugo-cli.exe ./cmd/shugo-cli
     Write-Host "CLI built successfully" -ForegroundColor Green
 }
 
-Write-Host "Starting PeerVault CLI Demo..." -ForegroundColor Blue
+Write-Host "Starting Shugo CLI Demo..." -ForegroundColor Blue
 Write-Host ""
 
 # Create a demo script file
@@ -34,7 +34,7 @@ Write-Host "Running CLI with demo commands..." -ForegroundColor Cyan
 Write-Host ""
 
 # Run the CLI with the demo script
-Get-Content $tempFile | ./bin/peervault-cli.exe
+Get-Content $tempFile | ./bin/shugo-cli.exe
 
 # Clean up
 Remove-Item $tempFile
@@ -43,4 +43,4 @@ Write-Host ""
 Write-Host "Demo completed!" -ForegroundColor Green
 Write-Host ""
 Write-Host "To run the CLI interactively, use:" -ForegroundColor Yellow
-Write-Host "  ./bin/peervault-cli.exe" -ForegroundColor White
+Write-Host "  ./bin/shugo-cli.exe" -ForegroundColor White

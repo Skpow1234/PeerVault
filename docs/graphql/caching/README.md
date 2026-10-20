@@ -1,6 +1,6 @@
 # GraphQL Advanced Caching
 
-This document describes the advanced caching system implemented in PeerVault's GraphQL layer, providing intelligent query result caching with sophisticated invalidation strategies.
+This document describes the advanced caching system implemented in Shugo's GraphQL layer, providing intelligent query result caching with sophisticated invalidation strategies.
 
 ## Overview
 

@@ -131,16 +131,16 @@ func TestLoadFromFile_UnsupportedFormat(t *testing.T) {
 func TestLoadFromEnvironment(t *testing.T) {
 	// Set environment variables
 	envVars := map[string]string{
-		"PEERVAULT_LISTEN_ADDR":   ":6000",
-		"PEERVAULT_DEBUG":         "true",
-		"PEERVAULT_STORAGE_ROOT":  "/env/storage",
-		"PEERVAULT_MAX_FILE_SIZE": "3221225472",
-		"PEERVAULT_REST_PORT":     "9090",
-		"PEERVAULT_GRAPHQL_PORT":  "9091",
-		"PEERVAULT_GRPC_PORT":     "9092",
-		"PEERVAULT_LOG_LEVEL":     "debug",
-		"PEERVAULT_MAX_PEERS":     "50",
-		"PEERVAULT_CACHE_SIZE":    "200",
+		"SHUGO_LISTEN_ADDR":   ":6000",
+		"SHUGO_DEBUG":         "true",
+		"SHUGO_STORAGE_ROOT":  "/env/storage",
+		"SHUGO_MAX_FILE_SIZE": "3221225472",
+		"SHUGO_REST_PORT":     "9090",
+		"SHUGO_GRAPHQL_PORT":  "9091",
+		"SHUGO_GRPC_PORT":     "9092",
+		"SHUGO_LOG_LEVEL":     "debug",
+		"SHUGO_MAX_PEERS":     "50",
+		"SHUGO_CACHE_SIZE":    "200",
 	}
 
 	// Set environment variables
@@ -184,11 +184,11 @@ storage:
 	require.NoError(t, err)
 
 	// Set environment variable to override file
-	assert.NoError(t, os.Setenv("PEERVAULT_LISTEN_ADDR", ":7000"))
-	assert.NoError(t, os.Setenv("PEERVAULT_STORAGE_ROOT", "/env/storage"))
+	assert.NoError(t, os.Setenv("SHUGO_LISTEN_ADDR", ":7000"))
+	assert.NoError(t, os.Setenv("SHUGO_STORAGE_ROOT", "/env/storage"))
 	defer func() {
-		assert.NoError(t, os.Unsetenv("PEERVAULT_LISTEN_ADDR"))
-		assert.NoError(t, os.Unsetenv("PEERVAULT_STORAGE_ROOT"))
+		assert.NoError(t, os.Unsetenv("SHUGO_LISTEN_ADDR"))
+		assert.NoError(t, os.Unsetenv("SHUGO_STORAGE_ROOT"))
 	}()
 
 	manager := NewManager(configPath)

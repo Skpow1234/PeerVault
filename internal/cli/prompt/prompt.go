@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Skpow1234/Peervault/internal/cli/completion"
-	"github.com/Skpow1234/Peervault/internal/cli/config"
-	"github.com/Skpow1234/Peervault/internal/cli/history"
+	"github.com/Skpow1234/Shugo/internal/cli/completion"
+	"github.com/Skpow1234/Shugo/internal/cli/config"
+	"github.com/Skpow1234/Shugo/internal/cli/history"
 )
 
 var ErrEOF = fmt.Errorf("EOF")
@@ -301,9 +301,9 @@ func (p *Prompt) refreshLine() {
 // printPrompt prints the current prompt
 func (p *Prompt) printPrompt() {
 	if p.context != "" {
-		fmt.Printf("peervault[%s]> ", p.context)
+		fmt.Printf("shugo[%s]> ", p.context)
 	} else {
-		fmt.Print("peervault> ")
+		fmt.Print("shugo> ")
 	}
 }
 

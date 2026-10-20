@@ -1,12 +1,12 @@
 {
-  "name": "@peervault/grpc-client",
+  "name": "@shugo/grpc-client",
   "version": "1.0.0",
-  "description": "PeerVault gRPC-Web TypeScript client",
+  "description": "Shugo gRPC-Web TypeScript client",
   "main": "dist/client.js",
   "types": "dist/client.d.ts",
   "scripts": {
     "build": "npm run generate && npm run compile",
-    "generate": "protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --ts_out=./generated --js_out=import_style=commonjs,binary:./generated --grpc-web_out=import_style=typescript,mode=grpcwebtext:./generated ../../../proto/peervault.proto",
+    "generate": "protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --ts_out=./generated --js_out=import_style=commonjs,binary:./generated --grpc-web_out=import_style=typescript,mode=grpcwebtext:./generated ../../../proto/shugo.proto",
     "compile": "tsc",
     "clean": "rm -rf dist generated",
     "prepublishOnly": "npm run build"
@@ -24,11 +24,11 @@
     "grpc",
     "grpc-web",
     "typescript",
-    "peervault",
+    "shugo",
     "p2p",
     "storage"
   ],
-  "author": "PeerVault Team",
+  "author": "Shugo Team",
   "license": "MIT",
   "files": [
     "dist/",

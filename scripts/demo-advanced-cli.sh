@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# PeerVault CLI Advanced Features Demo
+# Shugo CLI Advanced Features Demo
 # This script demonstrates the enhanced interactive features
 
-echo "PeerVault CLI - Advanced Features Demo"
+echo "Shugo CLI - Advanced Features Demo"
 echo "=========================================="
 echo
 
@@ -28,7 +28,7 @@ echo
 
 # Create demo commands file
 cat > demo-commands.txt << 'EOF'
-# PeerVault CLI Advanced Features Demo
+# Shugo CLI Advanced Features Demo
 # This demonstrates the enhanced interactive features
 
 # Show welcome message
@@ -110,13 +110,13 @@ echo "  • Cross-platform terminal support"
 echo
 
 # Run the CLI with demo commands
-./bin/peervault-cli < demo-commands.txt
+./bin/shugo-cli < demo-commands.txt
 
 echo
 echo "Demo completed!"
 echo
 echo "To try the interactive features manually:"
-echo "  ./bin/peervault-cli"
+echo "  ./bin/shugo-cli"
 echo
 echo "Interactive features to try:"
 echo "  • Type 'st' and press Tab for completion"

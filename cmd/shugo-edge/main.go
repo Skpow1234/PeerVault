@@ -8,7 +8,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/edge"
+	"github.com/Skpow1234/Shugo/internal/edge"
 )
 
 func main() {
@@ -351,8 +351,8 @@ func handleMetricsCommand(ctx context.Context, edgeManager *edge.EdgeComputingMa
 }
 
 func showHelp() {
-	fmt.Printf("PeerVault Edge Computing Tool\n\n")
-	fmt.Printf("Usage: peervault-edge -command <command> [options]\n\n")
+	fmt.Printf("Shugo Edge Computing Tool\n\n")
+	fmt.Printf("Usage: shugo-edge -command <command> [options]\n\n")
 	fmt.Printf("Commands:\n")
 	fmt.Printf("  node      Manage edge computing nodes\n")
 	fmt.Printf("  task      Manage edge computing tasks\n")
@@ -363,9 +363,9 @@ func showHelp() {
 	fmt.Printf("  -task-id <id>     Task ID (for task-specific operations)\n")
 	fmt.Printf("  -help             Show this help message\n\n")
 	fmt.Printf("Examples:\n")
-	fmt.Printf("  peervault-edge -command node\n")
-	fmt.Printf("  peervault-edge -command task\n")
-	fmt.Printf("  peervault-edge -command metrics\n")
+	fmt.Printf("  shugo-edge -command node\n")
+	fmt.Printf("  shugo-edge -command task\n")
+	fmt.Printf("  shugo-edge -command metrics\n")
 }
 
 // calculateDistance calculates the distance between two locations using Haversine formula

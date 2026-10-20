@@ -63,7 +63,7 @@ func (cm *CertificateManager) GenerateSelfSignedCert(name, subject string, valid
 	template := x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
-			Organization:  []string{"PeerVault"},
+			Organization:  []string{"Shugo"},
 			Country:       []string{"US"},
 			Province:      []string{""},
 			Locality:      []string{"San Francisco"},
@@ -129,7 +129,7 @@ func (cm *CertificateManager) GenerateCSR(name, subject string) ([]byte, error) 
 	// Create CSR template
 	template := x509.CertificateRequest{
 		Subject: pkix.Name{
-			Organization:  []string{"PeerVault"},
+			Organization:  []string{"Shugo"},
 			Country:       []string{"US"},
 			Province:      []string{""},
 			Locality:      []string{"San Francisco"},

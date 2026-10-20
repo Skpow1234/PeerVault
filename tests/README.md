@@ -1,6 +1,6 @@
-# PeerVault Testing
+# Shugo Testing
 
-This directory contains all tests for the PeerVault project, organized by type and functionality.
+This directory contains all tests for the Shugo project, organized by type and functionality.
 
 ## Directory Structure
 

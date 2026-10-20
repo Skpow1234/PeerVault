@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/performance"
+	"github.com/Skpow1234/Shugo/internal/api/performance"
 )
 
 func TestLoadTest(t *testing.T) {

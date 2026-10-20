@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/Skpow1234/Peervault/internal/storage"
+	"github.com/Skpow1234/Shugo/internal/storage"
 )
 
 func TestWindowsPortability(t *testing.T) {

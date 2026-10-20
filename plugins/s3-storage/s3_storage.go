@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/plugins"
+	"github.com/Skpow1234/Shugo/internal/plugins"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -41,7 +41,7 @@ func (p *S3StoragePlugin) Version() string {
 }
 
 func (p *S3StoragePlugin) Description() string {
-	return "Amazon S3 storage backend for PeerVault"
+	return "Amazon S3 storage backend for Shugo"
 }
 
 func (p *S3StoragePlugin) Type() plugins.PluginType {

@@ -1,6 +1,6 @@
 # GraphQL Analytics
 
-This document describes the comprehensive GraphQL analytics and monitoring system implemented in PeerVault, providing detailed insights into query performance, system metrics, and operational intelligence.
+This document describes the comprehensive GraphQL analytics and monitoring system implemented in Shugo, providing detailed insights into query performance, system metrics, and operational intelligence.
 
 ## Overview
 

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/Skpow1234/Peervault/internal/api/grpc"
+	"github.com/Skpow1234/Shugo/internal/api/grpc"
 )
 
 func TestGRPCServerCreation(t *testing.T) {

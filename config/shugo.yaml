@@ -1,5 +1,5 @@
-# PeerVault Configuration File
-# This file contains all configuration options for the PeerVault distributed storage system
+# Shugo Configuration File
+# This file contains all configuration options for the Shugo distributed storage system
 
 # Server Configuration
 server:
@@ -62,7 +62,7 @@ network:
 
 # Security Configuration
 security:
-  # Cluster key for encryption (set via environment variable PEERVAULT_CLUSTER_KEY)
+  # Cluster key for encryption (set via environment variable SHUGO_CLUSTER_KEY)
   cluster_key: ""
   
   # Authentication token

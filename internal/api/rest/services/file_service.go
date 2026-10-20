@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/types"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types"
 )
 
 // FileService defines the interface for file operations

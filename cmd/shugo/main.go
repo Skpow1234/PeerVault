@@ -10,12 +10,12 @@ import (
 	"os"
 	"time"
 
-	fs "github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/crypto"
-	"github.com/Skpow1234/Peervault/internal/logging"
-	"github.com/Skpow1234/Peervault/internal/peer"
-	"github.com/Skpow1234/Peervault/internal/storage"
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	fs "github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/logging"
+	"github.com/Skpow1234/Shugo/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/storage"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 func makeServer(listenAddr string, keyManager *crypto.KeyManager, nodes ...string) *fs.Server {
@@ -49,11 +49,11 @@ func main() {
 	}
 	logging.ConfigureLogger(logLevel)
 
-	slog.Info("starting PeerVault application", "log_level", logLevel)
+	slog.Info("starting Shugo application", "log_level", logLevel)
 
 	// Shared cluster key so all local demo nodes can decrypt replicated ciphertext.
 	clusterKey := make([]byte, 32)
-	copy(clusterKey, []byte("peervault-demo-cluster-key-32b!!"))
+	copy(clusterKey, []byte("shugo-demo-cluster-key-32b!!"))
 	keyManager, err := crypto.NewKeyManagerFromClusterKey(clusterKey)
 	if err != nil {
 		log.Fatal(err)

@@ -21,7 +21,7 @@ docker compose -f docker-compose.apis.yml up -d --build
 
 ## REST API (`:8080`)
 
-Docs UI: `/docs` · OpenAPI JSON: `/swagger.json` · Spec file: [api/peervault-rest-api.yaml](api/peervault-rest-api.yaml)
+Docs UI: `/docs` · OpenAPI JSON: `/swagger.json` · Spec file: [api/shugo-rest-api.yaml](api/shugo-rest-api.yaml)
 
 ### System
 
@@ -133,4 +133,4 @@ Additional servers exist as separate binaries/docs (not all started by default c
 
 - WebSocket — [api/websocket/README.md](api/websocket/README.md)
 - Protocol translation — [api/translation/README.md](api/translation/README.md)
-- MQTT / CoAP / SSE — see `cmd/peervault-mqtt`, `cmd/peervault-coap`, `cmd/peervault-sse`
+- MQTT / CoAP / SSE — see `cmd/shugo-mqtt`, `cmd/shugo-coap`, `cmd/shugo-sse`

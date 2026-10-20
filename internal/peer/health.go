@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 // HealthStatus represents the health status of a peer

@@ -1,11 +1,11 @@
-# PeerVault Makefile
+# Shugo Makefile
 # Cross-platform build and development tasks
 
 .PHONY: help build build-all run test clean fmt lint docker-build docker-run build-cli
 
 # Default target
 help:
-	@echo "PeerVault Development Commands:"
+	@echo "Shugo Development Commands:"
 	@echo ""
 	@echo "Build Commands:"
 	@echo "  build        - Build main application"
@@ -44,31 +44,31 @@ help:
 build:
 	@echo "Building main application..."
 	@mkdir -p bin
-	@go build -o bin/peervault ./cmd/peervault
+	@go build -o bin/shugo ./cmd/shugo
 	@echo "Main application built successfully"
 
 build-node:
 	@echo "Building node binary..."
 	@mkdir -p bin
-	@go build -o bin/peervault-node ./cmd/peervault-node
+	@go build -o bin/shugo-node ./cmd/shugo-node
 	@echo "Node binary built successfully"
 
 build-demo:
 	@echo "Building demo client..."
 	@mkdir -p bin
-	@go build -o bin/peervault-demo ./cmd/peervault-demo
+	@go build -o bin/shugo-demo ./cmd/shugo-demo
 	@echo "Demo client built successfully"
 
 build-config:
 	@echo "Building configuration tool..."
 	@mkdir -p bin
-	@go build -o bin/peervault-config ./cmd/peervault-config
+	@go build -o bin/shugo-config ./cmd/shugo-config
 	@echo "Configuration tool built successfully"
 
 build-cli:
 	@echo "Building CLI tool..."
 	@mkdir -p bin
-	@go build -o bin/peervault-cli ./cmd/peervault-cli
+	@go build -o bin/shugo-cli ./cmd/shugo-cli
 	@echo "CLI tool built successfully"
 
 build-all: build build-node build-demo build-config build-cli
@@ -77,19 +77,19 @@ build-all: build build-node build-demo build-config build-cli
 # Run targets
 run: build
 	@echo "Running main application..."
-	@./bin/peervault
+	@./bin/shugo
 
 run-node: build-node
 	@echo "Running individual node..."
-	@./bin/peervault-node --listen :3000
+	@./bin/shugo-node --listen :3000
 
 run-demo: build-demo
 	@echo "Running demo client..."
-	@./bin/peervault-demo --target localhost:5000
+	@./bin/shugo-demo --target localhost:5000
 
 run-cli: build-cli
 	@echo "Running CLI tool..."
-	@./bin/peervault-cli
+	@./bin/shugo-cli
 
 # Test targets
 test:
@@ -115,7 +115,7 @@ clean:
 	@rm -rf *_network/
 	@rm -rf node*_network/
 	@rm -rf demo-client-data/
-	@rm -rf peervault-*_data/
+	@rm -rf shugo-*_data/
 	@go clean -cache -testcache
 	@echo "Cleaned build artifacts"
 
@@ -141,9 +141,9 @@ mod-tidy:
 # Docker targets
 docker-build:
 	@echo "Building Docker images..."
-	@docker build -t peervault .
-	@docker build -f Dockerfile.node -t peervault-node .
-	@docker build -f Dockerfile.demo -t peervault-demo .
+	@docker build -t shugo .
+	@docker build -f Dockerfile.node -t shugo-node .
+	@docker build -f Dockerfile.demo -t shugo-demo .
 	@echo "Docker images built"
 
 docker-run:

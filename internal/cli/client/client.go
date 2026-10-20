@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/config"
+	"github.com/Skpow1234/Shugo/internal/cli/config"
 )
 
-// Client represents a PeerVault API client
+// Client represents a Shugo API client
 type Client struct {
 	config     *config.Config
 	httpClient *http.Client

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the structured logging system implemented in the PeerVault distributed storage system.
+This document describes the structured logging system implemented in the Shugo distributed storage system.
 
 ## Logging Architecture
 
@@ -55,7 +55,7 @@ slog.Debug("processing request", "request_id", "abc123")
 The logging package provides helper functions for common contexts:
 
 ```go
-import "github.com/Skpow1234/Peervault/internal/logging"
+import "github.com/Skpow1234/Shugo/internal/logging"
 
 // Component-specific logger
 logger := logging.Logger("fileserver")
@@ -290,21 +290,21 @@ func TestLogLevels(t *testing.T) {
 
 ```bash
 export LOG_LEVEL=debug
-./peervault
+./shugo
 ```
 
 ### Production Environment
 
 ```bash
 export LOG_LEVEL=info
-./peervault > app.log 2>&1
+./shugo > app.log 2>&1
 ```
 
 ### Docker Environment
 
 ```dockerfile
 ENV LOG_LEVEL=info
-CMD ["./peervault"]
+CMD ["./shugo"]
 ```
 
 ## Best Practices
@@ -359,4 +359,4 @@ Never log:
 
 ## Conclusion
 
-The structured logging system provides comprehensive observability for the PeerVault application, enabling effective monitoring, debugging, and operational insights while maintaining good performance characteristics.
+The structured logging system provides comprehensive observability for the Shugo application, enabling effective monitoring, debugging, and operational insights while maintaining good performance characteristics.

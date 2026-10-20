@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	fs "github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/crypto"
-	"github.com/Skpow1234/Peervault/internal/logging"
-	"github.com/Skpow1234/Peervault/internal/peer"
-	"github.com/Skpow1234/Peervault/internal/storage"
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	fs "github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/logging"
+	"github.com/Skpow1234/Shugo/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/storage"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 // TestBasicStoreGet tests the basic store and get operations
@@ -23,7 +23,7 @@ func TestBasicStoreGet(t *testing.T) {
 	logging.ConfigureLogger("info")
 
 	// Create test data
-	testData := []byte("Hello, PeerVault! This is a test file for end-to-end testing.")
+	testData := []byte("Hello, Shugo! This is a test file for end-to-end testing.")
 	testKey := fmt.Sprintf("test_file_%d.txt", time.Now().UnixNano())
 
 	// Create server 1 (bootstrap node)
@@ -270,7 +270,7 @@ func TestLargeFileStreaming(t *testing.T) {
 
 // sharedTestKeyManager ensures all test nodes decrypt with the same key.
 var sharedTestKeyManager = func() *crypto.KeyManager {
-	km, err := crypto.NewKeyManagerFromClusterKey([]byte("peervault-test-cluster-key-32byt"))
+	km, err := crypto.NewKeyManagerFromClusterKey([]byte("shugo-test-cluster-key-32byt"))
 	if err != nil {
 		panic(err)
 	}

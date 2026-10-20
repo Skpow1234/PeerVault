@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/Skpow1234/Peervault/internal/content"
-	"github.com/Skpow1234/Peervault/internal/ipfs"
+	"github.com/Skpow1234/Shugo/internal/content"
+	"github.com/Skpow1234/Shugo/internal/ipfs"
 )
 
 func main() {
@@ -243,8 +243,8 @@ func listFiles(ctx context.Context, ipfsCompat *ipfs.IPFSCompatibility) {
 }
 
 func showHelp() {
-	fmt.Printf("PeerVault IPFS Compatibility Tool\n\n")
-	fmt.Printf("Usage: peervault-ipfs -command <command> [options]\n\n")
+	fmt.Printf("Shugo IPFS Compatibility Tool\n\n")
+	fmt.Printf("Usage: shugo-ipfs -command <command> [options]\n\n")
 	fmt.Printf("Commands:\n")
 	fmt.Printf("  add     Add a file to IPFS storage\n")
 	fmt.Printf("  get     Retrieve a file by CID\n")
@@ -261,10 +261,10 @@ func showHelp() {
 	fmt.Printf("  -output <path>   Output file path (for get command)\n")
 	fmt.Printf("  -help            Show this help message\n\n")
 	fmt.Printf("Examples:\n")
-	fmt.Printf("  peervault-ipfs -command add -file example.txt\n")
-	fmt.Printf("  peervault-ipfs -command get -cid QmHash -output retrieved.txt\n")
-	fmt.Printf("  peervault-ipfs -command cat -cid QmHash\n")
-	fmt.Printf("  peervault-ipfs -command stat -cid QmHash\n")
-	fmt.Printf("  peervault-ipfs -command pin -cid QmHash\n")
-	fmt.Printf("  peervault-ipfs -command list\n")
+	fmt.Printf("  shugo-ipfs -command add -file example.txt\n")
+	fmt.Printf("  shugo-ipfs -command get -cid QmHash -output retrieved.txt\n")
+	fmt.Printf("  shugo-ipfs -command cat -cid QmHash\n")
+	fmt.Printf("  shugo-ipfs -command stat -cid QmHash\n")
+	fmt.Printf("  shugo-ipfs -command pin -cid QmHash\n")
+	fmt.Printf("  shugo-ipfs -command list\n")
 }

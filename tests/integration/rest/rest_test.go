@@ -11,14 +11,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types/requests"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types/responses"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/crypto"
-	"github.com/Skpow1234/Peervault/internal/peer"
-	"github.com/Skpow1234/Peervault/internal/storage"
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	"github.com/Skpow1234/Shugo/internal/api/rest"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types/requests"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types/responses"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/storage"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 func setupTestServer() *rest.Server {
@@ -30,7 +30,7 @@ func setupTestServer() *rest.Server {
 
 func setupTestServerWithFS(t *testing.T) *rest.Server {
 	t.Helper()
-	km, err := crypto.NewKeyManagerFromClusterKey([]byte("peervault-test-cluster-key-32byt"))
+	km, err := crypto.NewKeyManagerFromClusterKey([]byte("shugo-test-cluster-key-32byt"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,8 +140,8 @@ func TestRESTAPIRoot(t *testing.T) {
 		t.Fatalf("Failed to decode response: %v", err)
 	}
 
-	if response["message"] != "PeerVault REST API" {
-		t.Errorf("Expected message 'PeerVault REST API', got '%v'", response["message"])
+	if response["message"] != "Shugo REST API" {
+		t.Errorf("Expected message 'Shugo REST API', got '%v'", response["message"])
 	}
 }
 
@@ -163,7 +163,7 @@ func TestRESTAPIFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := part.Write([]byte("hello peervault")); err != nil {
+	if _, err := part.Write([]byte("hello shugo")); err != nil {
 		t.Fatal(err)
 	}
 	if err := writer.Close(); err != nil {

@@ -247,7 +247,7 @@ func (fs *FederationServer) HealthHandler(w http.ResponseWriter, r *http.Request
 	health := map[string]interface{}{
 		"status":          "healthy",
 		"timestamp":       time.Now().UTC(),
-		"service":         "peervault-federation-gateway",
+		"service":         "shugo-federation-gateway",
 		"totalServices":   totalServices,
 		"healthyServices": len(healthyServices),
 	}

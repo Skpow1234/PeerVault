@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/analytics"
-	"github.com/Skpow1234/Peervault/internal/api/monitoring"
-	"github.com/Skpow1234/Peervault/internal/api/rest/endpoints"
-	"github.com/Skpow1234/Peervault/internal/api/rest/implementations"
-	"github.com/Skpow1234/Peervault/internal/api/rest/ratelimit"
-	"github.com/Skpow1234/Peervault/internal/api/rest/versioning"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/api/analytics"
+	"github.com/Skpow1234/Shugo/internal/api/monitoring"
+	"github.com/Skpow1234/Shugo/internal/api/rest/endpoints"
+	"github.com/Skpow1234/Shugo/internal/api/rest/implementations"
+	"github.com/Skpow1234/Shugo/internal/api/rest/ratelimit"
+	"github.com/Skpow1234/Shugo/internal/api/rest/versioning"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
 )
 
 type Server struct {

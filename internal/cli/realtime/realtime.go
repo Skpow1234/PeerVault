@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/websocket"
+	"github.com/Skpow1234/Shugo/internal/cli/websocket"
 )
 
 // Manager manages real-time updates for the CLI

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/Skpow1234/Peervault/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/crypto"
 )
 
 // TestEncryptionAtRest verifies that data is encrypted when stored locally

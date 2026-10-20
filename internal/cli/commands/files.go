@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/files"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/files"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
 )
 
 // VersionCommand handles file versioning operations

@@ -13,5 +13,5 @@
     body:
       status: "healthy"
       timestamp: "2024-01-01T00:00:00Z"
-      service: "peervault-mock"
+      service: "shugo-mock"
   enabled: true

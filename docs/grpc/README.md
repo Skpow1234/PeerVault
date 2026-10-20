@@ -1,6 +1,6 @@
-# PeerVault gRPC API
+# Shugo gRPC API
 
-The PeerVault gRPC API provides high-performance, streaming-capable access to the PeerVault distributed file storage system.
+The Shugo gRPC API provides high-performance, streaming-capable access to the Shugo distributed file storage system.
 
 ## Overview
 
@@ -39,9 +39,9 @@ Start the gRPC service via Docker compose.
 
 ## API Services
 
-### PeerVaultService
+### ShugoService
 
-The main service providing all PeerVault operations:
+The main service providing all Shugo operations:
 
 #### File Operations
 
@@ -160,7 +160,7 @@ message MetricsResponse {
 ### File Upload (Streaming)
 
 ```go
-func uploadFile(client PeerVaultServiceClient, filePath, fileKey string) error {
+func uploadFile(client ShugoServiceClient, filePath, fileKey string) error {
     file, err := os.Open(filePath)
     if err != nil {
         return err
@@ -223,7 +223,7 @@ func uploadFile(client PeerVaultServiceClient, filePath, fileKey string) error {
 ### File Download (Streaming)
 
 ```go
-func downloadFile(client PeerVaultServiceClient, fileKey, outputPath string) error {
+func downloadFile(client ShugoServiceClient, fileKey, outputPath string) error {
     req := &FileRequest{Key: fileKey}
     stream, err := client.DownloadFile(context.Background(), req)
     if err != nil {
@@ -261,7 +261,7 @@ func downloadFile(client PeerVaultServiceClient, fileKey, outputPath string) err
 ### Event Streaming
 
 ```go
-func streamFileOperations(client PeerVaultServiceClient) error {
+func streamFileOperations(client ShugoServiceClient) error {
     stream, err := client.StreamFileOperations(context.Background(), &Empty{})
     if err != nil {
         return err
@@ -317,7 +317,7 @@ The gRPC API uses standard gRPC status codes:
 import (
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials/insecure"
-    pb "github.com/Skpow1234/Peervault/proto/peervault"
+    pb "github.com/Skpow1234/Shugo/proto/shugo"
 )
 
 conn, err := grpc.Dial("localhost:8082", grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -326,7 +326,7 @@ if err != nil {
 }
 defer conn.Close()
 
-client := pb.NewPeerVaultServiceClient(conn)
+client := pb.NewShugoServiceClient(conn)
 ```
 
 ### Other Languages

@@ -1,11 +1,11 @@
-# PeerVault Go SDK
+# Shugo Go SDK
 
-Official Go SDK for PeerVault distributed file storage system.
+Official Go SDK for Shugo distributed file storage system.
 
 ## Installation
 
 ```bash
-go get github.com/peervault/peervault-sdk-go
+go get github.com/Skpow1234/Shugo
 ```
 
 ## Quick Start
@@ -18,12 +18,12 @@ import (
     "fmt"
     "log"
     
-    "github.com/peervault/peervault-sdk-go"
+    "github.com/Skpow1234/Shugo"
 )
 
 func main() {
     // Create client
-    client, err := peervault.NewClient("http://localhost:8080")
+    client, err := shugo.NewClient("http://localhost:8080")
     if err != nil {
         log.Fatal(err)
     }
@@ -94,7 +94,7 @@ reader, err := client.Files.DownloadReader(ctx, "my-key")
 ### List Files
 
 ```go
-files, err := client.Files.List(ctx, &peervault.ListOptions{
+files, err := client.Files.List(ctx, &shugo.ListOptions{
     Limit:  10,
     Offset: 0,
     Prefix: "documents/",
@@ -133,7 +133,7 @@ fmt.Printf("Health: %s (uptime: %s)\n", health.Status, health.Uptime)
 
 ```go
 // Create GraphQL client
-gqlClient := peervault.NewGraphQLClient("http://localhost:8081")
+gqlClient := shugo.NewGraphQLClient("http://localhost:8081")
 
 // Execute query
 var result struct {
@@ -157,7 +157,7 @@ err := gqlClient.Query(ctx, `
 
 ```go
 // Create gRPC client
-grpcClient, err := peervault.NewGRPCClient("localhost:9090")
+grpcClient, err := shugo.NewGRPCClient("localhost:9090")
 if err != nil {
     log.Fatal(err)
 }
@@ -190,7 +190,7 @@ response, err := stream.CloseAndRecv()
 ## Configuration
 
 ```go
-client, err := peervault.NewClient("http://localhost:8080", &peervault.Config{
+client, err := shugo.NewClient("http://localhost:8080", &shugo.Config{
     Timeout:     30 * time.Second,
     Retries:     3,
     RateLimit:   100, // requests per minute
@@ -204,11 +204,11 @@ client, err := peervault.NewClient("http://localhost:8080", &peervault.Config{
 result, err := client.Files.Upload(ctx, "key", file)
 if err != nil {
     switch e := err.(type) {
-    case *peervault.FileNotFoundError:
+    case *shugo.FileNotFoundError:
         fmt.Printf("File not found: %s\n", e.Key)
-    case *peervault.RateLimitError:
+    case *shugo.RateLimitError:
         fmt.Printf("Rate limited: retry after %s\n", e.RetryAfter)
-    case *peervault.AuthError:
+    case *shugo.AuthError:
         fmt.Printf("Authentication failed: %s\n", e.Message)
     default:
         fmt.Printf("Unexpected error: %v\n", err)
@@ -245,7 +245,7 @@ result, err := uploader.Finish()
 
 ```go
 // Register webhook
-webhook, err := client.Webhooks.Create(ctx, &peervault.WebhookConfig{
+webhook, err := client.Webhooks.Create(ctx, &shugo.WebhookConfig{
     URL:    "https://your-app.com/webhook",
     Events: []string{"file.uploaded", "file.deleted"},
     Secret: "webhook-secret",
@@ -253,7 +253,7 @@ webhook, err := client.Webhooks.Create(ctx, &peervault.WebhookConfig{
 
 // Verify webhook signature
 func verifyWebhook(payload []byte, signature string, secret string) bool {
-    return peervault.VerifyWebhookSignature(payload, signature, secret)
+    return shugo.VerifyWebhookSignature(payload, signature, secret)
 }
 ```
 

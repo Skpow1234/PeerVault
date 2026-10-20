@@ -1,6 +1,6 @@
 # Plugins
 
-PeerVault defines a plugin-oriented extension model for storage, auth, transport, and processing.
+Shugo defines a plugin-oriented extension model for storage, auth, transport, and processing.
 
 ## Plugin types
 
@@ -14,7 +14,7 @@ PeerVault defines a plugin-oriented extension model for storage, auth, transport
 ```go
 package s3_storage
 
-import "github.com/Skpow1234/Peervault/internal/plugins"
+import "github.com/Skpow1234/Shugo/internal/plugins"
 
 type S3StoragePlugin struct {
 	bucket string

@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/edge"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/edge"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
 )
 
 // EdgeCommand handles edge computing commands

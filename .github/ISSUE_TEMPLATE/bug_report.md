@@ -27,7 +27,7 @@ A clear and concise description of what actually happened.
 
 - OS: [e.g. Ubuntu 22.04, Windows 11, macOS 13]
 - Go version: [e.g. 1.21.0]
-- PeerVault version: [e.g. 1.0.0]
+- Shugo version: [e.g. 1.0.0]
 - Architecture: [e.g. amd64, arm64]
 
 **Additional context**

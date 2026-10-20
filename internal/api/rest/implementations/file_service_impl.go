@@ -7,12 +7,12 @@ import (
 	"io"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/services"
-	"github.com/Skpow1234/Peervault/internal/api/rest/types"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/api/rest/services"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
 )
 
-// FileServiceImpl serves REST file operations backed by a PeerVault fileserver.
+// FileServiceImpl serves REST file operations backed by a Shugo fileserver.
 type FileServiceImpl struct {
 	server *fileserver.Server
 }

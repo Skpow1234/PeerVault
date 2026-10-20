@@ -1,10 +1,10 @@
 # Milestone 9 — Advanced Features and Ecosystem
 
-This document describes the advanced features and ecosystem integration capabilities implemented in Milestone 9 of PeerVault.
+This document describes the advanced features and ecosystem integration capabilities implemented in Milestone 9 of Shugo.
 
 ## Overview
 
-Milestone 9 introduces cutting-edge features that position PeerVault as a next-generation distributed storage system with advanced capabilities:
+Milestone 9 introduces cutting-edge features that position Shugo as a next-generation distributed storage system with advanced capabilities:
 
 - **Content Addressing & IPFS Compatibility**: Full IPFS compatibility with CID support and DAG structures
 - **Blockchain Integration**: Smart contracts, decentralized identity, and token economics
@@ -215,71 +215,71 @@ err := iotManager.SendSensorData(ctx, sensorData)
 
 ## Command-Line Tools
 
-### IPFS Tool (`cmd/peervault-ipfs/`)
+### IPFS Tool (`cmd/shugo-ipfs/`)
 
 ```bash
 # Add file to IPFS
-peervault-ipfs -command add -file example.txt
+shugo-ipfs -command add -file example.txt
 
 # Get file by CID
-peervault-ipfs -command get -cid QmHash -output retrieved.txt
+shugo-ipfs -command get -cid QmHash -output retrieved.txt
 
 # Display file content
-peervault-ipfs -command cat -cid QmHash
+shugo-ipfs -command cat -cid QmHash
 
 # Show file statistics
-peervault-ipfs -command stat -cid QmHash
+shugo-ipfs -command stat -cid QmHash
 
 # Pin file
-peervault-ipfs -command pin -cid QmHash
+shugo-ipfs -command pin -cid QmHash
 
 # List storage statistics
-peervault-ipfs -command list
+shugo-ipfs -command list
 ```
 
-### Blockchain Tool (`cmd/peervault-chain/`)
+### Blockchain Tool (`cmd/shugo-chain/`)
 
 ```bash
 # List networks
-peervault-chain -command network
+shugo-chain -command network
 
 # Deploy contract
-peervault-chain -command deploy -network ethereum
+shugo-chain -command deploy -network ethereum
 
 # Create identity
-peervault-chain -command identity -network ethereum
+shugo-chain -command identity -network ethereum
 
 # Send transaction
-peervault-chain -command transaction -network ethereum
+shugo-chain -command transaction -network ethereum
 ```
 
-### Machine Learning Tool (`cmd/peervault-ml/`)
+### Machine Learning Tool (`cmd/shugo-ml/`)
 
 ```bash
 # Classify file
-peervault-ml -command classify -file example.txt
+shugo-ml -command classify -file example.txt
 
 # Optimize file
-peervault-ml -command optimize -file example.jpg
+shugo-ml -command optimize -file example.jpg
 
 # Predict cache access
-peervault-ml -command predict -file example.pdf
+shugo-ml -command predict -file example.pdf
 
 # Train model
-peervault-ml -command train -model my_model
+shugo-ml -command train -model my_model
 ```
 
-### Edge Computing Tool (`cmd/peervault-edge/`)
+### Edge Computing Tool (`cmd/shugo-edge/`)
 
 ```bash
 # Manage nodes
-peervault-edge -command node
+shugo-edge -command node
 
 # Manage tasks
-peervault-edge -command task
+shugo-edge -command task
 
 # Show metrics
-peervault-edge -command metrics
+shugo-edge -command metrics
 ```
 
 ## Integration Tests
@@ -330,4 +330,4 @@ Potential future enhancements for Milestone 9 features:
 
 ## Conclusion
 
-Milestone 9 transforms PeerVault into a comprehensive distributed storage and computing platform with advanced features for content addressing, blockchain integration, machine learning, and edge computing. These features provide the foundation for next-generation distributed applications and services.
+Milestone 9 transforms Shugo into a comprehensive distributed storage and computing platform with advanced features for content addressing, blockchain integration, machine learning, and edge computing. These features provide the foundation for next-generation distributed applications and services.

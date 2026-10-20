@@ -3,7 +3,7 @@ package contracts
 import (
 	"testing"
 
-	"github.com/Skpow1234/Peervault/internal/api/contracts"
+	"github.com/Skpow1234/Shugo/internal/api/contracts"
 )
 
 func TestContractVerification(t *testing.T) {

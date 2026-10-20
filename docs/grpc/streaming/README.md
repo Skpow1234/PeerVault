@@ -1,6 +1,6 @@
 # Advanced Streaming Patterns
 
-This document describes the advanced streaming patterns implemented in PeerVault's gRPC services, including error recovery, backpressure, and flow control.
+This document describes the advanced streaming patterns implemented in Shugo's gRPC services, including error recovery, backpressure, and flow control.
 
 ## Overview
 

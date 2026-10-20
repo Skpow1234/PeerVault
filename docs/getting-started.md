@@ -30,10 +30,10 @@ Endpoint reference: [endpoints.md](endpoints.md) · Deploy options: [deployment.
 
 ## How it works (short)
 
-- `cmd/peervault` (or Compose nodes) boot TCP peers via `internal/transport/p2p`
+- `cmd/shugo` (or Compose nodes) boot TCP peers via `internal/transport/p2p`
 - Files land in content-addressed storage under `internal/storage`
 - Store writes locally and is intended to replicate to peers; get fetches locally or from peers
-- APIs (`cmd/peervault-api`, `-graphql`, `-grpc`) expose HTTP/GraphQL/gRPC-style access
+- APIs (`cmd/shugo-api`, `-graphql`, `-grpc`) expose HTTP/GraphQL/gRPC-style access
 
 More: [architecture.md](architecture.md).
 
@@ -41,7 +41,7 @@ More: [architecture.md](architecture.md).
 
 Go binaries that open sockets and touch the filesystem often trigger Defender. Prefer the **Docker-only** workflow to avoid local exclusions.
 
-If you must run native binaries: add folder/process exclusions under Windows Security → Virus & threat protection → Exclusions (project folder; `peervault*.exe`, `go.exe`). Only do this in trusted environments. Scripts under `scripts/` (`quick_trust.bat`, `trust_application.ps1`) exist for local setup — not for production.
+If you must run native binaries: add folder/process exclusions under Windows Security → Virus & threat protection → Exclusions (project folder; `shugo*.exe`, `go.exe`). Only do this in trusted environments. Scripts under `scripts/` (`quick_trust.bat`, `trust_application.ps1`) exist for local setup — not for production.
 
 ## Clean up local data
 

@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/types"
+	"github.com/Skpow1234/Shugo/internal/api/rest/types"
 )
 
 // SystemService defines the interface for system operations

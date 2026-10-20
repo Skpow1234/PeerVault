@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cache"
+	"github.com/Skpow1234/Shugo/internal/cache"
 )
 
 // QueryCache represents a GraphQL query result cache

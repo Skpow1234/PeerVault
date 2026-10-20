@@ -1,6 +1,6 @@
-# PeerVault SDK Documentation
+# Shugo SDK Documentation
 
-This directory contains SDK documentation and examples for integrating with PeerVault's APIs.
+This directory contains SDK documentation and examples for integrating with Shugo's APIs.
 
 ## Available SDKs
 

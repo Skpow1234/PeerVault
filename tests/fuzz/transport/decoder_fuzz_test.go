@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"testing"
 
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 // FuzzDecode tests the decoder with fuzz-generated data

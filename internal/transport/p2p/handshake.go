@@ -28,7 +28,7 @@ type HandshakeMessage struct {
 func AuthenticatedHandshakeFunc(nodeID string) HandshakeFunc {
 	return func(peer Peer) error {
 		// Get auth token from environment
-		authToken := os.Getenv("PEERVAULT_AUTH_TOKEN")
+		authToken := os.Getenv("SHUGO_AUTH_TOKEN")
 		if authToken == "" {
 			// For demo purposes, use a default token if not set
 			authToken = "demo-auth-token-2024"

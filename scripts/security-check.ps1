@@ -1,4 +1,4 @@
-# PeerVault Security Check Script (PowerShell)
+# Shugo Security Check Script (PowerShell)
 # This script runs comprehensive security checks locally on Windows
 
 param(
@@ -149,7 +149,7 @@ function Invoke-ComplianceChecks {
 
 # Function to run custom security scanner
 function Invoke-CustomSecurityScan {
-    Write-Status "Running custom PeerVault security scanner..."
+    Write-Status "Running custom Shugo security scanner..."
     
     # Create reports directory
     if (-not (Test-Path "security-reports")) {
@@ -332,7 +332,7 @@ function Test-SecurityDocumentation {
 
 # Function to display help
 function Show-Help {
-    Write-Host "PeerVault Security Check Script (PowerShell)"
+    Write-Host "Shugo Security Check Script (PowerShell)"
     Write-Host ""
     Write-Host "Usage: .\scripts\security-check.ps1 [OPTIONS]"
     Write-Host ""
@@ -369,7 +369,7 @@ function Main {
     }
     
     # Print header
-    Write-Host "PeerVault Security Check Script (PowerShell)"
+    Write-Host "Shugo Security Check Script (PowerShell)"
     Write-Host "=============================================="
     Write-Host ""
     

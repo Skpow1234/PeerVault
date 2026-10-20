@@ -3,8 +3,8 @@ package mapper
 import (
 	"testing"
 
-	"github.com/Skpow1234/Peervault/internal/domain"
-	"github.com/Skpow1234/Peervault/internal/dto"
+	"github.com/Skpow1234/Shugo/internal/domain"
+	"github.com/Skpow1234/Shugo/internal/dto"
 	"github.com/stretchr/testify/assert"
 )
 

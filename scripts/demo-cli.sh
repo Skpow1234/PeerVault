@@ -1,24 +1,24 @@
 #!/bin/bash
 
-# PeerVault CLI Demo Script
+# Shugo CLI Demo Script
 # This script demonstrates the CLI functionality
 
-echo "PeerVault CLI Demo"
+echo "Shugo CLI Demo"
 echo "===================="
 echo ""
 
 # Build the CLI if it doesn't exist
-if [ ! -f "bin/peervault-cli" ]; then
+if [ ! -f "bin/shugo-cli" ]; then
     echo "Building CLI..."
-    go build -o bin/peervault-cli ./cmd/peervault-cli
+    go build -o bin/shugo-cli ./cmd/shugo-cli
     echo "CLI built successfully"
 fi
 
-echo "Starting PeerVault CLI Demo..."
+echo "Starting Shugo CLI Demo..."
 echo ""
 
 # Create a demo script file
-cat > /tmp/peervault-demo.txt << EOF
+cat > /tmp/shugo-demo.txt << EOF
 help
 peers list
 health
@@ -32,13 +32,13 @@ echo "Running CLI with demo commands..."
 echo ""
 
 # Run the CLI with the demo script
-cat /tmp/peervault-demo.txt | ./bin/peervault-cli
+cat /tmp/shugo-demo.txt | ./bin/shugo-cli
 
 # Clean up
-rm /tmp/peervault-demo.txt
+rm /tmp/shugo-demo.txt
 
 echo ""
 echo "Demo completed!"
 echo ""
 echo "To run the CLI interactively, use:"
-echo "  ./bin/peervault-cli"
+echo "  ./bin/shugo-cli"

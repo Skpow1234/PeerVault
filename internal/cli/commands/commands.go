@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli"
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
-	"github.com/Skpow1234/Peervault/internal/cli/history"
-	"github.com/Skpow1234/Peervault/internal/cli/monitoring"
-	"github.com/Skpow1234/Peervault/internal/cli/operations"
-	"github.com/Skpow1234/Peervault/internal/cli/protocol"
-	"github.com/Skpow1234/Peervault/internal/cli/realtime"
+	"github.com/Skpow1234/Shugo/internal/cli"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/history"
+	"github.com/Skpow1234/Shugo/internal/cli/monitoring"
+	"github.com/Skpow1234/Shugo/internal/cli/operations"
+	"github.com/Skpow1234/Shugo/internal/cli/protocol"
+	"github.com/Skpow1234/Shugo/internal/cli/realtime"
 )
 
 // BaseCommand provides common functionality for all commands
@@ -51,7 +51,7 @@ func NewStoreCommand(client *client.Client, formatter *formatter.Formatter) *Sto
 	return &StoreCommand{
 		BaseCommand: BaseCommand{
 			name:        "store",
-			description: "Store a file in the PeerVault network",
+			description: "Store a file in the Shugo network",
 			usage:       "store <file_path> [options]",
 			client:      client,
 			formatter:   formatter,
@@ -96,7 +96,7 @@ func NewGetCommand(client *client.Client, formatter *formatter.Formatter) *GetCo
 	return &GetCommand{
 		BaseCommand: BaseCommand{
 			name:        "get",
-			description: "Retrieve a file from the PeerVault network",
+			description: "Retrieve a file from the Shugo network",
 			usage:       "get <file_id> [output_path]",
 			client:      client,
 			formatter:   formatter,
@@ -152,7 +152,7 @@ func NewListCommand(client *client.Client, formatter *formatter.Formatter) *List
 	return &ListCommand{
 		BaseCommand: BaseCommand{
 			name:        "list",
-			description: "List files in the PeerVault network",
+			description: "List files in the Shugo network",
 			usage:       "list [options]",
 			client:      client,
 			formatter:   formatter,
@@ -185,7 +185,7 @@ func NewDeleteCommand(client *client.Client, formatter *formatter.Formatter) *De
 	return &DeleteCommand{
 		BaseCommand: BaseCommand{
 			name:        "delete",
-			description: "Delete a file from the PeerVault network",
+			description: "Delete a file from the Shugo network",
 			usage:       "delete <file_id>",
 			client:      client,
 			formatter:   formatter,
@@ -307,7 +307,7 @@ func NewConnectCommand(client *client.Client, formatter *formatter.Formatter) *C
 	return &ConnectCommand{
 		BaseCommand: BaseCommand{
 			name:        "connect",
-			description: "Connect to a PeerVault node",
+			description: "Connect to a Shugo node",
 			usage:       "connect <address>",
 			client:      client,
 			formatter:   formatter,
@@ -698,7 +698,7 @@ func (c *HelpCommand) Execute(ctx context.Context, args []string) error {
 	}
 
 	// Show general help
-	fmt.Println("PeerVault CLI - Available Commands")
+	fmt.Println("Shugo CLI - Available Commands")
 	fmt.Println()
 
 	commands := c.cli.ListCommands()

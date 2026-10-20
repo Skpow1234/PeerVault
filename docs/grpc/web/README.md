@@ -1,10 +1,10 @@
 # gRPC-Web Support
 
-This document describes the gRPC-Web implementation for PeerVault, which enables browser compatibility for gRPC services.
+This document describes the gRPC-Web implementation for Shugo, which enables browser compatibility for gRPC services.
 
 ## Overview
 
-gRPC-Web allows gRPC services to be consumed directly from web browsers by translating gRPC calls to HTTP/1.1 requests. This enables seamless integration of PeerVault's gRPC API with web applications.
+gRPC-Web allows gRPC services to be consumed directly from web browsers by translating gRPC calls to HTTP/1.1 requests. This enables seamless integration of Shugo's gRPC API with web applications.
 
 ## Features
 
@@ -75,9 +75,9 @@ Client builds run in CI using containerized workflows.
 ### Client Usage
 
 ```typescript
-import { PeerVaultClient } from '@peervault/grpc-client';
+import { ShugoClient } from '@shugo/grpc-client';
 
-const client = new PeerVaultClient({
+const client = new ShugoClient({
     endpoint: 'http://localhost:8080',
     authToken: 'your-secret-token',
     timeout: 30000,
@@ -235,7 +235,7 @@ Testing runs in CI using containerized workflows.
 Enable debug mode for detailed logging:
 
 ```typescript
-const client = new PeerVaultClient({
+const client = new ShugoClient({
     endpoint: 'http://localhost:8080',
     authToken: 'your-secret-token',
     debug: true, // Enable debug logging

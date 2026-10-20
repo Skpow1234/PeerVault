@@ -33,7 +33,7 @@ func DefaultMonitoringConfig() *MonitoringConfig {
 		MetricsPrefix:    "grpc",
 		HistogramBuckets: []float64{0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10},
 		CounterLabels:    []string{"method", "status_code", "user_id"},
-		SkipMethods:      []string{"/peervault.PeerVaultService/HealthCheck"},
+		SkipMethods:      []string{"/shugo.ShugoService/HealthCheck"},
 		SampleRate:       1.0,
 		MaxTraceDuration: 30 * time.Second,
 	}

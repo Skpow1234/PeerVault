@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/graphql/federation"
+	"github.com/Skpow1234/Shugo/internal/api/graphql/federation"
 )
 
 func main() {
@@ -75,7 +75,7 @@ func main() {
 	}()
 
 	// Start the server
-	logger.Info("Starting PeerVault GraphQL Federation Gateway",
+	logger.Info("Starting Shugo GraphQL Federation Gateway",
 		"port", config.GatewayPort,
 		"healthChecks", config.EnableHealthChecks,
 		"healthCheckInterval", config.HealthCheckInterval,
@@ -96,9 +96,9 @@ func loadConfigFromFile(_ string, _ *federation.FederationConfig) error {
 
 // registerDefaultServices registers default services
 func registerDefaultServices(gateway *federation.FederationGateway, logger *slog.Logger) {
-	// Register the main PeerVault service
+	// Register the main Shugo service
 	mainService := &federation.FederatedService{
-		Name:        "peervault-main",
+		Name:        "shugo-main",
 		URL:         "http://localhost:8080/graphql",
 		HealthCheck: "http://localhost:8080/health",
 		Capabilities: map[string]bool{
@@ -117,13 +117,13 @@ func registerDefaultServices(gateway *federation.FederationGateway, logger *slog
 	if err := gateway.RegisterService(mainService); err != nil {
 		logger.Error("Failed to register main service", "error", err)
 	} else {
-		logger.Info("Registered main PeerVault service", "name", mainService.Name, "url", mainService.URL)
+		logger.Info("Registered main Shugo service", "name", mainService.Name, "url", mainService.URL)
 	}
 
 	// Register additional services if they exist
 	additionalServices := []*federation.FederatedService{
 		{
-			Name:        "peervault-analytics",
+			Name:        "shugo-analytics",
 			URL:         "http://localhost:8082/graphql",
 			HealthCheck: "http://localhost:8082/health",
 			Capabilities: map[string]bool{
@@ -137,7 +137,7 @@ func registerDefaultServices(gateway *federation.FederationGateway, logger *slog
 			},
 		},
 		{
-			Name:        "peervault-storage",
+			Name:        "shugo-storage",
 			URL:         "http://localhost:8083/graphql",
 			HealthCheck: "http://localhost:8083/health",
 			Capabilities: map[string]bool{

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Compliance Checking Script for PeerVault
+# Compliance Checking Script for Shugo
 # This script performs compliance checks against various standards
 
 set -e
@@ -20,7 +20,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
-echo -e "${BLUE}Starting PeerVault Compliance Check${NC}"
+echo -e "${BLUE}Starting Shugo Compliance Check${NC}"
 echo "Project Root: $PROJECT_ROOT"
 echo "Output Directory: $OUTPUT_DIR"
 echo "Timestamp: $TIMESTAMP"
@@ -62,7 +62,7 @@ SOC 2 Type II Compliance Assessment
 ===================================
 
 Assessment Date: $(date)
-Organization: PeerVault
+Organization: Shugo
 Standard: SOC 2 Type II
 Assessor: Automated Compliance Checker
 
@@ -144,7 +144,7 @@ ISO 27001 Compliance Assessment
 ===============================
 
 Assessment Date: $(date)
-Organization: PeerVault
+Organization: Shugo
 Standard: ISO/IEC 27001:2013
 Assessor: Automated Compliance Checker
 
@@ -241,7 +241,7 @@ GDPR Compliance Assessment
 =========================
 
 Assessment Date: $(date)
-Organization: PeerVault
+Organization: Shugo
 Regulation: General Data Protection Regulation (GDPR)
 Assessor: Automated Compliance Checker
 
@@ -352,7 +352,7 @@ HIPAA Compliance Assessment
 ===========================
 
 Assessment Date: $(date)
-Organization: PeerVault
+Organization: Shugo
 Regulation: Health Insurance Portability and Accountability Act (HIPAA)
 Assessor: Automated Compliance Checker
 
@@ -536,7 +536,7 @@ PCI DSS Compliance Assessment
 =============================
 
 Assessment Date: $(date)
-Organization: PeerVault
+Organization: Shugo
 Standard: Payment Card Industry Data Security Standard (PCI DSS)
 Assessor: Automated Compliance Checker
 
@@ -668,16 +668,16 @@ print_section "Generating Overall Compliance Report"
 COMPLIANCE_REPORT="$OUTPUT_DIR/overall_compliance_report_$TIMESTAMP.md"
 
 cat > "$COMPLIANCE_REPORT" << EOF
-# PeerVault Compliance Assessment Report
+# Shugo Compliance Assessment Report
 
 **Assessment Date:** $(date)
-**Organization:** PeerVault
+**Organization:** Shugo
 **Assessment Type:** Comprehensive Compliance Check
 **Assessor:** Automated Compliance Checker
 
 ## Executive Summary
 
-This report provides a comprehensive assessment of PeerVault's compliance with major security and privacy standards. The assessment covers SOC 2 Type II, ISO 27001, GDPR, HIPAA, and PCI DSS compliance requirements.
+This report provides a comprehensive assessment of Shugo's compliance with major security and privacy standards. The assessment covers SOC 2 Type II, ISO 27001, GDPR, HIPAA, and PCI DSS compliance requirements.
 
 ## Compliance Summary
 

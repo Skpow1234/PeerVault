@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/config"
-	"github.com/Skpow1234/Peervault/internal/cli/graphql"
-	"github.com/Skpow1234/Peervault/internal/cli/grpc"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/config"
+	"github.com/Skpow1234/Shugo/internal/cli/graphql"
+	"github.com/Skpow1234/Shugo/internal/cli/grpc"
 )
 
 // Type represents the protocol type

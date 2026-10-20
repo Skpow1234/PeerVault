@@ -1,6 +1,6 @@
 # GraphQL Schema Stitching
 
-This document describes the dynamic schema stitching implementation in PeerVault, which enables runtime schema composition and versioning.
+This document describes the dynamic schema stitching implementation in Shugo, which enables runtime schema composition and versioning.
 
 ## Overview
 

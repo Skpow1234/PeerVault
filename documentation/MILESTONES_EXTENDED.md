@@ -1,4 +1,4 @@
-# PeerVault Extended Milestones (41+)
+# Shugo Extended Milestones (41+)
 
 Generated from codebase review after Milestone 1-2 core P2P fixes (replication, DialPeer, SHA-256 CAS, pending Get).
 Each item is an actionable improvement derived from TODOs, stubs, ops gaps, and hardening needs.
@@ -1230,9 +1230,9 @@ Each item is an actionable improvement derived from TODOs, stubs, ops gaps, and 
 * Touchpoints: `gRPC`
 * Acceptance: Change is implemented, tested, and documented.
 
-## Milestone 240 - gRPC-20 Versioned package peervault.v1
+## Milestone 240 - gRPC-20 Versioned package shugo.v1
 
-* Improve gRPC: Versioned package peervault.v1.
+* Improve gRPC: Versioned package shugo.v1.
 * Touchpoints: `gRPC`
 * Acceptance: Change is implemented, tested, and documented.
 
@@ -3690,9 +3690,9 @@ Each item is an actionable improvement derived from TODOs, stubs, ops gaps, and 
 * Touchpoints: `codebase`
 * Acceptance: Change is implemented, tested, and documented.
 
-## Milestone 644 - Document PEERVAULT_CLUSTER_KEY in compose samples
+## Milestone 644 - Document SHUGO_CLUSTER_KEY in compose samples
 
-* Code-derived improvement: Document PEERVAULT_CLUSTER_KEY in compose samples.
+* Code-derived improvement: Document SHUGO_CLUSTER_KEY in compose samples.
 * Touchpoints: `codebase`
 * Acceptance: Change is implemented, tested, and documented.
 
@@ -3768,9 +3768,9 @@ Each item is an actionable improvement derived from TODOs, stubs, ops gaps, and 
 * Touchpoints: `codebase`
 * Acceptance: Change is implemented, tested, and documented.
 
-## Milestone 657 - cmd/peervault demo waits for bootstrap without fixed sleep
+## Milestone 657 - cmd/shugo demo waits for bootstrap without fixed sleep
 
-* Code-derived improvement: cmd/peervault demo waits for bootstrap without fixed sleep.
+* Code-derived improvement: cmd/shugo demo waits for bootstrap without fixed sleep.
 * Touchpoints: `codebase`
 * Acceptance: Change is implemented, tested, and documented.
 

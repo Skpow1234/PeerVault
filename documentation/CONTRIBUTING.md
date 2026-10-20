@@ -1,6 +1,6 @@
-# Contributing to PeerVault
+# Contributing to Shugo
 
-Thank you for your interest in contributing to PeerVault! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to Shugo! This document provides guidelines and information for contributors.
 
 ## Table of Contents
 
@@ -40,11 +40,11 @@ This project and everyone participating in it is governed by our Code of Conduct
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/Peervault.git
-cd Peervault
+git clone https://github.com/YOUR_USERNAME/Shugo.git
+cd Shugo
 
 # Add upstream remote
-git remote add upstream https://github.com/Skpow1234/Peervault.git
+git remote add upstream https://github.com/Skpow1234/Shugo.git
 
 # Install dependencies
 go mod download
@@ -230,9 +230,9 @@ internal/
 └── transport/    # Network transport
 
 cmd/
-├── peervault/    # Main application
-├── peervault-node/ # Node binary
-└── peervault-demo/ # Demo client
+├── shugo/    # Main application
+├── shugo-node/ # Node binary
+└── shugo-demo/ # Demo client
 
 tests/
 ├── unit/         # Unit tests
@@ -324,4 +324,4 @@ Contributors will be recognized in:
 - **README.md** for major contributors
 - **Release notes** for each release
 
-Thank you for contributing to PeerVault!
+Thank you for contributing to Shugo!

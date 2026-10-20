@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/mocking"
+	"github.com/Skpow1234/Shugo/internal/api/mocking"
 	"gopkg.in/yaml.v3"
 )
 
@@ -21,7 +21,7 @@ func main() {
 		port       = flag.Int("port", 3001, "Server port")
 		host       = flag.String("host", "localhost", "Server host")
 		generate   = flag.Bool("generate", false, "Generate mock scenarios from OpenAPI spec")
-		spec       = flag.String("spec", "docs/api/peervault-rest-api.yaml", "OpenAPI specification file")
+		spec       = flag.String("spec", "docs/api/shugo-rest-api.yaml", "OpenAPI specification file")
 		output     = flag.String("output", "tests/api/mock-data", "Output directory for generated scenarios")
 		verbose    = flag.Bool("verbose", false, "Enable verbose logging")
 	)

@@ -13,8 +13,8 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	grpcapi "github.com/Skpow1234/Peervault/internal/api/grpc"
-	"github.com/Skpow1234/Peervault/proto/peervault"
+	grpcapi "github.com/Skpow1234/Shugo/internal/api/grpc"
+	"github.com/Skpow1234/Shugo/proto/shugo"
 )
 
 // WebServer represents a gRPC-Web server
@@ -65,7 +65,7 @@ func NewWebServer(config *Config, logger *slog.Logger) *WebServer {
 	)
 
 	// Register services
-	peervault.RegisterPeerVaultServiceServer(grpcServer, &grpcapi.PeerVaultServiceImpl{})
+	shugo.RegisterShugoServiceServer(grpcServer, &grpcapi.ShugoServiceImpl{})
 
 	// Wrap gRPC server for web
 	webServer := grpcweb.WrapServer(grpcServer, grpcweb.WithOriginFunc(func(origin string) bool {

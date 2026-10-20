@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package peervault.health;
+package shugo.health;
 
-option go_package = "github.com/Skpow1234/Peervault/proto/peervault";
+option go_package = "github.com/Skpow1234/Shugo/proto/shugo";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";

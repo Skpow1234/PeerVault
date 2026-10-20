@@ -162,9 +162,9 @@ jobs:
             echo "Warning: detect-secrets not available, skipping secrets detection"
           fi
 
-      - name: Run custom PeerVault security scanner
+      - name: Run custom Shugo security scanner
         run: |
-          echo "Running custom PeerVault security scanner..."
+          echo "Running custom Shugo security scanner..."
           mkdir -p security-reports
           go run ./security/audit/scanner.go ./ > security-reports/custom-security-report.json 2>&1 || {
             echo "Custom security scan completed with findings"
@@ -301,8 +301,8 @@ jobs:
 
       - name: Build Docker images for security scanning
         run: |
-          docker build -t peervault-node:security-scan -f docker/Dockerfile.node .
-          docker build -t peervault-demo:security-scan -f docker/Dockerfile.demo .
+          docker build -t shugo-node:security-scan -f docker/Dockerfile.node .
+          docker build -t shugo-demo:security-scan -f docker/Dockerfile.demo .
 
       - name: Install Trivy
         run: |
@@ -319,7 +319,7 @@ jobs:
           mkdir -p container-security-reports
           
           # Scan node image
-          trivy image --format json --output container-security-reports/trivy-node-report.json peervault-node:security-scan || {
+          trivy image --format json --output container-security-reports/trivy-node-report.json shugo-node:security-scan || {
             echo "Vulnerabilities found in node image"
             # Check for high/critical vulnerabilities
             if grep -i "high\|critical" container-security-reports/trivy-node-report.json; then
@@ -331,7 +331,7 @@ jobs:
           }
           
           # Scan demo image
-          trivy image --format json --output container-security-reports/trivy-demo-report.json peervault-demo:security-scan || {
+          trivy image --format json --output container-security-reports/trivy-demo-report.json shugo-demo:security-scan || {
             echo "Vulnerabilities found in demo image"
             # Check for high/critical vulnerabilities
             if grep -i "high\|critical" container-security-reports/trivy-demo-report.json; then
@@ -422,7 +422,7 @@ jobs:
 
       - name: Generate security summary
         run: |
-          echo "PeerVault Security Pipeline Summary"
+          echo "Shugo Security Pipeline Summary"
           echo "======================================"
           echo ""
           echo "Security Jobs Status:"
@@ -478,5 +478,5 @@ jobs:
             exit 1
           else
             echo "Security pipeline passed successfully!"
-            echo "PeerVault security features are operational"
+            echo "Shugo security features are operational"
           fi

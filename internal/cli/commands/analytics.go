@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/analytics"
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/analytics"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
 )
 
 // AnalyticsCommand handles analytics and reporting operations

@@ -2,7 +2,7 @@
 
 ## MVP focus
 
-PeerVault MVP targets core P2P file storage plus one primary API surface.
+Shugo MVP targets core P2P file storage plus one primary API surface.
 
 ### Core P2P
 
@@ -11,7 +11,7 @@ PeerVault MVP targets core P2P file storage plus one primary API surface.
 - Length-prefixed message framing (1MB max frame)
 - Basic peer discovery and connection management
 - File replication across connected peers (intended; see status in milestones)
-- Local multi-node demo (`cmd/peervault` / Compose)
+- Local multi-node demo (`cmd/shugo` / Compose)
 
 ### Primary API (MVP intent)
 
@@ -25,7 +25,7 @@ PeerVault MVP targets core P2P file storage plus one primary API surface.
 
 - AES-GCM with secure nonces
 - HMAC-SHA256 peer authentication
-- Key derivation from cluster key (`PEERVAULT_CLUSTER_KEY`)
+- Key derivation from cluster key (`SHUGO_CLUSTER_KEY`)
 - Vulnerability scanning in CI (govulncheck, semgrep, …)
 
 ### Basic observability

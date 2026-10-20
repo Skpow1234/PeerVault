@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple CoAP test client for PeerVault CoAP server
+Simple CoAP test client for Shugo CoAP server
 """
 
 import asyncio
@@ -351,7 +351,7 @@ async def main():
     """Main function"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="CoAP Test Client for PeerVault")
+    parser = argparse.ArgumentParser(description="CoAP Test Client for Shugo")
     parser.add_argument("--host", default="localhost", help="CoAP server host")
     parser.add_argument("--port", type=int, default=5683, help="CoAP server port")
     parser.add_argument("--mode", choices=["interactive", "automated"], 

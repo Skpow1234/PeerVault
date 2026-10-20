@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.25.3
-// source: peervault.proto
+// source: shugo.proto
 
-package peervault
+package shugo
 
 import (
 	context "context"
@@ -20,37 +20,37 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PeerVaultService_UploadFile_FullMethodName           = "/peervault.PeerVaultService/UploadFile"
-	PeerVaultService_DownloadFile_FullMethodName         = "/peervault.PeerVaultService/DownloadFile"
-	PeerVaultService_ListFiles_FullMethodName            = "/peervault.PeerVaultService/ListFiles"
-	PeerVaultService_GetFile_FullMethodName              = "/peervault.PeerVaultService/GetFile"
-	PeerVaultService_DeleteFile_FullMethodName           = "/peervault.PeerVaultService/DeleteFile"
-	PeerVaultService_UpdateFileMetadata_FullMethodName   = "/peervault.PeerVaultService/UpdateFileMetadata"
-	PeerVaultService_ListPeers_FullMethodName            = "/peervault.PeerVaultService/ListPeers"
-	PeerVaultService_GetPeer_FullMethodName              = "/peervault.PeerVaultService/GetPeer"
-	PeerVaultService_AddPeer_FullMethodName              = "/peervault.PeerVaultService/AddPeer"
-	PeerVaultService_RemovePeer_FullMethodName           = "/peervault.PeerVaultService/RemovePeer"
-	PeerVaultService_GetPeerHealth_FullMethodName        = "/peervault.PeerVaultService/GetPeerHealth"
-	PeerVaultService_GetSystemInfo_FullMethodName        = "/peervault.PeerVaultService/GetSystemInfo"
-	PeerVaultService_GetMetrics_FullMethodName           = "/peervault.PeerVaultService/GetMetrics"
-	PeerVaultService_HealthCheck_FullMethodName          = "/peervault.PeerVaultService/HealthCheck"
-	PeerVaultService_StreamFileOperations_FullMethodName = "/peervault.PeerVaultService/StreamFileOperations"
-	PeerVaultService_StreamPeerEvents_FullMethodName     = "/peervault.PeerVaultService/StreamPeerEvents"
-	PeerVaultService_StreamSystemEvents_FullMethodName   = "/peervault.PeerVaultService/StreamSystemEvents"
-	PeerVaultService_StreamHealthEvents_FullMethodName   = "/peervault.PeerVaultService/StreamHealthEvents"
-	PeerVaultService_GetDetailedHealth_FullMethodName    = "/peervault.PeerVaultService/GetDetailedHealth"
-	PeerVaultService_GetComponentHealth_FullMethodName   = "/peervault.PeerVaultService/GetComponentHealth"
-	PeerVaultService_ForceHealthCheck_FullMethodName     = "/peervault.PeerVaultService/ForceHealthCheck"
-	PeerVaultService_GetHealthMetrics_FullMethodName     = "/peervault.PeerVaultService/GetHealthMetrics"
-	PeerVaultService_GetHealthTraces_FullMethodName      = "/peervault.PeerVaultService/GetHealthTraces"
-	PeerVaultService_GetHealthProfiles_FullMethodName    = "/peervault.PeerVaultService/GetHealthProfiles"
+	ShugoService_UploadFile_FullMethodName           = "/shugo.ShugoService/UploadFile"
+	ShugoService_DownloadFile_FullMethodName         = "/shugo.ShugoService/DownloadFile"
+	ShugoService_ListFiles_FullMethodName            = "/shugo.ShugoService/ListFiles"
+	ShugoService_GetFile_FullMethodName              = "/shugo.ShugoService/GetFile"
+	ShugoService_DeleteFile_FullMethodName           = "/shugo.ShugoService/DeleteFile"
+	ShugoService_UpdateFileMetadata_FullMethodName   = "/shugo.ShugoService/UpdateFileMetadata"
+	ShugoService_ListPeers_FullMethodName            = "/shugo.ShugoService/ListPeers"
+	ShugoService_GetPeer_FullMethodName              = "/shugo.ShugoService/GetPeer"
+	ShugoService_AddPeer_FullMethodName              = "/shugo.ShugoService/AddPeer"
+	ShugoService_RemovePeer_FullMethodName           = "/shugo.ShugoService/RemovePeer"
+	ShugoService_GetPeerHealth_FullMethodName        = "/shugo.ShugoService/GetPeerHealth"
+	ShugoService_GetSystemInfo_FullMethodName        = "/shugo.ShugoService/GetSystemInfo"
+	ShugoService_GetMetrics_FullMethodName           = "/shugo.ShugoService/GetMetrics"
+	ShugoService_HealthCheck_FullMethodName          = "/shugo.ShugoService/HealthCheck"
+	ShugoService_StreamFileOperations_FullMethodName = "/shugo.ShugoService/StreamFileOperations"
+	ShugoService_StreamPeerEvents_FullMethodName     = "/shugo.ShugoService/StreamPeerEvents"
+	ShugoService_StreamSystemEvents_FullMethodName   = "/shugo.ShugoService/StreamSystemEvents"
+	ShugoService_StreamHealthEvents_FullMethodName   = "/shugo.ShugoService/StreamHealthEvents"
+	ShugoService_GetDetailedHealth_FullMethodName    = "/shugo.ShugoService/GetDetailedHealth"
+	ShugoService_GetComponentHealth_FullMethodName   = "/shugo.ShugoService/GetComponentHealth"
+	ShugoService_ForceHealthCheck_FullMethodName     = "/shugo.ShugoService/ForceHealthCheck"
+	ShugoService_GetHealthMetrics_FullMethodName     = "/shugo.ShugoService/GetHealthMetrics"
+	ShugoService_GetHealthTraces_FullMethodName      = "/shugo.ShugoService/GetHealthTraces"
+	ShugoService_GetHealthProfiles_FullMethodName    = "/shugo.ShugoService/GetHealthProfiles"
 )
 
-// PeerVaultServiceClient is the client API for PeerVaultService service.
-type PeerVaultServiceClient interface {
+// ShugoServiceClient is the client API for ShugoService service.
+type ShugoServiceClient interface {
 	// File operations
-	UploadFile(ctx context.Context, opts ...grpc.CallOption) (PeerVaultService_UploadFileClient, error)
-	DownloadFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (PeerVaultService_DownloadFileClient, error)
+	UploadFile(ctx context.Context, opts ...grpc.CallOption) (ShugoService_UploadFileClient, error)
+	DownloadFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (ShugoService_DownloadFileClient, error)
 	ListFiles(ctx context.Context, in *ListFilesRequest, opts ...grpc.CallOption) (*ListFilesResponse, error)
 	GetFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (*FileResponse, error)
 	DeleteFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (*DeleteFileResponse, error)
@@ -66,10 +66,10 @@ type PeerVaultServiceClient interface {
 	GetMetrics(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MetricsResponse, error)
 	HealthCheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthResponse, error)
 	// Streaming operations
-	StreamFileOperations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamFileOperationsClient, error)
-	StreamPeerEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamPeerEventsClient, error)
-	StreamSystemEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamSystemEventsClient, error)
-	StreamHealthEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamHealthEventsClient, error)
+	StreamFileOperations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ShugoService_StreamFileOperationsClient, error)
+	StreamPeerEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ShugoService_StreamPeerEventsClient, error)
+	StreamSystemEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ShugoService_StreamSystemEventsClient, error)
+	StreamHealthEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ShugoService_StreamHealthEventsClient, error)
 	// Advanced health operations
 	GetDetailedHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthResponse, error)
 	GetComponentHealth(ctx context.Context, in *ComponentHealthRequest, opts ...grpc.CallOption) (*ComponentHealthResponse, error)
@@ -79,38 +79,38 @@ type PeerVaultServiceClient interface {
 	GetHealthProfiles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthProfilesResponse, error)
 }
 
-type peerVaultServiceClient struct {
+type shugoServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPeerVaultServiceClient(cc grpc.ClientConnInterface) PeerVaultServiceClient {
-	return &peerVaultServiceClient{cc}
+func NewShugoServiceClient(cc grpc.ClientConnInterface) ShugoServiceClient {
+	return &shugoServiceClient{cc}
 }
 
-func (c *peerVaultServiceClient) UploadFile(ctx context.Context, opts ...grpc.CallOption) (PeerVaultService_UploadFileClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_PeerVaultService_serviceDesc.Streams[0], PeerVaultService_UploadFile_FullMethodName, opts...)
+func (c *shugoServiceClient) UploadFile(ctx context.Context, opts ...grpc.CallOption) (ShugoService_UploadFileClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_ShugoService_serviceDesc.Streams[0], ShugoService_UploadFile_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peerVaultServiceUploadFileClient{stream}
+	x := &shugoServiceUploadFileClient{stream}
 	return x, nil
 }
 
-type PeerVaultService_UploadFileClient interface {
+type ShugoService_UploadFileClient interface {
 	Send(*FileChunk) error
 	CloseAndRecv() (*FileResponse, error)
 	grpc.ClientStream
 }
 
-type peerVaultServiceUploadFileClient struct {
+type shugoServiceUploadFileClient struct {
 	grpc.ClientStream
 }
 
-func (x *peerVaultServiceUploadFileClient) Send(m *FileChunk) error {
+func (x *shugoServiceUploadFileClient) Send(m *FileChunk) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *peerVaultServiceUploadFileClient) CloseAndRecv() (*FileResponse, error) {
+func (x *shugoServiceUploadFileClient) CloseAndRecv() (*FileResponse, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
@@ -121,12 +121,12 @@ func (x *peerVaultServiceUploadFileClient) CloseAndRecv() (*FileResponse, error)
 	return m, nil
 }
 
-func (c *peerVaultServiceClient) DownloadFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (PeerVaultService_DownloadFileClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_PeerVaultService_serviceDesc.Streams[1], PeerVaultService_DownloadFile_FullMethodName, opts...)
+func (c *shugoServiceClient) DownloadFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (ShugoService_DownloadFileClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_ShugoService_serviceDesc.Streams[1], ShugoService_DownloadFile_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peerVaultServiceDownloadFileClient{stream}
+	x := &shugoServiceDownloadFileClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -136,16 +136,16 @@ func (c *peerVaultServiceClient) DownloadFile(ctx context.Context, in *FileReque
 	return x, nil
 }
 
-type PeerVaultService_DownloadFileClient interface {
+type ShugoService_DownloadFileClient interface {
 	Recv() (*FileChunk, error)
 	grpc.ClientStream
 }
 
-type peerVaultServiceDownloadFileClient struct {
+type shugoServiceDownloadFileClient struct {
 	grpc.ClientStream
 }
 
-func (x *peerVaultServiceDownloadFileClient) Recv() (*FileChunk, error) {
+func (x *shugoServiceDownloadFileClient) Recv() (*FileChunk, error) {
 	m := new(FileChunk)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -153,120 +153,120 @@ func (x *peerVaultServiceDownloadFileClient) Recv() (*FileChunk, error) {
 	return m, nil
 }
 
-func (c *peerVaultServiceClient) ListFiles(ctx context.Context, in *ListFilesRequest, opts ...grpc.CallOption) (*ListFilesResponse, error) {
+func (c *shugoServiceClient) ListFiles(ctx context.Context, in *ListFilesRequest, opts ...grpc.CallOption) (*ListFilesResponse, error) {
 	out := new(ListFilesResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_ListFiles_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_ListFiles_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) GetFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (*FileResponse, error) {
+func (c *shugoServiceClient) GetFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (*FileResponse, error) {
 	out := new(FileResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetFile_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetFile_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) DeleteFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (*DeleteFileResponse, error) {
+func (c *shugoServiceClient) DeleteFile(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (*DeleteFileResponse, error) {
 	out := new(DeleteFileResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_DeleteFile_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_DeleteFile_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) UpdateFileMetadata(ctx context.Context, in *UpdateFileMetadataRequest, opts ...grpc.CallOption) (*FileResponse, error) {
+func (c *shugoServiceClient) UpdateFileMetadata(ctx context.Context, in *UpdateFileMetadataRequest, opts ...grpc.CallOption) (*FileResponse, error) {
 	out := new(FileResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_UpdateFileMetadata_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_UpdateFileMetadata_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) ListPeers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListPeersResponse, error) {
+func (c *shugoServiceClient) ListPeers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListPeersResponse, error) {
 	out := new(ListPeersResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_ListPeers_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_ListPeers_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) GetPeer(ctx context.Context, in *PeerRequest, opts ...grpc.CallOption) (*PeerResponse, error) {
+func (c *shugoServiceClient) GetPeer(ctx context.Context, in *PeerRequest, opts ...grpc.CallOption) (*PeerResponse, error) {
 	out := new(PeerResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetPeer_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetPeer_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) AddPeer(ctx context.Context, in *AddPeerRequest, opts ...grpc.CallOption) (*PeerResponse, error) {
+func (c *shugoServiceClient) AddPeer(ctx context.Context, in *AddPeerRequest, opts ...grpc.CallOption) (*PeerResponse, error) {
 	out := new(PeerResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_AddPeer_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_AddPeer_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) RemovePeer(ctx context.Context, in *PeerRequest, opts ...grpc.CallOption) (*RemovePeerResponse, error) {
+func (c *shugoServiceClient) RemovePeer(ctx context.Context, in *PeerRequest, opts ...grpc.CallOption) (*RemovePeerResponse, error) {
 	out := new(RemovePeerResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_RemovePeer_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_RemovePeer_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) GetPeerHealth(ctx context.Context, in *PeerRequest, opts ...grpc.CallOption) (*PeerHealthResponse, error) {
+func (c *shugoServiceClient) GetPeerHealth(ctx context.Context, in *PeerRequest, opts ...grpc.CallOption) (*PeerHealthResponse, error) {
 	out := new(PeerHealthResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetPeerHealth_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetPeerHealth_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) GetSystemInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SystemInfoResponse, error) {
+func (c *shugoServiceClient) GetSystemInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SystemInfoResponse, error) {
 	out := new(SystemInfoResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetSystemInfo_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetSystemInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) GetMetrics(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MetricsResponse, error) {
+func (c *shugoServiceClient) GetMetrics(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MetricsResponse, error) {
 	out := new(MetricsResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetMetrics_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetMetrics_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) HealthCheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthResponse, error) {
+func (c *shugoServiceClient) HealthCheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthResponse, error) {
 	out := new(HealthResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_HealthCheck_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_HealthCheck_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) StreamFileOperations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamFileOperationsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_PeerVaultService_serviceDesc.Streams[2], PeerVaultService_StreamFileOperations_FullMethodName, opts...)
+func (c *shugoServiceClient) StreamFileOperations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ShugoService_StreamFileOperationsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_ShugoService_serviceDesc.Streams[2], ShugoService_StreamFileOperations_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peerVaultServiceStreamFileOperationsClient{stream}
+	x := &shugoServiceStreamFileOperationsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -276,16 +276,16 @@ func (c *peerVaultServiceClient) StreamFileOperations(ctx context.Context, in *e
 	return x, nil
 }
 
-type PeerVaultService_StreamFileOperationsClient interface {
+type ShugoService_StreamFileOperationsClient interface {
 	Recv() (*FileOperationEvent, error)
 	grpc.ClientStream
 }
 
-type peerVaultServiceStreamFileOperationsClient struct {
+type shugoServiceStreamFileOperationsClient struct {
 	grpc.ClientStream
 }
 
-func (x *peerVaultServiceStreamFileOperationsClient) Recv() (*FileOperationEvent, error) {
+func (x *shugoServiceStreamFileOperationsClient) Recv() (*FileOperationEvent, error) {
 	m := new(FileOperationEvent)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -293,12 +293,12 @@ func (x *peerVaultServiceStreamFileOperationsClient) Recv() (*FileOperationEvent
 	return m, nil
 }
 
-func (c *peerVaultServiceClient) StreamPeerEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamPeerEventsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_PeerVaultService_serviceDesc.Streams[3], PeerVaultService_StreamPeerEvents_FullMethodName, opts...)
+func (c *shugoServiceClient) StreamPeerEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ShugoService_StreamPeerEventsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_ShugoService_serviceDesc.Streams[3], ShugoService_StreamPeerEvents_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peerVaultServiceStreamPeerEventsClient{stream}
+	x := &shugoServiceStreamPeerEventsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -308,16 +308,16 @@ func (c *peerVaultServiceClient) StreamPeerEvents(ctx context.Context, in *empty
 	return x, nil
 }
 
-type PeerVaultService_StreamPeerEventsClient interface {
+type ShugoService_StreamPeerEventsClient interface {
 	Recv() (*PeerEvent, error)
 	grpc.ClientStream
 }
 
-type peerVaultServiceStreamPeerEventsClient struct {
+type shugoServiceStreamPeerEventsClient struct {
 	grpc.ClientStream
 }
 
-func (x *peerVaultServiceStreamPeerEventsClient) Recv() (*PeerEvent, error) {
+func (x *shugoServiceStreamPeerEventsClient) Recv() (*PeerEvent, error) {
 	m := new(PeerEvent)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -325,12 +325,12 @@ func (x *peerVaultServiceStreamPeerEventsClient) Recv() (*PeerEvent, error) {
 	return m, nil
 }
 
-func (c *peerVaultServiceClient) StreamSystemEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamSystemEventsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_PeerVaultService_serviceDesc.Streams[4], PeerVaultService_StreamSystemEvents_FullMethodName, opts...)
+func (c *shugoServiceClient) StreamSystemEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ShugoService_StreamSystemEventsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_ShugoService_serviceDesc.Streams[4], ShugoService_StreamSystemEvents_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peerVaultServiceStreamSystemEventsClient{stream}
+	x := &shugoServiceStreamSystemEventsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -340,12 +340,12 @@ func (c *peerVaultServiceClient) StreamSystemEvents(ctx context.Context, in *emp
 	return x, nil
 }
 
-func (c *peerVaultServiceClient) StreamHealthEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (PeerVaultService_StreamHealthEventsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_PeerVaultService_serviceDesc.Streams[5], PeerVaultService_StreamHealthEvents_FullMethodName, opts...)
+func (c *shugoServiceClient) StreamHealthEvents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (ShugoService_StreamHealthEventsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_ShugoService_serviceDesc.Streams[5], ShugoService_StreamHealthEvents_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peerVaultServiceStreamHealthEventsClient{stream}
+	x := &shugoServiceStreamHealthEventsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -355,70 +355,70 @@ func (c *peerVaultServiceClient) StreamHealthEvents(ctx context.Context, in *emp
 	return x, nil
 }
 
-func (c *peerVaultServiceClient) GetDetailedHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthResponse, error) {
+func (c *shugoServiceClient) GetDetailedHealth(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthResponse, error) {
 	out := new(HealthResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetDetailedHealth_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetDetailedHealth_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) GetComponentHealth(ctx context.Context, in *ComponentHealthRequest, opts ...grpc.CallOption) (*ComponentHealthResponse, error) {
+func (c *shugoServiceClient) GetComponentHealth(ctx context.Context, in *ComponentHealthRequest, opts ...grpc.CallOption) (*ComponentHealthResponse, error) {
 	out := new(ComponentHealthResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetComponentHealth_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetComponentHealth_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) ForceHealthCheck(ctx context.Context, in *ForceHealthCheckRequest, opts ...grpc.CallOption) (*ForceHealthCheckResponse, error) {
+func (c *shugoServiceClient) ForceHealthCheck(ctx context.Context, in *ForceHealthCheckRequest, opts ...grpc.CallOption) (*ForceHealthCheckResponse, error) {
 	out := new(ForceHealthCheckResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_ForceHealthCheck_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_ForceHealthCheck_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) GetHealthMetrics(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthMetricsResponse, error) {
+func (c *shugoServiceClient) GetHealthMetrics(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthMetricsResponse, error) {
 	out := new(HealthMetricsResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetHealthMetrics_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetHealthMetrics_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) GetHealthTraces(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthTracesResponse, error) {
+func (c *shugoServiceClient) GetHealthTraces(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthTracesResponse, error) {
 	out := new(HealthTracesResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetHealthTraces_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetHealthTraces_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peerVaultServiceClient) GetHealthProfiles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthProfilesResponse, error) {
+func (c *shugoServiceClient) GetHealthProfiles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthProfilesResponse, error) {
 	out := new(HealthProfilesResponse)
-	err := c.cc.Invoke(ctx, PeerVaultService_GetHealthProfiles_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShugoService_GetHealthProfiles_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-type PeerVaultService_StreamSystemEventsClient interface {
+type ShugoService_StreamSystemEventsClient interface {
 	Recv() (*SystemEvent, error)
 	grpc.ClientStream
 }
 
-type peerVaultServiceStreamSystemEventsClient struct {
+type shugoServiceStreamSystemEventsClient struct {
 	grpc.ClientStream
 }
 
-func (x *peerVaultServiceStreamSystemEventsClient) Recv() (*SystemEvent, error) {
+func (x *shugoServiceStreamSystemEventsClient) Recv() (*SystemEvent, error) {
 	m := new(SystemEvent)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -426,16 +426,16 @@ func (x *peerVaultServiceStreamSystemEventsClient) Recv() (*SystemEvent, error) 
 	return m, nil
 }
 
-type PeerVaultService_StreamHealthEventsClient interface {
+type ShugoService_StreamHealthEventsClient interface {
 	Recv() (*HealthEvent, error)
 	grpc.ClientStream
 }
 
-type peerVaultServiceStreamHealthEventsClient struct {
+type shugoServiceStreamHealthEventsClient struct {
 	grpc.ClientStream
 }
 
-func (x *peerVaultServiceStreamHealthEventsClient) Recv() (*HealthEvent, error) {
+func (x *shugoServiceStreamHealthEventsClient) Recv() (*HealthEvent, error) {
 	m := new(HealthEvent)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -443,11 +443,11 @@ func (x *peerVaultServiceStreamHealthEventsClient) Recv() (*HealthEvent, error) 
 	return m, nil
 }
 
-// PeerVaultServiceServer is the server API for PeerVaultService service.
-type PeerVaultServiceServer interface {
+// ShugoServiceServer is the server API for ShugoService service.
+type ShugoServiceServer interface {
 	// File operations
-	UploadFile(PeerVaultService_UploadFileServer) error
-	DownloadFile(*FileRequest, PeerVaultService_DownloadFileServer) error
+	UploadFile(ShugoService_UploadFileServer) error
+	DownloadFile(*FileRequest, ShugoService_DownloadFileServer) error
 	ListFiles(context.Context, *ListFilesRequest) (*ListFilesResponse, error)
 	GetFile(context.Context, *FileRequest) (*FileResponse, error)
 	DeleteFile(context.Context, *FileRequest) (*DeleteFileResponse, error)
@@ -463,10 +463,10 @@ type PeerVaultServiceServer interface {
 	GetMetrics(context.Context, *emptypb.Empty) (*MetricsResponse, error)
 	HealthCheck(context.Context, *emptypb.Empty) (*HealthResponse, error)
 	// Streaming operations
-	StreamFileOperations(*emptypb.Empty, PeerVaultService_StreamFileOperationsServer) error
-	StreamPeerEvents(*emptypb.Empty, PeerVaultService_StreamPeerEventsServer) error
-	StreamSystemEvents(*emptypb.Empty, PeerVaultService_StreamSystemEventsServer) error
-	StreamHealthEvents(*emptypb.Empty, PeerVaultService_StreamHealthEventsServer) error
+	StreamFileOperations(*emptypb.Empty, ShugoService_StreamFileOperationsServer) error
+	StreamPeerEvents(*emptypb.Empty, ShugoService_StreamPeerEventsServer) error
+	StreamSystemEvents(*emptypb.Empty, ShugoService_StreamSystemEventsServer) error
+	StreamHealthEvents(*emptypb.Empty, ShugoService_StreamHealthEventsServer) error
 	// Advanced health operations
 	GetDetailedHealth(context.Context, *emptypb.Empty) (*HealthResponse, error)
 	GetComponentHealth(context.Context, *ComponentHealthRequest) (*ComponentHealthResponse, error)
@@ -476,111 +476,111 @@ type PeerVaultServiceServer interface {
 	GetHealthProfiles(context.Context, *emptypb.Empty) (*HealthProfilesResponse, error)
 }
 
-// UnimplementedPeerVaultServiceServer can be embedded to have forward compatible implementations.
-type UnimplementedPeerVaultServiceServer struct {
+// UnimplementedShugoServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedShugoServiceServer struct {
 }
 
-func (UnimplementedPeerVaultServiceServer) UploadFile(PeerVaultService_UploadFileServer) error {
+func (UnimplementedShugoServiceServer) UploadFile(ShugoService_UploadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) DownloadFile(*FileRequest, PeerVaultService_DownloadFileServer) error {
+func (UnimplementedShugoServiceServer) DownloadFile(*FileRequest, ShugoService_DownloadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method DownloadFile not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) ListFiles(context.Context, *ListFilesRequest) (*ListFilesResponse, error) {
+func (UnimplementedShugoServiceServer) ListFiles(context.Context, *ListFilesRequest) (*ListFilesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFiles not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetFile(context.Context, *FileRequest) (*FileResponse, error) {
+func (UnimplementedShugoServiceServer) GetFile(context.Context, *FileRequest) (*FileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFile not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) DeleteFile(context.Context, *FileRequest) (*DeleteFileResponse, error) {
+func (UnimplementedShugoServiceServer) DeleteFile(context.Context, *FileRequest) (*DeleteFileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteFile not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) UpdateFileMetadata(context.Context, *UpdateFileMetadataRequest) (*FileResponse, error) {
+func (UnimplementedShugoServiceServer) UpdateFileMetadata(context.Context, *UpdateFileMetadataRequest) (*FileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateFileMetadata not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) ListPeers(context.Context, *emptypb.Empty) (*ListPeersResponse, error) {
+func (UnimplementedShugoServiceServer) ListPeers(context.Context, *emptypb.Empty) (*ListPeersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPeers not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetPeer(context.Context, *PeerRequest) (*PeerResponse, error) {
+func (UnimplementedShugoServiceServer) GetPeer(context.Context, *PeerRequest) (*PeerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPeer not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) AddPeer(context.Context, *AddPeerRequest) (*PeerResponse, error) {
+func (UnimplementedShugoServiceServer) AddPeer(context.Context, *AddPeerRequest) (*PeerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPeer not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) RemovePeer(context.Context, *PeerRequest) (*RemovePeerResponse, error) {
+func (UnimplementedShugoServiceServer) RemovePeer(context.Context, *PeerRequest) (*RemovePeerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemovePeer not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetPeerHealth(context.Context, *PeerRequest) (*PeerHealthResponse, error) {
+func (UnimplementedShugoServiceServer) GetPeerHealth(context.Context, *PeerRequest) (*PeerHealthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPeerHealth not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetSystemInfo(context.Context, *emptypb.Empty) (*SystemInfoResponse, error) {
+func (UnimplementedShugoServiceServer) GetSystemInfo(context.Context, *emptypb.Empty) (*SystemInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSystemInfo not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetMetrics(context.Context, *emptypb.Empty) (*MetricsResponse, error) {
+func (UnimplementedShugoServiceServer) GetMetrics(context.Context, *emptypb.Empty) (*MetricsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) HealthCheck(context.Context, *emptypb.Empty) (*HealthResponse, error) {
+func (UnimplementedShugoServiceServer) HealthCheck(context.Context, *emptypb.Empty) (*HealthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) StreamFileOperations(*emptypb.Empty, PeerVaultService_StreamFileOperationsServer) error {
+func (UnimplementedShugoServiceServer) StreamFileOperations(*emptypb.Empty, ShugoService_StreamFileOperationsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamFileOperations not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) StreamPeerEvents(*emptypb.Empty, PeerVaultService_StreamPeerEventsServer) error {
+func (UnimplementedShugoServiceServer) StreamPeerEvents(*emptypb.Empty, ShugoService_StreamPeerEventsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamPeerEvents not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) StreamSystemEvents(*emptypb.Empty, PeerVaultService_StreamSystemEventsServer) error {
+func (UnimplementedShugoServiceServer) StreamSystemEvents(*emptypb.Empty, ShugoService_StreamSystemEventsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamSystemEvents not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) StreamHealthEvents(*emptypb.Empty, PeerVaultService_StreamHealthEventsServer) error {
+func (UnimplementedShugoServiceServer) StreamHealthEvents(*emptypb.Empty, ShugoService_StreamHealthEventsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamHealthEvents not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetDetailedHealth(context.Context, *emptypb.Empty) (*HealthResponse, error) {
+func (UnimplementedShugoServiceServer) GetDetailedHealth(context.Context, *emptypb.Empty) (*HealthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDetailedHealth not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetComponentHealth(context.Context, *ComponentHealthRequest) (*ComponentHealthResponse, error) {
+func (UnimplementedShugoServiceServer) GetComponentHealth(context.Context, *ComponentHealthRequest) (*ComponentHealthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetComponentHealth not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) ForceHealthCheck(context.Context, *ForceHealthCheckRequest) (*ForceHealthCheckResponse, error) {
+func (UnimplementedShugoServiceServer) ForceHealthCheck(context.Context, *ForceHealthCheckRequest) (*ForceHealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ForceHealthCheck not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetHealthMetrics(context.Context, *emptypb.Empty) (*HealthMetricsResponse, error) {
+func (UnimplementedShugoServiceServer) GetHealthMetrics(context.Context, *emptypb.Empty) (*HealthMetricsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHealthMetrics not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetHealthTraces(context.Context, *emptypb.Empty) (*HealthTracesResponse, error) {
+func (UnimplementedShugoServiceServer) GetHealthTraces(context.Context, *emptypb.Empty) (*HealthTracesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHealthTraces not implemented")
 }
-func (UnimplementedPeerVaultServiceServer) GetHealthProfiles(context.Context, *emptypb.Empty) (*HealthProfilesResponse, error) {
+func (UnimplementedShugoServiceServer) GetHealthProfiles(context.Context, *emptypb.Empty) (*HealthProfilesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHealthProfiles not implemented")
 }
 
-// UnsafePeerVaultServiceServer may be embedded to opt out of forward compatibility for this service.
-type UnsafePeerVaultServiceServer interface {
-	mustEmbedUnimplementedPeerVaultServiceServer()
+// UnsafeShugoServiceServer may be embedded to opt out of forward compatibility for this service.
+type UnsafeShugoServiceServer interface {
+	mustEmbedUnimplementedShugoServiceServer()
 }
 
-func RegisterPeerVaultServiceServer(s grpc.ServiceRegistrar, srv PeerVaultServiceServer) {
-	s.RegisterService(&_PeerVaultService_serviceDesc, srv)
+func RegisterShugoServiceServer(s grpc.ServiceRegistrar, srv ShugoServiceServer) {
+	s.RegisterService(&_ShugoService_serviceDesc, srv)
 }
 
-func _PeerVaultService_UploadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(PeerVaultServiceServer).UploadFile(&peerVaultServiceUploadFileServer{stream})
+func _ShugoService_UploadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ShugoServiceServer).UploadFile(&shugoServiceUploadFileServer{stream})
 }
 
-type PeerVaultService_UploadFileServer interface {
+type ShugoService_UploadFileServer interface {
 	SendAndClose(*FileResponse) error
 	Recv() (*FileChunk, error)
 	grpc.ServerStream
 }
 
-type peerVaultServiceUploadFileServer struct {
+type shugoServiceUploadFileServer struct {
 	grpc.ServerStream
 }
 
-func (x *peerVaultServiceUploadFileServer) SendAndClose(m *FileResponse) error {
+func (x *shugoServiceUploadFileServer) SendAndClose(m *FileResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *peerVaultServiceUploadFileServer) Recv() (*FileChunk, error) {
+func (x *shugoServiceUploadFileServer) Recv() (*FileChunk, error) {
 	m := new(FileChunk)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -588,401 +588,401 @@ func (x *peerVaultServiceUploadFileServer) Recv() (*FileChunk, error) {
 	return m, nil
 }
 
-func _PeerVaultService_DownloadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _ShugoService_DownloadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(FileRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(PeerVaultServiceServer).DownloadFile(m, &peerVaultServiceDownloadFileServer{stream})
+	return srv.(ShugoServiceServer).DownloadFile(m, &shugoServiceDownloadFileServer{stream})
 }
 
-type PeerVaultService_DownloadFileServer interface {
+type ShugoService_DownloadFileServer interface {
 	Send(*FileChunk) error
 	grpc.ServerStream
 }
 
-type peerVaultServiceDownloadFileServer struct {
+type shugoServiceDownloadFileServer struct {
 	grpc.ServerStream
 }
 
-func (x *peerVaultServiceDownloadFileServer) Send(m *FileChunk) error {
+func (x *shugoServiceDownloadFileServer) Send(m *FileChunk) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _PeerVaultService_ListFiles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_ListFiles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListFilesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).ListFiles(ctx, in)
+		return srv.(ShugoServiceServer).ListFiles(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_ListFiles_FullMethodName,
+		FullMethod: ShugoService_ListFiles_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).ListFiles(ctx, req.(*ListFilesRequest))
+		return srv.(ShugoServiceServer).ListFiles(ctx, req.(*ListFilesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_GetFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_GetFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).GetFile(ctx, in)
+		return srv.(ShugoServiceServer).GetFile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_GetFile_FullMethodName,
+		FullMethod: ShugoService_GetFile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).GetFile(ctx, req.(*FileRequest))
+		return srv.(ShugoServiceServer).GetFile(ctx, req.(*FileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_DeleteFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_DeleteFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).DeleteFile(ctx, in)
+		return srv.(ShugoServiceServer).DeleteFile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_DeleteFile_FullMethodName,
+		FullMethod: ShugoService_DeleteFile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).DeleteFile(ctx, req.(*FileRequest))
+		return srv.(ShugoServiceServer).DeleteFile(ctx, req.(*FileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_UpdateFileMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_UpdateFileMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateFileMetadataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).UpdateFileMetadata(ctx, in)
+		return srv.(ShugoServiceServer).UpdateFileMetadata(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_UpdateFileMetadata_FullMethodName,
+		FullMethod: ShugoService_UpdateFileMetadata_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).UpdateFileMetadata(ctx, req.(*UpdateFileMetadataRequest))
+		return srv.(ShugoServiceServer).UpdateFileMetadata(ctx, req.(*UpdateFileMetadataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_ListPeers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_ListPeers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).ListPeers(ctx, in)
+		return srv.(ShugoServiceServer).ListPeers(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_ListPeers_FullMethodName,
+		FullMethod: ShugoService_ListPeers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).ListPeers(ctx, req.(*emptypb.Empty))
+		return srv.(ShugoServiceServer).ListPeers(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_GetPeer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_GetPeer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PeerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).GetPeer(ctx, in)
+		return srv.(ShugoServiceServer).GetPeer(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_GetPeer_FullMethodName,
+		FullMethod: ShugoService_GetPeer_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).GetPeer(ctx, req.(*PeerRequest))
+		return srv.(ShugoServiceServer).GetPeer(ctx, req.(*PeerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_AddPeer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_AddPeer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddPeerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).AddPeer(ctx, in)
+		return srv.(ShugoServiceServer).AddPeer(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_AddPeer_FullMethodName,
+		FullMethod: ShugoService_AddPeer_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).AddPeer(ctx, req.(*AddPeerRequest))
+		return srv.(ShugoServiceServer).AddPeer(ctx, req.(*AddPeerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_RemovePeer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_RemovePeer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PeerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).RemovePeer(ctx, in)
+		return srv.(ShugoServiceServer).RemovePeer(ctx, in)
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).RemovePeer(ctx, in)
+		return srv.(ShugoServiceServer).RemovePeer(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_RemovePeer_FullMethodName,
+		FullMethod: ShugoService_RemovePeer_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).RemovePeer(ctx, req.(*PeerRequest))
+		return srv.(ShugoServiceServer).RemovePeer(ctx, req.(*PeerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_GetPeerHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_GetPeerHealth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PeerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).GetPeerHealth(ctx, in)
+		return srv.(ShugoServiceServer).GetPeerHealth(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_GetPeerHealth_FullMethodName,
+		FullMethod: ShugoService_GetPeerHealth_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).GetPeerHealth(ctx, req.(*PeerRequest))
+		return srv.(ShugoServiceServer).GetPeerHealth(ctx, req.(*PeerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_GetSystemInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_GetSystemInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).GetSystemInfo(ctx, in)
+		return srv.(ShugoServiceServer).GetSystemInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_GetSystemInfo_FullMethodName,
+		FullMethod: ShugoService_GetSystemInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).GetSystemInfo(ctx, req.(*emptypb.Empty))
+		return srv.(ShugoServiceServer).GetSystemInfo(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).GetMetrics(ctx, in)
+		return srv.(ShugoServiceServer).GetMetrics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_GetMetrics_FullMethodName,
+		FullMethod: ShugoService_GetMetrics_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).GetMetrics(ctx, req.(*emptypb.Empty))
+		return srv.(ShugoServiceServer).GetMetrics(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShugoService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeerVaultServiceServer).HealthCheck(ctx, in)
+		return srv.(ShugoServiceServer).HealthCheck(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PeerVaultService_HealthCheck_FullMethodName,
+		FullMethod: ShugoService_HealthCheck_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerVaultServiceServer).HealthCheck(ctx, req.(*emptypb.Empty))
+		return srv.(ShugoServiceServer).HealthCheck(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PeerVaultService_StreamFileOperations_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _ShugoService_StreamFileOperations_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(emptypb.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(PeerVaultServiceServer).StreamFileOperations(m, &peerVaultServiceStreamFileOperationsServer{stream})
+	return srv.(ShugoServiceServer).StreamFileOperations(m, &shugoServiceStreamFileOperationsServer{stream})
 }
 
-type PeerVaultService_StreamFileOperationsServer interface {
+type ShugoService_StreamFileOperationsServer interface {
 	Send(*FileOperationEvent) error
 	grpc.ServerStream
 }
 
-type peerVaultServiceStreamFileOperationsServer struct {
+type shugoServiceStreamFileOperationsServer struct {
 	grpc.ServerStream
 }
 
-func (x *peerVaultServiceStreamFileOperationsServer) Send(m *FileOperationEvent) error {
+func (x *shugoServiceStreamFileOperationsServer) Send(m *FileOperationEvent) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _PeerVaultService_StreamPeerEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _ShugoService_StreamPeerEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(emptypb.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(PeerVaultServiceServer).StreamPeerEvents(m, &peerVaultServiceStreamPeerEventsServer{stream})
+	return srv.(ShugoServiceServer).StreamPeerEvents(m, &shugoServiceStreamPeerEventsServer{stream})
 }
 
-type PeerVaultService_StreamPeerEventsServer interface {
+type ShugoService_StreamPeerEventsServer interface {
 	Send(*PeerEvent) error
 	grpc.ServerStream
 }
 
-type peerVaultServiceStreamPeerEventsServer struct {
+type shugoServiceStreamPeerEventsServer struct {
 	grpc.ServerStream
 }
 
-func (x *peerVaultServiceStreamPeerEventsServer) Send(m *PeerEvent) error {
+func (x *shugoServiceStreamPeerEventsServer) Send(m *PeerEvent) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _PeerVaultService_StreamSystemEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _ShugoService_StreamSystemEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(emptypb.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(PeerVaultServiceServer).StreamSystemEvents(m, &peerVaultServiceStreamSystemEventsServer{stream})
+	return srv.(ShugoServiceServer).StreamSystemEvents(m, &shugoServiceStreamSystemEventsServer{stream})
 }
 
-type PeerVaultService_StreamSystemEventsServer interface {
+type ShugoService_StreamSystemEventsServer interface {
 	Send(*SystemEvent) error
 	grpc.ServerStream
 }
 
-type peerVaultServiceStreamSystemEventsServer struct {
+type shugoServiceStreamSystemEventsServer struct {
 	grpc.ServerStream
 }
 
-func (x *peerVaultServiceStreamSystemEventsServer) Send(m *SystemEvent) error {
+func (x *shugoServiceStreamSystemEventsServer) Send(m *SystemEvent) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-type PeerVaultService_StreamHealthEventsServer interface {
+type ShugoService_StreamHealthEventsServer interface {
 	Send(*HealthEvent) error
 	grpc.ServerStream
 }
 
-type peerVaultServiceStreamHealthEventsServer struct {
+type shugoServiceStreamHealthEventsServer struct {
 	grpc.ServerStream
 }
 
-func (x *peerVaultServiceStreamHealthEventsServer) Send(m *HealthEvent) error {
+func (x *shugoServiceStreamHealthEventsServer) Send(m *HealthEvent) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-var _PeerVaultService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "peervault.PeerVaultService",
-	HandlerType: (*PeerVaultServiceServer)(nil),
+var _ShugoService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "shugo.ShugoService",
+	HandlerType: (*ShugoServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListFiles",
-			Handler:    _PeerVaultService_ListFiles_Handler,
+			Handler:    _ShugoService_ListFiles_Handler,
 		},
 		{
 			MethodName: "GetFile",
-			Handler:    _PeerVaultService_GetFile_Handler,
+			Handler:    _ShugoService_GetFile_Handler,
 		},
 		{
 			MethodName: "DeleteFile",
-			Handler:    _PeerVaultService_DeleteFile_Handler,
+			Handler:    _ShugoService_DeleteFile_Handler,
 		},
 		{
 			MethodName: "UpdateFileMetadata",
-			Handler:    _PeerVaultService_UpdateFileMetadata_Handler,
+			Handler:    _ShugoService_UpdateFileMetadata_Handler,
 		},
 		{
 			MethodName: "ListPeers",
-			Handler:    _PeerVaultService_ListPeers_Handler,
+			Handler:    _ShugoService_ListPeers_Handler,
 		},
 		{
 			MethodName: "GetPeer",
-			Handler:    _PeerVaultService_GetPeer_Handler,
+			Handler:    _ShugoService_GetPeer_Handler,
 		},
 		{
 			MethodName: "AddPeer",
-			Handler:    _PeerVaultService_AddPeer_Handler,
+			Handler:    _ShugoService_AddPeer_Handler,
 		},
 		{
 			MethodName: "RemovePeer",
-			Handler:    _PeerVaultService_RemovePeer_Handler,
+			Handler:    _ShugoService_RemovePeer_Handler,
 		},
 		{
 			MethodName: "GetPeerHealth",
-			Handler:    _PeerVaultService_GetPeerHealth_Handler,
+			Handler:    _ShugoService_GetPeerHealth_Handler,
 		},
 		{
 			MethodName: "GetSystemInfo",
-			Handler:    _PeerVaultService_GetSystemInfo_Handler,
+			Handler:    _ShugoService_GetSystemInfo_Handler,
 		},
 		{
 			MethodName: "GetMetrics",
-			Handler:    _PeerVaultService_GetMetrics_Handler,
+			Handler:    _ShugoService_GetMetrics_Handler,
 		},
 		{
 			MethodName: "HealthCheck",
-			Handler:    _PeerVaultService_HealthCheck_Handler,
+			Handler:    _ShugoService_HealthCheck_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "UploadFile",
-			Handler:       _PeerVaultService_UploadFile_Handler,
+			Handler:       _ShugoService_UploadFile_Handler,
 			ClientStreams: true,
 		},
 		{
 			StreamName:    "DownloadFile",
-			Handler:       _PeerVaultService_DownloadFile_Handler,
+			Handler:       _ShugoService_DownloadFile_Handler,
 			ServerStreams: true,
 		},
 		{
 			StreamName:    "StreamFileOperations",
-			Handler:       _PeerVaultService_StreamFileOperations_Handler,
+			Handler:       _ShugoService_StreamFileOperations_Handler,
 			ServerStreams: true,
 		},
 		{
 			StreamName:    "StreamPeerEvents",
-			Handler:       _PeerVaultService_StreamPeerEvents_Handler,
+			Handler:       _ShugoService_StreamPeerEvents_Handler,
 			ServerStreams: true,
 		},
 		{
 			StreamName:    "StreamSystemEvents",
-			Handler:       _PeerVaultService_StreamSystemEvents_Handler,
+			Handler:       _ShugoService_StreamSystemEvents_Handler,
 			ServerStreams: true,
 		},
 	},
-	Metadata: "peervault.proto",
+	Metadata: "shugo.proto",
 }

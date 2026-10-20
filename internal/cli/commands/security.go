@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
-	"github.com/Skpow1234/Peervault/internal/cli/security"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/security"
 )
 
 // AuthCommand manages authentication and user management
@@ -83,7 +83,7 @@ func (c *AuthCommand) login(_ context.Context, args []string) error {
 	}
 
 	// Create session
-	session, err := c.authManager.CreateSession(user.ID, "127.0.0.1", "PeerVault CLI")
+	session, err := c.authManager.CreateSession(user.ID, "127.0.0.1", "Shugo CLI")
 	if err != nil {
 		return fmt.Errorf("failed to create session: %w", err)
 	}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
 )
 
 // EdgeNode represents an edge computing node

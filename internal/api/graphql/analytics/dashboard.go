@@ -287,7 +287,7 @@ func (ad *AnalyticsDashboard) HealthHandler(w http.ResponseWriter, r *http.Reque
 	health := map[string]interface{}{
 		"status":    "healthy",
 		"timestamp": time.Now().UTC(),
-		"service":   "peervault-analytics-dashboard",
+		"service":   "shugo-analytics-dashboard",
 	}
 
 	if err := json.NewEncoder(w).Encode(health); err != nil {
@@ -304,7 +304,7 @@ func (ad *AnalyticsDashboard) generateDashboardHTML() string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PeerVault GraphQL Analytics Dashboard</title>
+    <title>Shugo GraphQL Analytics Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -389,7 +389,7 @@ func (ad *AnalyticsDashboard) generateDashboardHTML() string {
 <body>
     <div class="container">
         <div class="header">
-            <h1>PeerVault GraphQL Analytics Dashboard</h1>
+            <h1>Shugo GraphQL Analytics Dashboard</h1>
             <p>Real-time monitoring and analytics for GraphQL queries and performance</p>
             <button class="refresh-btn" onclick="refreshData()">Refresh</button>
         </div>

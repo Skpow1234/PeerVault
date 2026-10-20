@@ -73,8 +73,8 @@ func TestContractVerification(t *testing.T) {
 			contract: &ContractTest{
 				Name:        "health-check",
 				Description: "Health check endpoint contract",
-				Provider:    "peervault-api",
-				Consumer:    "peervault-client",
+				Provider:    "shugo-api",
+				Consumer:    "shugo-client",
 				Request: &ContractRequest{
 					Method: "GET",
 					Path:   "/health",
@@ -99,8 +99,8 @@ func TestContractVerification(t *testing.T) {
 			contract: &ContractTest{
 				Name:        "get-nodes",
 				Description: "Get nodes endpoint contract",
-				Provider:    "peervault-api",
-				Consumer:    "peervault-client",
+				Provider:    "shugo-api",
+				Consumer:    "shugo-client",
 				Request: &ContractRequest{
 					Method: "GET",
 					Path:   "/api/nodes",
@@ -129,8 +129,8 @@ func TestContractVerification(t *testing.T) {
 			contract: &ContractTest{
 				Name:        "create-node",
 				Description: "Create node endpoint contract",
-				Provider:    "peervault-api",
-				Consumer:    "peervault-client",
+				Provider:    "shugo-api",
+				Consumer:    "shugo-client",
 				Request: &ContractRequest{
 					Method: "POST",
 					Path:   "/api/nodes",

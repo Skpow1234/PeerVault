@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/peer"
 )
 
 func TestResourceLimits(t *testing.T) {

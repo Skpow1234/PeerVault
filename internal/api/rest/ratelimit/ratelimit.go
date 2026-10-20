@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/rest/versioning"
+	"github.com/Skpow1234/Shugo/internal/api/rest/versioning"
 )
 
 // Algorithm represents the rate limiting algorithm to use

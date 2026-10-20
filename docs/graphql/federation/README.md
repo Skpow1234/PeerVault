@@ -1,6 +1,6 @@
 # GraphQL Federation
 
-This document describes the GraphQL federation implementation in PeerVault, which enables multi-service composition and distributed GraphQL schemas.
+This document describes the GraphQL federation implementation in Shugo, which enables multi-service composition and distributed GraphQL schemas.
 
 ## Overview
 
@@ -53,16 +53,16 @@ The federation gateway is the central component that:
 
 ```bash
 # Start with default configuration
-peervault-federation
+shugo-federation
 
 # Start on custom port
-peervault-federation -port 9090
+shugo-federation -port 9090
 
 # Start with verbose logging
-peervault-federation -verbose
+shugo-federation -verbose
 
 # Start with custom health check interval
-peervault-federation -health-check-interval 1m
+shugo-federation -health-check-interval 1m
 ```
 
 ### Configuration
@@ -87,7 +87,7 @@ Services can be automatically registered by the gateway on startup:
 ```go
 // Register a service
 service := &federation.FederatedService{
-    Name:     "peervault-files",
+    Name:     "shugo-files",
     URL:      "http://localhost:8080/graphql",
     HealthCheck: "http://localhost:8080/health",
     Capabilities: map[string]bool{
@@ -151,7 +151,7 @@ List all registered services.
 ```json
 [
   {
-    "name": "peervault-main",
+    "name": "shugo-main",
     "url": "http://localhost:8080/graphql",
     "isHealthy": true,
     "lastSeen": "2024-01-15T10:30:00Z",
@@ -287,9 +287,9 @@ query {
 
 This query would be planned across three services:
 
-- `peervault-files` for file data
-- `peervault-nodes` for node/owner data  
-- `peervault-analytics` for system metrics
+- `shugo-files` for file data
+- `shugo-nodes` for node/owner data  
+- `shugo-analytics` for system metrics
 
 ## Health Monitoring
 

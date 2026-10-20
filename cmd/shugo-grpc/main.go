@@ -8,19 +8,19 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Skpow1234/Peervault/internal/api/grpc"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/crypto"
-	"github.com/Skpow1234/Peervault/internal/peer"
-	"github.com/Skpow1234/Peervault/internal/storage"
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	"github.com/Skpow1234/Shugo/internal/api/grpc"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/storage"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 func main() {
 	port := flag.String("port", "8082", "HTTP/JSON API port (temporary gRPC facade)")
 	authToken := flag.String("auth-token", "demo-token", "Authentication token")
 	listen := flag.String("listen", ":3020", "P2P listen address for embedded fileserver")
-	storageRoot := flag.String("storage", "peervault-grpc-storage", "Storage root")
+	storageRoot := flag.String("storage", "shugo-grpc-storage", "Storage root")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
@@ -74,7 +74,7 @@ func main() {
 		}
 	}()
 
-	logger.Info("Starting PeerVault gRPC/HTTP API", "port", config.Port)
+	logger.Info("Starting Shugo gRPC/HTTP API", "port", config.Port)
 	if err := server.Start(); err != nil {
 		logger.Error("Server error", "error", err)
 		os.Exit(1)

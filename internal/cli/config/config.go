@@ -22,7 +22,7 @@ type Config struct {
 // Default returns default configuration
 func Default() *Config {
 	homeDir, _ := os.UserHomeDir()
-	configDir := filepath.Join(homeDir, ".peervault")
+	configDir := filepath.Join(homeDir, ".shugo")
 
 	return &Config{
 		ServerURL:    "http://localhost:8080",
@@ -43,7 +43,7 @@ func Default() *Config {
 // Load loads configuration from file
 func Load() (*Config, error) {
 	homeDir, _ := os.UserHomeDir()
-	configDir := filepath.Join(homeDir, ".peervault")
+	configDir := filepath.Join(homeDir, ".shugo")
 	configFile := filepath.Join(configDir, "config.json")
 
 	// Create config directory if it doesn't exist
@@ -78,7 +78,7 @@ func Load() (*Config, error) {
 // Save saves configuration to file
 func (c *Config) Save() error {
 	homeDir, _ := os.UserHomeDir()
-	configDir := filepath.Join(homeDir, ".peervault")
+	configDir := filepath.Join(homeDir, ".shugo")
 	configFile := filepath.Join(configDir, "config.json")
 
 	// Create config directory if it doesn't exist
@@ -146,5 +146,5 @@ func (c *Config) Get(key string) (string, error) {
 // GetConfigDir returns the configuration directory
 func GetConfigDir() string {
 	homeDir, _ := os.UserHomeDir()
-	return filepath.Join(homeDir, ".peervault")
+	return filepath.Join(homeDir, ".shugo")
 }

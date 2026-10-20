@@ -7,16 +7,16 @@ import (
 	"testing"
 	"time"
 
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 func TestAuthenticatedHandshake(t *testing.T) {
 	// Set up test auth token
-	if err := os.Setenv("PEERVAULT_AUTH_TOKEN", "test-auth-token-123"); err != nil {
+	if err := os.Setenv("SHUGO_AUTH_TOKEN", "test-auth-token-123"); err != nil {
 		t.Fatalf("failed to set env var: %v", err)
 	}
 	defer func() {
-		if err := os.Unsetenv("PEERVAULT_AUTH_TOKEN"); err != nil {
+		if err := os.Unsetenv("SHUGO_AUTH_TOKEN"); err != nil {
 			t.Logf("failed to unset env var: %v", err)
 		}
 	}()

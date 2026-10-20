@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-PeerVault REST API - Basic File Upload Example
+Shugo REST API - Basic File Upload Example
 
-This example demonstrates how to upload a file to PeerVault using the REST API.
+This example demonstrates how to upload a file to Shugo using the REST API.
 """
 
 import requests
@@ -12,12 +12,12 @@ import sys
 from pathlib import Path
 
 # Configuration
-PEERVAULT_BASE_URL = "http://localhost:8080"
-API_BASE_URL = f"{PEERVAULT_BASE_URL}/api/v1"
+SHUGO_BASE_URL = "http://localhost:8080"
+API_BASE_URL = f"{SHUGO_BASE_URL}/api/v1"
 
 def upload_file(file_path, key=None):
     """
-    Upload a file to PeerVault.
+    Upload a file to Shugo.
     
     Args:
         file_path (str): Path to the file to upload
@@ -56,7 +56,7 @@ def upload_file(file_path, key=None):
 
 def download_file(key, output_path=None):
     """
-    Download a file from PeerVault.
+    Download a file from Shugo.
     
     Args:
         key (str): Key of the file to download
@@ -85,7 +85,7 @@ def download_file(key, output_path=None):
 
 def list_files():
     """
-    List all files in PeerVault.
+    List all files in Shugo.
     
     Returns:
         list: List of file metadata
@@ -96,7 +96,7 @@ def list_files():
 
 def delete_file(key):
     """
-    Delete a file from PeerVault.
+    Delete a file from Shugo.
     
     Args:
         key (str): Key of the file to delete
@@ -124,12 +124,12 @@ def get_file_info(key):
 
 def main():
     """Main function demonstrating basic file operations."""
-    print("PeerVault REST API - Basic File Operations Example")
+    print("Shugo REST API - Basic File Operations Example")
     print("=" * 50)
     
     # Create a sample file
     sample_file = "sample.txt"
-    sample_content = "Hello, PeerVault! This is a sample file for testing."
+    sample_content = "Hello, Shugo! This is a sample file for testing."
     
     with open(sample_file, 'w') as f:
         f.write(sample_content)

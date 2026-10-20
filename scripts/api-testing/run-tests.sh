@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# PeerVault API Testing Script
+# Shugo API Testing Script
 # This script runs comprehensive API tests including interactive, contract, performance, and security tests
 
 set -e
@@ -55,8 +55,8 @@ check_service() {
 start_mock_server() {
     print_status "Starting mock server..."
     
-    if [ -f "cmd/peervault-mock/main.go" ]; then
-        go run cmd/peervault-mock/main.go --port 3001 --host localhost &
+    if [ -f "cmd/shugo-mock/main.go" ]; then
+        go run cmd/shugo-mock/main.go --port 3001 --host localhost &
         MOCK_PID=$!
         sleep 2
         
@@ -188,10 +188,10 @@ run_security_tests() {
 run_postman_tests() {
     print_status "Running Postman tests..."
     
-    if [ -f "tests/api/collections/peervault-postman.json" ]; then
+    if [ -f "tests/api/collections/shugo-postman.json" ]; then
         if command -v newman >/dev/null 2>&1; then
             print_status "Running Newman (Postman CLI) tests..."
-            if newman run tests/api/collections/peervault-postman.json \
+            if newman run tests/api/collections/shugo-postman.json \
                 --environment-var "baseUrl=$BASE_URL" \
                 --environment-var "mockUrl=$MOCK_URL" \
                 --timeout-request 30000; then
@@ -216,7 +216,7 @@ generate_report() {
     local report_file="test-report-$(date +%Y%m%d-%H%M%S).md"
     
     cat > "$report_file" << EOF
-# PeerVault API Test Report
+# Shugo API Test Report
 
 **Generated:** $(date)
 **Base URL:** $BASE_URL
@@ -253,13 +253,13 @@ EOF
 
 # Main function
 main() {
-    print_status "Starting PeerVault API Testing..."
+    print_status "Starting Shugo API Testing..."
     print_status "Base URL: $BASE_URL"
     print_status "Mock URL: $MOCK_URL"
     
     # Check if main service is running
-    if ! check_service "$BASE_URL" "PeerVault API"; then
-        print_error "PeerVault API is not running. Please start the service first."
+    if ! check_service "$BASE_URL" "Shugo API"; then
+        print_error "Shugo API is not running. Please start the service first."
         exit 1
     fi
     

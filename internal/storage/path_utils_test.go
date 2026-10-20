@@ -89,10 +89,10 @@ func TestWindowsPathSanitizer_SanitizeStorageRootWithPrefix(t *testing.T) {
 		prefix     string
 		expected   string
 	}{
-		{":3000", "peervault", "peervault_3000_network"},
+		{":3000", "shugo", "shugo_3000_network"},
 		{":7000", "test", "test_7000_network"},
 		{":5000", "demo", "demo_5000_network"},
-		{"3000", "peervault", "peervault_3000_network"},
+		{"3000", "shugo", "shugo_3000_network"},
 		{":", "default", "default__network"},
 		{"", "default", "default__network"},
 	}
@@ -126,10 +126,10 @@ func TestSanitizeStorageRootFromAddr(t *testing.T) {
 
 func TestSanitizeStorageRootFromAddrWithPrefix(t *testing.T) {
 	// Test the convenience function with prefix
-	result := SanitizeStorageRootFromAddrWithPrefix(":3000", "peervault")
-	expected := "peervault_3000_network"
+	result := SanitizeStorageRootFromAddrWithPrefix(":3000", "shugo")
+	expected := "shugo_3000_network"
 	if result != expected {
-		t.Errorf("SanitizeStorageRootFromAddrWithPrefix(\":3000\", \"peervault\") = %q, want %q", result, expected)
+		t.Errorf("SanitizeStorageRootFromAddrWithPrefix(\":3000\", \"shugo\") = %q, want %q", result, expected)
 	}
 }
 

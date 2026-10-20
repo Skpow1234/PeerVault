@@ -1,4 +1,4 @@
-# Access Control Policy for PeerVault
+# Access Control Policy for Shugo
 # This policy defines access control requirements and procedures
 
 terms:
@@ -17,8 +17,8 @@ policy:
   approver: "CISO"
 
 overview:
-  purpose: "To establish and maintain appropriate access controls to protect PeerVault systems and data"
-  scope: "All PeerVault systems, applications, and data"
+  purpose: "To establish and maintain appropriate access controls to protect Shugo systems and data"
+  scope: "All Shugo systems, applications, and data"
   compliance: ["SOC 2", "ISO 27001", "GDPR", "HIPAA", "PCI DSS"]
 
 principles:

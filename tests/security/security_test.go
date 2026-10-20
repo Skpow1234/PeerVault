@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/security"
+	"github.com/Skpow1234/Shugo/internal/api/security"
 )
 
 func TestSecurityTests(t *testing.T) {

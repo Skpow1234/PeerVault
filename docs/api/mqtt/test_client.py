@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple MQTT test client for PeerVault MQTT broker
+Simple MQTT test client for Shugo MQTT broker
 """
 
 import paho.mqtt.client as mqtt
@@ -291,7 +291,7 @@ def main():
     """Main function"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="MQTT Test Client for PeerVault")
+    parser = argparse.ArgumentParser(description="MQTT Test Client for Shugo")
     parser.add_argument("--host", default="localhost", help="MQTT broker host")
     parser.add_argument("--port", type=int, default=1883, help="MQTT broker port")
     parser.add_argument("--mode", choices=["interactive", "automated"], 

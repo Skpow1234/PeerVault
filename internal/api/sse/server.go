@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
 )
 
 // Server represents the SSE API server
@@ -138,7 +138,7 @@ func (s *Server) handleSSE(w http.ResponseWriter, r *http.Request) {
 
 	// Send initial connection event
 	client.SendEvent("connected", map[string]interface{}{
-		"message":   "Connected to PeerVault SSE",
+		"message":   "Connected to Shugo SSE",
 		"timestamp": time.Now().UTC(),
 		"clientId":  client.ID,
 	})
@@ -193,7 +193,7 @@ func (s *Server) handleMetrics(w http.ResponseWriter, _ *http.Request) {
 func (s *Server) handleStatus(w http.ResponseWriter, _ *http.Request) {
 	status := map[string]interface{}{
 		"server": map[string]interface{}{
-			"name":    "PeerVault SSE API",
+			"name":    "Shugo SSE API",
 			"version": "1.0.0",
 			"status":  "running",
 			"uptime":  time.Since(s.startTime).String(),

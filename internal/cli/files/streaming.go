@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
 )
 
 // StreamingManager manages file streaming

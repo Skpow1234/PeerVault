@@ -11,14 +11,14 @@ Deep dive: [documentation/ENCRYPTION.md](../documentation/ENCRYPTION.md) · Poli
 
 ## Key management
 
-- Set `PEERVAULT_CLUSTER_KEY` on all nodes for a shared cluster (via Compose env)
+- Set `SHUGO_CLUSTER_KEY` on all nodes for a shared cluster (via Compose env)
 - Optional rotation (default interval documented as 24h in product docs)
 - Without a cluster key, each node generates its own key (dev/demo only)
 
 ## Peer authentication
 
 - HMAC-SHA256 handshake with node identity and timestamp skew checks
-- Set `PEERVAULT_AUTH_TOKEN` across nodes for production-like demos
+- Set `SHUGO_AUTH_TOKEN` across nodes for production-like demos
 - Default demo token is for local development only
 
 ## MVP vs planned

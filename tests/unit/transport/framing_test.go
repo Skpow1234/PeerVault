@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 func TestLengthPrefixedDecoder(t *testing.T) {

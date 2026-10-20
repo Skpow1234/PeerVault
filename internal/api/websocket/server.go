@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/websocket"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/websocket"
 )
 
 // Server represents the WebSocket API server
@@ -170,7 +170,7 @@ func (s *Server) handleMetrics(w http.ResponseWriter, _ *http.Request) {
 func (s *Server) handleStatus(w http.ResponseWriter, _ *http.Request) {
 	status := map[string]interface{}{
 		"server": map[string]interface{}{
-			"name":    "PeerVault WebSocket API",
+			"name":    "Shugo WebSocket API",
 			"version": "1.0.0",
 			"status":  "running",
 			"uptime":  time.Since(s.startTime).String(),

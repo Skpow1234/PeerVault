@@ -5,21 +5,21 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Skpow1234/Peervault/internal/cli"
-	"github.com/Skpow1234/Peervault/internal/cli/aliases"
-	"github.com/Skpow1234/Peervault/internal/cli/analytics"
-	"github.com/Skpow1234/Peervault/internal/cli/blockchain"
-	"github.com/Skpow1234/Peervault/internal/cli/client"
-	"github.com/Skpow1234/Peervault/internal/cli/commands"
-	"github.com/Skpow1234/Peervault/internal/cli/config"
-	"github.com/Skpow1234/Peervault/internal/cli/edge"
-	"github.com/Skpow1234/Peervault/internal/cli/files"
-	"github.com/Skpow1234/Peervault/internal/cli/formatter"
-	"github.com/Skpow1234/Peervault/internal/cli/history"
-	"github.com/Skpow1234/Peervault/internal/cli/integration"
-	"github.com/Skpow1234/Peervault/internal/cli/iot"
-	"github.com/Skpow1234/Peervault/internal/cli/network"
-	"github.com/Skpow1234/Peervault/internal/cli/prompt"
+	"github.com/Skpow1234/Shugo/internal/cli"
+	"github.com/Skpow1234/Shugo/internal/cli/aliases"
+	"github.com/Skpow1234/Shugo/internal/cli/analytics"
+	"github.com/Skpow1234/Shugo/internal/cli/blockchain"
+	"github.com/Skpow1234/Shugo/internal/cli/client"
+	"github.com/Skpow1234/Shugo/internal/cli/commands"
+	"github.com/Skpow1234/Shugo/internal/cli/config"
+	"github.com/Skpow1234/Shugo/internal/cli/edge"
+	"github.com/Skpow1234/Shugo/internal/cli/files"
+	"github.com/Skpow1234/Shugo/internal/cli/formatter"
+	"github.com/Skpow1234/Shugo/internal/cli/history"
+	"github.com/Skpow1234/Shugo/internal/cli/integration"
+	"github.com/Skpow1234/Shugo/internal/cli/iot"
+	"github.com/Skpow1234/Shugo/internal/cli/network"
+	"github.com/Skpow1234/Shugo/internal/cli/prompt"
 )
 
 func main() {
@@ -178,7 +178,7 @@ func registerCommands(cliApp *cli.CLI, client *client.Client, formatter *formatt
 func runInteractiveMode(cliApp *cli.CLI, client *client.Client, formatter *formatter.Formatter, prompt *prompt.Prompt, cfg *config.Config, hist *history.History, aliasManager *aliases.Manager) {
 	// Clear screen and show welcome
 	formatter.ClearScreen()
-	formatter.PrintHeader("PeerVault CLI - Interactive Mode")
+	formatter.PrintHeader("Shugo CLI - Interactive Mode")
 	formatter.PrintInfo("Type 'help' for available commands or 'exit' to quit")
 	formatter.PrintInfo("Use Tab for completion, ↑↓ for history, Ctrl+C to exit")
 	fmt.Println()

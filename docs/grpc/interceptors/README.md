@@ -1,10 +1,10 @@
 # gRPC Interceptors
 
-This document describes the gRPC interceptors implemented in PeerVault, providing authentication, logging, monitoring, and other cross-cutting concerns.
+This document describes the gRPC interceptors implemented in Shugo, providing authentication, logging, monitoring, and other cross-cutting concerns.
 
 ## Overview
 
-gRPC interceptors provide a way to implement cross-cutting concerns such as authentication, logging, monitoring, and validation without modifying the core business logic. PeerVault implements a comprehensive set of interceptors that can be configured and combined as needed.
+gRPC interceptors provide a way to implement cross-cutting concerns such as authentication, logging, monitoring, and validation without modifying the core business logic. Shugo implements a comprehensive set of interceptors that can be configured and combined as needed.
 
 ## Architecture
 
@@ -48,10 +48,10 @@ Provides JWT-based authentication for gRPC services.
 config := &interceptors.AuthConfig{
     SecretKey:     "your-secret-key",
     TokenExpiry:   24 * time.Hour,
-    Issuer:        "peervault",
-    Audience:      "peervault-api",
+    Issuer:        "shugo",
+    Audience:      "shugo-api",
     RequireAuth:   true,
-    SkipMethods:   []string{"/peervault.PeerVaultService/HealthCheck"},
+    SkipMethods:   []string{"/shugo.ShugoService/HealthCheck"},
     RateLimitRPS:  100,
     RateLimitBurst: 200,
 }
@@ -93,7 +93,7 @@ config := &interceptors.LoggingConfig{
     LogMetadata:     false,
     LogPayload:      false,
     MaxPayloadSize:  1024,
-    SkipMethods:     []string{"/peervault.PeerVaultService/HealthCheck"},
+    SkipMethods:     []string{"/shugo.ShugoService/HealthCheck"},
     LogLevel:        slog.LevelInfo,
 }
 ```
@@ -132,7 +132,7 @@ config := &interceptors.MonitoringConfig{
     MetricsPrefix:     "grpc",
     HistogramBuckets:  []float64{0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10},
     CounterLabels:     []string{"method", "status_code", "user_id"},
-    SkipMethods:       []string{"/peervault.PeerVaultService/HealthCheck"},
+    SkipMethods:       []string{"/shugo.ShugoService/HealthCheck"},
     SampleRate:        1.0,
     MaxTraceDuration:  30 * time.Second,
 }
@@ -197,7 +197,7 @@ validationInterceptor := interceptors.NewValidationInterceptor(logger)
 
 // Add validators for specific methods
 validationInterceptor.AddValidator(
-    "/peervault.PeerVaultService/UploadFile",
+    "/shugo.ShugoService/UploadFile",
     func(req interface{}) error {
         // Custom validation logic
         return nil
@@ -382,10 +382,10 @@ manager := interceptors.NewInterceptorManager(logger)
 authConfig := &interceptors.AuthConfig{
     SecretKey:     os.Getenv("JWT_SECRET"),
     TokenExpiry:   1 * time.Hour,
-    Issuer:        "peervault-prod",
-    Audience:      "peervault-api",
+    Issuer:        "shugo-prod",
+    Audience:      "shugo-api",
     RequireAuth:   true,
-    SkipMethods:   []string{"/peervault.PeerVaultService/HealthCheck"},
+    SkipMethods:   []string{"/shugo.ShugoService/HealthCheck"},
     RateLimitRPS:  1000,
     RateLimitBurst: 2000,
 }
@@ -401,7 +401,7 @@ loggingConfig := &interceptors.LoggingConfig{
     LogMetadata:     false,
     LogPayload:      false,
     MaxPayloadSize:  512,
-    SkipMethods:     []string{"/peervault.PeerVaultService/HealthCheck"},
+    SkipMethods:     []string{"/shugo.ShugoService/HealthCheck"},
     LogLevel:        slog.LevelWarn,
 }
 manager.SetLoggingInterceptor(loggingConfig)
@@ -411,10 +411,10 @@ monitoringConfig := &interceptors.MonitoringConfig{
     EnableMetrics:     true,
     EnableTracing:     true,
     EnableProfiling:   false,
-    MetricsPrefix:     "peervault_grpc",
+    MetricsPrefix:     "shugo_grpc",
     HistogramBuckets:  []float64{0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10},
     CounterLabels:     []string{"method", "status_code", "user_id", "service"},
-    SkipMethods:       []string{"/peervault.PeerVaultService/HealthCheck"},
+    SkipMethods:       []string{"/shugo.ShugoService/HealthCheck"},
     SampleRate:        0.1, // 10% sampling
     MaxTraceDuration:  60 * time.Second,
 }

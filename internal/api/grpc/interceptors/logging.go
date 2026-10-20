@@ -36,7 +36,7 @@ func DefaultLoggingConfig() *LoggingConfig {
 		LogMetadata:    false,
 		LogPayload:     false,
 		MaxPayloadSize: 1024,
-		SkipMethods:    []string{"/peervault.PeerVaultService/HealthCheck"},
+		SkipMethods:    []string{"/shugo.ShugoService/HealthCheck"},
 		LogLevel:       slog.LevelInfo,
 	}
 }

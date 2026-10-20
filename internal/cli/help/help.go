@@ -88,7 +88,7 @@ func (hm *HelpManager) initializeHelp() {
 	// Store command help
 	hm.commands["store"] = &CommandHelp{
 		Name:        "store",
-		Description: "Store a file in the PeerVault network",
+		Description: "Store a file in the Shugo network",
 		Usage:       "store <file_path> [options]",
 		Examples: []string{
 			"store document.pdf",
@@ -110,7 +110,7 @@ func (hm *HelpManager) initializeHelp() {
 
 	hm.commands["get"] = &CommandHelp{
 		Name:        "get",
-		Description: "Retrieve a file from the PeerVault network",
+		Description: "Retrieve a file from the Shugo network",
 		Usage:       "get <file_id> [output_path]",
 		Examples: []string{
 			"get abc123def456",
@@ -131,7 +131,7 @@ func (hm *HelpManager) initializeHelp() {
 
 	hm.commands["list"] = &CommandHelp{
 		Name:        "list",
-		Description: "List files in the PeerVault network",
+		Description: "List files in the Shugo network",
 		Usage:       "list [options]",
 		Examples: []string{
 			"list",
@@ -201,9 +201,9 @@ func (hm *HelpManager) initializeHelp() {
 
 	// Initialize tutorials
 	hm.tutorials["store"] = &Tutorial{
-		Title:         "Storing Files in PeerVault",
-		Description:   "Learn how to store files securely in the PeerVault network",
-		Prerequisites: []string{"Connected to PeerVault network", "Have files to store"},
+		Title:         "Storing Files in Shugo",
+		Description:   "Learn how to store files securely in the Shugo network",
+		Prerequisites: []string{"Connected to Shugo network", "Have files to store"},
 		Steps: []*TutorialStep{
 			{
 				Title:       "Basic File Storage",

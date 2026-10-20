@@ -31,7 +31,7 @@ func TestNewPKIManager(t *testing.T) {
 	assert.True(t, exists)
 	assert.NotNil(t, rootCA)
 	assert.Equal(t, "root", rootCA.ID)
-	assert.Equal(t, "PeerVault Root CA", rootCA.Name)
+	assert.Equal(t, "Shugo Root CA", rootCA.Name)
 }
 
 func TestNewPKIManager_InvalidPath(t *testing.T) {
@@ -232,7 +232,7 @@ func TestPKIManager_GetCertificateAuthority(t *testing.T) {
 	assert.True(t, exists)
 	assert.NotNil(t, ca)
 	assert.Equal(t, "root", ca.ID)
-	assert.Equal(t, "PeerVault Root CA", ca.Name)
+	assert.Equal(t, "Shugo Root CA", ca.Name)
 	assert.NotNil(t, ca.Certificate)
 	assert.NotEmpty(t, ca.PrivateKey)
 }

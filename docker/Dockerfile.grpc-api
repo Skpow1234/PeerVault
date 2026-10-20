@@ -4,12 +4,12 @@ FROM golang:1.24.6-alpine AS build
 WORKDIR /app
 COPY . .
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /peervault-grpc-api ./cmd/peervault-grpc
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /shugo-grpc-api ./cmd/shugo-grpc
 
 FROM alpine:3.20
 WORKDIR /app
 RUN apk add --no-cache ca-certificates tzdata
-COPY --from=build /peervault-grpc-api /usr/local/bin/peervault-grpc-api
+COPY --from=build /shugo-grpc-api /usr/local/bin/shugo-grpc-api
 
 # Create data directory
 RUN mkdir -p /app/data
@@ -18,4 +18,4 @@ RUN mkdir -p /app/data
 EXPOSE 8082
 
 # Set the entrypoint
-ENTRYPOINT ["/usr/local/bin/peervault-grpc-api"]
+ENTRYPOINT ["/usr/local/bin/shugo-grpc-api"]

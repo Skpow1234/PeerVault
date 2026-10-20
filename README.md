@@ -1,4 +1,4 @@
-# PeerVault
+# Shugo
 
 Peer-to-peer encrypted file storage in Go. Nodes talk over TCP, store content-addressed blobs, and encrypt with AES-GCM.
 
@@ -32,7 +32,7 @@ More options: **[docs/deployment.md](docs/deployment.md)** · Endpoints: **[docs
 - Encrypted P2P file store over TCP (`internal/app/fileserver`, `internal/transport/p2p`)
 - Content-addressable on-disk storage (`internal/storage`)
 - AES-GCM encryption and HMAC peer handshake (`internal/crypto`)
-- REST, GraphQL, and gRPC/HTTP-JSON API surfaces (`cmd/peervault-*`)
+- REST, GraphQL, and gRPC/HTTP-JSON API surfaces (`cmd/shugo-*`)
 
 Feature list: [docs/features.md](docs/features.md) · How it works: [docs/architecture.md](docs/architecture.md)
 

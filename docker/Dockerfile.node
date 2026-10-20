@@ -4,12 +4,12 @@ FROM golang:1.24.6-alpine AS build
 WORKDIR /app
 COPY . .
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /peervault-node ./cmd/peervault-node
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /shugo-node ./cmd/shugo-node
 
 FROM alpine:3.20
 WORKDIR /app
 RUN apk add --no-cache ca-certificates tzdata
-COPY --from=build /peervault-node /usr/local/bin/peervault-node
+COPY --from=build /shugo-node /usr/local/bin/shugo-node
 
 # Create data directory
 RUN mkdir -p /app/data
@@ -18,4 +18,4 @@ RUN mkdir -p /app/data
 EXPOSE 3000
 
 # Set the entrypoint
-ENTRYPOINT ["/usr/local/bin/peervault-node"]
+ENTRYPOINT ["/usr/local/bin/shugo-node"]

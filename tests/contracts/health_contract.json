@@ -1,8 +1,8 @@
 {
   "name": "health-check-contract",
   "description": "Health check endpoint contract",
-  "provider": "peervault-api",
-  "consumer": "peervault-client",
+  "provider": "shugo-api",
+  "consumer": "shugo-client",
   "request": {
     "method": "GET",
     "path": "/health",

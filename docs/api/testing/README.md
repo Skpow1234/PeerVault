@@ -1,10 +1,10 @@
 # API Testing Documentation
 
-This directory contains comprehensive API testing tools and documentation for PeerVault.
+This directory contains comprehensive API testing tools and documentation for Shugo.
 
 ## Overview
 
-PeerVault provides multiple approaches to API testing:
+Shugo provides multiple approaches to API testing:
 
 1. **Interactive Testing** - Postman/Insomnia integration with pre-configured collections
 2. **API Mocking** - Mock server generation from OpenAPI specifications

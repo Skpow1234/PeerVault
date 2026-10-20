@@ -231,7 +231,7 @@ NTP requirements doc
 Milestone tracker sync automation
 Streaming decrypt pipe for Get
 Shared cluster key required in docker-compose
-Document PEERVAULT_CLUSTER_KEY in compose samples
+Document SHUGO_CLUSTER_KEY in compose samples
 DialPeer unit test with fake listener
 OnStream skip when Has already true
 Store announcement without duplicate encrypt
@@ -244,7 +244,7 @@ LittleEndian key header vs BigEndian frame header docs
 Max key length DoS guard tests
 Negative size stream rejected tests
 fileserver package race test in CI
-cmd/peervault demo waits for bootstrap without fixed sleep
+cmd/shugo demo waits for bootstrap without fixed sleep
 Replace remaining time.Sleep in e2e with readiness probe
 Port conflict retry in tests
 Unique storage roots per test parallel safe

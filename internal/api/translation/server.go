@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
 )
 
 // Server represents the protocol translation server

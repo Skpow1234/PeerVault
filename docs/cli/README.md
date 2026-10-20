@@ -1,6 +1,6 @@
-# PeerVault CLI
+# Shugo CLI
 
-A comprehensive command-line interface for PeerVault distributed storage system.
+A comprehensive command-line interface for Shugo distributed storage system.
 
 ## Features
 
@@ -32,7 +32,7 @@ CLI flags are not available in the Docker-only workflow.
 #### Store a File
 
 ```bash
-peervault> store ./documents/report.pdf
+shugo> store ./documents/report.pdf
 Storing file: report.pdf
 File stored successfully: QmAbCdEf...
 ```
@@ -40,7 +40,7 @@ File stored successfully: QmAbCdEf...
 #### Retrieve a File
 
 ```bash
-peervault> get QmAbCdEf... --output=./downloaded-report.pdf
+shugo> get QmAbCdEf... --output=./downloaded-report.pdf
 Downloading from peer network...
 Downloaded: 2.3MB in 1.2s
 ```
@@ -48,7 +48,7 @@ Downloaded: 2.3MB in 1.2s
 #### List Files
 
 ```bash
-peervault> list
+shugo> list
 Files (15 total)
 ┌─────────────────────────────────────────────────────────────┬─────────────┬─────────────────────────────────────────────────────────────┐
 │ Key                                                         │ Size        │ Created At                                               │
@@ -61,7 +61,7 @@ Files (15 total)
 #### Delete a File
 
 ```bash
-peervault> delete QmAbCdEf...
+shugo> delete QmAbCdEf...
 Deleting file: QmAbCdEf...
 File deleted successfully: QmAbCdEf...
 ```
@@ -71,7 +71,7 @@ File deleted successfully: QmAbCdEf...
 #### List Peers
 
 ```bash
-peervault> peers list
+shugo> peers list
 Peers (3 total)
 ┌─────────────────────────────────────────────────────────────┬─────────────┬─────────────┬─────────────┬─────────────────────────────────────────────────────────────┐
 │ Address                                                     │ Status      │ Latency     │ Storage     │ Last Seen                                               │
@@ -85,7 +85,7 @@ Peers (3 total)
 #### Add a Peer
 
 ```bash
-peervault> peers add node4.example.com:3000
+shugo> peers add node4.example.com:3000
 Adding peer: node4.example.com:3000
 Peer added successfully: peer-123
 ```
@@ -93,7 +93,7 @@ Peer added successfully: peer-123
 #### Remove a Peer
 
 ```bash
-peervault> peers remove peer-123
+shugo> peers remove peer-123
 Removing peer: peer-123
 Peer removed successfully: peer-123
 ```
@@ -103,7 +103,7 @@ Peer removed successfully: peer-123
 #### Health Check
 
 ```bash
-peervault> health
+shugo> health
 System Health
 ┌─────────────────┬─────────────────────────────────────────────────────────────┐
 │ Field           │ Value                                                       │
@@ -125,7 +125,7 @@ Service Status
 #### System Metrics
 
 ```bash
-peervault> metrics
+shugo> metrics
 System Metrics
 ┌─────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────┐
 │ Metric                                                      │ Value                                                       │
@@ -140,7 +140,7 @@ System Metrics
 #### Live Metrics
 
 ```bash
-peervault> metrics --live
+shugo> metrics --live
 Live System Metrics (refreshing every 5s)
 ┌─────────────────┬─────────────┬─────────────┬─────────────┐
 │ Metric          │ Current     │ 1h Avg      │ 24h Avg     │
@@ -157,19 +157,19 @@ Live System Metrics (refreshing every 5s)
 #### Connect to a Node
 
 ```bash
-peervault> connect node1.example.com:3000
+shugo> connect node1.example.com:3000
 Connecting to: node1.example.com:3000
 Connected to: node1.example.com:3000
-peervault[node1]> # Prompt changes to show current connection
+shugo[node1]> # Prompt changes to show current connection
 ```
 
 #### Disconnect
 
 ```bash
-peervault[node1]> disconnect
+shugo[node1]> disconnect
 Disconnecting...
 Disconnected
-peervault> # Back to default prompt
+shugo> # Back to default prompt
 ```
 
 ### Utility Commands
@@ -177,18 +177,18 @@ peervault> # Back to default prompt
 #### Help
 
 ```bash
-peervault> help
-PeerVault CLI - Available Commands
+shugo> help
+Shugo CLI - Available Commands
 
 File Operations:
-  store           - Store a file in the PeerVault network
-  get             - Retrieve a file from the PeerVault network
-  list            - List files in the PeerVault network
-  delete          - Delete a file from the PeerVault network
+  store           - Store a file in the Shugo network
+  get             - Retrieve a file from the Shugo network
+  list            - List files in the Shugo network
+  delete          - Delete a file from the Shugo network
 
 Network Operations:
   peers           - Manage peer connections
-  connect         - Connect to a PeerVault node
+  connect         - Connect to a Shugo node
   disconnect      - Disconnect from current node
 
 System Operations:
@@ -208,7 +208,7 @@ Type 'help <command>' for detailed information about a specific command.
 #### Command History
 
 ```bash
-peervault> history
+shugo> history
 Command History:
   1  help
   2  peers list
@@ -221,13 +221,13 @@ Command History:
 #### Clear Screen
 
 ```bash
-peervault> clear
+shugo> clear
 # Screen is cleared
 ```
 
 ## Configuration
 
-The CLI stores configuration in `~/.peervault/config.json`:
+The CLI stores configuration in `~/.shugo/config.json`:
 
 ```json
 {
@@ -244,16 +244,16 @@ The CLI stores configuration in `~/.peervault/config.json`:
 
 ```bash
 # Show current configuration
-peervault> config show
+shugo> config show
 
 # Set configuration values
-peervault> set server_url http://node1.example.com:8080
-peervault> set output_format json
-peervault> set verbose true
+shugo> set server_url http://node1.example.com:8080
+shugo> set output_format json
+shugo> set verbose true
 
 # Get configuration values
-peervault> get server_url
-peervault> get output_format
+shugo> get server_url
+shugo> get output_format
 ```
 
 ## Output Formats
@@ -261,15 +261,15 @@ peervault> get output_format
 ### Table Format (Default)
 
 ```bash
-peervault> list
+shugo> list
 # Shows formatted tables with borders and alignment
 ```
 
 ### JSON Format
 
 ```bash
-peervault> set output_format json
-peervault> list
+shugo> set output_format json
+shugo> list
 {
   "files": [
     {
@@ -288,8 +288,8 @@ peervault> list
 ### YAML Format
 
 ```bash
-peervault> set output_format yaml
-peervault> list
+shugo> set output_format yaml
+shugo> list
 files:
   - id: file-123
     key: document.pdf
@@ -327,9 +327,9 @@ CLI scripting is not available in the Docker-only workflow.
 
 ## Integration
 
-### With PeerVault APIs
+### With Shugo APIs
 
-The CLI automatically connects to PeerVault's REST API by default, but can be configured to use:
+The CLI automatically connects to Shugo's REST API by default, but can be configured to use:
 
 - GraphQL API
 - gRPC API
@@ -339,10 +339,10 @@ The CLI automatically connects to PeerVault's REST API by default, but can be co
 
 ```bash
 # Export data for analysis
-peervault> metrics --format json > metrics.json
+shugo> metrics --format json > metrics.json
 
 # Chain with other tools
-peervault> peers list --format json | jq '.peers[].status'
+shugo> peers list --format json | jq '.peers[].status'
 ```
 
 ## Troubleshooting
@@ -351,17 +351,17 @@ peervault> peers list --format json | jq '.peers[].status'
 
 ```bash
 # Check if server is running
-peervault> health
+shugo> health
 
 # Test connection
-peervault> connect localhost:8080
+shugo> connect localhost:8080
 ```
 
 ### Authentication Issues
 
 ```bash
 # Set auth token
-peervault> set auth_token your-token-here
+shugo> set auth_token your-token-here
 
 Command line arguments are not available in the Docker-only workflow.
 ```
@@ -370,10 +370,10 @@ Command line arguments are not available in the Docker-only workflow.
 
 ```bash
 # Check system metrics
-peervault> metrics
+shugo> metrics
 
 # Monitor live performance
-peervault> metrics --live
+shugo> metrics --live
 ```
 
 ## Development
@@ -395,4 +395,4 @@ CLI tests run in CI using containerized workflows.
 
 ## License
 
-Same as PeerVault project license.
+Same as Shugo project license.

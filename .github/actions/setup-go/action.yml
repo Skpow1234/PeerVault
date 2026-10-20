@@ -14,7 +14,7 @@ runs:
         cache: true
         cache-dependency-path: |
           go.sum
-          proto/peervault/go.sum
+          proto/shugo/go.sum
 
     - name: Download modules
       shell: bash

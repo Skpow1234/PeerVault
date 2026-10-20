@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"strings"
 
-	fs "github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/crypto"
-	"github.com/Skpow1234/Peervault/internal/logging"
-	"github.com/Skpow1234/Peervault/internal/peer"
-	"github.com/Skpow1234/Peervault/internal/storage"
-	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
+	fs "github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/crypto"
+	"github.com/Skpow1234/Shugo/internal/logging"
+	"github.com/Skpow1234/Shugo/internal/peer"
+	"github.com/Skpow1234/Shugo/internal/storage"
+	netp2p "github.com/Skpow1234/Shugo/internal/transport/p2p"
 )
 
 func main() {
@@ -20,13 +20,13 @@ func main() {
 		listenAddr     = flag.String("listen", ":3000", "Listen address for this node")
 		bootstrapNodes = flag.String("bootstrap", "", "Comma-separated list of bootstrap node addresses")
 		logLevel       = flag.String("log-level", "info", "Log level (debug, info, warn, error)")
-		storagePrefix  = flag.String("storage-prefix", "peervault", "Prefix for storage directory")
+		storagePrefix  = flag.String("storage-prefix", "shugo", "Prefix for storage directory")
 	)
 	flag.Parse()
 
 	// Configure structured logging
 	logging.ConfigureLogger(*logLevel)
-	slog.Info("starting PeerVault node",
+	slog.Info("starting Shugo node",
 		"listen_addr", *listenAddr,
 		"bootstrap_nodes", *bootstrapNodes,
 		"log_level", *logLevel)
@@ -45,7 +45,7 @@ func main() {
 	server := makeServer(*listenAddr, *storagePrefix, bootstrapList...)
 
 	// Start the server
-	slog.Info("starting PeerVault node server", "address", *listenAddr)
+	slog.Info("starting Shugo node server", "address", *listenAddr)
 	if err := server.Start(); err != nil {
 		log.Fatal("failed to start server:", err)
 	}

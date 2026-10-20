@@ -11,10 +11,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/api/graphql/resolvers"
-	"github.com/Skpow1234/Peervault/internal/api/graphql/subscriptions"
-	"github.com/Skpow1234/Peervault/internal/app/fileserver"
-	"github.com/Skpow1234/Peervault/internal/websocket"
+	"github.com/Skpow1234/Shugo/internal/api/graphql/resolvers"
+	"github.com/Skpow1234/Shugo/internal/api/graphql/subscriptions"
+	"github.com/Skpow1234/Shugo/internal/app/fileserver"
+	"github.com/Skpow1234/Shugo/internal/websocket"
 )
 
 // Server represents the GraphQL server

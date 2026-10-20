@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/tests/utils"
+	"github.com/Skpow1234/Shugo/tests/utils"
 )
 
 // BenchmarkStoreGet measures the performance of store and get operations

@@ -1,6 +1,6 @@
-# PeerVault Plugin Architecture
+# Shugo Plugin Architecture
 
-The PeerVault plugin system allows you to extend the core functionality with custom storage backends, authentication methods, transport protocols, and more.
+The Shugo plugin system allows you to extend the core functionality with custom storage backends, authentication methods, transport protocols, and more.
 
 ## Plugin Types
 
@@ -93,7 +93,7 @@ import (
     "context"
     "io"
     
-    "github.com/peervault/peervault/internal/plugins"
+    "github.com/Skpow1234/Shugo/internal/plugins"
 )
 
 type S3StoragePlugin struct {
@@ -186,7 +186,7 @@ package main
 import (
     "context"
     
-    "github.com/peervault/peervault/internal/plugins"
+    "github.com/Skpow1234/Shugo/internal/plugins"
 )
 
 type OAuthAuthPlugin struct {
@@ -277,7 +277,7 @@ func init() {
 package main
 
 import (
-    "github.com/peervault/peervault/internal/plugins"
+    "github.com/Skpow1234/Shugo/internal/plugins"
 )
 
 func main() {
@@ -346,17 +346,17 @@ func main() {
 
 ```bash
 # Generate a new plugin
-peervault plugin generate --type storage --name my-storage-plugin
+shugo plugin generate --type storage --name my-storage-plugin
 
 # Generate with template
-peervault plugin generate --type auth --name my-auth-plugin --template oauth
+shugo plugin generate --type auth --name my-auth-plugin --template oauth
 ```
 
 ### Plugin Testing
 
 ```bash
 # Test a plugin
-peervault plugin test ./plugins/my-plugin
+shugo plugin test ./plugins/my-plugin
 
 # Run plugin tests
 go test ./plugins/my-plugin/...
@@ -366,10 +366,10 @@ go test ./plugins/my-plugin/...
 
 ```bash
 # Validate plugin configuration
-peervault plugin validate ./plugins/my-plugin/config.yaml
+shugo plugin validate ./plugins/my-plugin/config.yaml
 
 # Check plugin compatibility
-peervault plugin check ./plugins/my-plugin
+shugo plugin check ./plugins/my-plugin
 ```
 
 ## Best Practices
@@ -409,5 +409,5 @@ See the `plugins/` directory for example plugins:
 
 - **Documentation**: [Plugin Development Guide](../docs/plugins/)
 - **Examples**: [Plugin Examples](../examples/plugins/)
-- **Community**: [Discord Server](https://discord.gg/peervault)
-- **Issues**: [GitHub Issues](https://github.com/peervault/peervault/issues)
+- **Community**: [Discord Server](https://discord.gg/shugo)
+- **Issues**: [GitHub Issues](https://github.com/Skpow1234/Shugo/issues)

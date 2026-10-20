@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Skpow1234/Peervault/internal/config"
+	"github.com/Skpow1234/Shugo/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -67,19 +67,19 @@ logging:
 
 func TestLoadFromEnvironment(t *testing.T) {
 	// Set environment variables
-	require.NoError(t, os.Setenv("PEERVAULT_LISTEN_ADDR", ":9090"))
-	require.NoError(t, os.Setenv("PEERVAULT_STORAGE_ROOT", "/env/storage"))
-	require.NoError(t, os.Setenv("PEERVAULT_LOG_LEVEL", "warn"))
-	require.NoError(t, os.Setenv("PEERVAULT_DEBUG", "true"))
-	require.NoError(t, os.Setenv("PEERVAULT_MAX_FILE_SIZE", "1048576"))
-	require.NoError(t, os.Setenv("PEERVAULT_BOOTSTRAP_NODES", "node1:3000,node2:3000"))
+	require.NoError(t, os.Setenv("SHUGO_LISTEN_ADDR", ":9090"))
+	require.NoError(t, os.Setenv("SHUGO_STORAGE_ROOT", "/env/storage"))
+	require.NoError(t, os.Setenv("SHUGO_LOG_LEVEL", "warn"))
+	require.NoError(t, os.Setenv("SHUGO_DEBUG", "true"))
+	require.NoError(t, os.Setenv("SHUGO_MAX_FILE_SIZE", "1048576"))
+	require.NoError(t, os.Setenv("SHUGO_BOOTSTRAP_NODES", "node1:3000,node2:3000"))
 	defer func() {
-		require.NoError(t, os.Unsetenv("PEERVAULT_LISTEN_ADDR"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_STORAGE_ROOT"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_LOG_LEVEL"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_DEBUG"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_MAX_FILE_SIZE"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_BOOTSTRAP_NODES"))
+		require.NoError(t, os.Unsetenv("SHUGO_LISTEN_ADDR"))
+		require.NoError(t, os.Unsetenv("SHUGO_STORAGE_ROOT"))
+		require.NoError(t, os.Unsetenv("SHUGO_LOG_LEVEL"))
+		require.NoError(t, os.Unsetenv("SHUGO_DEBUG"))
+		require.NoError(t, os.Unsetenv("SHUGO_MAX_FILE_SIZE"))
+		require.NoError(t, os.Unsetenv("SHUGO_BOOTSTRAP_NODES"))
 	}()
 
 	manager := config.NewManager("")
@@ -114,11 +114,11 @@ logging:
 	require.NoError(t, err)
 
 	// Set environment variables to override file values
-	require.NoError(t, os.Setenv("PEERVAULT_LOG_LEVEL", "debug"))
-	require.NoError(t, os.Setenv("PEERVAULT_DEBUG", "true"))
+	require.NoError(t, os.Setenv("SHUGO_LOG_LEVEL", "debug"))
+	require.NoError(t, os.Setenv("SHUGO_DEBUG", "true"))
 	defer func() {
-		require.NoError(t, os.Unsetenv("PEERVAULT_LOG_LEVEL"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_DEBUG"))
+		require.NoError(t, os.Unsetenv("SHUGO_LOG_LEVEL"))
+		require.NoError(t, os.Unsetenv("SHUGO_DEBUG"))
 	}()
 
 	manager := config.NewManager(configPath)
@@ -317,13 +317,13 @@ logging:
 
 func TestDurationParsing(t *testing.T) {
 	// Test duration parsing from environment
-	require.NoError(t, os.Setenv("PEERVAULT_SHUTDOWN_TIMEOUT", "60s"))
-	require.NoError(t, os.Setenv("PEERVAULT_CLEANUP_INTERVAL", "2h"))
-	require.NoError(t, os.Setenv("PEERVAULT_RETENTION_PERIOD", "168h"))
+	require.NoError(t, os.Setenv("SHUGO_SHUTDOWN_TIMEOUT", "60s"))
+	require.NoError(t, os.Setenv("SHUGO_CLEANUP_INTERVAL", "2h"))
+	require.NoError(t, os.Setenv("SHUGO_RETENTION_PERIOD", "168h"))
 	defer func() {
-		require.NoError(t, os.Unsetenv("PEERVAULT_SHUTDOWN_TIMEOUT"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_CLEANUP_INTERVAL"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_RETENTION_PERIOD"))
+		require.NoError(t, os.Unsetenv("SHUGO_SHUTDOWN_TIMEOUT"))
+		require.NoError(t, os.Unsetenv("SHUGO_CLEANUP_INTERVAL"))
+		require.NoError(t, os.Unsetenv("SHUGO_RETENTION_PERIOD"))
 	}()
 
 	manager := config.NewManager("")
@@ -338,11 +338,11 @@ func TestDurationParsing(t *testing.T) {
 
 func TestSliceParsing(t *testing.T) {
 	// Test slice parsing from environment
-	require.NoError(t, os.Setenv("PEERVAULT_BOOTSTRAP_NODES", "node1:3000,node2:3000,node3:3000"))
-	require.NoError(t, os.Setenv("PEERVAULT_REST_ALLOWED_ORIGINS", "https://example.com,https://test.com"))
+	require.NoError(t, os.Setenv("SHUGO_BOOTSTRAP_NODES", "node1:3000,node2:3000,node3:3000"))
+	require.NoError(t, os.Setenv("SHUGO_REST_ALLOWED_ORIGINS", "https://example.com,https://test.com"))
 	defer func() {
-		require.NoError(t, os.Unsetenv("PEERVAULT_BOOTSTRAP_NODES"))
-		require.NoError(t, os.Unsetenv("PEERVAULT_REST_ALLOWED_ORIGINS"))
+		require.NoError(t, os.Unsetenv("SHUGO_BOOTSTRAP_NODES"))
+		require.NoError(t, os.Unsetenv("SHUGO_REST_ALLOWED_ORIGINS"))
 	}()
 
 	manager := config.NewManager("")

@@ -55,7 +55,7 @@ func (vf *VersionedFeature) HandleLegacyFeature(w http.ResponseWriter, r *http.R
 		Description string            `json:"description"`
 		Endpoints   map[string]string `json:"endpoints"`
 	}{
-		Name:    "PeerVault REST API",
+		Name:    "Shugo REST API",
 		Version: version.String(),
 	}
 

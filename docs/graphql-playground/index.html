@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PeerVault GraphQL Playground</title>
+    <title>Shugo GraphQL Playground</title>
     <link rel="stylesheet" href="https://unpkg.com/graphql-playground-react/build/static/css/index.css" />
     <style>
         .custom-header {
@@ -30,7 +30,7 @@
 </head>
 <body>
     <div class="custom-header">
-        <h1>PeerVault GraphQL Playground</h1>
+        <h1>Shugo GraphQL Playground</h1>
         <p>Interactive GraphQL Schema Explorer & Query Builder</p>
     </div>
     
@@ -54,7 +54,7 @@
                 tabs: [
                     {
                         endpoint: '/graphql',
-                        query: `# Welcome to PeerVault GraphQL Playground!
+                        query: `# Welcome to Shugo GraphQL Playground!
 # 
 # This is an interactive environment where you can:
 # 1. Explore the GraphQL schema
@@ -76,7 +76,7 @@ query ListFiles {
 mutation UploadFile {
   uploadFile(input: {
     key: "example.txt"
-    content: "Hello, PeerVault!"
+    content: "Hello, Shugo!"
   }) {
     key
     size

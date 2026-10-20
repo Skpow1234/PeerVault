@@ -5,50 +5,50 @@ tasks:
   build:
     desc: Build the main application
     cmds:
-      - go build -o bin/peervault{{if eq OS "windows"}}.exe{{end}} ./cmd/peervault
+      - go build -o bin/shugo{{if eq OS "windows"}}.exe{{end}} ./cmd/shugo
     sources:
-      - ./cmd/peervault/**/*.go
+      - ./cmd/shugo/**/*.go
       - ./internal/**/*.go
       - go.mod
       - go.sum
     generates:
-      - bin/peervault{{if eq OS "windows"}}.exe{{end}}
+      - bin/shugo{{if eq OS "windows"}}.exe{{end}}
 
   build-node:
     desc: Build individual node binary
     cmds:
-      - go build -o bin/peervault-node{{if eq OS "windows"}}.exe{{end}} ./cmd/peervault-node
+      - go build -o bin/shugo-node{{if eq OS "windows"}}.exe{{end}} ./cmd/shugo-node
     sources:
-      - ./cmd/peervault-node/**/*.go
+      - ./cmd/shugo-node/**/*.go
       - ./internal/**/*.go
       - go.mod
       - go.sum
     generates:
-      - bin/peervault-node{{if eq OS "windows"}}.exe{{end}}
+      - bin/shugo-node{{if eq OS "windows"}}.exe{{end}}
 
   build-demo:
     desc: Build demo client binary
     cmds:
-      - go build -o bin/peervault-demo{{if eq OS "windows"}}.exe{{end}} ./cmd/peervault-demo
+      - go build -o bin/shugo-demo{{if eq OS "windows"}}.exe{{end}} ./cmd/shugo-demo
     sources:
-      - ./cmd/peervault-demo/**/*.go
+      - ./cmd/shugo-demo/**/*.go
       - ./internal/**/*.go
       - go.mod
       - go.sum
     generates:
-      - bin/peervault-demo{{if eq OS "windows"}}.exe{{end}}
+      - bin/shugo-demo{{if eq OS "windows"}}.exe{{end}}
 
   build-cli:
     desc: Build CLI tool
     cmds:
-      - go build -o bin/peervault-cli{{if eq OS "windows"}}.exe{{end}} ./cmd/peervault-cli
+      - go build -o bin/shugo-cli{{if eq OS "windows"}}.exe{{end}} ./cmd/shugo-cli
     sources:
-      - ./cmd/peervault-cli/**/*.go
+      - ./cmd/shugo-cli/**/*.go
       - ./internal/**/*.go
       - go.mod
       - go.sum
     generates:
-      - bin/peervault-cli{{if eq OS "windows"}}.exe{{end}}
+      - bin/shugo-cli{{if eq OS "windows"}}.exe{{end}}
 
   build-all:
     desc: Build all binaries
@@ -58,26 +58,26 @@ tasks:
   run:
     desc: Run the main application (all-in-one)
     cmds:
-      - go run ./cmd/peervault
+      - go run ./cmd/shugo
 
   run-node:
     desc: Run individual node
     cmds:
-      - go run ./cmd/peervault-node {{.CLI_ARGS}}
+      - go run ./cmd/shugo-node {{.CLI_ARGS}}
     vars:
       CLI_ARGS: '{{.CLI_ARGS | default "--listen :3000"}}'
 
   run-demo:
     desc: Run demo client
     cmds:
-      - go run ./cmd/peervault-demo {{.CLI_ARGS}}
+      - go run ./cmd/shugo-demo {{.CLI_ARGS}}
     vars:
       CLI_ARGS: '{{.CLI_ARGS | default "--target localhost:5000"}}'
 
   run-cli:
     desc: Run CLI tool
     cmds:
-      - go run ./cmd/peervault-cli
+      - go run ./cmd/shugo-cli
 
   # Test tasks
   test:
@@ -109,9 +109,9 @@ tasks:
   docker-build:
     desc: Build all Docker images
     cmds:
-      - docker build -t peervault .
-      - docker build -f Dockerfile.node -t peervault-node .
-      - docker build -f Dockerfile.demo -t peervault-demo .
+      - docker build -t shugo .
+      - docker build -f Dockerfile.node -t shugo-node .
+      - docker build -f Dockerfile.demo -t shugo-demo .
 
   docker-run:
     desc: Run multi-container setup
@@ -142,7 +142,7 @@ tasks:
       - rm -rf *_network/
       - rm -rf node*_network/
       - rm -rf demo-client-data/
-      - rm -rf peervault-*_data/
+      - rm -rf shugo-*_data/
       - go clean -cache -testcache
 
   fmt:
@@ -187,12 +187,12 @@ tasks:
   prod-build:
     desc: Build production-ready binaries
     cmds:
-      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/peervault-linux-amd64 ./cmd/peervault
-      - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/peervault-darwin-amd64 ./cmd/peervault
-      - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/peervault-windows-amd64.exe ./cmd/peervault
-      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/peervault-cli-linux-amd64 ./cmd/peervault-cli
-      - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/peervault-cli-darwin-amd64 ./cmd/peervault-cli
-      - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/peervault-cli-windows-amd64.exe ./cmd/peervault-cli
+      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/shugo-linux-amd64 ./cmd/shugo
+      - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/shugo-darwin-amd64 ./cmd/shugo
+      - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/shugo-windows-amd64.exe ./cmd/shugo
+      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/shugo-cli-linux-amd64 ./cmd/shugo-cli
+      - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/shugo-cli-darwin-amd64 ./cmd/shugo-cli
+      - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/shugo-cli-windows-amd64.exe ./cmd/shugo-cli
 
   # Help
   help:

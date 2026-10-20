@@ -2,7 +2,7 @@ package types
 
 import "time"
 
-// File represents a file in the PeerVault system
+// File represents a file in the Shugo system
 type File struct {
 	Key         string            `json:"key"`
 	Name        string            `json:"name"`
@@ -22,7 +22,7 @@ type FileReplica struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Peer represents a peer node in the PeerVault network
+// Peer represents a peer node in the Shugo network
 type Peer struct {
 	ID        string            `json:"id"`
 	Address   string            `json:"address"`

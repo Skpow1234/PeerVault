@@ -1,6 +1,6 @@
 # API Testing Implementation Guide
 
-This document provides a comprehensive guide to the PeerVault API testing implementation for Milestone 13.
+This document provides a comprehensive guide to the Shugo API testing implementation for Milestone 13.
 
 ## Overview
 
@@ -45,7 +45,7 @@ internal/api/             # Core implementation
 ├── security/             # Security testing
 └── ...
 
-cmd/peervault-mock/       # Mock server binary
+cmd/shugo-mock/       # Mock server binary
 └── main.go              # Mock server entry point
 
 scripts/api-testing/      # Testing scripts
@@ -69,7 +69,7 @@ scripts/api-testing/      # Testing scripts
 
 ### 2. API Mocking
 
-**Location**: `internal/api/mocking/`, `cmd/peervault-mock/`
+**Location**: `internal/api/mocking/`, `cmd/shugo-mock/`
 
 **Features**:
 
@@ -132,7 +132,7 @@ scripts/api-testing/      # Testing scripts
 ```yaml
 port: 3001
 host: "localhost"
-openapi_spec: "docs/api/peervault-rest-api.yaml"
+openapi_spec: "docs/api/shugo-rest-api.yaml"
 mock_data_dir: "tests/api/mock-data"
 response_delay: 100ms
 enable_analytics: true
@@ -205,7 +205,7 @@ The testing framework integrates with CI/CD pipelines using containerized workfl
 
 ### Common Issues
 
-1. **Service Not Running**: Ensure PeerVault API is running
+1. **Service Not Running**: Ensure Shugo API is running
 2. **Mock Server Issues**: Check configuration and port availability
 3. **Test Failures**: Review logs and check service health
 4. **Performance Issues**: Adjust test parameters and timeouts

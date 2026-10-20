@@ -11,7 +11,7 @@ Use this section to tell people about which versions of your project are current
 
 ## Reporting a Vulnerability
 
-We take security vulnerabilities seriously. If you discover a security vulnerability in PeerVault, please follow these steps:
+We take security vulnerabilities seriously. If you discover a security vulnerability in Shugo, please follow these steps:
 
 ### 1. **DO NOT** create a public GitHub issue
 
@@ -19,7 +19,7 @@ Security vulnerabilities should be reported privately to prevent potential explo
 
 ### 2. Report the vulnerability
 
-Send an email to [security@peervault.dev](mailto:security@peervault.dev) with the following information:
+Send an email to [security@shugo.dev](mailto:security@shugo.dev) with the following information:
 
 - **Subject**: `[SECURITY] Vulnerability Report - [Brief Description]`
 - **Description**: Detailed description of the vulnerability
@@ -62,7 +62,7 @@ Send an email to [security@peervault.dev](mailto:security@peervault.dev) with th
 
 ## Security Features
 
-PeerVault includes several security features:
+Shugo includes several security features:
 
 - **End-to-end encryption**: All data is encrypted in transit and at rest
 - **Authentication**: Secure peer-to-peer authentication
@@ -79,9 +79,9 @@ Security updates are released as patch versions (e.g., 1.0.1, 1.0.2) and should 
 
 For security-related questions or concerns:
 
-- **Email**: [security@peervault.dev](mailto:jfhvjfhv0015@gmail.com)
-- **PGP Key**: [security-pgp-key.asc](https://github.com/Skpow1234/Peervault/security-pgp-key.asc)
+- **Email**: [security@shugo.dev](mailto:jfhvjfhv0015@gmail.com)
+- **PGP Key**: [security-pgp-key.asc](https://github.com/Skpow1234/Shugo/security-pgp-key.asc)
 
 ## Acknowledgments
 
-We thank all security researchers and users who responsibly report vulnerabilities to help make PeerVault more secure.
+We thank all security researchers and users who responsibly report vulnerabilities to help make Shugo more secure.

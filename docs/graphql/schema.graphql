@@ -1,5 +1,5 @@
-# PeerVault GraphQL Schema
-# This is the actual schema implemented in the PeerVault GraphQL API
+# Shugo GraphQL Schema
+# This is the actual schema implemented in the Shugo GraphQL API
 
 scalar Time
 scalar Upload

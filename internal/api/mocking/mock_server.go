@@ -101,7 +101,7 @@ func DefaultMockConfig() *MockConfig {
 	return &MockConfig{
 		Port:            3001,
 		Host:            "localhost",
-		OpenAPISpec:     "docs/api/peervault-rest-api.yaml",
+		OpenAPISpec:     "docs/api/shugo-rest-api.yaml",
 		MockDataDir:     "tests/api/mock-data",
 		ResponseDelay:   100 * time.Millisecond,
 		EnableAnalytics: true,
@@ -246,7 +246,7 @@ func (ms *MockServer) healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":    "healthy",
-		"service":   "peervault-mock-server",
+		"service":   "shugo-mock-server",
 		"timestamp": time.Now().UTC(),
 	}); err != nil {
 		ms.logger.Error("Failed to encode health response", "error", err)

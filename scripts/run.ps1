@@ -1,4 +1,4 @@
-# PeerVault Run Script for Windows
+# Shugo Run Script for Windows
 # Usage: .\scripts\run.ps1 [target] [args...]
 
 param(
@@ -10,23 +10,23 @@ param(
     [string[]]$Args
 )
 
-Write-Host "PeerVault Run Script for Windows" -ForegroundColor Green
+Write-Host "Shugo Run Script for Windows" -ForegroundColor Green
 Write-Host "Target: $Target" -ForegroundColor Yellow
 
 switch ($Target) {
     "main" {
         Write-Host "Running main application (all-in-one)..." -ForegroundColor Blue
-        go run .\cmd\peervault
+        go run .\cmd\shugo
     }
     "node" {
         $nodeArgs = if ($Args.Count -gt 0) { $Args -join " " } else { "--listen :3000" }
         Write-Host "Running individual node with args: $nodeArgs" -ForegroundColor Blue
-        go run .\cmd\peervault-node $nodeArgs
+        go run .\cmd\shugo-node $nodeArgs
     }
     "demo" {
         $demoArgs = if ($Args.Count -gt 0) { $Args -join " " } else { "--target localhost:5000" }
         Write-Host "Running demo client with args: $demoArgs" -ForegroundColor Blue
-        go run .\cmd\peervault-demo $demoArgs
+        go run .\cmd\shugo-demo $demoArgs
     }
 }
 

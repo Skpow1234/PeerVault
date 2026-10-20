@@ -1,6 +1,6 @@
 # API Analytics Examples
 
-This guide provides practical examples for using the PeerVault API Analytics system.
+This guide provides practical examples for using the Shugo API Analytics system.
 
 ## Basic Usage
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# PeerVault Security Check Script
+# Shugo Security Check Script
 # This script runs comprehensive security checks locally
 
 set -e
@@ -112,7 +112,7 @@ run_compliance_checks() {
 
 # Function to run custom security scanner
 run_custom_security_scan() {
-    print_status "Running custom PeerVault security scanner..."
+    print_status "Running custom Shugo security scanner..."
     
     # Create reports directory
     mkdir -p security-reports
@@ -256,7 +256,7 @@ check_security_documentation() {
 
 # Function to display help
 show_help() {
-    echo "PeerVault Security Check Script"
+    echo "Shugo Security Check Script"
     echo ""
     echo "Usage: $0 [OPTIONS]"
     echo ""
@@ -350,7 +350,7 @@ main() {
     done
     
     # Print header
-    echo "PeerVault Security Check Script"
+    echo "Shugo Security Check Script"
     echo "=================================="
     echo ""
     

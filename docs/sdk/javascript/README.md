@@ -1,6 +1,6 @@
-# PeerVault JavaScript/TypeScript SDK
+# Shugo JavaScript/TypeScript SDK
 
-Official JavaScript/TypeScript SDK for PeerVault distributed file storage system.
+Official JavaScript/TypeScript SDK for Shugo distributed file storage system.
 
 ## Installation
 
@@ -9,10 +9,10 @@ Installation instructions are omitted in the Docker-only workflow.
 ## Quick Start
 
 ```typescript
-import { PeerVaultClient } from '@peervault/sdk';
+import { ShugoClient } from '@shugo/sdk';
 
 // Create client
-const client = new PeerVaultClient({
+const client = new ShugoClient({
   baseURL: 'http://localhost:8080',
   apiKey: 'your-api-key' // optional
 });
@@ -34,7 +34,7 @@ const auth = await client.auth.login('username', 'password');
 client.setToken(auth.token);
 
 // Or use API key
-const client = new PeerVaultClient({
+const client = new ShugoClient({
   baseURL: 'http://localhost:8080',
   apiKey: 'your-api-key'
 });
@@ -124,7 +124,7 @@ console.log(`Health: ${health.status} (uptime: ${health.uptime})`);
 ## GraphQL Client
 
 ```typescript
-import { GraphQLClient } from '@peervault/sdk/graphql';
+import { GraphQLClient } from '@shugo/sdk/graphql';
 
 // Create GraphQL client
 const gqlClient = new GraphQLClient('http://localhost:8081');
@@ -175,7 +175,7 @@ const subscription = gqlClient.subscribe(`
 ## WebSocket Client
 
 ```typescript
-import { WebSocketClient } from '@peervault/sdk/websocket';
+import { WebSocketClient } from '@shugo/sdk/websocket';
 
 // Create WebSocket client
 const wsClient = new WebSocketClient('ws://localhost:8082');
@@ -199,7 +199,7 @@ wsClient.send('ping', { timestamp: Date.now() });
 ## Configuration
 
 ```typescript
-const client = new PeerVaultClient({
+const client = new ShugoClient({
   baseURL: 'http://localhost:8080',
   timeout: 30000,
   retries: 3,
@@ -250,7 +250,7 @@ const result = await uploader.finish();
 
 ```typescript
 // Verify webhook signature
-import { verifyWebhookSignature } from '@peervault/sdk/webhooks';
+import { verifyWebhookSignature } from '@shugo/sdk/webhooks';
 
 function handleWebhook(payload: string, signature: string, secret: string) {
   if (!verifyWebhookSignature(payload, signature, secret)) {
@@ -265,10 +265,10 @@ function handleWebhook(payload: string, signature: string, secret: string) {
 ## React Integration
 
 ```typescript
-import { usePeerVault } from '@peervault/sdk/react';
+import { useShugo } from '@shugo/sdk/react';
 
 function FileUploader() {
-  const { upload, download, list } = usePeerVault();
+  const { upload, download, list } = useShugo();
   const [files, setFiles] = useState([]);
   
   const handleUpload = async (file: File) => {
@@ -292,10 +292,10 @@ function FileUploader() {
 ## Node.js Usage
 
 ```typescript
-import { PeerVaultClient } from '@peervault/sdk';
+import { ShugoClient } from '@shugo/sdk';
 import fs from 'fs';
 
-const client = new PeerVaultClient({
+const client = new ShugoClient({
   baseURL: 'http://localhost:8080'
 });
 

@@ -11,26 +11,26 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/Skpow1234/Peervault/internal/api/grpc/services"
-	"github.com/Skpow1234/Peervault/proto/peervault"
+	"github.com/Skpow1234/Shugo/internal/api/grpc/services"
+	"github.com/Skpow1234/Shugo/proto/shugo"
 )
 
-// PeerVaultServiceImpl implements the PeerVaultService gRPC interface
-type PeerVaultServiceImpl struct {
-	peervault.UnimplementedPeerVaultServiceServer
+// ShugoServiceImpl implements the ShugoService gRPC interface
+type ShugoServiceImpl struct {
+	shugo.UnimplementedShugoServiceServer
 	fileService   *services.FileService
 	peerService   *services.PeerService
 	systemService *services.SystemService
 	logger        *slog.Logger
 }
 
-// NewPeerVaultServiceImpl creates a new service implementation
-func NewPeerVaultServiceImpl(logger *slog.Logger) *PeerVaultServiceImpl {
+// NewShugoServiceImpl creates a new service implementation
+func NewShugoServiceImpl(logger *slog.Logger) *ShugoServiceImpl {
 	if logger == nil {
 		logger = slog.Default()
 	}
 
-	return &PeerVaultServiceImpl{
+	return &ShugoServiceImpl{
 		fileService:   services.NewFileService(nil),
 		peerService:   services.NewPeerService(),
 		systemService: services.NewSystemService(),
@@ -41,7 +41,7 @@ func NewPeerVaultServiceImpl(logger *slog.Logger) *PeerVaultServiceImpl {
 // File Operations
 
 // UploadFile implements streaming file upload
-func (s *PeerVaultServiceImpl) UploadFile(stream peervault.PeerVaultService_UploadFileServer) error {
+func (s *ShugoServiceImpl) UploadFile(stream shugo.ShugoService_UploadFileServer) error {
 	var fileKey string
 	var fileData []byte
 	var totalSize int64
@@ -83,7 +83,7 @@ func (s *PeerVaultServiceImpl) UploadFile(stream peervault.PeerVaultService_Uplo
 }
 
 // DownloadFile implements streaming file download
-func (s *PeerVaultServiceImpl) DownloadFile(req *peervault.FileRequest, stream peervault.PeerVaultService_DownloadFileServer) error {
+func (s *ShugoServiceImpl) DownloadFile(req *shugo.FileRequest, stream shugo.ShugoService_DownloadFileServer) error {
 	s.logger.Info("Starting file download", "file_key", req.Key)
 
 	fileData, err := s.fileService.DownloadFile(req.Key)
@@ -102,7 +102,7 @@ func (s *PeerVaultServiceImpl) DownloadFile(req *peervault.FileRequest, stream p
 			end = int64(len(fileData))
 		}
 
-		chunk := &peervault.FileChunk{
+		chunk := &shugo.FileChunk{
 			FileKey:  req.Key,
 			Data:     fileData[offset:end],
 			Offset:   offset,
@@ -123,7 +123,7 @@ func (s *PeerVaultServiceImpl) DownloadFile(req *peervault.FileRequest, stream p
 }
 
 // ListFiles implements file listing with pagination
-func (s *PeerVaultServiceImpl) ListFiles(ctx context.Context, req *peervault.ListFilesRequest) (*peervault.ListFilesResponse, error) {
+func (s *ShugoServiceImpl) ListFiles(ctx context.Context, req *shugo.ListFilesRequest) (*shugo.ListFilesResponse, error) {
 	s.logger.Info("Listing files", "page", req.Page, "page_size", req.PageSize, "filter", req.Filter)
 
 	response, err := s.fileService.ListFiles(int(req.Page), int(req.PageSize), req.Filter)
@@ -136,7 +136,7 @@ func (s *PeerVaultServiceImpl) ListFiles(ctx context.Context, req *peervault.Lis
 }
 
 // GetFile implements file metadata retrieval
-func (s *PeerVaultServiceImpl) GetFile(ctx context.Context, req *peervault.FileRequest) (*peervault.FileResponse, error) {
+func (s *ShugoServiceImpl) GetFile(ctx context.Context, req *shugo.FileRequest) (*shugo.FileResponse, error) {
 	s.logger.Info("Getting file", "file_key", req.Key)
 
 	response, err := s.fileService.GetFile(req.Key)
@@ -149,7 +149,7 @@ func (s *PeerVaultServiceImpl) GetFile(ctx context.Context, req *peervault.FileR
 }
 
 // DeleteFile implements file deletion
-func (s *PeerVaultServiceImpl) DeleteFile(ctx context.Context, req *peervault.FileRequest) (*peervault.DeleteFileResponse, error) {
+func (s *ShugoServiceImpl) DeleteFile(ctx context.Context, req *shugo.FileRequest) (*shugo.DeleteFileResponse, error) {
 	s.logger.Info("Deleting file", "file_key", req.Key)
 
 	success, err := s.fileService.DeleteFile(req.Key)
@@ -158,14 +158,14 @@ func (s *PeerVaultServiceImpl) DeleteFile(ctx context.Context, req *peervault.Fi
 		return nil, status.Error(codes.Internal, "failed to delete file")
 	}
 
-	return &peervault.DeleteFileResponse{
+	return &shugo.DeleteFileResponse{
 		Success: success,
 		Message: "File deleted successfully",
 	}, nil
 }
 
 // UpdateFileMetadata implements file metadata updates
-func (s *PeerVaultServiceImpl) UpdateFileMetadata(ctx context.Context, req *peervault.UpdateFileMetadataRequest) (*peervault.FileResponse, error) {
+func (s *ShugoServiceImpl) UpdateFileMetadata(ctx context.Context, req *shugo.UpdateFileMetadataRequest) (*shugo.FileResponse, error) {
 	s.logger.Info("Updating file metadata", "file_key", req.Key)
 
 	response, err := s.fileService.UpdateFileMetadata(req.Key, req.Metadata)
@@ -180,7 +180,7 @@ func (s *PeerVaultServiceImpl) UpdateFileMetadata(ctx context.Context, req *peer
 // Peer Operations
 
 // ListPeers implements peer listing
-func (s *PeerVaultServiceImpl) ListPeers(ctx context.Context, req *emptypb.Empty) (*peervault.ListPeersResponse, error) {
+func (s *ShugoServiceImpl) ListPeers(ctx context.Context, req *emptypb.Empty) (*shugo.ListPeersResponse, error) {
 	s.logger.Info("Listing peers")
 
 	response, err := s.peerService.ListPeers()
@@ -193,7 +193,7 @@ func (s *PeerVaultServiceImpl) ListPeers(ctx context.Context, req *emptypb.Empty
 }
 
 // GetPeer implements peer retrieval
-func (s *PeerVaultServiceImpl) GetPeer(ctx context.Context, req *peervault.PeerRequest) (*peervault.PeerResponse, error) {
+func (s *ShugoServiceImpl) GetPeer(ctx context.Context, req *shugo.PeerRequest) (*shugo.PeerResponse, error) {
 	s.logger.Info("Getting peer", "peer_id", req.Id)
 
 	response, err := s.peerService.GetPeer(req.Id)
@@ -206,7 +206,7 @@ func (s *PeerVaultServiceImpl) GetPeer(ctx context.Context, req *peervault.PeerR
 }
 
 // AddPeer implements peer addition
-func (s *PeerVaultServiceImpl) AddPeer(ctx context.Context, req *peervault.AddPeerRequest) (*peervault.PeerResponse, error) {
+func (s *ShugoServiceImpl) AddPeer(ctx context.Context, req *shugo.AddPeerRequest) (*shugo.PeerResponse, error) {
 	s.logger.Info("Adding peer", "address", req.Address, "port", req.Port)
 
 	response, err := s.peerService.AddPeer(req.Address, int(req.Port), req.Metadata)
@@ -219,7 +219,7 @@ func (s *PeerVaultServiceImpl) AddPeer(ctx context.Context, req *peervault.AddPe
 }
 
 // RemovePeer implements peer removal
-func (s *PeerVaultServiceImpl) RemovePeer(ctx context.Context, req *peervault.PeerRequest) (*peervault.RemovePeerResponse, error) {
+func (s *ShugoServiceImpl) RemovePeer(ctx context.Context, req *shugo.PeerRequest) (*shugo.RemovePeerResponse, error) {
 	s.logger.Info("Removing peer", "peer_id", req.Id)
 
 	success, err := s.peerService.RemovePeer(req.Id)
@@ -228,14 +228,14 @@ func (s *PeerVaultServiceImpl) RemovePeer(ctx context.Context, req *peervault.Pe
 		return nil, status.Error(codes.Internal, "failed to remove peer")
 	}
 
-	return &peervault.RemovePeerResponse{
+	return &shugo.RemovePeerResponse{
 		Success: success,
 		Message: "Peer removed successfully",
 	}, nil
 }
 
 // GetPeerHealth implements peer health checking
-func (s *PeerVaultServiceImpl) GetPeerHealth(ctx context.Context, req *peervault.PeerRequest) (*peervault.PeerHealthResponse, error) {
+func (s *ShugoServiceImpl) GetPeerHealth(ctx context.Context, req *shugo.PeerRequest) (*shugo.PeerHealthResponse, error) {
 	s.logger.Info("Getting peer health", "peer_id", req.Id)
 
 	response, err := s.peerService.GetPeerHealth(req.Id)
@@ -250,7 +250,7 @@ func (s *PeerVaultServiceImpl) GetPeerHealth(ctx context.Context, req *peervault
 // System Operations
 
 // GetSystemInfo implements system information retrieval
-func (s *PeerVaultServiceImpl) GetSystemInfo(ctx context.Context, req *emptypb.Empty) (*peervault.SystemInfoResponse, error) {
+func (s *ShugoServiceImpl) GetSystemInfo(ctx context.Context, req *emptypb.Empty) (*shugo.SystemInfoResponse, error) {
 	s.logger.Info("Getting system info")
 
 	response, err := s.systemService.GetSystemInfo()
@@ -263,7 +263,7 @@ func (s *PeerVaultServiceImpl) GetSystemInfo(ctx context.Context, req *emptypb.E
 }
 
 // GetMetrics implements metrics retrieval
-func (s *PeerVaultServiceImpl) GetMetrics(ctx context.Context, req *emptypb.Empty) (*peervault.MetricsResponse, error) {
+func (s *ShugoServiceImpl) GetMetrics(ctx context.Context, req *emptypb.Empty) (*shugo.MetricsResponse, error) {
 	s.logger.Info("Getting metrics")
 
 	response, err := s.systemService.GetMetrics()
@@ -276,7 +276,7 @@ func (s *PeerVaultServiceImpl) GetMetrics(ctx context.Context, req *emptypb.Empt
 }
 
 // HealthCheck implements health checking
-func (s *PeerVaultServiceImpl) HealthCheck(ctx context.Context, req *emptypb.Empty) (*peervault.HealthResponse, error) {
+func (s *ShugoServiceImpl) HealthCheck(ctx context.Context, req *emptypb.Empty) (*shugo.HealthResponse, error) {
 	s.logger.Info("Health check requested")
 
 	response, err := s.systemService.HealthCheck()
@@ -291,11 +291,11 @@ func (s *PeerVaultServiceImpl) HealthCheck(ctx context.Context, req *emptypb.Emp
 // Streaming Operations
 
 // StreamFileOperations implements file operation event streaming
-func (s *PeerVaultServiceImpl) StreamFileOperations(req *emptypb.Empty, stream peervault.PeerVaultService_StreamFileOperationsServer) error {
+func (s *ShugoServiceImpl) StreamFileOperations(req *emptypb.Empty, stream shugo.ShugoService_StreamFileOperationsServer) error {
 	s.logger.Info("Starting file operations stream")
 
 	// Create a channel for file operation events
-	eventChan := make(chan *peervault.FileOperationEvent, 100)
+	eventChan := make(chan *shugo.FileOperationEvent, 100)
 	defer close(eventChan)
 
 	// Start a goroutine to generate mock events
@@ -306,7 +306,7 @@ func (s *PeerVaultServiceImpl) StreamFileOperations(req *emptypb.Empty, stream p
 		for {
 			select {
 			case <-ticker.C:
-				event := &peervault.FileOperationEvent{
+				event := &shugo.FileOperationEvent{
 					EventType: "periodic_check",
 					FileKey:   "system",
 					PeerId:    "local",
@@ -342,11 +342,11 @@ func (s *PeerVaultServiceImpl) StreamFileOperations(req *emptypb.Empty, stream p
 }
 
 // StreamPeerEvents implements peer event streaming
-func (s *PeerVaultServiceImpl) StreamPeerEvents(req *emptypb.Empty, stream peervault.PeerVaultService_StreamPeerEventsServer) error {
+func (s *ShugoServiceImpl) StreamPeerEvents(req *emptypb.Empty, stream shugo.ShugoService_StreamPeerEventsServer) error {
 	s.logger.Info("Starting peer events stream")
 
 	// Create a channel for peer events
-	eventChan := make(chan *peervault.PeerEvent, 100)
+	eventChan := make(chan *shugo.PeerEvent, 100)
 	defer close(eventChan)
 
 	// Start a goroutine to generate mock events
@@ -357,7 +357,7 @@ func (s *PeerVaultServiceImpl) StreamPeerEvents(req *emptypb.Empty, stream peerv
 		for {
 			select {
 			case <-ticker.C:
-				event := &peervault.PeerEvent{
+				event := &shugo.PeerEvent{
 					EventType: "health_check",
 					PeerId:    "system",
 					Timestamp: timestamppb.Now(),
@@ -392,11 +392,11 @@ func (s *PeerVaultServiceImpl) StreamPeerEvents(req *emptypb.Empty, stream peerv
 }
 
 // StreamSystemEvents implements system event streaming
-func (s *PeerVaultServiceImpl) StreamSystemEvents(req *emptypb.Empty, stream peervault.PeerVaultService_StreamSystemEventsServer) error {
+func (s *ShugoServiceImpl) StreamSystemEvents(req *emptypb.Empty, stream shugo.ShugoService_StreamSystemEventsServer) error {
 	s.logger.Info("Starting system events stream")
 
 	// Create a channel for system events
-	eventChan := make(chan *peervault.SystemEvent, 100)
+	eventChan := make(chan *shugo.SystemEvent, 100)
 	defer close(eventChan)
 
 	// Start a goroutine to generate mock events
@@ -407,7 +407,7 @@ func (s *PeerVaultServiceImpl) StreamSystemEvents(req *emptypb.Empty, stream pee
 		for {
 			select {
 			case <-ticker.C:
-				event := &peervault.SystemEvent{
+				event := &shugo.SystemEvent{
 					EventType: "status_update",
 					Component: "grpc_server",
 					Timestamp: timestamppb.Now(),

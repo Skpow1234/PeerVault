@@ -15,7 +15,7 @@ echo ""
 # Check if server is running
 if ! curl -s "$API_BASE/health" > /dev/null 2>&1; then
     echo "Error: API server is not running on $API_BASE"
-    echo "Please start the server first: ./bin/peervault-api"
+    echo "Please start the server first: ./bin/shugo-api"
     exit 1
 fi
 

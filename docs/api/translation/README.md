@@ -1,6 +1,6 @@
 # Protocol Translation API
 
-The Protocol Translation API provides seamless cross-protocol communication between different API types in PeerVault. It enables real-time message translation between WebSocket, Server-Sent Events (SSE), MQTT, and CoAP protocols.
+The Protocol Translation API provides seamless cross-protocol communication between different API types in Shugo. It enables real-time message translation between WebSocket, Server-Sent Events (SSE), MQTT, and CoAP protocols.
 
 ## Overview
 
@@ -540,4 +540,4 @@ go test ./tests/integration/translation/...
 
 ## License
 
-This API is part of the PeerVault project and is licensed under the same terms as the main project.
+This API is part of the Shugo project and is licensed under the same terms as the main project.
