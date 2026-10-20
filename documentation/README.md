@@ -20,9 +20,10 @@ This directory contains comprehensive documentation for the PeerVault project.
 
 For new users, start with:
 
-1. **Main README.md** (in project root) - Overview and installation
-2. **CONTRIBUTING.md** - How to contribute
-3. **ROADMAP.md** - Current development status
+1. **[Main README.md](../README.md)** — Overview and quick start
+2. **[docs/](../docs/README.md)** — Getting started, deployment, endpoints, milestones
+3. **CONTRIBUTING.md** — How to contribute
+4. **ROADMAP.md** — Full development milestones
 
 ## For Developers
 
