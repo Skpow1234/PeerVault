@@ -86,12 +86,23 @@ func (t *TCPTransport) Close() error {
 
 // Dial implements the Transport interface.
 func (t *TCPTransport) Dial(addr string) error {
+	_, err := t.DialPeer(addr)
+	return err
+}
+
+// DialPeer dials, handshakes, registers OnPeer, starts the read loop, and returns the peer.
+func (t *TCPTransport) DialPeer(addr string) (Peer, error) {
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	go t.handleConn(conn, true)
-	return nil
+
+	peer, err := t.setupConn(conn, true)
+	if err != nil {
+		_ = conn.Close()
+		return nil, err
+	}
+	return peer, nil
 }
 
 func (t *TCPTransport) ListenAndAccept() error {
@@ -131,50 +142,71 @@ func (t *TCPTransport) startAcceptLoop() {
 }
 
 func (t *TCPTransport) handleConn(conn net.Conn, outbound bool) {
-	var err error
-	defer func() {
+	peer, err := t.setupConn(conn, outbound)
+	if err != nil {
 		slog.Error("dropping peer connection", slog.String("error", err.Error()))
-		if closeErr := conn.Close(); closeErr != nil {
+		_ = conn.Close()
+		return
+	}
+	_ = peer // read loop already started in setupConn
+}
+
+// setupConn performs handshake, OnPeer, and starts the read loop.
+func (t *TCPTransport) setupConn(conn net.Conn, outbound bool) (Peer, error) {
+	peer := NewTCPPeer(conn, outbound)
+
+	if t.HandshakeFunc != nil {
+		if err := t.HandshakeFunc(peer); err != nil {
+			return nil, err
+		}
+	}
+	if t.OnPeer != nil {
+		if err := t.OnPeer(peer); err != nil {
+			return nil, err
+		}
+	}
+
+	go t.readLoop(peer)
+	return peer, nil
+}
+
+func (t *TCPTransport) readLoop(peer *TCPPeer) {
+	defer func() {
+		if closeErr := peer.Close(); closeErr != nil {
 			slog.Error("failed to close connection", slog.String("error", closeErr.Error()))
 		}
 	}()
 
-	peer := NewTCPPeer(conn, outbound)
-	if err = t.HandshakeFunc(peer); err != nil {
-		return
-	}
-	if t.OnPeer != nil {
-		if err = t.OnPeer(peer); err != nil {
-			return
-		}
-	}
-
-	// Read loop
 	for {
+		select {
+		case <-t.stopCh:
+			return
+		default:
+		}
+
 		rpc := RPC{}
-		err = t.Decoder.Decode(conn, &rpc)
+		err := t.Decoder.Decode(peer, &rpc)
 		if err != nil {
+			slog.Debug("peer read ended", slog.String("peer", peer.RemoteAddr().String()), slog.String("error", err.Error()))
 			return
 		}
-		rpc.From = conn.RemoteAddr().String()
+		rpc.From = peer.RemoteAddr().String()
+
 		if rpc.Stream {
-			peer.wg.Add(1)
-			slog.Info("incoming stream", slog.String("peer", conn.RemoteAddr().String()))
-			// Handle the stream if callback is provided
+			// Handle streams synchronously so the next frame is not decoded mid-stream.
 			if t.OnStream != nil {
-				go func() {
-					defer func() {
-						peer.wg.Done()
-					}()
-					if err := t.OnStream(peer, conn); err != nil {
-						slog.Error("failed to handle stream", slog.String("error", err.Error()))
-					}
-				}()
-			} else {
-				peer.wg.Done()
+				if err := t.OnStream(peer, peer); err != nil {
+					slog.Error("failed to handle stream", slog.String("error", err.Error()))
+					return
+				}
 			}
 			continue
 		}
-		t.rpcch <- rpc
+
+		select {
+		case t.rpcch <- rpc:
+		case <-t.stopCh:
+			return
+		}
 	}
 }

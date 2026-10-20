@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -14,8 +14,9 @@ import (
 
 const defaultRootFolderName = "ggnetwork"
 
+// CASPathTransformFunc maps a storage key to a SHA-256 content-addressed path.
 func CASPathTransformFunc(key string) PathKey {
-	hash := sha1.Sum([]byte(key))
+	hash := sha256.Sum256([]byte(key))
 	hashStr := hex.EncodeToString(hash[:])
 	blocksize := 5
 	sliceLen := len(hashStr) / blocksize

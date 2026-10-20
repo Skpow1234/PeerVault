@@ -152,5 +152,6 @@ func createFileServer(listenAddr string, _ *slog.Logger) *fs.Server {
 	}
 	s := fs.New(fileServerOpts)
 	tcpTransport.OnPeer = s.OnPeer
+	tcpTransport.OnStream = s.OnStream
 	return s
 }

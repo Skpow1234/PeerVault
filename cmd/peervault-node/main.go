@@ -65,9 +65,14 @@ func makeServer(listenAddr, storagePrefix string, bootstrapNodes ...string) *fs.
 	// Create storage root with prefix for better organization in containers
 	storageRoot := storage.SanitizeStorageRootFromAddrWithPrefix(listenAddr, storagePrefix)
 
+	keyManager, err := crypto.NewKeyManager()
+	if err != nil {
+		log.Fatal("failed to initialize key manager:", err)
+	}
+
 	fileServerOpts := fs.Options{
 		ID:                nodeID,
-		EncKey:            crypto.NewEncryptionKey(),
+		KeyManager:        keyManager,
 		StorageRoot:       storageRoot,
 		PathTransformFunc: storage.CASPathTransformFunc,
 		Transport:         tcpTransport,
@@ -76,5 +81,6 @@ func makeServer(listenAddr, storagePrefix string, bootstrapNodes ...string) *fs.
 	}
 	s := fs.New(fileServerOpts)
 	tcpTransport.OnPeer = s.OnPeer
+	tcpTransport.OnStream = s.OnStream
 	return s
 }

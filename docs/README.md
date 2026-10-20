@@ -9,7 +9,7 @@ Index of project documentation. For deeper API guides, see the topic folders lin
 | [Getting started](getting-started.md) | Requirements, quick run, Windows notes |
 | [Deployment](deployment.md) | Docker Compose, nodes, APIs, env vars |
 | [Endpoints](endpoints.md) | REST, GraphQL, gRPC, and related ports |
-| [Milestones](milestones.md) | Roadmap milestones and current focus |
+| [Milestones](milestones.md) | Roadmap + extended backlog (500+ items) |
 | [Features](features.md) | MVP scope and post-MVP plans |
 | [Architecture](architecture.md) | How it works and project layout |
 | [Security](security.md) | Encryption, keys, auth, CI security |

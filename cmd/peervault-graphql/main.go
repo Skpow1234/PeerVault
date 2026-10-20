@@ -57,6 +57,8 @@ func main() {
 	}
 
 	server := fileserver.New(opts)
+	transport.OnPeer = server.OnPeer
+	transport.OnStream = server.OnStream
 
 	// Initialize GraphQL server
 	config := &graphql.Config{

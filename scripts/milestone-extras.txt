@@ -1,0 +1,533 @@
+REST file list from store index
+REST get-by-key streaming
+REST upload streaming
+REST delete with peer notify
+REST metadata update persistence
+Peer list from health manager
+Peer get with health detail
+Peer add via DialPeer
+Peer remove with connection close
+System info version/uptime/runtime
+System metrics store/get counters
+System health disk + peer quorum
+GraphQL File type fields complete
+GraphQL Node type fields complete
+GraphQL PeerConnection type complete
+GraphQL Mutation storeFile
+GraphQL Mutation deleteFile
+GraphQL Mutation updateMetadata
+GraphQL Mutation addPeer
+GraphQL Mutation removePeer
+GraphQL Mutation updateConfig
+GraphQL Query files pagination
+GraphQL Query peerNetwork graph
+GraphQL Query performanceStats
+GraphQL Query storageStats
+GraphQL Query health
+gRPC HealthCheck real status
+gRPC ListFiles real data
+gRPC GetFile stream
+gRPC DeleteFile
+gRPC ListPeers
+gRPC AddPeer DialPeer
+gRPC RemovePeer
+gRPC PeerHealth
+gRPC SystemInfo
+gRPC Metrics
+Monitoring alert silence persistence
+Monitoring alert resolve persistence
+Monitoring recommendations from SLOs
+Analytics popularity from store events
+Analytics privacy review
+WebSocket /ws/health contract
+WebSocket /ws/metrics contract
+CLI analytics without sleep stubs
+CLI network CDN simulation removal
+Terminal resize handling
+Completion for storage keys
+Federation gateway auth propagation
+Cache invalidation on Store
+Query cache TTL tuning
+Stitching remote schema refresh
+Balancer health checker vs DialPeer
+Static discovery watch docs
+Optional Consul discovery module
+Optional etcd discovery module
+Optional K8s discovery module
+CoAP observe integration test
+MQTT retained message persistence
+SSE last-event-id resume
+Translation analytics accuracy tests
+Mock server scenario DSL docs
+Contract test /health JSON schema
+k6 script for Store/Get path
+Security test oversized frame rejected
+Security test bad HMAC rejected
+Security test path traversal rejected
+Fuzz CASPathTransformFunc
+Fuzz handshake serialize/deserialize
+Unit dialPeer success path
+Unit replicateToPeers no peers
+Unit Get timeout when no peers
+Unit OnStream invalid key length
+Unit OnStream size mismatch
+Integration store A get B
+Integration store A get C via B
+Integration peer reconnect after kill
+Integration mismatched cluster key
+Chaos kill peer mid-stream
+Chaos slow disk
+Chaos clock skew beyond handshake window
+Docs update milestones.md after M1-2
+Docs architecture sequence diagrams
+Release v0.1.0 MVP criteria
+Release ghcr publish
+License header check
+SPDX identifiers
+Third-party notices file
+Feature flag framework
+Remote config provider
+Canary peer percentage rollout
+Shadow reads verification
+Dual-write migration helper
+Read repair on checksum fail
+Anti-entropy merkle sync
+Rendezvous hashing ownership
+Consistent hashing ring
+Optional raft spike
+CRDT for metadata only
+Vector clocks for conflicts
+Last-writer-wins policy doc
+Manual conflict resolve API
+Snapshot + log shipping
+Point-in-time restore
+Encryption key escrow
+Customer-managed keys
+KMS integration AWS/GCP/Azure
+HSM integration spike
+FIPS build mode investigation
+Data residency tags
+Retention policy engine
+Legal hold flag
+GDPR delete cascade
+Export user data package
+Access review reports
+Break-glass admin procedure
+On-call runbooks pack
+Incident severity matrix
+Postmortem template
+Capacity planning model
+Load shedding strategy
+Graceful degradation mode
+Read-only fallback
+Cache-only mode
+Emergency peer quarantine
+ACME cert renew
+Internal CA for node mesh
+SPIFFE/SPIRE spike
+Zero-trust network notes
+Supply chain SLSA L2
+SLSA L3 provenance
+Cosign image signing
+OPA policy for APIs
+Admission controller examples
+Gateway API examples
+Service mesh notes
+eBPF observability spike
+WASM plugin runtime spike
+SQLite metadata backend
+Postgres metadata backend
+S3 CAS backend plugin
+MinIO integration test
+Azure blob plugin
+GCS plugin
+Restic integration example
+Velero for K8s volumes
+Multi-tenant isolation tests
+Noisy neighbor limits
+Fair queuing per tenant
+Billing meters bytes stored/transferred
+Usage export CSV
+Admin UI spike read-only
+Peer map visualization
+File browser UI spike
+Slack alert sink
+PagerDuty integration
+Status page generator
+Public uptime SLA page
+Pentest remediation tracker
+Vulnerability disclosure program
+Tabletop exercise materials
+Game day region loss
+Game day key compromise
+Game day thundering herd Get
+Benchmark vs IPFS baseline
+Benchmark vs MinIO baseline
+RFC wire protocol v2
+RFC auth v2
+Community RFC process
+Weekly triage bot
+Stale issue automation
+Good first issue pack
+Mentor checklist for contributors
+Internal Go style guide
+Error wrapping conventions enforced
+Context first-arg lint
+No panic in library lint
+slog key consistency lint
+Import alias standards
+Package dependency direction rules
+Forbid cmd/internal import cycles
+API compatibility checker
+Proto compatibility checker
+GraphQL schema compatibility checker
+OpenAPI compatibility checker
+Semantic release pipeline
+Changelog fragments per PR
+Docs preview per PR
+Ephemeral preview environments
+Feature branch compose stacks
+kind/k3d quickstart
+Devcontainer definition
+Codespaces config
+Editorconfig enforce
+Pre-commit golangci required
+Pre-commit gofmt required
+Makefile/Taskfile parity
+PowerShell ops module
+Bash completion install script
+Homebrew formula spike
+Scoop package spike
+Apt package spike
+Nix flake spike
+Winget manifest
+Chocolatey package
+Distroless runtime image
+Chainguard/wolfi image option
+Image CVE gate in CI
+Base image refresh automation
+Multi-arch amd64/arm64 images
+arm64 performance notes
+Raspberry Pi edge profile
+Low-memory 512MB profile
+High-throughput profile
+Air-gapped install pack
+Offline module proxy docs
+Corporate MITM TLS docs
+Proxy env support verified
+IPv6-only deployment test
+Dual-stack deployment test
+Split-horizon DNS notes
+Corporate firewall ports doc
+SELinux labeling notes
+AppArmor profile sample
+ulimit recommendations
+fd exhaustion tests
+goroutine leak tests
+memory leak soak 24h
+disk fill behavior test
+clock jump behavior test
+NTP requirements doc
+Milestone tracker sync automation
+Streaming decrypt pipe for Get
+Shared cluster key required in docker-compose
+Document PEERVAULT_CLUSTER_KEY in compose samples
+DialPeer unit test with fake listener
+OnStream skip when Has already true
+Store announcement without duplicate encrypt
+Get pending channel leak on timeout fix verification
+Normalize RemoteAddr string keys
+Health manager uses DialPeer reconnect e2e
+Resource manager stream slots during replicate
+FrameWriter endianness consistency audit
+LittleEndian key header vs BigEndian frame header docs
+Max key length DoS guard tests
+Negative size stream rejected tests
+fileserver package race test in CI
+cmd/peervault demo waits for bootstrap without fixed sleep
+Replace remaining time.Sleep in e2e with readiness probe
+Port conflict retry in tests
+Unique storage roots per test parallel safe
+Cleanup storage roots in test teardown always
+Windows Defender exclusion note in getting-started only
+SECURITY.md link from milestones
+CONTAINERIZATION.md link Helm absence note
+Update architecture.md SHA-256 now accurate
+Mark M1.3 CAS complete in ROADMAP
+Mark M1 dial/replication progress in ROADMAP
+Add fileserver README
+Add transport README
+Public metrics redaction guide
+Admin vs public endpoint split
+Readiness excludes bootstrap-incomplete optional
+Liveness always process-up
+Startup probe for slow disk
+Horizontal scaling peer list gossip
+Epidemic anti-entropy design
+Merkle tree per namespace
+Chunk manifest object format
+Erasure coding research spike
+Reed-Solomon optional module
+Parity peer role
+Witness peer role
+Observer/read-only peer role
+Bootstrap peer privileged allowlist
+Operator signed peer allowlist
+Revocation list distribution
+CRL for node certs
+OCSP stapling for API TLS
+HSTS on all HTTP APIs
+CSP for playground/swagger
+Secure cookies if sessions added
+SameSite cookie policy
+CSRF for browser cookie auth
+Turnstile/captcha for public upload rate
+Proof-of-work optional anti-spam
+Token bucket per IP
+Token bucket per API key
+Geo-IP allow/deny lists
+Tor exit node policy doc
+Sanctioned region block list optional
+Export control classification
+Crypto export notice
+Dual-use statement
+Responsible AI statement for ML module
+Model card for classifier
+Dataset provenance for ML
+Bias evaluation for ML labels
+Human review hook for ML
+Edge offline sync conflict UI notes
+IoT device certificate enrollment
+CoAP block-wise transfer
+MQTT QoS 2 exactly-once path
+AMQP bridge spike
+NATS bridge spike
+Kafka connect spike
+Pulsar bridge spike
+Redis streams bridge spike
+Webhook retry with backoff
+Webhook DLQ
+Outbox pattern for events
+Inbox pattern for inbound
+Idempotent consumer keys
+Exactly-once caveats doc
+At-least-once default doc
+Ordering guarantees doc
+Clock sync requirement SLO
+Logical clock for events
+Hybrid logical clock spike
+Serialize Store per key globally
+Serializable isolation notes
+Snapshot isolation for metadata DB
+Read committed for indexes
+Dirty read never for ciphertext
+Constant-time Has for missing keys timing
+Padding oracle review on GCM misuse
+Compress-then-encrypt warning in ENCRYPTION.md
+Key stretching if password-derived keys added
+Argon2id for password KDF if needed
+Passphrase UX never for cluster key
+QR code cluster key exchange spike
+Shamir secret sharing for cluster key
+Threshold decrypt research
+Multi-party compute out of scope note
+Formal verification spike for framing
+TLA+ spec for replication
+Alloy model for peer membership
+Property-based tests with gopter/rapid
+Hypothesis-style stateful tests
+Linearizability checker for Get/Store
+Jepsen-style harness spike
+Fault injection with toxiproxy
+Chaos mesh examples
+Litmus chaos experiments
+Gameday calendar quarterly
+Error budget policy
+Pager rotation
+Runbook automation buttons
+ChatOps deploy freeze
+Feature freeze checklist
+Release candidate soak
+Canary 1 percent peers
+Canary 10 percent peers
+Canary 50 percent peers
+Auto rollback on error spike
+Manual rollback runbook
+Blue/green for API pods
+Shadow traffic to new protocol
+Protocol v2 dual-stack period
+Deprecate protocol v1 timeline
+Compat matrix published
+Client SDK support windows
+Server support windows
+LTS branch policy
+Security patch backport policy
+CVE response SLA
+Embargo process
+Credit for reporters
+Hall of fame page
+OpenSSF scorecard target A
+Best practices badge
+OpenSSF scorecard CI
+Fuzz introspector
+OSS-Fuzz onboarding
+Coverity/semgrep tune rules
+Custom semgrep rules for gob
+Custom semgrep for unsafe os.Open
+Ban ioutil deprecated
+Ban interface{} in new code prefer any
+Prefer errors.Join
+Prefer slog over log
+Prefer context.WithTimeout helpers
+Standardize port flags across cmd
+Standardize log-level flags across cmd
+Standardize storage-root flags across cmd
+Unify makeServer helpers into internal/testutil
+Shared KeyManager fixture package
+Golden files for frames
+Record/replay transport tests
+Deterministic GenerateID for tests option
+Leaktest for goroutines
+goleak in TestMain
+testify require consistently
+Table-driven tests style guide
+Fuzz time budgets documented
+Benchmark baselines checked in
+perf regression CI threshold
+CPU profile on fail
+Heap profile on fail
+Block profile optional
+Mutex profile optional
+Execution trace on fail
+OpenTelemetry baggage for key hash
+Span attributes peer addr redacted
+Metric exemplars
+Log cardinality limits
+Prometheus histogram buckets tuned
+Exemplars for Store latency
+Tail sampling for errors
+Head sampling for success
+Adaptive sampling
+Remote write to Grafana Cloud example
+Loki log ship example
+Tempo traces example
+Pyroscope continuous profile example
+Parca alternative
+Thanos long-term metrics
+Mimir example
+VictoriaMetrics example
+Grafana Alloy config
+OpenTelemetry Operator
+Service graph for peers
+RED dashboard template
+USE dashboard template
+Golden signals dashboard
+Saturation alerts
+Traffic alerts
+Errors alerts
+Latency alerts
+Burn-rate alerts
+Weekly ops review template
+Monthly capacity review
+Quarterly architecture review
+Annual threat model review
+Dependency update party cadence
+Go toolchain upgrade playbook
+Protobuf upgrade playbook
+Major dep upgrade checklist
+Remove zombie packages
+Archive unused cmd binaries
+Feature flag to disable ML cmd
+Feature flag to disable chain cmd
+Reduce binary size build tags
+UPX evaluation (security tradeoff)
+Strip symbols in release
+Buildinfo embed
+vcs revision embed
+Dirty build detect
+Source map for panics
+Sentry/GlitchTip optional
+Panic webhook
+Watchdog process supervisor
+Auto-restart policy compose
+Restart budget
+Crash loop backoff
+OOM kill diagnostics
+cgroup memory limit tests
+CPU quota tests
+IO throttle tests
+Network bandwidth throttle tests
+Fair share between tenants
+Priority queues for Get
+Priority queues for Store
+Admin bypass queue
+Maintenance window scheduler
+Freeze writes API
+Drain peer before shutdown
+Undrain peer
+Quiesce replication
+Catch-up replication after quiesce
+Backfill tool
+Rebalance tool
+Repair tool
+Verify tool
+Doctor tool cluster-wide
+Topology visualizer CLI
+Dot graph export of peers
+JSON topology export
+Prometheus peer target discovery file SD
+HTTP SD for peers
+Consul SD documented
+K8s headless service peer discovery
+StatefulSet ordinal bootstrap
+DaemonSet edge profile
+Job for batch verify
+CronJob for GC
+CronJob for backup
+CronJob for key rotation reminder
+Secret rotation operator
+ExternalSecrets example
+SealedSecrets example
+SOPS example
+age encrypted env files
+direnv example
+dotenv never commit
+gitignore secrets patterns audit
+pre-commit detect-private-key
+gitleaks in CI
+trufflehog optional
+AWS access key patterns
+GitHub token patterns
+Cluster key entropy check
+Auth token entropy check
+Reject weak keys
+Key stretch documentation
+HSM lunch-and-learn notes
+SOC2 control mapping living doc
+ISO27001 control mapping
+GDPR DPA template
+HIPAA out of scope statement
+PCI out of scope statement
+FedRAMP path evaluation
+CJIS out of scope
+Customer questionnaire pack
+SIG Lite answers
+CAIQ lite answers
+Trust center markdown
+Status history archive
+Incident public comms templates
+Postmortem blameless culture doc
+Learning review template
+Near miss log
+Bug bash events
+Hackathon backlog grooming
+Design doc template
+RFC template
+Experiment template
+Spike timebox 2 days rule
+Definition of done checklist
+Definition of ready checklist
+Story point guide
+Milestone exit criteria template
+MVP exit criteria checklist
+v1.0 exit criteria checklist

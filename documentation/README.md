@@ -8,7 +8,8 @@ This directory contains comprehensive documentation for the PeerVault project.
 
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing to PeerVault
 - **[SECURITY.md](SECURITY.md)** - Security policy and vulnerability reporting
-- **[ROADMAP.md](ROADMAP.md)** - Project roadmap and development milestones
+- **[ROADMAP.md](ROADMAP.md)** - Project roadmap and development milestones (1–40)
+- **[MILESTONES_EXTENDED.md](MILESTONES_EXTENDED.md)** - Extended backlog (41+, 500+ code-derived items)
 
 ### **Technical Documentation**
 

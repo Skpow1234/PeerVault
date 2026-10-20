@@ -71,6 +71,7 @@ func createDemoClient(targetNode, bootstrapNodes string) *fs.Server {
 	}
 	s := fs.New(fileServerOpts)
 	tcpTransport.OnPeer = s.OnPeer
+	tcpTransport.OnStream = s.OnStream
 	return s
 }
 

@@ -14,8 +14,8 @@ import (
 func TestPathTransformFunc(t *testing.T) {
 	key := "momsbestpicture"
 	pathKey := CASPathTransformFunc(key)
-	expectedFilename := "6804429f74181a63c50c3d81d733a12f14a353ff"
-	expectedPathName := "68044/29f74/181a6/3c50c/3d81d/733a1/2f14a/353ff"
+	expectedFilename := "b159a9f0a78305c07dbce386598952bfa30b6aabb46a98b072c9195348abf9ea"
+	expectedPathName := "b159a/9f0a7/8305c/07dbc/e3865/98952/bfa30/b6aab/b46a9/8b072/c9195/348ab"
 	assert.Equal(t, expectedPathName, pathKey.PathName)
 	assert.Equal(t, expectedFilename, pathKey.Filename)
 }

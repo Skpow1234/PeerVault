@@ -220,10 +220,14 @@ func createTestServer(listenAddr string, bootstrapNodes []string) *fs.Server {
 	// Create storage root
 	storageRoot := storage.SanitizeStorageRootFromAddr(listenAddr)
 
-	// Create server options
+	km, err := crypto.NewKeyManagerFromClusterKey([]byte("peervault-test-cluster-key-32byt"))
+	if err != nil {
+		panic(err)
+	}
+
 	fileServerOpts := fs.Options{
 		ID:                nodeID,
-		EncKey:            crypto.NewEncryptionKey(),
+		KeyManager:        km,
 		StorageRoot:       storageRoot,
 		PathTransformFunc: storage.CASPathTransformFunc,
 		Transport:         tcpTransport,
@@ -231,9 +235,9 @@ func createTestServer(listenAddr string, bootstrapNodes []string) *fs.Server {
 		ResourceLimits:    peer.DefaultResourceLimits(),
 	}
 
-	// Create and configure server
 	s := fs.New(fileServerOpts)
 	tcpTransport.OnPeer = s.OnPeer
+	tcpTransport.OnStream = s.OnStream
 
 	return s
 }

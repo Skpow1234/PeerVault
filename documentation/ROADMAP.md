@@ -1722,6 +1722,31 @@ PeerVault implements a comprehensive multi-API strategy to serve different use c
 
 ---
 
+## Milestone status update (core P2P restore)
+
+Recent implementation progress against early milestones:
+
+| Item | Status |
+|------|--------|
+| M1.2 AES-GCM | Done |
+| M1.3 CAS SHA-256 (+ HashKey SHA-256) | Done |
+| M1.4 Shared cluster key / KeyManager | Done (env + `NewKeyManagerFromClusterKey`) |
+| M1.5 Authenticated handshake | Done (pre-existing) |
+| M1.6 Length-prefixed framing | Done (pre-existing) |
+| M1.1 / M2 cross-peer fetch + replication | Restored (stream replicate + pending Get) |
+| DialPeer for reconnect | Done (`Transport.DialPeer`) |
+| M2.1 Remove sleep from protocol | Improved (pending channels; tests may still sleep) |
+| M2.2 Streaming AEAD without full buffer | Open (crypto still buffers plaintext) |
+| Wire APIs to fileserver | Open (REST/GraphQL stubs remain) |
+
+## Extended milestones (41+)
+
+**500+ additional milestones** (code-derived improvements across fileserver, APIs, security, ops, DX, etc.) live in:
+
+- **[MILESTONES_EXTENDED.md](MILESTONES_EXTENDED.md)** — milestones **41–943+**
+
+Regenerate with: `powershell -File scripts/generate-milestones.ps1`
+
 ## Future Enhancements
 
 - Discovery (mDNS, DHT, static bootstrap with health checks)

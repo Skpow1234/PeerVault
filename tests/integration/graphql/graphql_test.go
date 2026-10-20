@@ -42,6 +42,8 @@ func TestGraphQLServerHealth(t *testing.T) {
 	}
 
 	server := fileserver.New(opts)
+	transport.OnPeer = server.OnPeer
+	transport.OnStream = server.OnStream
 
 	// Initialize GraphQL server
 	config := &graphql.Config{
@@ -175,6 +177,8 @@ func TestGraphQLServerCORS(t *testing.T) {
 	}
 
 	server := fileserver.New(opts)
+	transport.OnPeer = server.OnPeer
+	transport.OnStream = server.OnStream
 
 	// Initialize GraphQL server
 	config := &graphql.Config{

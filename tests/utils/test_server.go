@@ -44,10 +44,14 @@ func (tsm *TestServerManager) CreateServer(name, listenAddr string, bootstrapNod
 	// Create storage root with unique name to avoid conflicts
 	storageRoot := storage.SanitizeStorageRootFromAddr(listenAddr) + "_" + name
 
-	// Create server options
+	km, err := crypto.NewKeyManagerFromClusterKey([]byte("peervault-test-cluster-key-32byt"))
+	if err != nil {
+		panic(err)
+	}
+
 	fileServerOpts := fs.Options{
 		ID:                nodeID,
-		EncKey:            crypto.NewEncryptionKey(),
+		KeyManager:        km,
 		StorageRoot:       storageRoot,
 		PathTransformFunc: storage.CASPathTransformFunc,
 		Transport:         tcpTransport,
@@ -55,9 +59,9 @@ func (tsm *TestServerManager) CreateServer(name, listenAddr string, bootstrapNod
 		ResourceLimits:    peer.DefaultResourceLimits(),
 	}
 
-	// Create and configure server
 	s := fs.New(fileServerOpts)
 	tcpTransport.OnPeer = s.OnPeer
+	tcpTransport.OnStream = s.OnStream
 
 	// Store server reference
 	tsm.mu.Lock()

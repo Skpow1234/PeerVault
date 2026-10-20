@@ -18,7 +18,7 @@ Framing: `[type:u8][len:u32][payload:len]` — message `0x1`, stream header `0x2
 
 ### Content addressing
 
-Paths are derived from a hash of the key (`CASPathTransformFunc` in `internal/storage`). Docs historically describe SHA-256; verify the implementation when changing storage. IPFS/CID work lives under `internal/content` and `internal/ipfs` (ecosystem / Milestone 9).
+Paths are derived from a SHA-256 hash of the storage key (`CASPathTransformFunc` in `internal/storage`). Logical keys are hashed via `crypto.HashKey` before disk/wire use. IPFS/CID work lives under `internal/content` and `internal/ipfs` (ecosystem / Milestone 9).
 
 ## Project layout (overview)
 

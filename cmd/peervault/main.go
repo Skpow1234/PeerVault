@@ -18,8 +18,7 @@ import (
 	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
 )
 
-func makeServer(listenAddr string, nodes ...string) *fs.Server {
-	// Generate a unique node ID for this server
+func makeServer(listenAddr string, keyManager *crypto.KeyManager, nodes ...string) *fs.Server {
 	nodeID := crypto.GenerateID()
 
 	tcptransportOpts := netp2p.TCPTransportOpts{
@@ -30,7 +29,7 @@ func makeServer(listenAddr string, nodes ...string) *fs.Server {
 	tcpTransport := netp2p.NewTCPTransport(tcptransportOpts)
 	fileServerOpts := fs.Options{
 		ID:                nodeID,
-		EncKey:            crypto.NewEncryptionKey(),
+		KeyManager:        keyManager,
 		StorageRoot:       storage.SanitizeStorageRootFromAddr(listenAddr),
 		PathTransformFunc: storage.CASPathTransformFunc,
 		Transport:         tcpTransport,
@@ -39,11 +38,11 @@ func makeServer(listenAddr string, nodes ...string) *fs.Server {
 	}
 	s := fs.New(fileServerOpts)
 	tcpTransport.OnPeer = s.OnPeer
+	tcpTransport.OnStream = s.OnStream
 	return s
 }
 
 func main() {
-	// Configure structured logging
 	logLevel := os.Getenv("LOG_LEVEL")
 	if logLevel == "" {
 		logLevel = "info"
@@ -52,18 +51,30 @@ func main() {
 
 	slog.Info("starting PeerVault application", "log_level", logLevel)
 
-	s1 := makeServer(":3000", "")
-	s2 := makeServer(":7000", "")
-	s3 := makeServer(":5000", ":3000", ":7000")
+	// Shared cluster key so all local demo nodes can decrypt replicated ciphertext.
+	clusterKey := make([]byte, 32)
+	copy(clusterKey, []byte("peervault-demo-cluster-key-32b!!"))
+	keyManager, err := crypto.NewKeyManagerFromClusterKey(clusterKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	s1 := makeServer(":3000", keyManager, "")
+	s2 := makeServer(":7000", keyManager, "")
+	s3 := makeServer(":5000", keyManager, ":3000", ":7000")
 	go func() { log.Fatal(s1.Start()) }()
+	time.Sleep(200 * time.Millisecond)
 	go func() { log.Fatal(s2.Start()) }()
+	time.Sleep(200 * time.Millisecond)
 	go func() {
 		if err := s3.Start(); err != nil {
 			log.Printf("s3.Start() error: %v", err)
 		}
 	}()
 
-	// Create a context with timeout for the operations
+	// Allow bootstrap dials to complete
+	time.Sleep(1 * time.Second)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 

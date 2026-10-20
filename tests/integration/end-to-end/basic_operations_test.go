@@ -268,12 +268,19 @@ func TestLargeFileStreaming(t *testing.T) {
 	})
 }
 
+// sharedTestKeyManager ensures all test nodes decrypt with the same key.
+var sharedTestKeyManager = func() *crypto.KeyManager {
+	km, err := crypto.NewKeyManagerFromClusterKey([]byte("peervault-test-cluster-key-32byt"))
+	if err != nil {
+		panic(err)
+	}
+	return km
+}()
+
 // Helper function to create a test server
 func createTestServer(listenAddr string, bootstrapNodes []string) *fs.Server {
-	// Generate unique node ID
 	nodeID := crypto.GenerateID()
 
-	// Create transport
 	tcptransportOpts := netp2p.TCPTransportOpts{
 		ListenAddr:    listenAddr,
 		HandshakeFunc: netp2p.AuthenticatedHandshakeFunc(nodeID),
@@ -281,13 +288,11 @@ func createTestServer(listenAddr string, bootstrapNodes []string) *fs.Server {
 	}
 	tcpTransport := netp2p.NewTCPTransport(tcptransportOpts)
 
-	// Create storage root
 	storageRoot := storage.SanitizeStorageRootFromAddr(listenAddr)
 
-	// Create server options
 	fileServerOpts := fs.Options{
 		ID:                nodeID,
-		EncKey:            crypto.NewEncryptionKey(),
+		KeyManager:        sharedTestKeyManager,
 		StorageRoot:       storageRoot,
 		PathTransformFunc: storage.CASPathTransformFunc,
 		Transport:         tcpTransport,
@@ -295,7 +300,6 @@ func createTestServer(listenAddr string, bootstrapNodes []string) *fs.Server {
 		ResourceLimits:    peer.DefaultResourceLimits(),
 	}
 
-	// Create and configure server
 	s := fs.New(fileServerOpts)
 	tcpTransport.OnPeer = s.OnPeer
 	tcpTransport.OnStream = s.OnStream

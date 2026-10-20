@@ -46,22 +46,24 @@ func NewKeyManager() (*KeyManager, error) {
 		// For demo purposes, we'll just use it in memory
 	}
 
-	// Decode the cluster key
 	clusterKeyBytes, err := hex.DecodeString(clusterKey)
 	if err != nil {
 		return nil, err
 	}
+	return NewKeyManagerFromClusterKey(clusterKeyBytes)
+}
 
-	// Derive the encryption key using HKDF-like approach
+// NewKeyManagerFromClusterKey builds a KeyManager from raw cluster key bytes.
+// Use this so multiple nodes in a demo/test share the same derived encryption key.
+func NewKeyManagerFromClusterKey(clusterKeyBytes []byte) (*KeyManager, error) {
+	if len(clusterKeyBytes) == 0 {
+		return nil, fmt.Errorf("cluster key must not be empty")
+	}
 	derivedKey := deriveKey(clusterKeyBytes, KeyDerivationSalt)
-
-	// Generate a key ID for rotation tracking
-	keyID := generateKeyID(derivedKey)
-
 	return &KeyManager{
-		clusterKey: clusterKeyBytes,
+		clusterKey: append([]byte(nil), clusterKeyBytes...),
 		derivedKey: derivedKey,
-		keyID:      keyID,
+		keyID:      generateKeyID(derivedKey),
 		createdAt:  time.Now(),
 	}, nil
 }

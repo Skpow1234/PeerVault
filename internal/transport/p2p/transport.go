@@ -15,6 +15,9 @@ type Peer interface {
 type Transport interface {
 	Addr() string
 	Dial(string) error
+	// DialPeer dials an address, completes the handshake, registers the peer,
+	// and returns it for use by reconnect / health logic.
+	DialPeer(string) (Peer, error)
 	ListenAndAccept() error
 	Consume() <-chan RPC
 	Close() error
