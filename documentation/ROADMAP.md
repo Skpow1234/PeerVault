@@ -1736,8 +1736,9 @@ Recent implementation progress against early milestones:
 | M1.1 / M2 cross-peer fetch + replication | Restored (stream replicate + pending Get) |
 | DialPeer for reconnect | Done (`Transport.DialPeer`) |
 | M2.1 Remove sleep from protocol | Improved (pending channels; tests may still sleep) |
-| M2.2 Streaming AEAD without full buffer | Open (crypto still buffers plaintext) |
-| Wire APIs to fileserver | Open (REST/GraphQL stubs remain) |
+| M2.2 Streaming AEAD without full buffer | Done (chunked AES-GCM `PVCH` format + legacy decrypt) |
+| Wire REST FileService | Done (backed by fileserver; GraphQL/gRPC still open) |
+| CI-blocking A→B replication | Done (`p2p-e2e` job / `TestReplicationStoreAGetB`) |
 
 ## Extended milestones (41+)
 

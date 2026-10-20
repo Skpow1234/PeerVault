@@ -132,80 +132,212 @@ func NewEncryptionKey() []byte {
 	return keyBuf
 }
 
-// CopyEncrypt encrypts data using AES-GCM and writes the nonce + ciphertext + tag
+const (
+	// DefaultChunkSize is the plaintext size per AES-GCM chunk for streaming encryption.
+	DefaultChunkSize = 64 * 1024
+)
+
+// chunkedMagic marks the streaming (chunked) AES-GCM container format.
+var chunkedMagic = []byte("PVCH")
+
+// CopyEncrypt encrypts src to dst using chunked AES-GCM so large files are not
+// buffered entirely in memory. Wire format:
+//
+//	"PVCH" | chunkPlainMax(u32 BE) | repeated (ctLen(u32 BE)|nonce|ciphertext) | ctLen=0
+//
+// Each chunk uses a fresh nonce and AAD = chunk index (u64 BE) to prevent reordering.
 func CopyEncrypt(key []byte, src io.Reader, dst io.Writer) (int, error) {
+	return CopyEncryptChunked(key, src, dst, DefaultChunkSize)
+}
+
+// CopyEncryptChunked is like CopyEncrypt with an explicit plaintext chunk size.
+func CopyEncryptChunked(key []byte, src io.Reader, dst io.Writer, chunkSize int) (int, error) {
+	if chunkSize <= 0 {
+		chunkSize = DefaultChunkSize
+	}
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return 0, err
 	}
-
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return 0, err
 	}
 
-	// Generate a random nonce
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return 0, err
+	written := 0
+	if _, err := dst.Write(chunkedMagic); err != nil {
+		return written, err
+	}
+	written += len(chunkedMagic)
+
+	hdr := make([]byte, 4)
+	binaryBigEndianPutUint32(hdr, uint32(chunkSize))
+	if _, err := dst.Write(hdr); err != nil {
+		return written, err
+	}
+	written += 4
+
+	buf := make([]byte, chunkSize)
+	lenBuf := make([]byte, 4)
+	var chunkIndex uint64
+	for {
+		n, readErr := io.ReadFull(src, buf)
+		if n > 0 {
+			nonce := make([]byte, gcm.NonceSize())
+			if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+				return written, err
+			}
+			aad := make([]byte, 8)
+			binaryBigEndianPutUint64(aad, chunkIndex)
+			ciphertext := gcm.Seal(nil, nonce, buf[:n], aad)
+
+			// Per chunk: ctLen | nonce | ciphertext
+			binaryBigEndianPutUint32(lenBuf, uint32(len(ciphertext)))
+			if _, err := dst.Write(lenBuf); err != nil {
+				return written, err
+			}
+			written += 4
+			if _, err := dst.Write(nonce); err != nil {
+				return written, err
+			}
+			written += len(nonce)
+			nw, err := dst.Write(ciphertext)
+			written += nw
+			if err != nil {
+				return written, err
+			}
+			chunkIndex++
+		}
+
+		if readErr == io.EOF || readErr == io.ErrUnexpectedEOF {
+			break
+		}
+		if readErr != nil {
+			return written, readErr
+		}
 	}
 
-	// Read all data from source
-	plaintext, err := io.ReadAll(src)
-	if err != nil {
-		return 0, err
+	// End marker: ctLen = 0
+	binaryBigEndianPutUint32(lenBuf, 0)
+	if _, err := dst.Write(lenBuf); err != nil {
+		return written, err
 	}
-
-	// Encrypt with GCM
-	ciphertext := gcm.Seal(nil, nonce, plaintext, nil)
-
-	// Write nonce + ciphertext
-	if _, err := dst.Write(nonce); err != nil {
-		return 0, err
-	}
-	n, err := dst.Write(ciphertext)
-	if err != nil {
-		return 0, err
-	}
-
-	return n + len(nonce), nil
+	written += 4
+	return written, nil
 }
 
-// CopyDecrypt decrypts data using AES-GCM, reading nonce + ciphertext + tag
+// CopyDecrypt decrypts data produced by CopyEncrypt (chunked) or the legacy
+// single-blob format (nonce || ciphertext+tag) for backward compatibility.
 func CopyDecrypt(key []byte, src io.Reader, dst io.Writer) (int, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return 0, err
 	}
-
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return 0, err
 	}
 
-	// Read nonce
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err := io.ReadFull(src, nonce); err != nil {
+	magic := make([]byte, len(chunkedMagic))
+	if _, err := io.ReadFull(src, magic); err != nil {
 		return 0, err
 	}
 
-	// Read ciphertext
+	if string(magic) != string(chunkedMagic) {
+		// Legacy format: magic bytes were the start of the 12-byte nonce.
+		return copyDecryptLegacy(gcm, magic, src, dst)
+	}
+
+	hdr := make([]byte, 4)
+	if _, err := io.ReadFull(src, hdr); err != nil {
+		return 0, fmt.Errorf("read chunk size header: %w", err)
+	}
+	_ = binaryBigEndianUint32(hdr) // chunkPlainMax — informational
+
+	written := 0
+	var chunkIndex uint64
+	nonce := make([]byte, gcm.NonceSize())
+	lenBuf := make([]byte, 4)
+
+	for {
+		if _, err := io.ReadFull(src, lenBuf); err != nil {
+			return written, fmt.Errorf("read chunk length: %w", err)
+		}
+		ctLen := binaryBigEndianUint32(lenBuf)
+		if ctLen == 0 {
+			return written, nil
+		}
+		if ctLen > MaxFrameCiphertext {
+			return written, fmt.Errorf("chunk ciphertext too large: %d", ctLen)
+		}
+
+		if _, err := io.ReadFull(src, nonce); err != nil {
+			return written, fmt.Errorf("read chunk nonce: %w", err)
+		}
+
+		ciphertext := make([]byte, ctLen)
+		if _, err := io.ReadFull(src, ciphertext); err != nil {
+			return written, fmt.Errorf("read chunk ciphertext: %w", err)
+		}
+
+		aad := make([]byte, 8)
+		binaryBigEndianPutUint64(aad, chunkIndex)
+		plaintext, err := gcm.Open(nil, nonce, ciphertext, aad)
+		if err != nil {
+			return written, fmt.Errorf("decrypt chunk %d: %w", chunkIndex, err)
+		}
+		nw, err := dst.Write(plaintext)
+		written += nw
+		if err != nil {
+			return written, err
+		}
+		chunkIndex++
+	}
+}
+
+// MaxFrameCiphertext caps a single chunk to limit memory use (10MB).
+const MaxFrameCiphertext = 10 * 1024 * 1024
+
+func copyDecryptLegacy(gcm cipher.AEAD, firstNonceBytes []byte, src io.Reader, dst io.Writer) (int, error) {
+	nonce := make([]byte, gcm.NonceSize())
+	copy(nonce, firstNonceBytes)
+	remaining := gcm.NonceSize() - len(firstNonceBytes)
+	if remaining > 0 {
+		if _, err := io.ReadFull(src, nonce[len(firstNonceBytes):]); err != nil {
+			return 0, err
+		}
+	}
+
 	ciphertext, err := io.ReadAll(src)
 	if err != nil {
 		return 0, err
 	}
-
-	// Decrypt with GCM
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return 0, err
 	}
+	return dst.Write(plaintext)
+}
 
-	// Write decrypted data
-	n, err := dst.Write(plaintext)
-	if err != nil {
-		return 0, err
-	}
+func binaryBigEndianPutUint32(b []byte, v uint32) {
+	b[0] = byte(v >> 24)
+	b[1] = byte(v >> 16)
+	b[2] = byte(v >> 8)
+	b[3] = byte(v)
+}
 
-	return n, nil
+func binaryBigEndianUint32(b []byte) uint32 {
+	return uint32(b[0])<<24 | uint32(b[1])<<16 | uint32(b[2])<<8 | uint32(b[3])
+}
+
+func binaryBigEndianPutUint64(b []byte, v uint64) {
+	b[0] = byte(v >> 56)
+	b[1] = byte(v >> 48)
+	b[2] = byte(v >> 40)
+	b[3] = byte(v >> 32)
+	b[4] = byte(v >> 24)
+	b[5] = byte(v >> 16)
+	b[6] = byte(v >> 8)
+	b[7] = byte(v)
 }

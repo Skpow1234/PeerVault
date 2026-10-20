@@ -209,6 +209,29 @@ jobs:
           flags: unit-tests
           name: codecov-umbrella
 
+  # Critical P2P replication acceptance (Store on A, Get on B)
+  p2p-e2e:
+    name: P2P Replication E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Run replication e2e
+        env:
+          CGO_ENABLED: 1
+          PEERVAULT_AUTH_TOKEN: demo-auth-token-2024
+        run: |
+          go test -v -count=1 -timeout=3m ./tests/integration/end-to-end/ -run 'TestReplicationStoreAGetB'
+
   # Integration tests
   integration-tests:
     name: Integration Tests
@@ -833,7 +856,7 @@ jobs:
     name: Pipeline Status
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [lint, unit-tests, integration-tests, fuzz-tests, security, build, docker, benchmarks, quality, docs]
+    needs: [lint, unit-tests, p2p-e2e, integration-tests, fuzz-tests, security, build, docker, benchmarks, quality, docs]
     if: always()
     steps:
       - name: Checkout code
@@ -898,8 +921,9 @@ jobs:
           echo "Note: Comprehensive security scanning is available in the separate security pipeline"
           echo "Run the security pipeline for detailed vulnerability and compliance reports"
           
-          # Only fail if critical jobs failed (excluding lint, format, quality, docs, and integration tests)
+          # Only fail if critical jobs failed (excluding lint, format, quality, docs, and soft integration tests)
           if [[ "${{ needs.unit-tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.p2p-e2e.result }}" == "failure" ]] || \
              [[ "${{ needs.security.result }}" == "failure" ]] || \
              [[ "${{ needs.build.result }}" == "failure" ]] || \
              [[ "${{ needs.docker.result }}" == "failure" ]] || \
@@ -932,13 +956,11 @@ jobs:
            fi
            
            if [[ "${{ needs.integration-tests.result }}" == "failure" ]]; then
-             echo "Warning: Integration tests failed (non-critical)"
-             echo "   These are application logic bugs, not CI pipeline issues"
-             echo "   - REST API tests: Basic API functionality tests"
-             echo "   - gRPC API tests: HTTP/JSON server tests (temporary implementation)"
-             echo "   - GraphQL API tests: GraphQL endpoint functionality tests"
-             echo "   - End-to-end tests: Failing due to replication being disabled"
-             echo "   - Performance tests: Failing due to file conflicts and decryption issues"
+             echo "Warning: Soft integration tests failed (non-critical)"
+             echo "   Critical P2P replication is gated by the p2p-e2e job"
+           fi
+           if [[ "${{ needs.p2p-e2e.result }}" == "success" ]]; then
+             echo "P2P replication e2e passed"
            fi
            
            if [[ "${{ needs.quality.result }}" == "failure" ]]; then

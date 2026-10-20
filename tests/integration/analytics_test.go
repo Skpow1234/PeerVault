@@ -19,7 +19,7 @@ func TestAnalyticsIntegration(t *testing.T) {
 	// Create server with analytics enabled
 	config := rest.DefaultConfig()
 	config.AnalyticsConfig.Enabled = true
-	server := rest.NewServer(config, logger)
+	server := rest.NewServer(config, logger, nil)
 	
 	// Create test server
 	mux := http.NewServeMux()

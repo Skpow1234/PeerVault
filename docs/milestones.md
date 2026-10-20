@@ -4,46 +4,41 @@ Canonical detail: [documentation/ROADMAP.md](../documentation/ROADMAP.md) · Ext
 
 ## Current status
 
-**MVP / core P2P restore in progress.** Recent work completed:
+**Core P2P MVP path is largely unblocked.** Completed recently:
 
-- Cross-peer **stream replication** and **pending Get** from peers
-- **`DialPeer`** on TCP transport (health reconnect can dial)
-- **SHA-256** CAS path transform (was SHA-1)
-- Shared **`KeyManager`** helpers for multi-node demos/tests
-- **OnStream** wired on main node/API entrypoints
+- Cross-peer **stream replication** and **pending Get**
+- **`DialPeer`** for health reconnect
+- **SHA-256** CAS
+- **Chunked AES-GCM** (`PVCH` container; legacy single-blob still decrypts)
+- **REST FileService** wired to fileserver (upload/list/get/delete/metadata)
+- **CI-blocking** `p2p-e2e` job (`TestReplicationStoreAGetB`)
 
-Still open before treating Milestone 1–2 as fully closed:
+Still open:
 
-- Streaming AEAD (crypto still buffers full payloads)
-- Make multi-node e2e **CI-blocking**
-- Wire REST / GraphQL / real gRPC to the fileserver
+- GraphQL resolvers / true gRPC (not HTTP/JSON)
+- Peer/System REST services still stubs
+- Reduce sleep-based waits in older e2e helpers
 
 ## Core milestones (P0–P8)
 
 | # | Theme | Priority | Notes |
 |---|--------|----------|--------|
-| 1 | Correctness & security | P0 | Mostly done; streaming AEAD still open |
-| 2 | Transport, streaming, storage | P1 | Replication restored; polish acks/backpressure |
-| 3 | Reliability, ops, DX | P2 | Health/dial improved; e2e CI next |
-| 4 | API interfaces | P3 | Scaffolding exists; wire to fileserver |
-| 5 | Developer experience | P4 | Docs reorganized under `docs/` |
-| 6 | Performance & scale | P5 | See extended backlog |
-| 7 | Observability & prod readiness | P6 | See extended backlog |
-| 8 | Security hardening & compliance | P7 | CI present; demo tokens remain |
-| 9 | Advanced features & ecosystem | P8 | [milestone9](milestone9/README.md) — deprioritize vs core |
+| 1 | Correctness & security | P0 | Largely done |
+| 2 | Transport, streaming, storage | P1 | Chunked crypto + replication done |
+| 3 | Reliability, ops, DX | P2 | Critical e2e gated in CI |
+| 4 | API interfaces | P3 | REST files wired; GraphQL/gRPC next |
+| 5–9 | DX / perf / obs / security / ecosystem | P4–P8 | See extended backlog |
 
 ## Extended backlog (41+)
 
-**903** additional milestones (41–943) cover API wiring, protocol TODOs, CI, security, Helm/K8s, observability, and hardening — generated from code review.
-
-See [MILESTONES_EXTENDED.md](../documentation/MILESTONES_EXTENDED.md).
+See [MILESTONES_EXTENDED.md](../documentation/MILESTONES_EXTENDED.md) (900+ items).
 
 ## Suggested next slices
 
-1. Streaming chunked AES-GCM (no full-buffer encrypt/decrypt)
-2. CI-blocking multi-node Store-on-A / Get-on-B test
-3. Wire REST `FileService` to fileserver
-4. Then true gRPC (replace HTTP/JSON temporary server)
+1. Wire GraphQL resolvers to fileserver  
+2. Replace gRPC HTTP/JSON with real protobuf gRPC  
+3. Wire REST PeerService / SystemService  
+4. Handshake duplex + bootstrap readiness (no sleeps)
 
 ## Related
 

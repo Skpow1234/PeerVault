@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,13 +14,47 @@ import (
 	"github.com/Skpow1234/Peervault/internal/api/rest"
 	"github.com/Skpow1234/Peervault/internal/api/rest/types/requests"
 	"github.com/Skpow1234/Peervault/internal/api/rest/types/responses"
+	"github.com/Skpow1234/Peervault/internal/app/fileserver"
+	"github.com/Skpow1234/Peervault/internal/crypto"
+	"github.com/Skpow1234/Peervault/internal/peer"
+	"github.com/Skpow1234/Peervault/internal/storage"
+	netp2p "github.com/Skpow1234/Peervault/internal/transport/p2p"
 )
 
 func setupTestServer() *rest.Server {
 	config := rest.DefaultConfig()
-	config.Port = ":0" // Use random port for testing
+	config.Port = ":0"
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	return rest.NewServer(config, logger)
+	return rest.NewServer(config, logger, nil)
+}
+
+func setupTestServerWithFS(t *testing.T) *rest.Server {
+	t.Helper()
+	km, err := crypto.NewKeyManagerFromClusterKey([]byte("peervault-test-cluster-key-32byt"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	nodeID := crypto.GenerateID()
+	tr := netp2p.NewTCPTransport(netp2p.TCPTransportOpts{
+		ListenAddr:    ":0",
+		HandshakeFunc: netp2p.NOPHandshakeFunc,
+		Decoder:       netp2p.LengthPrefixedDecoder{},
+	})
+	fs := fileserver.New(fileserver.Options{
+		ID:                nodeID,
+		KeyManager:        km,
+		StorageRoot:       t.TempDir(),
+		PathTransformFunc: storage.CASPathTransformFunc,
+		Transport:         tr,
+		ResourceLimits:    peer.DefaultResourceLimits(),
+	})
+	tr.OnPeer = fs.OnPeer
+	tr.OnStream = fs.OnStream
+
+	config := rest.DefaultConfig()
+	config.Port = ":0"
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	return rest.NewServer(config, logger, fs)
 }
 
 func TestRESTAPIHealth(t *testing.T) {
@@ -111,44 +146,64 @@ func TestRESTAPIRoot(t *testing.T) {
 }
 
 func TestRESTAPIFiles(t *testing.T) {
-	restServer := setupTestServer()
+	restServer := setupTestServerWithFS(t)
 
-	// Test list files
+	// Empty list initially
 	req := httptest.NewRequest("GET", "/api/v1/files", nil)
 	w := httptest.NewRecorder()
-
 	restServer.FileEndpoints.HandleListFiles(w, req)
-
 	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
+		t.Fatalf("Expected status 200, got %d", w.Code)
 	}
 
-	var response responses.FileListResponse
-	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
-		t.Fatalf("Failed to decode response: %v", err)
+	// Upload via multipart
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	part, err := writer.CreateFormFile("file", "hello.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := part.Write([]byte("hello peervault")); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
 	}
 
-	if len(response.Files) == 0 {
-		t.Error("Expected at least one file in response")
-	}
-
-	// Test get file
-	req = httptest.NewRequest("GET", "/api/v1/files/get?key=file1", nil)
+	req = httptest.NewRequest("POST", "/api/v1/files", &body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
 	w = httptest.NewRecorder()
+	restServer.FileEndpoints.HandleUploadFile(w, req)
+	if w.Code != http.StatusCreated {
+		t.Fatalf("Expected status 201, got %d body=%s", w.Code, w.Body.String())
+	}
 
+	var uploaded responses.FileResponse
+	if err := json.NewDecoder(w.Body).Decode(&uploaded); err != nil {
+		t.Fatalf("Failed to decode upload response: %v", err)
+	}
+	if uploaded.Key != "hello.txt" {
+		t.Fatalf("Expected key hello.txt, got %q", uploaded.Key)
+	}
+
+	// List should include the file
+	req = httptest.NewRequest("GET", "/api/v1/files", nil)
+	w = httptest.NewRecorder()
+	restServer.FileEndpoints.HandleListFiles(w, req)
+	var list responses.FileListResponse
+	if err := json.NewDecoder(w.Body).Decode(&list); err != nil {
+		t.Fatal(err)
+	}
+	if len(list.Files) != 1 {
+		t.Fatalf("Expected 1 file, got %d", len(list.Files))
+	}
+
+	// Get metadata
+	req = httptest.NewRequest("GET", "/api/v1/files/get?key=hello.txt", nil)
+	w = httptest.NewRecorder()
 	restServer.FileEndpoints.HandleGetFile(w, req)
-
 	if w.Code != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", w.Code)
-	}
-
-	var fileResponse responses.FileResponse
-	if err := json.NewDecoder(w.Body).Decode(&fileResponse); err != nil {
-		t.Fatalf("Failed to decode response: %v", err)
-	}
-
-	if fileResponse.Key != "file1" {
-		t.Errorf("Expected key 'file1', got '%s'", fileResponse.Key)
+		t.Fatalf("Expected status 200, got %d", w.Code)
 	}
 }
 

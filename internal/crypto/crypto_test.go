@@ -179,7 +179,7 @@ func TestCopyEncryptDecrypt_LargeData(t *testing.T) {
 		key[i] = byte(i)
 	}
 
-	// Create a large plaintext (1MB)
+	// Create a large plaintext (1MB) — must stream as multiple chunks
 	plaintext := make([]byte, 1024*1024)
 	for i := range plaintext {
 		plaintext[i] = byte(i % 256)
@@ -188,15 +188,41 @@ func TestCopyEncryptDecrypt_LargeData(t *testing.T) {
 	src := bytes.NewReader(plaintext)
 
 	var encrypted bytes.Buffer
-	n, err := CopyEncrypt(key, src, &encrypted)
+	n, err := CopyEncryptChunked(key, src, &encrypted, 64*1024)
 	require.NoError(t, err)
-	assert.Greater(t, n, len(plaintext)) // Encrypted data should be larger
+	assert.Greater(t, n, len(plaintext))
+	assert.True(t, bytes.HasPrefix(encrypted.Bytes(), chunkedMagic))
 
 	var decrypted bytes.Buffer
 	encryptedSrc := bytes.NewReader(encrypted.Bytes())
 	m, err := CopyDecrypt(key, encryptedSrc, &decrypted)
 	require.NoError(t, err)
 	assert.Equal(t, len(plaintext), m)
+	assert.Equal(t, plaintext, decrypted.Bytes())
+}
+
+func TestCopyEncryptDecrypt_Empty(t *testing.T) {
+	key := make([]byte, 32)
+	var encrypted bytes.Buffer
+	_, err := CopyEncrypt(key, bytes.NewReader(nil), &encrypted)
+	require.NoError(t, err)
+
+	var decrypted bytes.Buffer
+	_, err = CopyDecrypt(key, bytes.NewReader(encrypted.Bytes()), &decrypted)
+	require.NoError(t, err)
+	assert.Equal(t, 0, decrypted.Len())
+}
+
+func TestCopyEncryptDecrypt_SmallChunkSize(t *testing.T) {
+	key := make([]byte, 32)
+	plaintext := []byte("abcdefghijklmnopqrstuvwxyz0123456789")
+	var encrypted bytes.Buffer
+	_, err := CopyEncryptChunked(key, bytes.NewReader(plaintext), &encrypted, 8)
+	require.NoError(t, err)
+
+	var decrypted bytes.Buffer
+	_, err = CopyDecrypt(key, bytes.NewReader(encrypted.Bytes()), &decrypted)
+	require.NoError(t, err)
 	assert.Equal(t, plaintext, decrypted.Bytes())
 }
 

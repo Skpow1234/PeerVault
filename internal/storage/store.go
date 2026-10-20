@@ -82,9 +82,20 @@ func (s *Store) Clear() error { return os.RemoveAll(s.Root) }
 
 func (s *Store) Delete(key string) error {
 	pathKey := s.PathTransformFunc(key)
+	fullPathWithRoot := filepath.Join(s.Root, filepath.FromSlash(pathKey.FullPath()))
 	defer func() { slog.Info("deleted", slog.String("key", pathKey.Filename)) }()
-	firstPathNameWithRoot := fmt.Sprintf("%s/%s", s.Root, pathKey.FirstPathName())
-	return os.RemoveAll(firstPathNameWithRoot)
+	if err := os.Remove(fullPathWithRoot); err != nil {
+		return err
+	}
+	// Best-effort cleanup of empty parent directories under the CAS fan-out.
+	dir := filepath.Dir(fullPathWithRoot)
+	for dir != s.Root && strings.HasPrefix(dir, s.Root) {
+		if err := os.Remove(dir); err != nil {
+			break
+		}
+		dir = filepath.Dir(dir)
+	}
+	return nil
 }
 
 func (s *Store) Write(key string, r io.Reader) (int64, error) { return s.writeStream(key, r) }

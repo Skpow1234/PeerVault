@@ -5,7 +5,8 @@ Deep dive: [documentation/ENCRYPTION.md](../documentation/ENCRYPTION.md) · Poli
 ## Encryption (AES-GCM)
 
 - AES-256-GCM with 12-byte random nonces (never reused)
-- Confidentiality + integrity (authenticated encryption)
+- **Chunked streaming format** (`PVCH`): encrypts in 64KiB plaintext chunks so large files are not fully buffered; each chunk binds AAD = chunk index
+- Legacy single-blob ciphertext remains decryptable
 - Keys derived from a cluster key via HMAC-SHA256
 
 ## Key management

@@ -291,6 +291,26 @@ func (s *Server) Store(ctx context.Context, key string, r io.Reader) error {
 	return nil
 }
 
+// Has reports whether the logical key exists locally.
+func (s *Server) Has(key string) bool {
+	return s.store.Has(storageKey(key))
+}
+
+// Delete removes a logical key from local storage.
+func (s *Server) Delete(ctx context.Context, key string) error {
+	_ = ctx
+	sk := storageKey(key)
+	if !s.store.Has(sk) {
+		return fmt.Errorf("file not found: %s", key)
+	}
+	return s.store.Delete(sk)
+}
+
+// ID returns this node's identifier.
+func (s *Server) NodeID() string {
+	return s.ID
+}
+
 // replicateToPeers streams the ciphertext already on disk to each connected peer.
 func (s *Server) replicateToPeers(sk string) error {
 	peers := s.listPeers()

@@ -12,6 +12,7 @@ import (
 	"github.com/Skpow1234/Peervault/internal/api/rest/implementations"
 	"github.com/Skpow1234/Peervault/internal/api/rest/ratelimit"
 	"github.com/Skpow1234/Peervault/internal/api/rest/versioning"
+	"github.com/Skpow1234/Peervault/internal/app/fileserver"
 )
 
 type Server struct {
@@ -58,9 +59,10 @@ func DefaultConfig() *Config {
 	}
 }
 
-func NewServer(config *Config, logger *slog.Logger) *Server {
-	// Initialize services
-	fileService := implementations.NewFileService()
+// NewServer creates the REST API server. Pass a fileserver to back file routes;
+// if fsServer is nil, upload/delete fail closed (metadata-only stubs are removed).
+func NewServer(config *Config, logger *slog.Logger, fsServer *fileserver.Server) *Server {
+	fileService := implementations.NewFileService(fsServer)
 	peerService := implementations.NewPeerService()
 	systemService := implementations.NewSystemService()
 
